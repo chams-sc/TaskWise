@@ -23,13 +23,8 @@ public class Register_Activity extends AppCompatActivity {
 
         rootLayout = findViewById(R.id.root_layout_2); // Initialize the root layout
 
-        // Set OnClickListener for the entire screen
-        rootLayout.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                showDialog();
-            }
-        });
+        // Call showDialog() method to show the dialog automatically
+        showDialog();
     }
 
     private void showDialog() {

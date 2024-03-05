@@ -7,9 +7,6 @@ import android.content.Intent;
 import android.graphics.Color;
 import android.graphics.drawable.ColorDrawable;
 import android.os.Bundle;
-import android.text.Spannable;
-import android.text.SpannableString;
-import android.text.style.ForegroundColorSpan;
 import android.view.Gravity;
 import android.view.View;
 import android.view.ViewGroup;
@@ -23,7 +20,6 @@ public class Login_Activity extends AppCompatActivity {
 
     LinearLayout rootLayout;
 
-
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -31,13 +27,8 @@ public class Login_Activity extends AppCompatActivity {
 
         rootLayout = findViewById(R.id.root_layout); // Initialize the root layout
 
-        // Set OnClickListener for the entire screen
-        rootLayout.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                showDialog();
-            }
-        });
+        // Call showDialog() method to show the dialog automatically
+        showDialog();
     }
 
     private void showDialog() {
@@ -63,3 +54,4 @@ public class Login_Activity extends AppCompatActivity {
         });
     }
 }
+
