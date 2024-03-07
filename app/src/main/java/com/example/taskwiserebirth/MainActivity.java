@@ -1,10 +1,10 @@
 package com.example.taskwiserebirth;
 
-import androidx.appcompat.app.AppCompatActivity;
-
 import android.content.Intent;
 import android.os.Bundle;
 import android.os.Handler;
+
+import androidx.appcompat.app.AppCompatActivity;
 
 public class MainActivity extends AppCompatActivity {
 
@@ -17,7 +17,7 @@ public class MainActivity extends AppCompatActivity {
             @Override
             public void run() {
                 // Start the main activity after the splash time has elapsed
-                Intent intent = new Intent(MainActivity.this, Login_Activity.class);
+                Intent intent = new Intent(MainActivity.this, BeforeLogin.class);
                 startActivity(intent);
 
                 // Close the splash activity to prevent going back to it
