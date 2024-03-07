@@ -119,6 +119,7 @@
                     android:padding="8dp"
                     android:text="LOG IN"
                     android:textColor="@color/white"
+                    android:textColorLink="#383F51"
                     android:textSize="18sp"
                     android:textStyle="bold"
                     app:layout_constraintBottom_toBottomOf="parent"
