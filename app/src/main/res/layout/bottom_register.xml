@@ -74,7 +74,7 @@
                     app:layout_constraintTop_toTopOf="parent" />
 
                 <EditText
-                    android:id="@+id/Email_edittext1"
+                    android:id="@+id/emailRegister_edittext"
                     android:layout_width="300dp"
                     android:layout_height="48dp"
                     android:layout_marginBottom="210dp"
@@ -93,7 +93,7 @@
                     app:layout_constraintTop_toBottomOf="@+id/LoginText4" />
 
                 <EditText
-                    android:id="@+id/Password_edittext1"
+                    android:id="@+id/passwordRegister_edittext"
                     android:layout_width="300dp"
                     android:layout_height="48dp"
                     android:layout_marginTop="16dp"
@@ -108,10 +108,10 @@
                     android:textSize="12sp"
                     app:layout_constraintEnd_toEndOf="parent"
                     app:layout_constraintStart_toStartOf="parent"
-                    app:layout_constraintTop_toBottomOf="@+id/Email_edittext1" />
+                    app:layout_constraintTop_toBottomOf="@+id/emailRegister_edittext" />
 
                 <EditText
-                    android:id="@+id/CPassword_edittext1"
+                    android:id="@+id/cpasswordRegister_edittext"
                     android:layout_width="300dp"
                     android:layout_height="48dp"
                     android:layout_marginTop="16dp"
@@ -126,7 +126,7 @@
                     android:textSize="12sp"
                     app:layout_constraintEnd_toEndOf="parent"
                     app:layout_constraintStart_toStartOf="parent"
-                    app:layout_constraintTop_toBottomOf="@+id/Password_edittext1" />
+                    app:layout_constraintTop_toBottomOf="@+id/passwordRegister_edittext" />
 
                 <Button
                     android:id="@+id/register_button"
@@ -144,7 +144,7 @@
                     app:layout_constraintBottom_toBottomOf="parent"
                     app:layout_constraintEnd_toEndOf="parent"
                     app:layout_constraintStart_toStartOf="parent"
-                    app:layout_constraintTop_toBottomOf="@+id/CPassword_edittext1" />
+                    app:layout_constraintTop_toBottomOf="@+id/cpasswordRegister_edittext" />
 
 
 
@@ -155,3 +155,4 @@
         </androidx.cardview.widget.CardView>
     </androidx.constraintlayout.widget.ConstraintLayout>
 </LinearLayout>
+

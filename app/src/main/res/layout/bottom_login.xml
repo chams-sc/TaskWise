@@ -72,7 +72,7 @@
                     app:layout_constraintTop_toTopOf="parent" />
 
                 <EditText
-                    android:id="@+id/Email_edittext"
+                    android:id="@+id/email_edittext"
                     android:layout_width="300dp"
                     android:layout_height="48dp"
                     android:layout_marginBottom="180dp"
@@ -91,7 +91,7 @@
                     app:layout_constraintTop_toBottomOf="@+id/LoginText" />
 
                 <EditText
-                    android:id="@+id/Password_edittext"
+                    android:id="@+id/password_edittext"
                     android:layout_width="300dp"
                     android:layout_height="48dp"
                     android:layout_marginTop="16dp"
@@ -106,7 +106,7 @@
                     android:textSize="12sp"
                     app:layout_constraintEnd_toEndOf="parent"
                     app:layout_constraintStart_toStartOf="parent"
-                    app:layout_constraintTop_toBottomOf="@+id/Email_edittext" />
+                    app:layout_constraintTop_toBottomOf="@+id/email_edittext" />
 
                 <Button
                     android:id="@+id/login_button"
@@ -119,13 +119,12 @@
                     android:padding="8dp"
                     android:text="LOG IN"
                     android:textColor="@color/white"
-                    android:textColorLink="#383F51"
                     android:textSize="18sp"
                     android:textStyle="bold"
                     app:layout_constraintBottom_toBottomOf="parent"
                     app:layout_constraintEnd_toEndOf="parent"
                     app:layout_constraintStart_toStartOf="parent"
-                    app:layout_constraintTop_toBottomOf="@+id/Password_edittext" />
+                    app:layout_constraintTop_toBottomOf="@+id/password_edittext" />
 
                 <LinearLayout
                     android:layout_width="wrap_content"
