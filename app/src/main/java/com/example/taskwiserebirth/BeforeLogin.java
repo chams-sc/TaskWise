@@ -51,7 +51,7 @@ public class BeforeLogin extends AppCompatActivity {
             public void onClick(View v) {
                 // Perform your login logic here
                 // For example, navigate to HomeFragment
-                Intent intent = new Intent(BeforeLogin.this, HomeActivity.class);
+                Intent intent = new Intent(BeforeLogin.this, HomeFragment.class);
                 startActivity(intent);
 
                 // Dismiss the login dialog
