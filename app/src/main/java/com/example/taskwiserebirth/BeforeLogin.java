@@ -2,6 +2,7 @@ package com.example.taskwiserebirth;
 
 import android.app.AlertDialog;
 import android.app.Dialog;
+import android.content.Intent;
 import android.graphics.Color;
 import android.graphics.drawable.ColorDrawable;
 import android.os.Bundle;
@@ -17,7 +18,6 @@ import androidx.appcompat.app.AppCompatActivity;
 public class BeforeLogin extends AppCompatActivity {
 
     Button bottomlogin;
-    AlertDialog registerDialog; // Declare registerDialog as a class variable
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -45,6 +45,20 @@ public class BeforeLogin extends AppCompatActivity {
         loginDialog.getWindow().getAttributes().windowAnimations = R.style.DialogAnimation;
         loginDialog.getWindow().setGravity(Gravity.BOTTOM);
 
+        Button loginButton = loginDialog.findViewById(R.id.login_button);
+        loginButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                // Perform your login logic here
+                // For example, navigate to HomeFragment
+                Intent intent = new Intent(BeforeLogin.this, HomeActivity.class);
+                startActivity(intent);
+
+                // Dismiss the login dialog
+                loginDialog.dismiss();
+            }
+        });
+
         TextView registerBtn = loginDialog.findViewById(R.id.press_register);
 
         registerBtn.setOnClickListener(new View.OnClickListener() {
@@ -67,4 +81,5 @@ public class BeforeLogin extends AppCompatActivity {
         });
     }
 }
+
 

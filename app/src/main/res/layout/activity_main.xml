@@ -14,7 +14,7 @@
         android:layout_height="500dp"
         android:layout_marginTop="50dp"
         android:layout_marginBottom="50dp"
-        android:contentDescription="@string/taskwise_logo"
+        android:contentDescription="@string/taskwiselogo"
         android:src="@drawable/taskwiselogo"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
