@@ -1,17 +1,15 @@
 package com.example.taskwiserebirth;
 
 import android.os.Bundle;
-
-
+import android.view.MotionEvent;
+import android.view.View;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.fragment.app.Fragment;
 import androidx.fragment.app.FragmentManager;
 import androidx.fragment.app.FragmentTransaction;
-
 import com.google.android.material.bottomnavigation.BottomNavigationView;
 
 public class HomeActivity extends AppCompatActivity {
-
 
     BottomNavigationView bottomNavigationView;
 
@@ -34,6 +32,24 @@ public class HomeActivity extends AppCompatActivity {
             }
             return true;
         });
+
+        // Set up touch listener for non-navigation area clicks
+        View rootView = findViewById(android.R.id.content);
+        rootView.setOnTouchListener((v, event) -> {
+            if (event.getAction() == MotionEvent.ACTION_DOWN) {
+                toggleBottomNavigationView();
+                return true;
+            }
+            return false;
+        });
+    }
+
+    private void toggleBottomNavigationView() {
+        if (bottomNavigationView.getVisibility() == View.VISIBLE) {
+            bottomNavigationView.setVisibility(View.GONE);
+        } else {
+            bottomNavigationView.setVisibility(View.VISIBLE);
+        }
     }
 
     private void replaceFragment(Fragment fragment) {

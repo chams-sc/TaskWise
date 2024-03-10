@@ -7,25 +7,28 @@
     android:layout_height="match_parent"
     tools:context=".HomeActivity">
 
+
     <FrameLayout
+        android:id="@+id/frame_layout"
         android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        android:id="@+id/frame_layout">
+        android:layout_height="match_parent">
 
 
         <com.google.android.material.bottomnavigation.BottomNavigationView
             android:id="@+id/bottomNavigationView"
             android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_gravity="bottom"
+            android:layout_height="60dp"
             android:layout_alignParentBottom="true"
+            android:layout_gravity="bottom"
             android:background="@drawable/dialog_bg"
             android:elevation="2dp"
             app:itemIconSize="30dp"
             app:itemIconTint="@drawable/item_selector"
             app:labelVisibilityMode="unlabeled"
-            app:menu="@menu/bottom_navigation_menu" />
+            app:menu="@menu/bottom_navigation_menu" >
 
+
+        </com.google.android.material.bottomnavigation.BottomNavigationView>
 
     </FrameLayout>
 
