@@ -1,6 +1,5 @@
 package com.example.taskwiserebirth;
 
-import android.app.AlertDialog;
 import android.app.Dialog;
 import android.content.Intent;
 import android.graphics.Color;
@@ -12,20 +11,19 @@ import android.view.ViewGroup;
 import android.view.Window;
 import android.widget.Button;
 import android.widget.TextView;
-
 import androidx.appcompat.app.AppCompatActivity;
 
 public class BeforeLogin extends AppCompatActivity {
 
-    Button bottomlogin;
+    Button bottomLogin;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_before_login);
 
-        bottomlogin = findViewById(R.id.before_button);
-        bottomlogin.setOnClickListener(new View.OnClickListener() {
+        bottomLogin = findViewById(R.id.before_button);
+        bottomLogin.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 showLoginDialog();
@@ -45,14 +43,13 @@ public class BeforeLogin extends AppCompatActivity {
         loginDialog.getWindow().getAttributes().windowAnimations = R.style.DialogAnimation;
         loginDialog.getWindow().setGravity(Gravity.BOTTOM);
 
-        Button loginButton = loginDialog.findViewById(R.id.login_button);
-        loginButton.setOnClickListener(new View.OnClickListener() {
+        // Add the login button in the login dialog
+        Button loginBtn = loginDialog.findViewById(R.id.login_button);
+        loginBtn.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                // Perform your login logic here
-                // For example, navigate to HomeFragment
-                Intent intent = new Intent(BeforeLogin.this, HomeFragment.class);
-                startActivity(intent);
+                // Handle login button click, e.g., start the HomeActivity
+                startActivity(new Intent(BeforeLogin.this, HomeActivity.class));
 
                 // Dismiss the login dialog
                 loginDialog.dismiss();
@@ -81,5 +78,3 @@ public class BeforeLogin extends AppCompatActivity {
         });
     }
 }
-
-
