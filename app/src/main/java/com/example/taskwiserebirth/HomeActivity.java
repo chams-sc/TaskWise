@@ -33,15 +33,22 @@ public class HomeActivity extends AppCompatActivity {
             return true;
         });
 
-        // Set up touch listener for non-navigation area clicks
         View rootView = findViewById(android.R.id.content);
+
         rootView.setOnTouchListener((v, event) -> {
             if (event.getAction() == MotionEvent.ACTION_DOWN) {
                 toggleBottomNavigationView();
-                return true;
+                return true; // Indicates that the touch event has been handled
+            } else if (event.getAction() == MotionEvent.ACTION_UP) {
+                v.performClick(); // Call performClick when the touch is released
             }
-            return false;
+            return false; // Return false to indicate that the touch event is not consumed
         });
+
+        rootView.setOnClickListener(v -> {
+            // Your click handling logic here
+        });
+
     }
 
     private void toggleBottomNavigationView() {
