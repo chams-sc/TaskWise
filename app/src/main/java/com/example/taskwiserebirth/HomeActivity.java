@@ -1,8 +1,9 @@
 package com.example.taskwiserebirth;
 
 import android.os.Bundle;
-import android.view.MotionEvent;
 import android.view.View;
+import android.widget.ImageButton;
+
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.fragment.app.Fragment;
 import androidx.fragment.app.FragmentManager;
@@ -12,12 +13,25 @@ import com.google.android.material.bottomnavigation.BottomNavigationView;
 public class HomeActivity extends AppCompatActivity {
 
     BottomNavigationView bottomNavigationView;
+    ImageButton FscreenButton;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_home);
         bottomNavigationView = findViewById(R.id.bottomNavigationView);
+        FscreenButton = findViewById(R.id.fullscreen_button);
+
+        FscreenButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                if (bottomNavigationView.getVisibility() == View.VISIBLE) {
+                    bottomNavigationView.setVisibility(View.GONE);
+                } else {
+                    bottomNavigationView.setVisibility(View.VISIBLE);
+                }
+            }
+        });
 
         bottomNavigationView.setOnItemSelectedListener(menuItem -> {
             int itemId = menuItem.getItemId();
@@ -32,31 +46,6 @@ public class HomeActivity extends AppCompatActivity {
             }
             return true;
         });
-
-        View rootView = findViewById(android.R.id.content);
-
-        rootView.setOnTouchListener((v, event) -> {
-            if (event.getAction() == MotionEvent.ACTION_DOWN) {
-                toggleBottomNavigationView();
-                return true; // Indicates that the touch event has been handled
-            } else if (event.getAction() == MotionEvent.ACTION_UP) {
-                v.performClick(); // Call performClick when the touch is released
-            }
-            return false; // Return false to indicate that the touch event is not consumed
-        });
-
-        rootView.setOnClickListener(v -> {
-            // Your click handling logic here
-        });
-
-    }
-
-    private void toggleBottomNavigationView() {
-        if (bottomNavigationView.getVisibility() == View.VISIBLE) {
-            bottomNavigationView.setVisibility(View.GONE);
-        } else {
-            bottomNavigationView.setVisibility(View.VISIBLE);
-        }
     }
 
     private void replaceFragment(Fragment fragment) {

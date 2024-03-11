@@ -8,29 +8,60 @@
     tools:context=".HomeActivity">
 
 
-    <FrameLayout
-        android:id="@+id/frame_layout"
+    <androidx.constraintlayout.widget.ConstraintLayout
         android:layout_width="match_parent"
         android:layout_height="match_parent">
 
-
-        <com.google.android.material.bottomnavigation.BottomNavigationView
-            android:id="@+id/bottomNavigationView"
-            android:layout_width="match_parent"
+        <ImageButton
+            android:id="@+id/fullscreen_button"
+            android:layout_width="60dp"
             android:layout_height="60dp"
-            android:layout_alignParentBottom="true"
-            android:layout_gravity="bottom"
-            android:background="@drawable/dialog_bg"
-            android:elevation="2dp"
-            app:itemIconSize="30dp"
-            app:itemIconTint="@drawable/item_selector"
-            app:labelVisibilityMode="unlabeled"
-            app:menu="@menu/bottom_navigation_menu" >
+            android:layout_marginTop="20dp"
+            android:layout_marginEnd="20dp"
+            android:background="@drawable/fullscreen"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintTop_toTopOf="parent"
+            android:contentDescription="@string/fullscreen" />
+
+        <ImageButton
+            android:id="@+id/mic_button"
+            android:layout_width="80dp"
+            android:layout_height="80dp"
+            android:layout_marginBottom="100dp"
+            android:background="@drawable/mic"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            android:contentDescription="@string/mic" />
+
+        <FrameLayout
+            android:id="@+id/frame_layout"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent">
 
 
-        </com.google.android.material.bottomnavigation.BottomNavigationView>
+            <com.google.android.material.bottomnavigation.BottomNavigationView
+                android:id="@+id/bottomNavigationView"
+                android:layout_width="match_parent"
+                android:layout_height="60dp"
+                android:layout_gravity="bottom"
+                android:background="@drawable/dialog_bg"
+                android:elevation="2dp"
+                app:itemIconSize="30dp"
+                app:itemIconTint="@drawable/item_selector"
+                app:labelVisibilityMode="unlabeled"
+                app:menu="@menu/bottom_navigation_menu">
 
-    </FrameLayout>
+
+            </com.google.android.material.bottomnavigation.BottomNavigationView>
+
+        </FrameLayout>
+
+    </androidx.constraintlayout.widget.ConstraintLayout>
 
 
 </androidx.coordinatorlayout.widget.CoordinatorLayout>

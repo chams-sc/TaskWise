@@ -3,4 +3,6 @@
     <string name="taskwiselogo">TaskwiseLogo</string>
     <!-- TODO: Remove or change this placeholder text -->
     <string name="hello_blank_fragment">Hello blank fragment</string>
+    <string name="fullscreen">Fullscreen</string>
+    <string name="mic">mic</string>
 </resources>
