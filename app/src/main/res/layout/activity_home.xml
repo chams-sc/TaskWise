@@ -32,7 +32,8 @@
                 app:itemIconSize="30dp"
                 app:itemIconTint="@drawable/item_selector"
                 app:labelVisibilityMode="unlabeled"
-                app:menu="@menu/bottom_navigation_menu">
+                app:menu="@menu/bottom_navigation_menu"
+                app:itemActiveIndicatorStyle="@style/App.Custom.Indicator">
 
 
             </com.google.android.material.bottomnavigation.BottomNavigationView>
