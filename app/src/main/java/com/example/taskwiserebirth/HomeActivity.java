@@ -2,7 +2,6 @@ package com.example.taskwiserebirth;
 
 import android.os.Bundle;
 import android.view.View;
-
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.fragment.app.Fragment;
 import androidx.fragment.app.FragmentManager;
@@ -18,6 +17,9 @@ public class HomeActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_home);
         bottomNavigationView = findViewById(R.id.bottomNavigationView);
+
+        // Set the HomeFragment as the default fragment
+        replaceFragment(new HomeFragment());
 
         bottomNavigationView.setOnItemSelectedListener(menuItem -> {
             int itemId = menuItem.getItemId();
@@ -41,3 +43,4 @@ public class HomeActivity extends AppCompatActivity {
         fragmentTransaction.commit();
     }
 }
+
