@@ -1,6 +1,7 @@
 package com.example.taskwiserebirth;
 
 import android.app.Dialog;
+import android.content.Intent;
 import android.graphics.Color;
 import android.graphics.drawable.ColorDrawable;
 import android.os.Bundle;
@@ -99,7 +100,12 @@ public class BeforeLogin extends AppCompatActivity {
         app.loginAsync(credentials, result -> {
             if(result.isSuccess()){
                 Log.d(tag, "Logged in successfully");
+
+                // TODO: possibly remove toast message
                 Toast.makeText(getApplicationContext(), "Logged in successfully", Toast.LENGTH_SHORT).show();
+
+                // Start home activity
+                startActivity(new Intent(BeforeLogin.this, HomeActivity.class));
             }
             else
             {
