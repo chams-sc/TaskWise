@@ -18,9 +18,10 @@ public class HomeActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_home);
         bottomNavigationView = findViewById(R.id.bottomNavigationView);
+        bottomNavigationView = findViewById(R.id.bottomNavigationView);
 
         // Add the HomeFragment initially
-        addInitialFragment(new HomeFragment());
+        replaceFragment(new HomeFragment());
 
         bottomNavigationView.setOnItemSelectedListener(menuItem -> {
             int itemId = menuItem.getItemId();
@@ -35,13 +36,6 @@ public class HomeActivity extends AppCompatActivity {
             }
             return true;
         });
-    }
-
-    private void addInitialFragment(Fragment fragment) {
-        FragmentManager fragmentManager = getSupportFragmentManager();
-        FragmentTransaction fragmentTransaction = fragmentManager.beginTransaction();
-        fragmentTransaction.add(R.id.frame_layout, fragment); // Use add instead of replace
-        fragmentTransaction.commit();
     }
 
     private void replaceFragment(Fragment fragment) {
