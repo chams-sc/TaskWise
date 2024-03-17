@@ -27,6 +27,7 @@ import io.realm.mongodb.Credentials;
 
 public class BeforeLogin extends AppCompatActivity {
 
+    // TODO: find a way to hide appId
     private String appId = "taskwise-bxyah";
     private String tag = "MongoDb";
     private App app;
