@@ -1,12 +1,11 @@
 plugins {
-    id 'com.android.application'
+    id 'com.android.library'
 }
 
 android {
     compileSdk 34
 
     defaultConfig {
-        applicationId 'com.bin4rybros.demo'
         minSdkVersion PROP_MIN_SDK_VERSION
         targetSdkVersion PROP_TARGET_SDK_VERSION
         versionCode 1

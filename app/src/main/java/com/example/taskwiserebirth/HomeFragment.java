@@ -1,5 +1,6 @@
 package com.example.taskwiserebirth;
 
+import android.content.Intent;
 import android.os.Bundle;
 import androidx.fragment.app.Fragment;
 import android.view.LayoutInflater;
@@ -8,6 +9,7 @@ import android.view.ViewGroup;
 import android.widget.ImageButton;
 
 public class HomeFragment extends Fragment {
+    //TODO: replace homefragment with live2d fragment later
     ImageButton collapseButton;
     View bottomNavigationView;
 

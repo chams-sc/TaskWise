@@ -21,12 +21,12 @@ public class HomeActivity extends AppCompatActivity {
         bottomNavigationView = findViewById(R.id.bottomNavigationView);
 
         // Add the HomeFragment initially
-        replaceFragment(new HomeFragment());
+        replaceFragment(new Live2DFragment());
 
         bottomNavigationView.setOnItemSelectedListener(menuItem -> {
             int itemId = menuItem.getItemId();
             if (itemId == R.id.bottom_home) {
-                replaceFragment(new HomeFragment());
+                replaceFragment(new Live2DFragment());
             } else if (itemId == R.id.bottom_clip) {
                 replaceFragment(new ClipFragment());
             } else if (itemId == R.id.bottom_sms) {

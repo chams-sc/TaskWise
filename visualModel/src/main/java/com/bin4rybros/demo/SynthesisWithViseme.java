@@ -17,6 +17,7 @@ public class SynthesisWithViseme {
     private static final String voiceName = "en-US-SaraNeural";
 
     public static void synthesizeSpeech(String text) throws InterruptedException, ExecutionException {
+        // TODO : protect keys later
         String speechKey = "b36ef4c761bf4554a688e5a0c5cb95e7";
         String speechRegion = "southeastasia";
 

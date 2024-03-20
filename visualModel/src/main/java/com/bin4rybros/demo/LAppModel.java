@@ -161,7 +161,7 @@ public class LAppModel extends CubismUserModel {
             physics.evaluate(model, deltaTimeSeconds);
         }
 
-//        // Lip Sync Setting
+        // Lip Sync Setting
 //        if (lipSync) {
 //            // リアルタイムでリップシンクを行う場合、システムから音量を取得して0~1の範囲で値を入力します
 //            float value = 0.0f;
@@ -207,6 +207,7 @@ public class LAppModel extends CubismUserModel {
     }
 
 
+    // TODO: edit this switch cases to a map
     private static float calculateLipSyncValue(int visemeId) {
         // Implement your logic to calculate the lip sync value based on the viseme ID
         // You need to define how different viseme IDs map to lip sync values
@@ -373,18 +374,6 @@ public class LAppModel extends CubismUserModel {
 
     /**
      * ランダムに選ばれたモーションの再生を開始する。
-     * コールバック関数が渡されなかった場合にそれをnullとして同メソッドを呼び出す。
-     *
-     * @param group モーショングループ名
-     * @param priority 優先度
-     * @return 開始したモーションの識別番号。個別のモーションが終了したか否かを判定するisFinished()の引数で使用する。開始できない時は「-1」
-     */
-    public int startRandomMotion(final String group, int priority) {
-        return startRandomMotion(group, priority, null);
-    }
-
-    /**
-     * ランダムに選ばれたモーションの再生を開始する。
      *
      * @param group モーショングループ名
      * @param priority 優先度
@@ -400,6 +389,18 @@ public class LAppModel extends CubismUserModel {
         int number = random.nextInt(Integer.MAX_VALUE) % modelSetting.getMotionCount(group);
 
         return startMotion(group, number, priority, onFinishedMotionHandler);
+    }
+
+    /**
+     * ランダムに選ばれたモーションの再生を開始する。
+     * コールバック関数が渡されなかった場合にそれをnullとして同メソッドを呼び出す。
+     *
+     * @param group モーショングループ名
+     * @param priority 優先度
+     * @return 開始したモーションの識別番号。個別のモーションが終了したか否かを判定するisFinished()の引数で使用する。開始できない時は「-1」
+     */
+    public int startRandomMotion(final String group, int priority) {
+        return startRandomMotion(group, priority, null);
     }
 
     public void draw(CubismMatrix44 matrix) {
