@@ -65,18 +65,18 @@ public class LAppDelegate {
     }
 
     public void onSurfaceCreated() {
-        // テクスチャサンプリング設定
+        // Texture sampling settings
         GLES20.glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
         GLES20.glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
 
-        // 透過設定
+        // Transparency settings
         GLES20.glEnable(GLES20.GL_BLEND);
         GLES20.glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 
         // Initialize Cubism SDK framework
         CubismFramework.initialize();
 
-        // シェーダーの初期化
+        // Initialize shaders
         view.initializeShader();
     }
 

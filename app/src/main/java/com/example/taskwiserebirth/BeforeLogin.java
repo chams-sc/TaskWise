@@ -40,12 +40,15 @@ public class BeforeLogin extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_before_login);
 
+        SystemUIHelper.setSystemUIVisibility(this);
+
         // First Initialization of Realm
         Realm.init(this);
         app = new App(new AppConfiguration.Builder(appId).build());
 
         bottomlogin = findViewById(R.id.before_button);
         bottomlogin.setOnClickListener(v -> showLoginDialog());
+
     }
 
     // Show custom dialog

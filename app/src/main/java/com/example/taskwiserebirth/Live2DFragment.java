@@ -1,6 +1,7 @@
 package com.example.taskwiserebirth;
 
 import android.os.Bundle;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.MotionEvent;
 import android.view.View;
@@ -41,30 +42,26 @@ public class Live2DFragment extends Fragment implements View.OnTouchListener {
             }
         });
 
-        setSystemUIVisibility();
-
         return view;
     }
 
     @Override
     public void onStart() {
         super.onStart();
+        Log.d("Live2DFragment", "onStart() called");
         LAppDelegate.getInstance().onStart(getActivity());
+
+        // Debug log to check if LAppDelegate instance is null
+        Log.d("Live2DFragment", "LAppDelegate instance: " + (LAppDelegate.getInstance() != null ? "not null" : "null"));
+
+        // Debug log to check if LAppView object is null
+        Log.d("Live2DFragment", "LAppView object: " + (LAppDelegate.getInstance().getView() != null ? "not null" : "null"));
     }
 
     @Override
     public void onResume() {
         super.onResume();
         glSurfaceView.onResume();
-        View decor = getActivity().getWindow().getDecorView();
-        decor.setSystemUiVisibility(
-                View.SYSTEM_UI_FLAG_LAYOUT_STABLE
-                        | View.SYSTEM_UI_FLAG_LAYOUT_HIDE_NAVIGATION
-                        | View.SYSTEM_UI_FLAG_LAYOUT_FULLSCREEN
-                        | View.SYSTEM_UI_FLAG_FULLSCREEN
-                        | View.SYSTEM_UI_FLAG_HIDE_NAVIGATION
-                        | View.SYSTEM_UI_FLAG_IMMERSIVE_STICKY
-        );
     }
 
     @Override
@@ -109,24 +106,6 @@ public class Live2DFragment extends Fragment implements View.OnTouchListener {
             bottomNavigationView.setVisibility(View.GONE);
         } else {
             bottomNavigationView.setVisibility(View.VISIBLE);
-        }
-    }
-
-    private void setSystemUIVisibility() {
-        if (Build.VERSION.SDK_INT < Build.VERSION_CODES.R) {
-            getActivity().getWindow().getDecorView().setSystemUiVisibility(
-                    View.SYSTEM_UI_FLAG_LAYOUT_STABLE
-                            | View.SYSTEM_UI_FLAG_LAYOUT_HIDE_NAVIGATION
-                            | View.SYSTEM_UI_FLAG_LAYOUT_FULLSCREEN
-                            | View.SYSTEM_UI_FLAG_HIDE_NAVIGATION
-                            | View.SYSTEM_UI_FLAG_FULLSCREEN
-                            | (Build.VERSION.SDK_INT < Build.VERSION_CODES.KITKAT
-                            ? View.SYSTEM_UI_FLAG_LOW_PROFILE
-                            : View.SYSTEM_UI_FLAG_IMMERSIVE_STICKY)
-            );
-        } else {
-            getActivity().getWindow().getInsetsController().hide(WindowInsets.Type.navigationBars() | WindowInsets.Type.statusBars());
-            getActivity().getWindow().getInsetsController().setSystemBarsBehavior(WindowInsetsController.BEHAVIOR_SHOW_TRANSIENT_BARS_BY_SWIPE);
         }
     }
 }
