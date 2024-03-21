@@ -22,7 +22,7 @@ public class HomeActivity extends AppCompatActivity {
 
         SystemUIHelper.setSystemUIVisibility(this);
 
-        replaceFragment(new HomeFragment());
+        replaceFragment(new Live2DFragment());
 
         bottomNavigationView.setOnItemSelectedListener(menuItem -> {
             int itemId = menuItem.getItemId();
