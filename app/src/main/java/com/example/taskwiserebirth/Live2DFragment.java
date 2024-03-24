@@ -1,5 +1,6 @@
 package com.example.taskwiserebirth;
 
+import android.opengl.GLSurfaceView;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.LayoutInflater;
@@ -7,11 +8,9 @@ import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageButton;
+
 import androidx.fragment.app.Fragment;
-import android.opengl.GLSurfaceView;
-import android.os.Build;
-import android.view.WindowInsets;
-import android.view.WindowInsetsController;
+
 import com.bin4rybros.demo.GLRenderer;
 import com.bin4rybros.demo.LAppDelegate;
 
