@@ -6,7 +6,7 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:background="@drawable/dialogbkg"
-    tools:context=".Addnote">
+    android:elevation="6dp">
 
     <ImageView
         android:id="@+id/imageView1"
@@ -68,16 +68,14 @@
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toBottomOf="@+id/EditTask" />
 
-        <!-- Name2 -->
-        <EditText
-            android:id="@+id/Name2"
+
+        <Spinner
+            android:id="@+id/Importance1"
             android:layout_width="0dp"
             android:layout_height="48dp"
             android:layout_marginTop="16dp"
-            android:background="@drawable/login_bg"
-            android:hint="Select"
-            android:padding="8dp"
-            android:textSize="12sp"
+            android:spinnerMode="dropdown"
+            android:prompt="@string/select_prompt"
             app:layout_constraintEnd_toStartOf="@+id/guideline"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toBottomOf="@+id/Importance" />
@@ -99,15 +97,13 @@
             app:layout_constraintTop_toBottomOf="@+id/EditTask" />
 
         <!-- Name3 -->
-        <EditText
-            android:id="@+id/Name3"
+        <Spinner
+            android:id="@+id/Urgency1"
             android:layout_width="0dp"
             android:layout_height="48dp"
             android:layout_marginTop="16dp"
-            android:background="@drawable/login_bg"
-            android:hint="Select"
-            android:padding="8dp"
-            android:textSize="12sp"
+            android:spinnerMode="dropdown"
+            android:prompt="@string/select_prompt"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toEndOf="@+id/guideline"
             app:layout_constraintTop_toBottomOf="@+id/Urgency" />
@@ -125,9 +121,10 @@
             android:textSize="16sp"
             app:layout_constraintEnd_toStartOf="@+id/guideline"
             app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@+id/Name3" />
+            app:layout_constraintTop_toBottomOf="@+id/Urgency1" />
 
         <!-- Deadline EditText -->
+
         <EditText
             android:id="@+id/DeadlineEditText"
             android:layout_width="0dp"
@@ -141,7 +138,18 @@
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toBottomOf="@+id/DeadlineLabel" />
 
+
         <!-- Duration Label -->
+        <ImageView
+            android:id="@+id/imageView3"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:paddingRight="16dp"
+            app:layout_constraintBottom_toBottomOf="@+id/DeadlineEditText"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintTop_toTopOf="@+id/DeadlineEditText"
+            app:srcCompat="@drawable/calendar_month" />
+
         <TextView
             android:id="@+id/DurationLabel"
             android:layout_width="0dp"
@@ -186,13 +194,13 @@
             app:layout_constraintTop_toBottomOf="@+id/DeadlineEditText" />
 
         <!-- Recurrence EditText -->
-        <EditText
+        <Spinner
             android:id="@+id/RecurrenceEditText"
             android:layout_width="0dp"
             android:layout_height="48dp"
             android:layout_marginTop="16dp"
+            android:spinnerMode="dropdown"
             android:background="@drawable/login_bg"
-            android:hint="None"
             android:padding="8dp"
             android:textSize="12sp"
             app:layout_constraintEnd_toEndOf="parent"

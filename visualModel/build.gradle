@@ -8,8 +8,6 @@ android {
     defaultConfig {
         minSdkVersion PROP_MIN_SDK_VERSION
         targetSdkVersion PROP_TARGET_SDK_VERSION
-        versionCode 1
-        versionName "1.0"
 
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
 
@@ -47,11 +45,11 @@ android {
         targetCompatibility "11"
     }
 
-    lintOptions {
-        abortOnError false
-    }
     buildToolsVersion '34.0.0'
     namespace 'com.bin4rybros.demo'
+    lint {
+        abortOnError false
+    }
 }
 
 dependencies {

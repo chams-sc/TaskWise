@@ -5,4 +5,28 @@
     <string name="hello_blank_fragment">Hello blank fragment</string>
     <string name="fullscreen">Fullscreen</string>
     <string name="mic">mic</string>
+    <string name="select">Select Item</string>
+    <string name="select_prompt" >Select</string>
+
+    <string-array name="importance_array">
+        <item>@string/select_prompt</item>
+        <item>Very Important</item>
+        <item>Important</item>
+        <item>Somewhat Important</item>
+        <item>Not Important</item>
+    </string-array>
+
+    <string-array name="urgency_array">
+        <item>@string/select_prompt</item>
+        <item>Very Urgent</item>
+        <item>Urgent</item>
+        <item>Somewhat Urgent</item>
+        <item>Not Urgent</item>
+    </string-array>
+
+
+    <string-array name="recurrence_array">
+    <item>Daily</item>
+    <item>Specific Days</item>
+    </string-array>
 </resources>
