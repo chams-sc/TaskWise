@@ -2,6 +2,7 @@ package com.example.taskwiserebirth;
 
 import android.app.Dialog;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.graphics.Color;
 import android.graphics.drawable.ColorDrawable;
 import android.os.Bundle;
@@ -29,11 +30,13 @@ public class BeforeLogin extends AppCompatActivity {
 
     // TODO: find a way to hide appId
     private String appId = "taskwise-bxyah";
-    private String tag = "MongoDb";
+    private final String tag = "MongoDb";
     private App app;
     Button bottomlogin;
     private Dialog loginDialog;
     private Dialog registerDialog;
+    public static final String SHARED_PREFS = "sharedPrefs";
+    private static final String STATUS_KEY = "status";
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -46,9 +49,20 @@ public class BeforeLogin extends AppCompatActivity {
         Realm.init(this);
         app = new App(new AppConfiguration.Builder(appId).build());
 
+        checkStatus();
+
         bottomlogin = findViewById(R.id.before_button);
         bottomlogin.setOnClickListener(v -> showLoginDialog());
 
+    }
+
+    private void checkStatus() {
+        SharedPreferences sharedPreferences = getSharedPreferences(SHARED_PREFS, MODE_PRIVATE);
+        boolean isLoggedIn = sharedPreferences.getBoolean(STATUS_KEY, false);
+        if(isLoggedIn){
+            startActivity(new Intent(BeforeLogin.this, HomeActivity.class));
+            finish();
+        }
     }
 
     // Show custom dialog
@@ -79,19 +93,19 @@ public class BeforeLogin extends AppCompatActivity {
 
         loginBtn.setOnClickListener(v -> {
             // TODO: for faster testing only, commented out block is for final function
-            startActivity(new Intent(BeforeLogin.this, HomeActivity.class));
-//            String email = inputEmail.getText().toString();
-//            String password = inputPassword.getText().toString();
-//
-//            if (email.isEmpty() || !isValidEmail(email)) {
-//                showError(inputEmail, "Invalid email");
-//            }
-//            else if (password.isEmpty()) {
-//                showError(inputPassword, "Password is empty.");
-//            }
-//            else {
-//                logInEmail(email, password);
-//            }
+//            startActivity(new Intent(BeforeLogin.this, HomeActivity.class));
+            String email = inputEmail.getText().toString();
+            String password = inputPassword.getText().toString();
+
+            if (email.isEmpty() || !isValidEmail(email)) {
+                showError(inputEmail, "Invalid email");
+            }
+            else if (password.isEmpty()) {
+                showError(inputPassword, "Password is empty.");
+            }
+            else {
+                logInEmail(email, password);
+            }
         });
 
         registerBtn.setOnClickListener(v -> {
@@ -107,8 +121,14 @@ public class BeforeLogin extends AppCompatActivity {
             if(result.isSuccess()){
                 Log.d(tag, "Logged in successfully");
 
+                SharedPreferences sharedPreferences = getSharedPreferences(SHARED_PREFS, MODE_PRIVATE);
+                SharedPreferences.Editor editor = sharedPreferences.edit();
+
+                editor.putBoolean(STATUS_KEY, true);
+                editor.apply();
+
                 // TODO: possibly remove toast message
-                Toast.makeText(getApplicationContext(), "Logged in successfully", Toast.LENGTH_SHORT).show();
+                Toast.makeText(getApplicationContext(), "Logged in successfully " + email, Toast.LENGTH_SHORT).show();
 
                 // Start home activity
                 startActivity(new Intent(BeforeLogin.this, HomeActivity.class));
