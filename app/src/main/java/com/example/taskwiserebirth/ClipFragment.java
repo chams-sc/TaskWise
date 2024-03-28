@@ -61,6 +61,9 @@ public class ClipFragment extends Fragment {
         View bottomSheetView = getLayoutInflater().inflate(R.layout.add_task, null);
         bottomSheetDialog.setContentView(bottomSheetView);
 
+        // Adjust soft input mode to prevent interference with EditText
+        bottomSheetDialog.getWindow().setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_ADJUST_RESIZE);
+
         // Find the Importance and Urgency spinners in the bottom sheet layout
         Spinner importanceSpinner = bottomSheetView.findViewById(R.id.Importance1);
         Spinner urgencySpinner = bottomSheetView.findViewById(R.id.Urgency1);
@@ -120,6 +123,7 @@ public class ClipFragment extends Fragment {
             }
         });
     }
+
 
     private void showDialogForCustomRecurrence() {
         final Dialog bottomSheetDialog = new Dialog(requireContext());
