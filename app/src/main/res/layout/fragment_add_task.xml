@@ -31,6 +31,7 @@
         android:contentDescription="fab_button"
         android:layout_marginRight="32dp"
         android:layout_marginBottom="64dp"
+        app:borderWidth="0dp"
         android:backgroundTint="@android:color/white"
         android:elevation="2dp"
         android:src="@drawable/baseline_add" />

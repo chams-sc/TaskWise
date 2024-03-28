@@ -26,10 +26,14 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
 import com.google.android.material.bottomsheet.BottomSheetDialog;
+import com.google.android.material.datepicker.MaterialDatePicker;
+import com.google.android.material.datepicker.MaterialPickerOnPositiveButtonClickListener;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
 
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Calendar;
+import java.util.Date;
 import java.util.List;
 import java.util.Locale;
 
@@ -106,7 +110,6 @@ public class AddTaskFragment extends Fragment {
         calendarIcon.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                // Show DatePickerDialog when the ImageView button is clicked
                 showDatePicker(bottomSheetDialog);
             }
         });
@@ -180,24 +183,19 @@ public class AddTaskFragment extends Fragment {
 
 
     private void showDatePicker(final Dialog bottomSheetDialog) {
-        final Calendar calendar = Calendar.getInstance();
-        int year = calendar.get(Calendar.YEAR);
-        int month = calendar.get(Calendar.MONTH);
-        int dayOfMonth = calendar.get(Calendar.DAY_OF_MONTH);
-
-        DatePickerDialog datePickerDialog = new DatePickerDialog(requireContext(),
-                new DatePickerDialog.OnDateSetListener() {
-                    @Override
-                    public void onDateSet(DatePicker view, int year, int monthOfYear, int dayOfMonth) {
-                        // Format the selected date
-                        String formattedDate = String.format(Locale.getDefault(), "%02d/%02d/%d", dayOfMonth, monthOfYear + 1, year);
-
-                        // Show TimePickerDialog after setting the date
-                        showTimePicker(bottomSheetDialog, formattedDate);
-                    }
-                }, year, month, dayOfMonth);
-
-        datePickerDialog.show();
+        MaterialDatePicker<Long> materialDatePicker = MaterialDatePicker.Builder.datePicker()
+                .setTitleText("Select Date")
+                .setSelection(MaterialDatePicker.todayInUtcMilliseconds())
+                .setTheme(R.style.DatePickerTheme)
+                .build();
+        materialDatePicker.addOnPositiveButtonClickListener(new MaterialPickerOnPositiveButtonClickListener<Long>() {
+            @Override
+            public void onPositiveButtonClick(Long selection) {
+                String date = new SimpleDateFormat("MM-dd-yyyy", Locale.getDefault()).format(new Date(selection));
+                showTimePicker(bottomSheetDialog, date);
+            }
+        });
+        materialDatePicker.show(requireActivity().getSupportFragmentManager(), "tag");
     }
 
     private void showTimePicker(final Dialog bottomSheetDialog, final String selectedDate) {
@@ -205,7 +203,7 @@ public class AddTaskFragment extends Fragment {
         int hour = calendar.get(Calendar.HOUR_OF_DAY);
         int minute = calendar.get(Calendar.MINUTE);
 
-        TimePickerDialog timePickerDialog = new TimePickerDialog(requireContext(),
+        TimePickerDialog timePickerDialog = new TimePickerDialog(requireContext(), R.style.TimePickerTheme,
                 new TimePickerDialog.OnTimeSetListener() {
                     @Override
                     public void onTimeSet(TimePicker view, int hourOfDay, int minute) {
