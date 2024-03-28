@@ -30,8 +30,8 @@ public class HomeActivity extends AppCompatActivity {
 
             if (itemId == R.id.bottom_home && !(currentFragment instanceof Live2DFragment)) {
                 replaceFragment(new Live2DFragment());
-            } else if (itemId == R.id.bottom_clip && !(currentFragment instanceof ClipFragment)) {
-                replaceFragment(new ClipFragment());
+            } else if (itemId == R.id.bottom_clip && !(currentFragment instanceof AddTaskFragment)) {
+                replaceFragment(new AddTaskFragment());
             } else if (itemId == R.id.bottom_sms && !(currentFragment instanceof SMSFragment)) {
                 replaceFragment(new SMSFragment());
             } else if (itemId == R.id.bottom_settings && !(currentFragment instanceof SettingsFragment)) {

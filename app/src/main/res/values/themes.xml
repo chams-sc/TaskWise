@@ -2,13 +2,11 @@
     xmlns:android="http://schemas.android.com/apk/res/android">
 
     <!-- Base application theme. -->
-    <style name="Base.Theme.TaskWiseRebirth" parent="Theme.AppCompat.Light.NoActionBar">
+    <style name="Base.Theme.TaskWiseRebirth" parent="Theme.Material3.Light.NoActionBar">
         <!-- Customize your light theme here. -->
         <!-- <item name="colorPrimary">@color/my_light_primary</item> -->
         <item name="android:fontFamily">@font/inter</item>
     </style>
-
-    <style name="Theme.TaskWiseRebirth" parent="Base.Theme.TaskWiseRebirth" />
 
     <style name="DialogAnimation">
         <item name="android:windowEnterAnimation">@anim/slide_in_bottom</item>
@@ -19,4 +17,5 @@
         <item name="android:color">@color/gray3</item>
     </style>
 
+    <style name="Theme.TaskWiseRebirth" parent="Base.Theme.TaskWiseRebirth" />
 </resources>

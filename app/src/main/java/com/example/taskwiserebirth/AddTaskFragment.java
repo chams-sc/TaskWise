@@ -6,6 +6,7 @@ import android.app.TimePickerDialog;
 import android.graphics.Color;
 import android.graphics.drawable.ColorDrawable;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.Gravity;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -26,15 +27,23 @@ import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
 import com.google.android.material.bottomsheet.BottomSheetDialog;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
+
+import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.List;
 import java.util.Locale;
 
-public class ClipFragment extends Fragment {
+import io.realm.mongodb.App;
+import io.realm.mongodb.AppConfiguration;
 
+public class AddTaskFragment extends Fragment {
+
+    private String appId = "taskwise-bxyah";
+    private String tag = "MongoDb";
+    private App app;
     private EditText editTextDate;
     private EditText editTextTime;
-    private ImageView imageViewButton;
+    private ImageView calendarIcon;
     private CheckBox checkBox;
     private Spinner spinner;
     private Button addButton;
@@ -42,9 +51,12 @@ public class ClipFragment extends Fragment {
 
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
-        View rootView = inflater.inflate(R.layout.fragment_clip, container, false);
-        FloatingActionButton fab = rootView.findViewById(R.id.fab);
+        View rootView = inflater.inflate(R.layout.fragment_add_task, container, false);
 
+        // Realm
+        app = new App(new AppConfiguration.Builder(appId).build());
+
+        FloatingActionButton fab = rootView.findViewById(R.id.fab);
 
         fab.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -88,14 +100,10 @@ public class ClipFragment extends Fragment {
         // Set the background of the dialog to transparent
         ((View) bottomSheetView.getParent()).setBackgroundColor(Color.TRANSPARENT);
 
-        // Show the dialog
         bottomSheetDialog.show();
 
-        // Find the ImageView button in the bottom sheet layout
-        imageViewButton = bottomSheetView.findViewById(R.id.imageView3);
-
-        // Set OnClickListener on the ImageView button
-        imageViewButton.setOnClickListener(new View.OnClickListener() {
+        calendarIcon = bottomSheetView.findViewById(R.id.calendarIcon);
+        calendarIcon.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 // Show DatePickerDialog when the ImageView button is clicked
@@ -111,6 +119,7 @@ public class ClipFragment extends Fragment {
                 if (selectedItem.equals("Specific Days")) {
                     // Show your custom dialog here
                     showDialogForCustomRecurrence();
+                    recurrenceSpinner.setSelection(2);
                 }
             }
 
@@ -125,6 +134,18 @@ public class ClipFragment extends Fragment {
         final Dialog bottomSheetDialog = new Dialog(requireContext());
         bottomSheetDialog.requestWindowFeature(Window.FEATURE_NO_TITLE);
         bottomSheetDialog.setContentView(R.layout.recurrence_picker);
+
+        Button setButton = bottomSheetDialog.findViewById(R.id.setBtn);
+
+        setButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                List<String> selectedDays = getSelectedDays(bottomSheetDialog);
+                // Do something with the selected days list
+                Log.d("SHIT", selectedDays.toString());
+                bottomSheetDialog.dismiss();
+            }
+        });
 
         bottomSheetDialog.show();
 
@@ -141,6 +162,20 @@ public class ClipFragment extends Fragment {
             window.setBackgroundDrawable(new ColorDrawable(Color.TRANSPARENT));
             window.setWindowAnimations(R.style.DialogAnimation);
         }
+    }
+
+    private List<String> getSelectedDays(Dialog dialog) {
+        List<String> selectedDays = new ArrayList<>();
+        int[] checkBoxIds = {R.id.Monday, R.id.Tuesday, R.id.Wednesday, R.id.Thursday, R.id.Friday, R.id.Saturday, R.id.Sunday};
+        String[] dayNames = {"Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday", "Sunday"};
+
+        for (int i = 0; i < checkBoxIds.length; i++) {
+            CheckBox checkBox = dialog.findViewById(checkBoxIds[i]);
+            if (checkBox.isChecked()) {
+                selectedDays.add(dayNames[i]);
+            }
+        }
+        return selectedDays;
     }
 
 

@@ -104,7 +104,7 @@
             app:layout_constraintTop_toTopOf="@+id/Saturday" />
 
         <Button
-            android:id="@+id/button2"
+            android:id="@+id/setBtn"
             android:layout_width="wrap_content"
             android:layout_height="48dp"
             android:text="Set"
