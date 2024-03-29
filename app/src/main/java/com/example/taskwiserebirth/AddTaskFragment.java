@@ -29,6 +29,8 @@ import com.google.android.material.bottomsheet.BottomSheetDialog;
 import com.google.android.material.datepicker.MaterialDatePicker;
 import com.google.android.material.datepicker.MaterialPickerOnPositiveButtonClickListener;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
+import com.google.android.material.timepicker.MaterialTimePicker;
+import com.google.android.material.timepicker.TimeFormat;
 
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
@@ -76,6 +78,9 @@ public class AddTaskFragment extends Fragment {
         final BottomSheetDialog bottomSheetDialog = new BottomSheetDialog(requireContext());
         View bottomSheetView = getLayoutInflater().inflate(R.layout.add_task, null);
         bottomSheetDialog.setContentView(bottomSheetView);
+
+        // Adjust soft input mode to prevent interference with EditText
+        bottomSheetDialog.getWindow().setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_ADJUST_RESIZE);
 
         // Find the Importance and Urgency spinners in the bottom sheet layout
         Spinner importanceSpinner = bottomSheetView.findViewById(R.id.Importance1);
@@ -192,10 +197,10 @@ public class AddTaskFragment extends Fragment {
             @Override
             public void onPositiveButtonClick(Long selection) {
                 String date = new SimpleDateFormat("MM-dd-yyyy", Locale.getDefault()).format(new Date(selection));
-                showTimePicker(bottomSheetDialog, date);
+                timePicker(bottomSheetDialog, date);
             }
         });
-        materialDatePicker.show(requireActivity().getSupportFragmentManager(), "tag");
+        materialDatePicker.show(requireActivity().getSupportFragmentManager(), "DATE_PICKER");
     }
 
     private void showTimePicker(final Dialog bottomSheetDialog, final String selectedDate) {
@@ -227,5 +232,41 @@ public class AddTaskFragment extends Fragment {
                 }, hour, minute, false);
 
         timePickerDialog.show();
+    }
+
+    private void timePicker(final Dialog bottomSheetDialog, final String selectedDate) {
+        MaterialTimePicker timePicker = new MaterialTimePicker.Builder()
+                .setTimeFormat(TimeFormat.CLOCK_12H)
+                .setHour(12)
+                .setMinute(0)
+                .setInputMode(MaterialTimePicker.INPUT_MODE_CLOCK)
+                .setTitleText("Pick Time")
+                .setTheme(R.style.TimePickerTheme)
+                .build();
+        timePicker.addOnPositiveButtonClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                int hourOfDay = timePicker.getHour();
+                int minute = timePicker.getMinute();
+
+                // Format the selected time in 12-hour format
+                String formattedTime;
+                if (hourOfDay >= 12) {
+                    formattedTime = String.format(Locale.getDefault(), "%02d:%02d PM", hourOfDay == 12 ? 12 : hourOfDay - 12, minute);
+                } else {
+                    formattedTime = String.format(Locale.getDefault(), "%02d:%02d AM", hourOfDay == 0 ? 12 : hourOfDay, minute);
+                }
+
+                // Combine date and time with "|"
+                String dateTime = selectedDate + " | " + formattedTime;
+
+                // Update EditText with selected date and time
+                EditText editTextDateTime = bottomSheetDialog.findViewById(R.id.DeadlineEditText); // assuming you have access to EditText directly
+                if (editTextDateTime != null) {
+                    editTextDateTime.setText(dateTime);
+                }
+            }
+        });
+        timePicker.show(requireActivity().getSupportFragmentManager(), "TIME_PICKER");
     }
 }
