@@ -3,10 +3,7 @@ package com.example.taskwiserebirth;
 import android.app.Dialog;
 import android.graphics.Color;
 import android.graphics.drawable.ColorDrawable;
-import android.graphics.drawable.Drawable;
 import android.os.Bundle;
-import android.text.Editable;
-import android.text.TextWatcher;
 import android.util.Log;
 import android.view.Gravity;
 import android.view.LayoutInflater;
@@ -26,7 +23,6 @@ import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
-import androidx.core.content.ContextCompat;
 import androidx.fragment.app.Fragment;
 
 import com.google.android.material.bottomsheet.BottomSheetDialog;
@@ -74,7 +70,114 @@ public class AddTaskFragment extends Fragment {
 
         bottomSheetDialog.getWindow().setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_ADJUST_RESIZE);
 
-        // Find the Importance and Urgency spinners in the bottom sheet layout
+        setUpViews(bottomSheetDialog, bottomSheetView);
+
+        bottomSheetDialog.show();
+//        // Find the Importance and Urgency spinners in the bottom sheet layout
+//        Spinner importanceSpinner = bottomSheetView.findViewById(R.id.importance);
+//        Spinner urgencySpinner = bottomSheetView.findViewById(R.id.urgency);
+//        Spinner recurrenceSpinner = bottomSheetView.findViewById(R.id.RecurrenceEditText);
+//
+//        EditText editTaskName = bottomSheetDialog.findViewById(R.id.taskName);
+//        EditText editDeadline = bottomSheetDialog.findViewById(R.id.deadline);
+//        EditText editDuration = bottomSheetDialog.findViewById(R.id.duration);
+//        EditText editSchedule = bottomSheetDialog.findViewById(R.id.schedule);
+//        EditText editNotes = bottomSheetDialog.findViewById(R.id.notes);
+//
+//        CheckBox reminderCheckbox = bottomSheetDialog.findViewById(R.id.reminder);
+//        boolean reminderChecked = reminderCheckbox.isChecked();
+//
+//        Button saveBtn = bottomSheetDialog.findViewById(R.id.saveButton);
+//        saveBtn.setOnClickListener(new View.OnClickListener() {
+//            @Override
+//            public void onClick(View v) {
+//                String taskName = editTaskName.getText().toString().trim();
+//                String deadline = editDeadline.getText().toString().trim();
+//                String duration = editDuration.getText().toString().trim();
+//                String schedule = editSchedule.getText().toString().trim();
+//
+//                boolean allFieldsFilled = !taskName.isEmpty() &&
+//                        !deadline.isEmpty() &&
+//                        !duration.isEmpty() &&
+//                        !schedule.isEmpty() &&
+//                        importanceSpinner.getSelectedItemPosition() != 0 &&
+//                        urgencySpinner.getSelectedItemPosition() != 0;
+//
+//                if (taskName.isEmpty()) {
+//                    showError(editTaskName);
+//                }
+//                if (deadline.isEmpty()) {
+//                    showError(editDeadline);
+//                }
+//                if (duration.isEmpty()) {
+//                    showError(editDuration);
+//                }
+//                if (schedule.isEmpty()) {
+//                    showError(editSchedule);
+//                }
+//                if (importanceSpinner.getSelectedItemPosition() == 0) {
+//                    showError(importanceSpinner);
+//                }
+//                if (urgencySpinner.getSelectedItemPosition() == 0) {
+//                    showError(urgencySpinner);
+//                }
+//
+//                if (allFieldsFilled) {
+//                    Toast.makeText(requireContext(), "All fields filled", Toast.LENGTH_SHORT).show();
+//                    bottomSheetDialog.dismiss();
+//                } else {
+//
+//                    Toast.makeText(requireContext(), "Please fill in all fields", Toast.LENGTH_SHORT).show();
+//                }
+//            }
+//        });
+//
+//        // Create an ArrayAdapter for Importance spinner
+//        ArrayAdapter<CharSequence> importanceAdapter = ArrayAdapter.createFromResource(requireContext(),
+//                R.array.importance_array, android.R.layout.simple_spinner_item);
+//        importanceAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
+//
+//        // Create an ArrayAdapter for Urgency spinner
+//        ArrayAdapter<CharSequence> urgencyAdapter = ArrayAdapter.createFromResource(requireContext(),
+//                R.array.urgency_array, android.R.layout.simple_spinner_item);
+//        urgencyAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
+//
+//        ArrayAdapter<CharSequence> recurrenceAdapter = ArrayAdapter.createFromResource(requireContext(),
+//                R.array.recurrence_array, android.R.layout.simple_spinner_item);
+//        recurrenceAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
+//
+//        // Set adapters to the spinners
+//        importanceSpinner.setAdapter(importanceAdapter);
+//        urgencySpinner.setAdapter(urgencyAdapter);
+//        recurrenceSpinner.setAdapter(recurrenceAdapter);
+//
+//        // Set the background of the dialog to transparent
+//        ((View) bottomSheetView.getParent()).setBackgroundColor(Color.TRANSPARENT);
+//
+//        bottomSheetDialog.show();
+//
+//        calendarIcon = bottomSheetView.findViewById(R.id.calendarIcon);
+//        calendarIcon.setOnClickListener(v -> showDatePicker(bottomSheetDialog));
+//
+//        // Set OnItemSelectedListener on the recurrence spinner
+//        recurrenceSpinner.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
+//            @Override
+//            public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
+//                String selectedItem = parent.getItemAtPosition(position).toString();
+//                if (selectedItem.equals("Specific Days")) {
+//                    // Show your custom dialog here
+//                    showDialogForCustomRecurrence(recurrenceSpinner, position);
+//                }
+//            }
+//
+//            @Override
+//            public void onNothingSelected(AdapterView<?> parent) {
+//                // Handle nothing selected if needed
+//            }
+//        });
+    }
+
+    private void setUpViews(BottomSheetDialog bottomSheetDialog, View bottomSheetView) {
         Spinner importanceSpinner = bottomSheetView.findViewById(R.id.importance);
         Spinner urgencySpinner = bottomSheetView.findViewById(R.id.urgency);
         Spinner recurrenceSpinner = bottomSheetView.findViewById(R.id.RecurrenceEditText);
@@ -86,87 +189,28 @@ public class AddTaskFragment extends Fragment {
         EditText editNotes = bottomSheetDialog.findViewById(R.id.notes);
 
         CheckBox reminderCheckbox = bottomSheetDialog.findViewById(R.id.reminder);
-        boolean reminderChecked = reminderCheckbox.isChecked();
 
         Button saveBtn = bottomSheetDialog.findViewById(R.id.saveButton);
-        saveBtn.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                String taskName = editTaskName.getText().toString().trim();
-                String deadline = editDeadline.getText().toString().trim();
-                String duration = editDuration.getText().toString().trim();
-                String schedule = editSchedule.getText().toString().trim();
-
-                boolean allFieldsFilled = !taskName.isEmpty() &&
-                        !deadline.isEmpty() &&
-                        !duration.isEmpty() &&
-                        !schedule.isEmpty() &&
-                        importanceSpinner.getSelectedItemPosition() != 0 &&
-                        urgencySpinner.getSelectedItemPosition() != 0;
-
-                if (taskName.isEmpty()) {
-                    showError(editTaskName);
-                }
-                if (deadline.isEmpty()) {
-                    showError(editDeadline);
-                }
-                if (duration.isEmpty()) {
-                    showError(editDuration);
-                }
-                if (schedule.isEmpty()) {
-                    showError(editSchedule);
-                }
-                if (importanceSpinner.getSelectedItemPosition() == 0) {
-                    showError(importanceSpinner);
-                }
-                if (urgencySpinner.getSelectedItemPosition() == 0) {
-                    showError(urgencySpinner);
-                }
-
-                if (allFieldsFilled) {
-                    Toast.makeText(requireContext(), "All fields filled", Toast.LENGTH_SHORT).show();
-                    bottomSheetDialog.dismiss(); // Dismiss the bottom sheet dialog after saving
-                } else {
-                    // Notify the user that all fields are required
-                    Toast.makeText(requireContext(), "Please fill in all fields", Toast.LENGTH_SHORT).show();
-                }
-            }
+        saveBtn.setOnClickListener(v -> {
+            validateFields(bottomSheetDialog, editTaskName, editDeadline, editDuration, editSchedule, importanceSpinner, urgencySpinner);
         });
 
-        // Create an ArrayAdapter for Importance spinner
-        ArrayAdapter<CharSequence> importanceAdapter = ArrayAdapter.createFromResource(requireContext(),
-                R.array.importance_array, android.R.layout.simple_spinner_item);
-        importanceAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
+        setupSpinners(importanceSpinner, urgencySpinner, recurrenceSpinner);
 
-        // Create an ArrayAdapter for Urgency spinner
-        ArrayAdapter<CharSequence> urgencyAdapter = ArrayAdapter.createFromResource(requireContext(),
-                R.array.urgency_array, android.R.layout.simple_spinner_item);
-        urgencyAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
-
-        ArrayAdapter<CharSequence> recurrenceAdapter = ArrayAdapter.createFromResource(requireContext(),
-                R.array.recurrence_array, android.R.layout.simple_spinner_item);
-        recurrenceAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
-
-        // Set adapters to the spinners
-        importanceSpinner.setAdapter(importanceAdapter);
-        urgencySpinner.setAdapter(urgencyAdapter);
-        recurrenceSpinner.setAdapter(recurrenceAdapter);
-
-        // Set the background of the dialog to transparent
         ((View) bottomSheetView.getParent()).setBackgroundColor(Color.TRANSPARENT);
-
-        bottomSheetDialog.show();
 
         calendarIcon = bottomSheetView.findViewById(R.id.calendarIcon);
         calendarIcon.setOnClickListener(v -> showDatePicker(bottomSheetDialog));
 
-        // Set OnItemSelectedListener on the recurrence spinner
+        setupRecurrenceSpinner(recurrenceSpinner);
+    }
+
+    private void setupRecurrenceSpinner(Spinner recurrenceSpinner) {
         recurrenceSpinner.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
             @Override
             public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
                 String selectedItem = parent.getItemAtPosition(position).toString();
                 if (selectedItem.equals("Specific Days")) {
-                    // Show your custom dialog here
                     showDialogForCustomRecurrence(recurrenceSpinner, position);
                 }
             }
@@ -177,6 +221,67 @@ public class AddTaskFragment extends Fragment {
             }
         });
     }
+
+    private void validateFields(BottomSheetDialog bottomSheetDialog, EditText editTaskName, EditText editDeadline, EditText editDuration, EditText editSchedule, Spinner importanceSpinner, Spinner urgencySpinner) {
+        String taskName = editTaskName.getText().toString().trim();
+        String deadline = editDeadline.getText().toString().trim();
+        String duration = editDuration.getText().toString().trim();
+        String schedule = editSchedule.getText().toString().trim();
+
+        boolean allFieldsFilled = !taskName.isEmpty() &&
+                !deadline.isEmpty() &&
+                !duration.isEmpty() &&
+                !schedule.isEmpty() &&
+                importanceSpinner.getSelectedItemPosition() != 0 &&
+                urgencySpinner.getSelectedItemPosition() != 0;
+
+        if (taskName.isEmpty()) {
+            showError(editTaskName);
+        }
+        if (deadline.isEmpty()) {
+            showError(editDeadline);
+        }
+        if (duration.isEmpty()) {
+            showError(editDuration);
+        }
+        if (schedule.isEmpty()) {
+            showError(editSchedule);
+        }
+        if (importanceSpinner.getSelectedItemPosition() == 0) {
+            showError(importanceSpinner);
+        }
+        if (urgencySpinner.getSelectedItemPosition() == 0) {
+            showError(urgencySpinner);
+        }
+
+        if(allFieldsFilled) {
+            // TODO: Insert Data to DB
+            Toast.makeText(requireContext(), "All fields are filled", Toast.LENGTH_SHORT).show();
+            bottomSheetDialog.dismiss();
+        }
+        else {
+           Toast.makeText(requireContext(), "Missing required fields", Toast.LENGTH_SHORT).show();
+        }
+    }
+
+    private void setupSpinners(Spinner importanceSpinner, Spinner urgencySpinner, Spinner recurrenceSpinner) {
+        ArrayAdapter<CharSequence> importanceAdapter = ArrayAdapter.createFromResource(requireContext(),
+                R.array.importance_array, android.R.layout.simple_spinner_item);
+        importanceAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
+
+        ArrayAdapter<CharSequence> urgencyAdapter = ArrayAdapter.createFromResource(requireContext(),
+                R.array.urgency_array, android.R.layout.simple_spinner_item);
+        urgencyAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
+
+        ArrayAdapter<CharSequence> recurrenceAdapter = ArrayAdapter.createFromResource(requireContext(),
+                R.array.recurrence_array, android.R.layout.simple_spinner_item);
+        recurrenceAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
+
+        importanceSpinner.setAdapter(importanceAdapter);
+        urgencySpinner.setAdapter(urgencyAdapter);
+        recurrenceSpinner.setAdapter(recurrenceAdapter);
+    }
+
 
     private void showError(View view) {
         String message = "Required field";
