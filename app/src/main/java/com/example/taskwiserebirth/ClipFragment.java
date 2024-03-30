@@ -6,6 +6,7 @@ import android.app.TimePickerDialog;
 import android.graphics.Color;
 import android.graphics.drawable.ColorDrawable;
 import android.os.Bundle;
+import android.util.TypedValue;
 import android.view.Gravity;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -20,31 +21,42 @@ import android.widget.DatePicker;
 import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.Spinner;
+import android.widget.TextView;
 import android.widget.TimePicker;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.core.content.ContextCompat;
 import androidx.fragment.app.Fragment;
+import androidx.recyclerview.widget.LinearLayoutManager;
+import androidx.recyclerview.widget.RecyclerView;
 import com.google.android.material.bottomsheet.BottomSheetDialog;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
+import java.text.SimpleDateFormat;
+import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.List;
 import java.util.Locale;
+import java.util.TimeZone;
 
 public class ClipFragment extends Fragment {
 
-    private EditText editTextDate;
-    private EditText editTextTime;
-    private ImageView imageViewButton;
-    private CheckBox checkBox;
-    private Spinner spinner;
-    private Button addButton;
-    private List<String> selectedItems;
+    private RecyclerView recyclerView;
+    private CalendarAdapter calendarAdapter;
+    private TextView selectedDateText;
+    private EditText editTextDateTime;
 
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
         View rootView = inflater.inflate(R.layout.fragment_clip, container, false);
         FloatingActionButton fab = rootView.findViewById(R.id.fab);
+        recyclerView = rootView.findViewById(R.id.calendarRecyclerView);
 
+
+        // Set up RecyclerView for the calendar
+        setUpRecyclerView();
+
+        // Display current time and time of day
+        displayTimeOfDay(rootView);
 
         fab.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -54,6 +66,79 @@ public class ClipFragment extends Fragment {
         });
 
         return rootView;
+    }
+
+    private void setUpRecyclerView() {
+        List<Calendar> calendarList = getDatesInRange(-1, 1); // Get dates for one month before and after today
+        calendarAdapter = new CalendarAdapter(calendarList, new CalendarAdapter.OnItemClickListener() {
+            @Override
+            public void onItemClick(Calendar date) {
+                updateSelectedDateText(date);
+            }
+        });
+        recyclerView.setLayoutManager(new LinearLayoutManager(requireContext(), LinearLayoutManager.HORIZONTAL, false));
+        recyclerView.setAdapter(calendarAdapter);
+    }
+
+    private List<Calendar> getDatesInRange(int monthsBefore, int monthsAfter) {
+        List<Calendar> calendarList = new ArrayList<>();
+        Calendar currentDate = Calendar.getInstance();
+
+        for (int i = monthsBefore; i <= monthsAfter; i++) {
+            Calendar calendar = Calendar.getInstance();
+            calendar.add(Calendar.MONTH, i);
+            calendar.set(Calendar.DAY_OF_MONTH, 1); // Set to first day of the month
+            int daysInMonth = calendar.getActualMaximum(Calendar.DAY_OF_MONTH);
+            for (int day = 1; day <= daysInMonth; day++) {
+                Calendar date = (Calendar) calendar.clone();
+                date.set(Calendar.DAY_OF_MONTH, day);
+                calendarList.add(date);
+            }
+        }
+
+        return calendarList;
+    }
+
+    private void updateSelectedDateText(Calendar date) {
+        SimpleDateFormat sdf = new SimpleDateFormat("EEE, MMM dd, yyyy", Locale.getDefault());
+        selectedDateText.setText(sdf.format(date.getTime()));
+    }
+
+    private void displayTimeOfDay(View rootView) {
+        // Find the TextView for displaying time of day
+        TextView timeOfDayTextView = rootView.findViewById(R.id.timeOfDayTextView);
+
+        // Get the current time in Philippine Time (UTC+8:00)
+        Calendar calendar = Calendar.getInstance(TimeZone.getTimeZone("GMT+8:00"));
+        int hourOfDay = calendar.get(Calendar.HOUR_OF_DAY);
+        int minute = calendar.get(Calendar.MINUTE);
+        String am_pm;
+
+        // Determine whether it's morning or evening
+        String timeOfDay;
+        if (hourOfDay >= 6 && hourOfDay < 12) {
+            timeOfDay = "Morning";
+            am_pm = "AM";
+        } else {
+            timeOfDay = "Evening";
+            am_pm = "PM";
+            // Convert to 12-hour format
+            if (hourOfDay >= 12) {
+                hourOfDay -= 12;
+            }
+        }
+
+        // Adjust hour to be in 12-hour format
+        if (hourOfDay == 0) {
+            hourOfDay = 12;
+        }
+
+        // Format the current time
+        String formattedTime = String.format(Locale.getDefault(), "%d:%02d %s", hourOfDay, minute, am_pm);
+
+        // Display the time of day and current time in the desired format
+        timeOfDayTextView.setText(formattedTime + " " + timeOfDay);
+
     }
 
     private void showBottomSheetDialog() {
@@ -95,7 +180,7 @@ public class ClipFragment extends Fragment {
         bottomSheetDialog.show();
 
         // Find the ImageView button in the bottom sheet layout
-        imageViewButton = bottomSheetView.findViewById(R.id.imageView3);
+        ImageView imageViewButton = bottomSheetView.findViewById(R.id.imageView3);
 
         // Set OnClickListener on the ImageView button
         imageViewButton.setOnClickListener(new View.OnClickListener() {
@@ -124,7 +209,6 @@ public class ClipFragment extends Fragment {
         });
     }
 
-
     private void showDialogForCustomRecurrence() {
         final Dialog bottomSheetDialog = new Dialog(requireContext());
         bottomSheetDialog.requestWindowFeature(Window.FEATURE_NO_TITLE);
@@ -146,7 +230,6 @@ public class ClipFragment extends Fragment {
             window.setWindowAnimations(R.style.DialogAnimation);
         }
     }
-
 
     private void showDatePicker(final Dialog bottomSheetDialog) {
         final Calendar calendar = Calendar.getInstance();
@@ -190,7 +273,7 @@ public class ClipFragment extends Fragment {
                         String dateTime = selectedDate + " | " + formattedTime;
 
                         // Update EditText with selected date and time
-                        EditText editTextDateTime = bottomSheetDialog.findViewById(R.id.DeadlineEditText);
+                        editTextDateTime = bottomSheetDialog.findViewById(R.id.DeadlineEditText);
                         if (editTextDateTime != null) {
                             editTextDateTime.setText(dateTime);
                         }
