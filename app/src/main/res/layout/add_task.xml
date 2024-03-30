@@ -13,7 +13,7 @@
         android:layout_width="64dp"
         android:layout_height="8dp"
         android:layout_gravity="center|top"
-        app:layout_constraintBottom_toTopOf="@+id/TaskName"
+        app:layout_constraintBottom_toTopOf="@+id/txtTaskName"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent"
@@ -25,7 +25,7 @@
 
         <!-- Task Name -->
         <TextView
-            android:id="@+id/TaskName"
+            android:id="@+id/txtTaskName"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:layout_marginTop="8dp"
@@ -41,7 +41,7 @@
 
         <!-- Edit Task -->
         <EditText
-            android:id="@+id/EditTask"
+            android:id="@+id/taskName"
             android:layout_width="0dp"
             android:layout_height="48dp"
             android:layout_marginTop="16dp"
@@ -51,11 +51,11 @@
             android:textSize="12sp"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@+id/TaskName" />
+            app:layout_constraintTop_toBottomOf="@+id/txtTaskName" />
 
         <!-- Importance -->
         <TextView
-            android:id="@+id/Importance"
+            android:id="@+id/txtImportance"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:layout_marginTop="16dp"
@@ -66,11 +66,11 @@
             android:textSize="16sp"
             app:layout_constraintEnd_toStartOf="@+id/guideline"
             app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@+id/EditTask" />
+            app:layout_constraintTop_toBottomOf="@+id/taskName" />
 
 
         <Spinner
-            android:id="@+id/Importance1"
+            android:id="@+id/importance"
             android:layout_width="0dp"
             android:layout_height="48dp"
             android:layout_marginTop="16dp"
@@ -79,13 +79,13 @@
             android:spinnerMode="dropdown"
             app:layout_constraintEnd_toStartOf="@+id/guideline"
             app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@+id/Importance"
+            app:layout_constraintTop_toBottomOf="@+id/txtImportance"
 
             />
 
         <!-- Urgency -->
         <TextView
-            android:id="@+id/Urgency"
+            android:id="@+id/txtUrgency"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:layout_marginLeft="16dp"
@@ -97,11 +97,11 @@
             android:textSize="16sp"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toEndOf="@+id/guideline"
-            app:layout_constraintTop_toBottomOf="@+id/EditTask" />
+            app:layout_constraintTop_toBottomOf="@+id/taskName" />
 
         <!-- Name3 -->
         <Spinner
-            android:id="@+id/Urgency1"
+            android:id="@+id/urgency"
             android:layout_width="0dp"
             android:layout_height="48dp"
             android:layout_marginTop="16dp"
@@ -110,7 +110,7 @@
             android:spinnerMode="dropdown"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toEndOf="@+id/guideline"
-            app:layout_constraintTop_toBottomOf="@+id/Urgency" />
+            app:layout_constraintTop_toBottomOf="@+id/txtUrgency" />
 
         <!-- Deadline Label -->
         <TextView
@@ -125,12 +125,12 @@
             android:textSize="16sp"
             app:layout_constraintEnd_toStartOf="@+id/guideline"
             app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@+id/Urgency1" />
+            app:layout_constraintTop_toBottomOf="@+id/urgency" />
 
         <!-- Deadline EditText -->
 
         <EditText
-            android:id="@+id/DeadlineEditText"
+            android:id="@+id/deadline"
             android:layout_width="0dp"
             android:layout_height="48dp"
             android:layout_marginTop="16dp"
@@ -150,9 +150,9 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:paddingRight="16dp"
-            app:layout_constraintBottom_toBottomOf="@+id/DeadlineEditText"
+            app:layout_constraintBottom_toBottomOf="@+id/deadline"
             app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintTop_toTopOf="@+id/DeadlineEditText"
+            app:layout_constraintTop_toTopOf="@+id/deadline"
             app:srcCompat="@drawable/calendar_month" />
 
         <TextView
@@ -167,11 +167,11 @@
             android:textSize="16sp"
             app:layout_constraintEnd_toStartOf="@+id/guideline"
             app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@+id/DeadlineEditText" />
+            app:layout_constraintTop_toBottomOf="@+id/deadline" />
 
         <!-- Duration EditText -->
         <EditText
-            android:id="@+id/DurationEditText"
+            android:id="@+id/duration"
             android:layout_width="0dp"
             android:layout_height="48dp"
             android:layout_marginTop="16dp"
@@ -196,7 +196,7 @@
             android:textSize="16sp"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toEndOf="@+id/guideline"
-            app:layout_constraintTop_toBottomOf="@+id/DeadlineEditText" />
+            app:layout_constraintTop_toBottomOf="@+id/deadline" />
 
         <!-- Recurrence EditText -->
         <Spinner
@@ -230,7 +230,7 @@
 
         <!-- Schedule EditText -->
         <EditText
-            android:id="@+id/ScheduleEditText"
+            android:id="@+id/schedule"
             android:layout_width="0dp"
             android:layout_height="48dp"
             android:layout_marginTop="16dp"
@@ -244,7 +244,7 @@
 
         <!-- Remind Me CheckBox -->
         <CheckBox
-            android:id="@+id/RemindMeCheckBox"
+            android:id="@+id/reminder"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:layout_marginTop="64dp"
@@ -266,11 +266,11 @@
             android:textSize="16sp"
             app:layout_constraintEnd_toStartOf="@+id/guideline"
             app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@+id/RemindMeCheckBox" />
+            app:layout_constraintTop_toBottomOf="@+id/reminder" />
 
         <!-- Notes EditText -->
         <EditText
-            android:id="@+id/NotesEditText"
+            android:id="@+id/notes"
             android:layout_width="0dp"
             android:layout_height="64dp"
             android:layout_marginTop="16dp"
@@ -300,6 +300,6 @@
             android:textColor="@color/white"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@+id/NotesEditText" />
+            app:layout_constraintTop_toBottomOf="@+id/notes" />
     </androidx.constraintlayout.widget.ConstraintLayout>
 </LinearLayout>

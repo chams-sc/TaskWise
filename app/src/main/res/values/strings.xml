@@ -25,7 +25,6 @@
         <item>Not Urgent</item>
     </string-array>
 
-
     <string-array name="recurrence_array">
     <item>@string/none_prompt</item>
     <item>Daily</item>
