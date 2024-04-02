@@ -31,14 +31,21 @@ import com.google.android.material.floatingactionbutton.FloatingActionButton;
 import com.google.android.material.timepicker.MaterialTimePicker;
 import com.google.android.material.timepicker.TimeFormat;
 
+import org.bson.Document;
+
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Date;
 import java.util.List;
 import java.util.Locale;
 
 import io.realm.mongodb.App;
 import io.realm.mongodb.AppConfiguration;
+import io.realm.mongodb.User;
+import io.realm.mongodb.mongo.MongoClient;
+import io.realm.mongodb.mongo.MongoCollection;
+import io.realm.mongodb.mongo.MongoDatabase;
 
 public class AddTaskFragment extends Fragment {
 
@@ -47,7 +54,7 @@ public class AddTaskFragment extends Fragment {
     private String taskTag = "TASK_DETAILS";
     private App app;
     private ImageView calendarIcon;
-    private String daysSelected = "";
+    private String daysSelected = null;
 
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
@@ -188,11 +195,55 @@ public class AddTaskFragment extends Fragment {
         EditText editSchedule = bottomSheetDialog.findViewById(R.id.schedule);
         EditText editNotes = bottomSheetDialog.findViewById(R.id.notes);
 
-        CheckBox reminderCheckbox = bottomSheetDialog.findViewById(R.id.reminder);
+        CheckBox reminder = bottomSheetDialog.findViewById(R.id.reminder);
 
         Button saveBtn = bottomSheetDialog.findViewById(R.id.saveButton);
         saveBtn.setOnClickListener(v -> {
-            validateFields(bottomSheetDialog, editTaskName, editDeadline, editDuration, editSchedule, importanceSpinner, urgencySpinner);
+            if (validateFields(bottomSheetDialog)) {
+                String taskName = editTaskName.getText().toString();
+                String importance = importanceSpinner.getSelectedItem().toString();
+                String urgency = urgencySpinner.getSelectedItem().toString();
+                String deadline = editDeadline.getText().toString();
+                String duration = editDuration.getText().toString();
+                String recurrence = recurrenceSpinner.getSelectedItem().toString();
+                String schedule = editSchedule.getText().toString();
+                String notes = editNotes.getText().toString();
+                boolean isReminderOn = reminder.isChecked();
+
+                if (recurrence.equals("Specific Days")) {
+                    recurrence = daysSelected;
+                }
+
+                Date currentDate = new Date();
+
+                // Insert Data
+                User user = app.currentUser();
+                MongoClient mongoClient = user.getMongoClient("mongodb-atlas");
+                MongoDatabase mongoDatabase = mongoClient.getDatabase("TaskWise");
+                MongoCollection<Document> mongoCollection = mongoDatabase.getCollection("UserTaskData");
+
+                Document userData = new Document("owner_id", user.getId())
+                        .append("task_name", taskName)
+                        .append("creation_date", currentDate)
+                        .append("importance_level", importance)
+                        .append("urgency_level", urgency)
+                        .append("deadline", deadline)
+                        .append("duration", duration)
+                        .append("recurrence", recurrence)
+                        .append("schedule", schedule)
+                        .append("notes", notes)
+                        .append("reminder", isReminderOn);
+
+                mongoCollection.insertOne(userData).getAsync(it -> {
+                    if (it.isSuccess()) {
+                        Log.d("Data", "Data Inserted Successfully");
+                    } else {
+                        String error = it.getError().toString();
+                        Log.d("Data", error);
+                    }
+                });
+            }
+            daysSelected = null;
         });
 
         setupSpinners(importanceSpinner, urgencySpinner, recurrenceSpinner);
@@ -222,45 +273,33 @@ public class AddTaskFragment extends Fragment {
         });
     }
 
-    private void validateFields(BottomSheetDialog bottomSheetDialog, EditText editTaskName, EditText editDeadline, EditText editDuration, EditText editSchedule, Spinner importanceSpinner, Spinner urgencySpinner) {
-        String taskName = editTaskName.getText().toString().trim();
-        String deadline = editDeadline.getText().toString().trim();
-        String duration = editDuration.getText().toString().trim();
-        String schedule = editSchedule.getText().toString().trim();
+    private boolean validateFields(BottomSheetDialog bottomSheetDialog) {
+        EditText editTaskName = bottomSheetDialog.findViewById(R.id.taskName);
+        EditText editDeadline = bottomSheetDialog.findViewById(R.id.deadline);
+        EditText editDuration = bottomSheetDialog.findViewById(R.id.duration);
+        EditText editSchedule = bottomSheetDialog.findViewById(R.id.schedule);
+        Spinner importanceSpinner = bottomSheetDialog.findViewById(R.id.importance);
+        Spinner urgencySpinner = bottomSheetDialog.findViewById(R.id.urgency);
 
-        boolean allFieldsFilled = !taskName.isEmpty() &&
-                !deadline.isEmpty() &&
-                !duration.isEmpty() &&
-                !schedule.isEmpty() &&
-                importanceSpinner.getSelectedItemPosition() != 0 &&
-                urgencySpinner.getSelectedItemPosition() != 0;
-
-        if (taskName.isEmpty()) {
-            showError(editTaskName);
-        }
-        if (deadline.isEmpty()) {
-            showError(editDeadline);
-        }
-        if (duration.isEmpty()) {
-            showError(editDuration);
-        }
-        if (schedule.isEmpty()) {
-            showError(editSchedule);
-        }
-        if (importanceSpinner.getSelectedItemPosition() == 0) {
-            showError(importanceSpinner);
-        }
-        if (urgencySpinner.getSelectedItemPosition() == 0) {
-            showError(urgencySpinner);
+        List<View> fieldsToValidate = Arrays.asList(editTaskName, editDeadline, editDuration, editSchedule, importanceSpinner, urgencySpinner);
+        boolean allFieldsFilled = true;
+        for (View field : fieldsToValidate) {
+            if (field instanceof EditText && ((EditText) field).getText().toString().isEmpty()) {
+                showError((EditText) field);
+                allFieldsFilled = false;
+            } else if (field instanceof Spinner && ((Spinner) field).getSelectedItemPosition() == 0) {
+                showError((Spinner) field);
+                allFieldsFilled = false;
+            }
         }
 
-        if(allFieldsFilled) {
-            // TODO: Insert Data to DB
+        if (allFieldsFilled) {
             Toast.makeText(requireContext(), "All fields are filled", Toast.LENGTH_SHORT).show();
             bottomSheetDialog.dismiss();
-        }
-        else {
-           Toast.makeText(requireContext(), "Missing required fields", Toast.LENGTH_SHORT).show();
+            return true;
+        } else {
+            Toast.makeText(requireContext(), "Missing required fields", Toast.LENGTH_SHORT).show();
+            return false;
         }
     }
 
@@ -282,7 +321,6 @@ public class AddTaskFragment extends Fragment {
         recurrenceSpinner.setAdapter(recurrenceAdapter);
     }
 
-
     private void showError(View view) {
         String message = "Required field";
 
@@ -295,7 +333,6 @@ public class AddTaskFragment extends Fragment {
             }
         }
     }
-
 
     private void showDialogForCustomRecurrence(Spinner spinner, int pos) {
         final Dialog bottomSheetDialog = new Dialog(requireContext());
