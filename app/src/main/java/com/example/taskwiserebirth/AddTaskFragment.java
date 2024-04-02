@@ -248,8 +248,20 @@ public class AddTaskFragment extends Fragment {
         bottomSheetDialog.setContentView(R.layout.recurrence_picker);
 
         Button setButton = bottomSheetDialog.findViewById(R.id.setBtn);
+        setButton.setEnabled(false);
 
-        // if dialog is dismissed, set the selection back to none
+        // Detect if any checkbox is chosen, only then can the set button be clicked
+        int[] checkBoxIds = {R.id.Monday, R.id.Tuesday, R.id.Wednesday, R.id.Thursday, R.id.Friday, R.id.Saturday, R.id.Sunday};
+        List<CheckBox> checkBoxes = new ArrayList<>();
+        for (int checkBoxId : checkBoxIds) {
+            CheckBox checkBox = bottomSheetDialog.findViewById(checkBoxId);
+            checkBoxes.add(checkBox);
+            checkBox.setOnCheckedChangeListener((buttonView, isChecked) -> {
+                setButton.setEnabled(isAnyCheckBoxChecked(checkBoxes));
+            });
+        }
+
+        // If dialog is dismissed, set the selection back to none
         bottomSheetDialog.setOnCancelListener(dialog -> spinner.setSelection(0));
 
         setButton.setOnClickListener(v -> {
@@ -292,6 +304,15 @@ public class AddTaskFragment extends Fragment {
             window.setBackgroundDrawable(new ColorDrawable(Color.TRANSPARENT));
             window.setWindowAnimations(R.style.DialogAnimation);
         }
+    }
+
+    private boolean isAnyCheckBoxChecked(List<CheckBox> checkBoxes) {
+        for (CheckBox checkBox : checkBoxes) {
+            if (checkBox.isChecked()) {
+                return true;
+            }
+        }
+        return false;
     }
 
     private List<String> getSelectedDays(Dialog dialog) {
