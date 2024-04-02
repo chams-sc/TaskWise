@@ -46,7 +46,7 @@
             android:layout_height="48dp"
             android:layout_marginTop="16dp"
             android:background="@drawable/add_task_text"
-            android:hint="Enter Task Name"
+            android:hint="Enter task name"
             android:padding="8dp"
             android:textSize="12sp"
             app:layout_constraintEnd_toEndOf="parent"
@@ -136,7 +136,7 @@
             android:layout_marginTop="16dp"
             android:background="@drawable/add_task_text"
             android:focusable="false"
-            android:hint="dd/mm/yyyy|00:00"
+            android:hint="No deadline"
             android:padding="8dp"
             android:textSize="12sp"
             app:layout_constraintEnd_toEndOf="parent"
@@ -176,7 +176,7 @@
             android:layout_height="48dp"
             android:layout_marginTop="16dp"
             android:background="@drawable/add_task_text"
-            android:hint="Set Duration"
+            android:hint="Set duration"
             android:padding="8dp"
             android:textSize="12sp"
             app:layout_constraintEnd_toStartOf="@+id/guideline"
@@ -200,7 +200,7 @@
 
         <!-- Recurrence EditText -->
         <Spinner
-            android:id="@+id/RecurrenceEditText"
+            android:id="@+id/recurrence"
             android:layout_width="0dp"
             android:layout_height="48dp"
             android:layout_marginTop="16dp"
@@ -226,7 +226,7 @@
             android:textSize="16sp"
             app:layout_constraintEnd_toStartOf="@+id/guideline"
             app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@+id/RecurrenceEditText" />
+            app:layout_constraintTop_toBottomOf="@+id/recurrence" />
 
         <!-- Schedule EditText -->
         <EditText
@@ -251,7 +251,7 @@
             android:text="Remind Me"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toEndOf="@+id/guideline"
-            app:layout_constraintTop_toBottomOf="@+id/RecurrenceEditText" />
+            app:layout_constraintTop_toBottomOf="@+id/recurrence" />
 
         <!-- Notes Label -->
         <TextView

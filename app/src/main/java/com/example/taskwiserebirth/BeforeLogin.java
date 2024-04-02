@@ -78,20 +78,23 @@ public class BeforeLogin extends AppCompatActivity {
         TextView registerBtn = loginDialog.findViewById(R.id.press_register);
 
         loginBtn.setOnClickListener(v -> {
-//            // TODO: this line is for faster testing only
-//            startActivity(new Intent(BeforeLogin.this, HomeActivity.class));
+
             String email = inputEmail.getText().toString();
             String password = inputPassword.getText().toString();
 
-            if (email.isEmpty() || !isValidEmail(email)) {
-                showError(inputEmail, "Invalid email");
-            }
-            else if (password.isEmpty()) {
-                showError(inputPassword, "Password is empty.");
-            }
-            else {
-                logInEmail(email, password);
-            }
+// TODO: for testing, you can create your own account and replace email and pass here; remove later
+            logInEmail("mics@gmail.com", "11111111");
+
+            // TODO: comment back for final app
+//            if (email.isEmpty() || !isValidEmail(email)) {
+//                showError(inputEmail, "Invalid email");
+//            }
+//            else if (password.isEmpty()) {
+//                showError(inputPassword, "Password is empty.");
+//            }
+//            else {
+//                logInEmail(email, password);
+//            }
         });
 
         registerBtn.setOnClickListener(v -> {
