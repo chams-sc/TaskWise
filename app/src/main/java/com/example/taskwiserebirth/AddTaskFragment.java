@@ -43,20 +43,11 @@ import java.util.List;
 import java.util.Locale;
 
 import io.realm.mongodb.App;
-import io.realm.mongodb.AppConfiguration;
 import io.realm.mongodb.User;
-import io.realm.mongodb.mongo.MongoClient;
 import io.realm.mongodb.mongo.MongoCollection;
-import io.realm.mongodb.mongo.MongoDatabase;
 
 public class AddTaskFragment extends Fragment {
 
-    private final String SERVICE_NAME = "mongodb-atlas";
-    private final String DATABASE_NAME = "TaskWise";
-    private final String COLLECTION = "UserTaskData";
-    private String appId = "taskwise-bxyah";
-    private String dbTag = "MONGO_DB";
-    private String taskTag = "TASK_DETAILS";
     private App app;
     private ImageView calendarIcon;
     private String daysSelected = null;
@@ -259,9 +250,7 @@ public class AddTaskFragment extends Fragment {
         Button setButton = bottomSheetDialog.findViewById(R.id.setBtn);
 
         // if dialog is dismissed, set the selection back to none
-        bottomSheetDialog.setOnCancelListener(dialog -> {
-            spinner.setSelection(0);
-        });
+        bottomSheetDialog.setOnCancelListener(dialog -> spinner.setSelection(0));
 
         setButton.setOnClickListener(v -> {
 

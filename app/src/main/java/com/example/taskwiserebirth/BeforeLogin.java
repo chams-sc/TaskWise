@@ -16,6 +16,8 @@ import android.widget.Toast;
 
 import androidx.appcompat.app.AppCompatActivity;
 
+import com.example.taskwiserebirth.Database.MongoDbRealmHelper;
+
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -44,7 +46,7 @@ public class BeforeLogin extends AppCompatActivity {
 
         // First Initialization of Realm
         Realm.init(this);
-        app = new App(new AppConfiguration.Builder(appId).build());
+        app = MongoDbRealmHelper.initializeRealmApp();
 
         bottomlogin = findViewById(R.id.before_button);
         bottomlogin.setOnClickListener(v -> showLoginDialog());
