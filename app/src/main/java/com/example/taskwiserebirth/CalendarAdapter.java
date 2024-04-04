@@ -60,6 +60,7 @@ public class CalendarAdapter extends RecyclerView.Adapter<CalendarAdapter.Calend
             // Set text color for today's date
             holder.dateText.setTextColor(Color.WHITE); // Change color as needed
             holder.monthText.setTextColor(Color.WHITE); // Change color as needed
+            holder.dayOfWeekText.setTextColor(Color.WHITE); // Change color as needed
         } else {
             // Set default background color for other dates
             holder.cardView.setCardBackgroundColor(Color.WHITE); // Change color as needed
@@ -104,14 +105,17 @@ public class CalendarAdapter extends RecyclerView.Adapter<CalendarAdapter.Calend
                 // Set Inter Bold font to TextViews
                 monthText.setTypeface(interBold);
                 dateText.setTypeface(interBold);
+                dayOfWeekText.setTypeface(interBold);
             } else {
                 // Fallback to default font
                 monthText.setTypeface(Typeface.DEFAULT_BOLD);
                 dateText.setTypeface(Typeface.DEFAULT_BOLD);
+                dayOfWeekText.setTypeface(interBold);
             }
             // Set Inter Bold font to TextViews
             monthText.setTypeface(interBold);
             dateText.setTypeface(interBold);
+            dayOfWeekText.setTypeface(interBold);
         }
     }
 
