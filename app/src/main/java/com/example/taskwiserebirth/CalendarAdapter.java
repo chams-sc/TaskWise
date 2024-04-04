@@ -8,7 +8,9 @@ import android.widget.TextView;
 
 import androidx.annotation.NonNull;
 import androidx.cardview.widget.CardView;
+import androidx.core.content.res.ResourcesCompat;
 import androidx.recyclerview.widget.RecyclerView;
+import android.graphics.Typeface;
 
 import java.text.SimpleDateFormat;
 import java.util.Calendar;
@@ -54,10 +56,16 @@ public class CalendarAdapter extends RecyclerView.Adapter<CalendarAdapter.Calend
                 && calendar.get(Calendar.MONTH) == currentCalendar.get(Calendar.MONTH)
                 && Integer.parseInt(dayOfMonth) == currentDayOfMonth) {
             // Set background color for today's date
-            holder.cardView.setCardBackgroundColor(Color.RED); // Change color as needed
+            holder.cardView.setCardBackgroundColor(Color.parseColor("#383F51")); // Change color as needed
+            // Set text color for today's date
+            holder.dateText.setTextColor(Color.WHITE); // Change color as needed
+            holder.monthText.setTextColor(Color.WHITE); // Change color as needed
         } else {
             // Set default background color for other dates
             holder.cardView.setCardBackgroundColor(Color.WHITE); // Change color as needed
+            // Set default text color for other dates
+            holder.dateText.setTextColor(Color.BLACK); // Change color as needed
+            holder.monthText.setTextColor(Color.BLACK); // Change color as needed
         }
 
         holder.itemView.setOnClickListener(new View.OnClickListener() {
@@ -68,11 +76,13 @@ public class CalendarAdapter extends RecyclerView.Adapter<CalendarAdapter.Calend
         });
     }
 
+
     @Override
     public int getItemCount() {
         return calendarList.size();
     }
 
+    // Inside CalendarViewHolder class
     static class CalendarViewHolder extends RecyclerView.ViewHolder {
         TextView monthText;
         TextView dateText;
@@ -85,6 +95,23 @@ public class CalendarAdapter extends RecyclerView.Adapter<CalendarAdapter.Calend
             dateText = itemView.findViewById(R.id.dateText);
             dayOfWeekText = itemView.findViewById(R.id.dayOfWeekText);
             cardView = itemView.findViewById(R.id.cardView1); // Initialize the CardView
+
+
+
+// Load Inter Bold font from resources
+            Typeface interBold = ResourcesCompat.getFont(itemView.getContext(), R.font.inter_bold);
+            if (interBold != null) {
+                // Set Inter Bold font to TextViews
+                monthText.setTypeface(interBold);
+                dateText.setTypeface(interBold);
+            } else {
+                // Fallback to default font
+                monthText.setTypeface(Typeface.DEFAULT_BOLD);
+                dateText.setTypeface(Typeface.DEFAULT_BOLD);
+            }
+            // Set Inter Bold font to TextViews
+            monthText.setTypeface(interBold);
+            dateText.setTypeface(interBold);
         }
     }
 
