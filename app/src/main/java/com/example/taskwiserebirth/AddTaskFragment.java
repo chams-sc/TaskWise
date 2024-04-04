@@ -1,5 +1,4 @@
 package com.example.taskwiserebirth;
-
 import android.app.Dialog;
 import android.graphics.Color;
 import android.graphics.drawable.ColorDrawable;
@@ -24,6 +23,8 @@ import android.widget.Toast;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
+import androidx.recyclerview.widget.LinearLayoutManager;
+import androidx.recyclerview.widget.RecyclerView;
 
 import com.example.taskwiserebirth.Database.MongoDbRealmHelper;
 import com.example.taskwiserebirth.Database.Task;
@@ -38,9 +39,11 @@ import org.bson.Document;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Calendar;
 import java.util.Date;
 import java.util.List;
 import java.util.Locale;
+import java.util.TimeZone;
 
 import io.realm.mongodb.App;
 import io.realm.mongodb.User;
@@ -48,22 +51,108 @@ import io.realm.mongodb.mongo.MongoCollection;
 
 public class AddTaskFragment extends Fragment {
 
-    private App app;
+    private RecyclerView recyclerView;
+    private CalendarAdapter calendarAdapter;
     private ImageView calendarIcon;
     private String daysSelected = null;
+
+    // Realm
+    private App app;
 
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
         View rootView = inflater.inflate(R.layout.fragment_add_task, container, false);
+        recyclerView = rootView.findViewById(R.id.tasksRecyclerView);
+
+        // Set up RecyclerView for the calendar
+        setUpRecyclerView();
 
         // Realm
         app = MongoDbRealmHelper.initializeRealmApp();
 
         FloatingActionButton fab = rootView.findViewById(R.id.fab);
-
         fab.setOnClickListener(v -> showBottomSheetDialog());
 
+        // Display the time of day
+        displayTimeOfDay(rootView);
+
         return rootView;
+    }
+
+    private void displayTimeOfDay(View rootView) {
+        // Find the TextView for displaying time of day
+        TextView timeOfDayTextView = rootView.findViewById(R.id.tasksText);
+        // Find the ImageView for displaying the corresponding drawable
+        ImageView timeOfDayImageView = rootView.findViewById(R.id.timeOfDayImageView);
+
+        // Get the current time in Philippine Time (UTC+8:00)
+        Calendar calendar = Calendar.getInstance(TimeZone.getTimeZone("GMT+8:00"));
+        int hourOfDay = calendar.get(Calendar.HOUR_OF_DAY);
+        int minute = calendar.get(Calendar.MINUTE);
+        String am_pm;
+
+        // Determine whether it's morning, noon, evening, or night
+        String timeOfDay;
+        int drawableResId;
+
+        if (hourOfDay >= 6 && hourOfDay < 12) {
+            timeOfDay = "Morning";
+            am_pm = "AM";
+            drawableResId = R.drawable.baseline_sunny;
+        } else if (hourOfDay >= 12 && hourOfDay < 18) {
+            timeOfDay = "Afternoon";
+            am_pm = "PM";
+            drawableResId = R.drawable.baseline_sunny;
+        } else if (hourOfDay >= 18 && hourOfDay < 24) {
+            timeOfDay = "Evening";
+            am_pm = "PM";
+            drawableResId = R.drawable.baseline_night;
+        } else {
+            timeOfDay = "Night";
+            am_pm = "PM";
+            drawableResId = R.drawable.baseline_night;
+        }
+
+        // Adjust hour to be in 12-hour format
+        if (hourOfDay == 0) {
+            hourOfDay = 12;
+        } else if (hourOfDay > 12) {
+            hourOfDay -= 12;
+        }
+
+        // Format the current time
+        String formattedTime = String.format(Locale.getDefault(), "%d:%02d %s", hourOfDay, minute, am_pm);
+
+        // Display the time of day and current time in the desired format
+        timeOfDayTextView.setText(formattedTime + " " + timeOfDay);
+        // Set the corresponding drawable
+        timeOfDayImageView.setImageResource(drawableResId);
+    }
+
+
+    private void setUpRecyclerView() {
+        List<Calendar> calendarList = getDatesForCurrentMonth();
+        calendarAdapter = new CalendarAdapter(calendarList, date -> {
+            // Handle item click if needed
+        });
+        recyclerView.setLayoutManager(new LinearLayoutManager(requireContext(), LinearLayoutManager.HORIZONTAL, false));
+        recyclerView.setAdapter(calendarAdapter);
+    }
+    private List<Calendar> getDatesForCurrentMonth() {
+        List<Calendar> calendarList = new ArrayList<>();
+        Calendar currentDate = Calendar.getInstance();
+
+        // Set to the first day of the current month
+        currentDate.set(Calendar.DAY_OF_MONTH, 1);
+
+        int daysInMonth = currentDate.getActualMaximum(Calendar.DAY_OF_MONTH);
+        for (int day = 1; day <= daysInMonth; day++) {
+            Calendar date = (Calendar) currentDate.clone();
+            date.set(Calendar.DAY_OF_MONTH, day);
+            calendarList.add(date);
+        }
+
+        return calendarList;
     }
 
     private void showBottomSheetDialog() {
@@ -83,7 +172,7 @@ public class AddTaskFragment extends Fragment {
         Spinner urgencySpinner = bottomSheetView.findViewById(R.id.urgency);
         Spinner recurrenceSpinner = bottomSheetView.findViewById(R.id.recurrence);
 
-        Button saveBtn = bottomSheetDialog.findViewById(R.id.saveButton);
+        Button saveBtn = bottomSheetView.findViewById(R.id.saveButton);
         saveBtn.setOnClickListener(v -> {
             if (validateFields(bottomSheetDialog)) {
                 Task task = createTaskFromFields(bottomSheetDialog);
@@ -144,7 +233,6 @@ public class AddTaskFragment extends Fragment {
             MongoCollection<Document> mongoCollection = MongoDbRealmHelper.getMongoCollection("UserTaskData");
 
             Document taskDocument = new Document("owner_id", user.getId())
-                    // Set other fields from task object
                     .append("task_name", task.getTaskName())
                     .append("importance_level", task.getImportanceLevel())
                     .append("urgency_level", task.getUrgencyLevel())
@@ -183,13 +271,11 @@ public class AddTaskFragment extends Fragment {
         });
     }
 
-    private boolean validateFields(BottomSheetDialog bottomSheetDialog) {
-
+    private boolean validateFields(Dialog bottomSheetDialog) {
         EditText editTaskName = bottomSheetDialog.findViewById(R.id.taskName);
         Spinner importanceSpinner = bottomSheetDialog.findViewById(R.id.importance);
         Spinner urgencySpinner = bottomSheetDialog.findViewById(R.id.urgency);
 
-        // List here the required fields
         List<View> fieldsToValidate = Arrays.asList(editTaskName, importanceSpinner, urgencySpinner);
         boolean allFieldsFilled = true;
         for (View field : fieldsToValidate) {
@@ -250,7 +336,6 @@ public class AddTaskFragment extends Fragment {
         Button setButton = bottomSheetDialog.findViewById(R.id.setBtn);
         setButton.setEnabled(false);
 
-        // Detect if any checkbox is chosen, only then can the set button be clicked
         int[] checkBoxIds = {R.id.Monday, R.id.Tuesday, R.id.Wednesday, R.id.Thursday, R.id.Friday, R.id.Saturday, R.id.Sunday};
         List<CheckBox> checkBoxes = new ArrayList<>();
         for (int checkBoxId : checkBoxIds) {
@@ -261,11 +346,9 @@ public class AddTaskFragment extends Fragment {
             });
         }
 
-        // If dialog is dismissed, set the selection back to none
         bottomSheetDialog.setOnCancelListener(dialog -> spinner.setSelection(0));
 
         setButton.setOnClickListener(v -> {
-
             List<String> selectedDays = getSelectedDays(bottomSheetDialog);
             StringBuilder stringBuilder = new StringBuilder();
 
@@ -279,10 +362,6 @@ public class AddTaskFragment extends Fragment {
 
             daysSelected = stringBuilder.toString();
 
-            // Do something with the selected days list
-            Log.d("SPECIFIC_DAYS", selectedDays.toString());
-
-            // Update spinner's text
             spinner.setSelection(pos);
             ((TextView) spinner.getSelectedView()).setText(daysSelected);
 
@@ -291,7 +370,6 @@ public class AddTaskFragment extends Fragment {
 
         bottomSheetDialog.show();
 
-        // Adjust dialog position to center horizontally and vertically
         WindowManager.LayoutParams layoutParams = new WindowManager.LayoutParams();
         Window window = bottomSheetDialog.getWindow();
         if (window != null) {
@@ -356,11 +434,9 @@ public class AddTaskFragment extends Fragment {
             String formattedTime = String.format(Locale.getDefault(), "%02d:%02d %s",
                     hourOfDay == 12 || hourOfDay == 0 ? 12 : hourOfDay % 12, minute, hourOfDay < 12 ? "AM" : "PM");
 
-            // Combine date and time with "|"
             String dateTime = selectedDate + " | " + formattedTime;
 
-            // Update EditText with selected date and time
-            EditText editTextDateTime = bottomSheetDialog.findViewById(R.id.deadline); // assuming you have access to EditText directly
+            EditText editTextDateTime = bottomSheetDialog.findViewById(R.id.deadline);
             if (editTextDateTime != null) {
                 editTextDateTime.setText(dateTime);
             }

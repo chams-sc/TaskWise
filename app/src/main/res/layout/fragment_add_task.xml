@@ -4,25 +4,57 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent">
 
-    <TextView
-        android:id="@+id/tasksText"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:textStyle="bold"
-        android:textColor="@android:color/black"
-        android:layout_marginStart="16dp"
-        android:layout_marginBottom="16dp"
-        android:textSize="32sp" />
 
-    <androidx.recyclerview.widget.RecyclerView
-        android:id="@+id/tasksRecyclerView"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_below="@id/tasksText"
-        app:layoutManager="androidx.recyclerview.widget.LinearLayoutManager"
-        android:nestedScrollingEnabled="true" />
+     <!-- Placeholder morning drawable -->
 
-    <com.google.android.material.floatingactionbutton.FloatingActionButton
+
+     <androidx.constraintlayout.widget.ConstraintLayout
+         android:layout_width="match_parent"
+         android:layout_height="match_parent">
+
+         <TextView
+             android:id="@+id/tasksText"
+             android:layout_marginLeft="32dp"
+             android:paddingLeft="12dp"
+             android:text="hi"
+             android:layout_marginTop="12dp"
+             android:layout_width="wrap_content"
+             android:layout_height="wrap_content"
+             app:layout_constraintStart_toStartOf="parent"
+             app:layout_constraintTop_toTopOf="parent" />
+
+         <ImageView
+             android:id="@+id/timeOfDayImageView"
+             android:layout_width="wrap_content"
+             android:layout_marginLeft="8dp"
+             android:layout_marginTop="12dp"
+             android:layout_height="wrap_content"
+             android:src="@drawable/baseline_sunny"
+             app:layout_constraintStart_toStartOf="parent"
+             app:layout_constraintTop_toTopOf="parent" />
+
+         <androidx.recyclerview.widget.RecyclerView
+             android:id="@+id/tasksRecyclerView"
+             android:layout_width="match_parent"
+             android:layout_height="wrap_content"
+             android:layout_below="@id/tasksText"
+             android:nestedScrollingEnabled="true"
+             app:layoutManager="androidx.recyclerview.widget.LinearLayoutManager"
+             app:layout_constraintBottom_toBottomOf="parent"
+             app:layout_constraintTop_toTopOf="parent" />
+
+         <ImageView
+             android:id="@+id/nightImageView"
+             android:layout_width="wrap_content"
+             android:layout_height="wrap_content"
+             android:src="@drawable/baseline_night"
+             android:visibility="gone"
+             app:layout_constraintStart_toStartOf="@+id/timeOfDayImageView"
+             app:layout_constraintTop_toTopOf="@+id/timeOfDayImageView" />
+
+     </androidx.constraintlayout.widget.ConstraintLayout>
+
+     <com.google.android.material.floatingactionbutton.FloatingActionButton
         android:id="@+id/fab"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
