@@ -59,6 +59,8 @@ public class AddTaskFragment extends Fragment {
     // Realm
     private App app;
 
+
+
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
         View rootView = inflater.inflate(R.layout.fragment_add_task, container, false);
