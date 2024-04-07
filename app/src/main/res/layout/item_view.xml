@@ -51,7 +51,7 @@
         android:fontFamily="@font/inter"
         android:textColor="#1C1B1F"
         android:textSize="12sp"
-        tools:text="Very High Priority" />
+        tools:text="Very High Priority." />
 
     <ImageView
         android:id="@+id/mMEnus"
