@@ -1,67 +1,69 @@
-<?xml version="1.0" encoding="utf-8"?>
-<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<androidx.cardview.widget.CardView xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
-    android:layout_width="340dp"
+    android:layout_width="match_parent"
     android:layout_height="wrap_content"
-    android:padding="10dp"
-    android:layout_marginBottom="10dp"
-    android:background="@drawable/rounded_corner"
     xmlns:tools="http://schemas.android.com/tools"
+    android:layout_margin="8dp"
     android:elevation="8dp"
-    >
+    app:cardCornerRadius="8dp">
 
-
-
-    <TextView
-        android:id="@+id/titleoutput"
-        android:layout_width="280dp"
-        android:layout_height="wrap_content"
-        android:layout_alignParentStart="true"
-        android:layout_alignParentEnd="true"
-        android:layout_marginStart="40dp"
-        android:layout_marginEnd="110dp"
-        android:layout_marginBottom="8dp"
-        android:textColor="@color/black"
-        android:textSize="20sp"
-        tools:text="My title"
-        android:fontFamily="@font/inter_bold"/>
-
-    <TextView
-        android:id="@+id/timeoutput"
+    <RelativeLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_below="@id/titleoutput"
-        android:layout_marginStart="40dp"
-        android:fontFamily="@font/inter_semibold"
-        android:textColor="#393939"
-        android:textSize="12sp"
-        tools:text="8:00 AM - 5:00 PM" />
+        android:padding="10dp"
+        android:background="@drawable/rounded_corner">
 
-    <TextView
-        android:id="@+id/priority"
-        android:layout_width="120dp"
-        android:layout_height="wrap_content"
-        android:layout_below="@id/timeoutput"
-        android:layout_alignParentStart="true"
-        android:layout_alignParentEnd="true"
-        android:layout_marginStart="40dp"
-        android:layout_marginTop="8dp"
-        android:layout_marginEnd="170dp"
-        android:background="#D9D9D9"
-        android:fontFamily="@font/inter"
-        android:textColor="#1C1B1F"
-        android:textSize="12sp"
-        tools:text="Very High Priority." />
+        <TextView
+            android:id="@+id/titleoutput"
+            android:layout_width="280dp"
+            android:layout_height="wrap_content"
+            android:layout_alignParentStart="true"
+            android:layout_alignParentEnd="true"
+            android:layout_marginStart="40dp"
+            android:layout_marginEnd="110dp"
+            android:layout_marginBottom="8dp"
+            android:textColor="@color/black"
+            android:textSize="20sp"
+            tools:text="My title"
+            android:fontFamily="@font/inter_bold"/>
 
-    <ImageView
-        android:id="@+id/mMEnus"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_alignParentTop="true"
-        android:layout_alignParentRight="true"
-        android:layout_marginTop="4dp"
-        android:layout_marginEnd="4dp"
-        android:src="@drawable/baseline_more" />
+        <TextView
+            android:id="@+id/timeoutput"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_below="@id/titleoutput"
+            android:layout_marginStart="40dp"
+            android:fontFamily="@font/inter_semibold"
+            android:textColor="#393939"
+            android:textSize="12sp"
+            tools:text="8:00 AM - 5:00 PM" />
 
+        <TextView
+            android:id="@+id/priority"
+            android:layout_width="132dp"
+            android:layout_height="wrap_content"
+            android:layout_below="@id/timeoutput"
+            android:layout_alignParentStart="true"
+            android:layout_alignParentEnd="true"
+            android:layout_marginStart="40dp"
+            android:layout_marginTop="8dp"
+            android:layout_marginEnd="216dp"
+            android:background="#D9D9D9"
+            android:fontFamily="@font/inter"
+            android:textColor="#1C1B1F"
+            android:textSize="12sp"
+            tools:text="Very High Priority." />
 
-</RelativeLayout>
+        <ImageView
+            android:id="@+id/mMEnus"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_alignParentTop="true"
+            android:layout_alignParentRight="true"
+            android:layout_marginTop="4dp"
+            android:layout_marginEnd="4dp"
+            android:src="@drawable/baseline_more" />
+
+    </RelativeLayout>
+</androidx.cardview.widget.CardView>
+

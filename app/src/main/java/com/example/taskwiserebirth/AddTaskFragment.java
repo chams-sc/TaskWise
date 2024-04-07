@@ -65,28 +65,66 @@ public class AddTaskFragment extends Fragment {
         recyclerView = rootView.findViewById(R.id.tasksRecyclerView);
 
         // Set up RecyclerView for the calendar
-        setUpRecyclerView();
+        setUpCalendarRecyclerView(rootView);
 
-        // Realm
+        // Set up RecyclerView for the card items
+        setUpCardRecyclerView(rootView);
+
+        // Realm initialization
         app = MongoDbRealmHelper.initializeRealmApp();
 
+        // Floating action button setup
         FloatingActionButton fab = rootView.findViewById(R.id.fab);
         fab.setOnClickListener(v -> showBottomSheetDialog());
 
         // Display the time of day
         displayTimeOfDay(rootView);
 
-        List<Item> items = new ArrayList<Item>();
-        items.add(new Item("William", "9:00 AM - 11:00 AM", "Low Prio"));
-
-        // Set up RecyclerView with LinearLayoutManager
-        recyclerView.setLayoutManager(new LinearLayoutManager(requireContext()));
-
-        // Set RecyclerView adapter with the items list
-        recyclerView.setAdapter(new CardAdapter(requireContext(), items));
-
         return rootView;
     }
+
+    private void setUpCalendarRecyclerView(View rootView) {
+        RecyclerView calendarRecyclerView = rootView.findViewById(R.id.tasksRecyclerView);
+
+        // Get list of calendar dates
+        List<Calendar> calendarList = getDatesForCurrentMonth();
+
+        // Set up CalendarAdapter
+        CalendarAdapter calendarAdapter = new CalendarAdapter(calendarList, date -> {
+            // Handle calendar item click if needed
+        });
+
+        // Set up RecyclerView with LinearLayoutManager
+        calendarRecyclerView.setLayoutManager(new LinearLayoutManager(requireContext(), LinearLayoutManager.HORIZONTAL, false));
+
+        // Set RecyclerView adapter
+        calendarRecyclerView.setAdapter(calendarAdapter);
+    }
+
+    private void setUpCardRecyclerView(View rootView) {
+        RecyclerView cardRecyclerView = rootView.findViewById(R.id.Cardrecyclerview1);
+
+        // Dummy data for card items
+        List<Item> items = new ArrayList<>();
+        items.add(new Item("William", "9:00 AM - 11:00 AM", "Low Prio"));
+        items.add(new Item("Archie", "9:00 AM - 11:00 AM", "Low Priority"));
+        items.add(new Item("test", "9:00 AM - 11:00 AM", "Medium Prio"));
+        items.add(new Item("test", "9:00 AM - 11:00 AM", "High Prio"));
+        items.add(new Item("test", "9:00 AM - 11:00 AM", "Very High Prio"));
+        items.add(new Item("test", "9:00 AM - 11:00 AM", "Important"));
+        items.add(new Item("test", "9:00 AM - 11:00 AM", "Very Important"));
+        items.add(new Item("test", "9:00 AM - 11:00 AM", "Low Prio"));
+
+        // Set up CardAdapter
+        CardAdapter cardAdapter = new CardAdapter(requireContext(), items);
+
+        // Set up RecyclerView with LinearLayoutManager
+        cardRecyclerView.setLayoutManager(new LinearLayoutManager(requireContext()));
+
+        // Set RecyclerView adapter with the items list
+        cardRecyclerView.setAdapter(cardAdapter);
+    }
+
 
 
 
@@ -149,6 +187,7 @@ public class AddTaskFragment extends Fragment {
         });
         recyclerView.setLayoutManager(new LinearLayoutManager(requireContext(), LinearLayoutManager.HORIZONTAL, false));
         recyclerView.setAdapter(calendarAdapter);
+
     }
     private List<Calendar> getDatesForCurrentMonth() {
         List<Calendar> calendarList = new ArrayList<>();
