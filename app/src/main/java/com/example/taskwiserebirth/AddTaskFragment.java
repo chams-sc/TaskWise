@@ -76,8 +76,20 @@ public class AddTaskFragment extends Fragment {
         // Display the time of day
         displayTimeOfDay(rootView);
 
+        List<Item> items = new ArrayList<Item>();
+        items.add(new Item("William", "9:00 AM - 11:00 AM", "Low Prio"));
+
+        // Set up RecyclerView with LinearLayoutManager
+        recyclerView.setLayoutManager(new LinearLayoutManager(requireContext()));
+
+        // Set RecyclerView adapter with the items list
+        recyclerView.setAdapter(new CardAdapter(requireContext(), items));
+
         return rootView;
     }
+
+
+
 
     private void displayTimeOfDay(View rootView) {
         // Find the TextView for displaying time of day
@@ -443,4 +455,5 @@ public class AddTaskFragment extends Fragment {
         });
         timePicker.show(requireActivity().getSupportFragmentManager(), "TIME_PICKER");
     }
+
 }
