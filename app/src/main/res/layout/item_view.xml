@@ -40,19 +40,19 @@
 
         <TextView
             android:id="@+id/priority"
-            android:layout_width="132dp"
+            android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_below="@id/deadlineTxt"
-            android:layout_alignParentStart="true"
-            android:layout_alignParentEnd="true"
             android:layout_marginStart="40dp"
             android:layout_marginTop="8dp"
-            android:layout_marginEnd="216dp"
-            android:background="#D9D9D9"
+            android:paddingHorizontal="12dp"
+            android:paddingVertical="2dp"
+            android:background="@drawable/priority_bg"
             android:fontFamily="@font/inter"
             android:textColor="#1C1B1F"
             android:textSize="12sp"
-            tools:text="Very High Priority." />
+            tools:text="Priority" />
+
 
         <ImageView
             android:id="@+id/menus"
