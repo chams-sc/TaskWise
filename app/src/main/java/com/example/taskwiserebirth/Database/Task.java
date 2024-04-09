@@ -14,6 +14,15 @@ public class Task {
     private String notes;
     private boolean reminder;
 
+    public Task() {
+    }
+
+    public Task(String taskName, String deadline, String priority) {
+        this.taskName = taskName;
+        this.deadline = deadline;
+        this.importanceLevel = priority; // TODO: change to priority
+    }
+
     public String getTaskName() {
         return taskName;
     }

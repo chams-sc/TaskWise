@@ -23,7 +23,6 @@ import java.util.regex.Pattern;
 
 import io.realm.Realm;
 import io.realm.mongodb.App;
-import io.realm.mongodb.AppConfiguration;
 import io.realm.mongodb.AppException;
 import io.realm.mongodb.Credentials;
 

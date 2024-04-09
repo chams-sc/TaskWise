@@ -26,8 +26,10 @@ import androidx.fragment.app.Fragment;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
+import com.example.taskwiserebirth.Database.DatabaseChangeListener;
 import com.example.taskwiserebirth.Database.MongoDbRealmHelper;
 import com.example.taskwiserebirth.Database.Task;
+import com.example.taskwiserebirth.Database.TaskAdapter;
 import com.google.android.material.bottomsheet.BottomSheetDialog;
 import com.google.android.material.datepicker.MaterialDatePicker;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
@@ -46,22 +48,32 @@ import java.util.Locale;
 import java.util.TimeZone;
 
 import io.realm.mongodb.App;
+import io.realm.mongodb.RealmResultTask;
 import io.realm.mongodb.User;
 import io.realm.mongodb.mongo.MongoCollection;
+import io.realm.mongodb.mongo.iterable.MongoCursor;
 
-public class AddTaskFragment extends Fragment {
+public class AddTaskFragment extends Fragment implements DatabaseChangeListener {
 
+    // TODO: Please fix naming conventions, taskRecyclerView but the contents is the calendar. cardRecyclerView should be the taskRecyclerView.
     private RecyclerView recyclerView;
     private CalendarAdapter calendarAdapter;
     private ImageView calendarIcon;
     private String daysSelected = null;
+    private TaskAdapter taskAdapter;
 
     // Realm
     private App app;
+    private MongoCollection<Document> taskCollection;
 
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
         View rootView = inflater.inflate(R.layout.fragment_add_task, container, false);
+        // Realm initialization
+        app = MongoDbRealmHelper.initializeRealmApp();
+        MongoDbRealmHelper.addDatabaseChangeListener(this);
+        taskCollection = MongoDbRealmHelper.getMongoCollection("UserTaskData");
+
         recyclerView = rootView.findViewById(R.id.tasksRecyclerView);
 
         // Set up RecyclerView for the calendar
@@ -69,9 +81,6 @@ public class AddTaskFragment extends Fragment {
 
         // Set up RecyclerView for the card items
         setUpCardRecyclerView(rootView);
-
-        // Realm initialization
-        app = MongoDbRealmHelper.initializeRealmApp();
 
         // Floating action button setup
         FloatingActionButton fab = rootView.findViewById(R.id.fab);
@@ -105,29 +114,46 @@ public class AddTaskFragment extends Fragment {
         RecyclerView cardRecyclerView = rootView.findViewById(R.id.Cardrecyclerview1);
 
         // Dummy data for card items
-        List<Item> items = new ArrayList<>();
-        items.add(new Item("William", "9:00 AM - 11:00 AM", "Low Prio"));
-        items.add(new Item("Archie", "9:00 AM - 11:00 AM", "Low Priority"));
-        items.add(new Item("test", "9:00 AM - 11:00 AM", "Medium Prio"));
-        items.add(new Item("test", "9:00 AM - 11:00 AM", "High Prio"));
-        items.add(new Item("test", "9:00 AM - 11:00 AM", "Very High Prio"));
-        items.add(new Item("test", "9:00 AM - 11:00 AM", "Important"));
-        items.add(new Item("test", "9:00 AM - 11:00 AM", "Very Important"));
-        items.add(new Item("test", "9:00 AM - 11:00 AM", "Low Prio"));
+        List<Task> tasks = new ArrayList<>();
 
         // Set up CardAdapter
-        CardAdapter cardAdapter = new CardAdapter(requireContext(), items);
+        taskAdapter = new TaskAdapter(requireContext(), tasks);
 
         // Set up RecyclerView with LinearLayoutManager
         cardRecyclerView.setLayoutManager(new LinearLayoutManager(requireContext()));
 
         // Set RecyclerView adapter with the items list
-        cardRecyclerView.setAdapter(cardAdapter);
+        cardRecyclerView.setAdapter(taskAdapter);
+
+        updateRecyclerView();
     }
 
-
-
-
+    private void updateRecyclerView() {
+        Document queryFilter = new Document();
+        RealmResultTask<MongoCursor<Document>> findTask = taskCollection.find(queryFilter).iterator();
+        findTask.getAsync(task -> {
+            if (task.isSuccess()) {
+                MongoCursor<Document> results = task.get();
+                List<Task> tasks = new ArrayList<>();
+                while (results.hasNext()) {
+                    Document document = results.next();
+                    // TODO: update with priority once implemented
+                    String taskName = document.getString("task_name");
+                    String deadline = document.getString("deadline");
+                    String priority = document.getString("importance_level");
+                    Task newTask = new Task(taskName, deadline, priority);
+                    tasks.add(newTask);
+                }
+                // Update RecyclerView with fetched documents
+                requireActivity().runOnUiThread(() -> {
+                    taskAdapter.setTasks(tasks);
+                    taskAdapter.notifyDataSetChanged();
+                });
+            } else {
+                Log.e("TAG", "failed to find documents with: ", task.getError());
+            }
+        });
+    }
 
     private void displayTimeOfDay(View rootView) {
         // Find the TextView for displaying time of day
@@ -495,4 +521,17 @@ public class AddTaskFragment extends Fragment {
         timePicker.show(requireActivity().getSupportFragmentManager(), "TIME_PICKER");
     }
 
+    @Override
+    public void onDestroyView() {
+        super.onDestroyView();
+        // Unregister this fragment as a listener
+        MongoDbRealmHelper.removeDatabaseChangeListener(this);
+    }
+
+
+    @Override
+    public void onDatabaseChange() {
+        // Update RecyclerView whenever database changes
+        updateRecyclerView();
+    }
 }

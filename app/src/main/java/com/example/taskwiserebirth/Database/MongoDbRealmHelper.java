@@ -7,12 +7,16 @@ import io.realm.mongodb.mongo.MongoCollection;
 import io.realm.mongodb.mongo.MongoDatabase;
 import org.bson.Document;
 
+import java.util.ArrayList;
+import java.util.List;
+
 public class MongoDbRealmHelper {
 
     private static final String SERVICE_NAME = "mongodb-atlas";
     private static final String DATABASE_NAME = "TaskWise";
     private static final String APP_ID = "taskwise-bxyah";
     private static App app;
+    private static List<DatabaseChangeListener> listeners = new ArrayList<>();
 
     public static App initializeRealmApp() {
         if (app == null) {
@@ -42,4 +46,20 @@ public class MongoDbRealmHelper {
         MongoDatabase mongoDatabase = getMongoDatabase();
         return mongoDatabase.getCollection(collectionName);
     }
+
+
+    public static void addDatabaseChangeListener(DatabaseChangeListener listener) {
+        listeners.add(listener);
+    }
+
+    public static void removeDatabaseChangeListener(DatabaseChangeListener listener) {
+        listeners.remove(listener);
+    }
+
+    public static void notifyDatabaseChangeListeners() {
+        for (DatabaseChangeListener listener : listeners) {
+            listener.onDatabaseChange();
+        }
+    }
+
 }
