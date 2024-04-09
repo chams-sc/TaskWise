@@ -324,6 +324,7 @@ public class AddTaskFragment extends Fragment implements DatabaseChangeListener 
             mongoCollection.insertOne(taskDocument).getAsync(result -> {
                 if (result.isSuccess()) {
                     Log.d("Data", "Data Inserted Successfully");
+                    MongoDbRealmHelper.notifyDatabaseChangeListeners();
                 } else {
                     Log.e("Data", "Failed to insert data: " + result.getError().getMessage());
                 }
