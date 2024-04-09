@@ -26,10 +26,10 @@ import androidx.fragment.app.Fragment;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
-import com.example.taskwiserebirth.Database.DatabaseChangeListener;
-import com.example.taskwiserebirth.Database.MongoDbRealmHelper;
-import com.example.taskwiserebirth.Database.Task;
-import com.example.taskwiserebirth.Database.TaskAdapter;
+import com.example.taskwiserebirth.database.DatabaseChangeListener;
+import com.example.taskwiserebirth.database.MongoDbRealmHelper;
+import com.example.taskwiserebirth.database.Task;
+import com.example.taskwiserebirth.database.TaskAdapter;
 import com.google.android.material.bottomsheet.BottomSheetDialog;
 import com.google.android.material.datepicker.MaterialDatePicker;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
