@@ -140,6 +140,8 @@ public class AddTaskFragment extends Fragment implements DatabaseChangeListener 
             if (task.isSuccess()) {
                 MongoCursor<Document> results = task.get();
                 List<Task> tasks = new ArrayList<>();
+                String priorityLevel = "";
+
                 while (results.hasNext()) {
                     Document document = results.next();
                     // TODO: update with priority once implemented
@@ -149,7 +151,7 @@ public class AddTaskFragment extends Fragment implements DatabaseChangeListener 
 
                     String deadlineString = document.getString("deadline");
 
-                    Task newTask = new Task(taskName, deadlineString, importanceLevel, urgencyLevel);
+                    Task newTask = new Task(taskName, deadlineString, importanceLevel, urgencyLevel, priorityLevel);
                     tasks.add(newTask);
                 }
 

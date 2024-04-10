@@ -18,6 +18,9 @@ public class TaskPriorityCalculator {
         double urgencyFactor = calculateUrgencyFactor(task.getUrgencyLevel());
         double deadlineFactor = calculateDeadlineFactor(task.getDeadline(), currentDate, earliestDeadline, longestDeadline);
 
+        String priorityLevel = getPriorityLevel(task.getUrgencyLevel(), task.getImportanceLevel());
+        task.setPriorityLevel(priorityLevel);
+
         return (importanceFactor * urgencyFactor) + deadlineFactor;
     }
 
@@ -96,9 +99,6 @@ public class TaskPriorityCalculator {
                 double priority1 = calculateTaskPriority(task1, currentDate, finalEarliestDeadline, finalLongestDeadline);
                 double priority2 = calculateTaskPriority(task2, currentDate, finalEarliestDeadline, finalLongestDeadline);
 
-                task1.setPriorityScore(priority1);
-                task2.setPriorityScore(priority2);
-
                 return Double.compare(priority2, priority1); // Descending order
             }
         });
@@ -106,4 +106,22 @@ public class TaskPriorityCalculator {
         return tasks;
     }
 
+    public static String getPriorityLevel(String urgencyLevel, String importanceLevel) {
+        if (urgencyLevel.equals("Not Urgent") || urgencyLevel.equals("Somewhat Urgent")) {
+            if (importanceLevel.equals("Not Important") || importanceLevel.equals("Somewhat Important")) {
+                return "Not Important, Not Urgent";
+            } else {
+                return "Important, Not Urgent";
+            }
+        } else if (urgencyLevel.equals("Urgent") || urgencyLevel.equals("Very Urgent")){
+            if (importanceLevel.equals("Not Important") || importanceLevel.equals("Somewhat Important")) {
+                return "Not Important, Urgent";
+            } else {
+                return "Important, Urgent";
+            }
+        }
+        else {
+            return "Unknown Priority";
+        }
+    }
 }
