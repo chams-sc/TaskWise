@@ -30,7 +30,7 @@ public class BeforeLogin extends AppCompatActivity {
 
     // TODO: find a way to hide appId
     private String appId = "taskwise-bxyah";
-    private String tag = "MongoDb";
+    private String TAG = "MongoDb";
     private App app;
     Button bottomlogin;
     private Dialog loginDialog;
@@ -109,7 +109,7 @@ public class BeforeLogin extends AppCompatActivity {
         Credentials credentials = Credentials.emailPassword(email, password);
         app.loginAsync(credentials, result -> {
             if(result.isSuccess()){
-                Log.d(tag, "Logged in successfully");
+                Log.d(TAG, "Logged in successfully");
 
                 // TODO: possibly remove toast message
                 Toast.makeText(getApplicationContext(), "Logged in successfully", Toast.LENGTH_SHORT).show();
@@ -119,7 +119,7 @@ public class BeforeLogin extends AppCompatActivity {
             }
             else
             {
-                Log.e(tag, result.getError().getErrorCode().toString());
+                Log.e(TAG, result.getError().getErrorCode().toString());
                 handleMongoError(result.getError());
             }
         });
@@ -177,10 +177,10 @@ public class BeforeLogin extends AppCompatActivity {
     private void registerUser(String email, String password) {
         app.getEmailPassword().registerUserAsync(email, password, result -> {
             if (result.isSuccess()) {
-                Log.d(tag, "Registered with email successfully");
+                Log.d(TAG, "Registered with email successfully");
                 Toast.makeText(getApplicationContext(), "Successful registration!", Toast.LENGTH_SHORT).show();
             } else {
-                Log.e(tag, result.getError().getErrorMessage());
+                Log.e(TAG, result.getError().getErrorMessage());
                 handleMongoError(result.getError());
             }
         });
@@ -193,21 +193,21 @@ public class BeforeLogin extends AppCompatActivity {
             // TODO: add other error codes if possible
             switch (errorIntValue) {
                 case 4348:
-                    Log.e(tag, "Account name already exists.");
+                    Log.e(TAG, "Account name already exists.");
                     Toast.makeText(getApplicationContext(), "Account name already exists.", Toast.LENGTH_SHORT).show();
                     break;
                 case 4349:
-                    Log.e(tag, "Invalid email or password");
+                    Log.e(TAG, "Invalid email or password");
                     Toast.makeText(getApplicationContext(), "Invalid email or password", Toast.LENGTH_SHORT).show();
                     break;
                 default:
-                    Log.e(tag, exception.getErrorMessage());
+                    Log.e(TAG, exception.getErrorMessage());
                     Toast.makeText(getApplicationContext(), exception.getErrorMessage(), Toast.LENGTH_SHORT).show();
                     break;
             }
 
         } else {
-            Log.e(tag, "Unknown error occurred");
+            Log.e(TAG, "Unknown error occurred");
             Toast.makeText(getApplicationContext(), "Unknown error occurred", Toast.LENGTH_SHORT).show();
         }
     }

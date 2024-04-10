@@ -38,6 +38,7 @@ import com.google.android.material.timepicker.TimeFormat;
 
 import org.bson.Document;
 
+import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -46,6 +47,7 @@ import java.util.Date;
 import java.util.List;
 import java.util.Locale;
 import java.util.TimeZone;
+import java.util.concurrent.atomic.AtomicReference;
 
 import io.realm.mongodb.App;
 import io.realm.mongodb.RealmResultTask;
@@ -62,9 +64,11 @@ public class AddTaskFragment extends Fragment implements DatabaseChangeListener 
     private String daysSelected = null;
     private TaskAdapter taskAdapter;
 
+
     // Realm
     private App app;
     private MongoCollection<Document> taskCollection;
+    private String TAG = "MongoDb";
 
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
@@ -129,6 +133,7 @@ public class AddTaskFragment extends Fragment implements DatabaseChangeListener 
     }
 
     private void updateRecyclerView() {
+        findTaskWithFarthestDeadline();
         Document queryFilter = new Document();
         RealmResultTask<MongoCursor<Document>> findTask = taskCollection.find(queryFilter).iterator();
         findTask.getAsync(task -> {
@@ -150,9 +155,59 @@ public class AddTaskFragment extends Fragment implements DatabaseChangeListener 
                     taskAdapter.notifyDataSetChanged();
                 });
             } else {
-                Log.e("TAG", "failed to find documents with: ", task.getError());
+                Log.e(TAG, "failed to find documents with: ", task.getError());
             }
         });
+    }
+
+    private void findTaskWithFarthestDeadline() {
+        // Define query filter
+        Document queryFilter = new Document();
+
+        // Execute find query
+        RealmResultTask<MongoCursor<Document>> findTask = taskCollection.find(queryFilter).iterator();
+
+        // Handle find query result
+        findTask.getAsync(task -> {
+            if (task.isSuccess()) {
+                MongoCursor<Document> results = task.get();
+
+                // Initialize variables to keep track of the document with the farthest deadline
+                Date farthestDeadline = null;
+
+                // Iterate through each document to find the one with the farthest deadline
+                while (results.hasNext()) {
+                    Document document = results.next();
+                    String deadlineString = document.getString("deadline");
+                    Date deadline = parseDeadline(deadlineString);
+                    if (farthestDeadline == null || (deadline != null && deadline.after(farthestDeadline))) {
+                        farthestDeadline = deadline;
+                    }
+                }
+
+                // Update UI with the farthest deadline
+                if (farthestDeadline != null) {
+                    Date finalFarthestDeadline = farthestDeadline;
+                    requireActivity().runOnUiThread(() -> {
+                        Log.d("TAG", "Farthest deadline: " + finalFarthestDeadline);
+                    });
+                } else {
+                    Log.e("TAG", "No tasks found.");
+                }
+            } else {
+                Log.e("TAG", "Failed to find documents with: ", task.getError());
+            }
+        });
+    }
+
+    private Date parseDeadline(String deadlineString) {
+        SimpleDateFormat format = new SimpleDateFormat("MM-dd-yyyy | hh:mm a");
+        try {
+            return format.parse(deadlineString);
+        } catch (ParseException e) {
+            e.printStackTrace();
+            return null;
+        }
     }
 
     private void displayTimeOfDay(View rootView) {
@@ -289,12 +344,18 @@ public class AddTaskFragment extends Fragment implements DatabaseChangeListener 
             recurrence = daysSelected;
         }
 
+        // Set No deadline if deadline is empty
+        String deadline = editDeadline.getText().toString().trim();
+        if (deadline.isEmpty()) {
+            deadline = "No deadline";
+        }
+
         Task task = new Task();
         task.setTaskName(editTaskName.getText().toString());
         task.setCreationDate(currentDate);
         task.setImportanceLevel(importanceSpinner.getSelectedItem().toString());
         task.setUrgencyLevel(urgencySpinner.getSelectedItem().toString());
-        task.setDeadline(editDeadline.getText().toString());
+        task.setDeadline(deadline);
         task.setDuration(editDuration.getText().toString());
         task.setRecurrence(recurrence);
         task.setSchedule(editSchedule.getText().toString());
@@ -332,23 +393,6 @@ public class AddTaskFragment extends Fragment implements DatabaseChangeListener 
         }
     }
 
-    private void setupRecurrenceSpinner(Spinner recurrenceSpinner) {
-        recurrenceSpinner.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
-            @Override
-            public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
-                String selectedItem = parent.getItemAtPosition(position).toString();
-                if (selectedItem.equals("Specific Days")) {
-                    showDialogForCustomRecurrence(recurrenceSpinner, position);
-                }
-            }
-
-            @Override
-            public void onNothingSelected(AdapterView<?> parent) {
-                // Handle nothing selected if needed
-            }
-        });
-    }
-
     private boolean validateFields(Dialog bottomSheetDialog) {
         EditText editTaskName = bottomSheetDialog.findViewById(R.id.taskName);
         Spinner importanceSpinner = bottomSheetDialog.findViewById(R.id.importance);
@@ -375,6 +419,23 @@ public class AddTaskFragment extends Fragment implements DatabaseChangeListener 
         }
     }
 
+    private void setupRecurrenceSpinner(Spinner recurrenceSpinner) {
+        recurrenceSpinner.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
+            @Override
+            public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
+                String selectedItem = parent.getItemAtPosition(position).toString();
+                if (selectedItem.equals("Specific Days")) {
+                    showDialogForCustomRecurrence(recurrenceSpinner, position);
+                }
+            }
+
+            @Override
+            public void onNothingSelected(AdapterView<?> parent) {
+                // Handle nothing selected if needed
+            }
+        });
+    }
+
     private void setupSpinners(Spinner importanceSpinner, Spinner urgencySpinner, Spinner recurrenceSpinner) {
         ArrayAdapter<CharSequence> importanceAdapter = ArrayAdapter.createFromResource(requireContext(),
                 R.array.importance_array, android.R.layout.simple_spinner_item);
@@ -391,19 +452,6 @@ public class AddTaskFragment extends Fragment implements DatabaseChangeListener 
         importanceSpinner.setAdapter(importanceAdapter);
         urgencySpinner.setAdapter(urgencyAdapter);
         recurrenceSpinner.setAdapter(recurrenceAdapter);
-    }
-
-    private void showError(View view) {
-        String message = "Required field";
-
-        if (view instanceof EditText) {
-            ((EditText) view).setError(message);
-        } else if (view instanceof Spinner) {
-            View selectedView = ((Spinner) view).getSelectedView();
-            if (selectedView instanceof TextView) {
-                ((TextView) selectedView).setError(message);
-            }
-        }
     }
 
     private void showDialogForCustomRecurrence(Spinner spinner, int pos) {
@@ -520,6 +568,19 @@ public class AddTaskFragment extends Fragment implements DatabaseChangeListener 
             }
         });
         timePicker.show(requireActivity().getSupportFragmentManager(), "TIME_PICKER");
+    }
+
+    private void showError(View view) {
+        String message = "Required field";
+
+        if (view instanceof EditText) {
+            ((EditText) view).setError(message);
+        } else if (view instanceof Spinner) {
+            View selectedView = ((Spinner) view).getSelectedView();
+            if (selectedView instanceof TextView) {
+                ((TextView) selectedView).setError(message);
+            }
+        }
     }
 
     @Override
