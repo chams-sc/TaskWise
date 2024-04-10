@@ -1,4 +1,5 @@
 package com.example.taskwiserebirth;
+
 import android.app.Dialog;
 import android.graphics.Color;
 import android.graphics.drawable.ColorDrawable;
@@ -30,6 +31,7 @@ import com.example.taskwiserebirth.database.DatabaseChangeListener;
 import com.example.taskwiserebirth.database.MongoDbRealmHelper;
 import com.example.taskwiserebirth.database.Task;
 import com.example.taskwiserebirth.database.TaskAdapter;
+import com.example.taskwiserebirth.database.TaskPriorityCalculator;
 import com.google.android.material.bottomsheet.BottomSheetDialog;
 import com.google.android.material.datepicker.MaterialDatePicker;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
@@ -47,7 +49,6 @@ import java.util.Date;
 import java.util.List;
 import java.util.Locale;
 import java.util.TimeZone;
-import java.util.concurrent.atomic.AtomicReference;
 
 import io.realm.mongodb.App;
 import io.realm.mongodb.RealmResultTask;
@@ -68,7 +69,7 @@ public class AddTaskFragment extends Fragment implements DatabaseChangeListener 
     // Realm
     private App app;
     private MongoCollection<Document> taskCollection;
-    private String TAG = "MongoDb";
+    private final String TAG = "MongoDb";
 
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
@@ -133,7 +134,6 @@ public class AddTaskFragment extends Fragment implements DatabaseChangeListener 
     }
 
     private void updateRecyclerView() {
-        findTaskWithFarthestDeadline();
         Document queryFilter = new Document();
         RealmResultTask<MongoCursor<Document>> findTask = taskCollection.find(queryFilter).iterator();
         findTask.getAsync(task -> {
@@ -144,14 +144,24 @@ public class AddTaskFragment extends Fragment implements DatabaseChangeListener 
                     Document document = results.next();
                     // TODO: update with priority once implemented
                     String taskName = document.getString("task_name");
-                    String deadline = document.getString("deadline");
-                    String priority = document.getString("importance_level");
-                    Task newTask = new Task(taskName, deadline, priority);
+                    String importanceLevel = document.getString("importance_level");
+                    String urgencyLevel = document.getString("urgency_level");
+
+                    String deadlineString = document.getString("deadline");
+
+                    Task newTask = new Task(taskName, deadlineString, importanceLevel, urgencyLevel);
                     tasks.add(newTask);
                 }
+
+                List<Task> sortedTasks = TaskPriorityCalculator.sortTasksByPriority(tasks, new Date());
+
+                for (Task task2 : sortedTasks) {
+                    Log.d("PriorityScore", task2.getTaskName() + ": " + task2.getPriorityScore());
+                }
+
                 // Update RecyclerView with fetched documents
                 requireActivity().runOnUiThread(() -> {
-                    taskAdapter.setTasks(tasks);
+                    taskAdapter.setTasks(sortedTasks);
                     taskAdapter.notifyDataSetChanged();
                 });
             } else {

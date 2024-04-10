@@ -12,15 +12,17 @@ public class Task {
     private String importanceLevel;
     private String urgencyLevel;
     private String notes;
+    private double priorityScore;
     private boolean reminder;
 
     public Task() {
     }
 
-    public Task(String taskName, String deadline, String priority) {
+    public Task(String taskName, String deadlineString, String importanceLevel, String urgencyLevel) {
         this.taskName = taskName;
-        this.deadline = deadline;
-        this.importanceLevel = priority; // TODO: change to priority
+        this.deadline = deadlineString;
+        this.importanceLevel = importanceLevel;
+        this.urgencyLevel = urgencyLevel;
     }
 
     public String getTaskName() {
@@ -92,6 +94,14 @@ public class Task {
 
     public void setNotes(String notes) {
         this.notes = notes;
+    }
+
+    public double getPriorityScore() {
+        return priorityScore;
+    }
+
+    public void setPriorityScore(double priorityScore) {
+        this.priorityScore = priorityScore;
     }
 
     public boolean isReminder() {
