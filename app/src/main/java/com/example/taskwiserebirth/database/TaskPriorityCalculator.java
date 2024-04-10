@@ -109,15 +109,15 @@ public class TaskPriorityCalculator {
     public static String getPriorityLevel(String urgencyLevel, String importanceLevel) {
         if (urgencyLevel.equals("Not Urgent") || urgencyLevel.equals("Somewhat Urgent")) {
             if (importanceLevel.equals("Not Important") || importanceLevel.equals("Somewhat Important")) {
-                return "Not Important, Not Urgent";
+                return "Low Priority";
             } else {
-                return "Important, Not Urgent";
+                return "Medium Priority";
             }
         } else if (urgencyLevel.equals("Urgent") || urgencyLevel.equals("Very Urgent")){
             if (importanceLevel.equals("Not Important") || importanceLevel.equals("Somewhat Important")) {
-                return "Not Important, Urgent";
+                return "High Priority";
             } else {
-                return "Important, Urgent";
+                return "Very High Priority";
             }
         }
         else {

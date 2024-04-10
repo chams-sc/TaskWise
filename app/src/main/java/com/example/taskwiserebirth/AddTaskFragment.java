@@ -4,6 +4,7 @@ import android.app.Dialog;
 import android.graphics.Color;
 import android.graphics.drawable.ColorDrawable;
 import android.os.Bundle;
+import android.os.Handler;
 import android.util.Log;
 import android.view.Gravity;
 import android.view.LayoutInflater;
@@ -64,6 +65,8 @@ public class AddTaskFragment extends Fragment implements DatabaseChangeListener 
     private ImageView calendarIcon;
     private String daysSelected = null;
     private TaskAdapter taskAdapter;
+    private View rootView;
+    private Handler handler;
 
 
     // Realm
@@ -73,11 +76,13 @@ public class AddTaskFragment extends Fragment implements DatabaseChangeListener 
 
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
-        View rootView = inflater.inflate(R.layout.fragment_add_task, container, false);
+        rootView = inflater.inflate(R.layout.fragment_add_task, container, false);
         // Realm initialization
         app = MongoDbRealmHelper.initializeRealmApp();
         MongoDbRealmHelper.addDatabaseChangeListener(this);
         taskCollection = MongoDbRealmHelper.getMongoCollection("UserTaskData");
+
+        handler = new Handler();
 
         recyclerView = rootView.findViewById(R.id.tasksRecyclerView);
 
@@ -172,56 +177,6 @@ public class AddTaskFragment extends Fragment implements DatabaseChangeListener 
         });
     }
 
-    private void findTaskWithFarthestDeadline() {
-        // Define query filter
-        Document queryFilter = new Document();
-
-        // Execute find query
-        RealmResultTask<MongoCursor<Document>> findTask = taskCollection.find(queryFilter).iterator();
-
-        // Handle find query result
-        findTask.getAsync(task -> {
-            if (task.isSuccess()) {
-                MongoCursor<Document> results = task.get();
-
-                // Initialize variables to keep track of the document with the farthest deadline
-                Date farthestDeadline = null;
-
-                // Iterate through each document to find the one with the farthest deadline
-                while (results.hasNext()) {
-                    Document document = results.next();
-                    String deadlineString = document.getString("deadline");
-                    Date deadline = parseDeadline(deadlineString);
-                    if (farthestDeadline == null || (deadline != null && deadline.after(farthestDeadline))) {
-                        farthestDeadline = deadline;
-                    }
-                }
-
-                // Update UI with the farthest deadline
-                if (farthestDeadline != null) {
-                    Date finalFarthestDeadline = farthestDeadline;
-                    requireActivity().runOnUiThread(() -> {
-                        Log.d("TAG", "Farthest deadline: " + finalFarthestDeadline);
-                    });
-                } else {
-                    Log.e("TAG", "No tasks found.");
-                }
-            } else {
-                Log.e("TAG", "Failed to find documents with: ", task.getError());
-            }
-        });
-    }
-
-    private Date parseDeadline(String deadlineString) {
-        SimpleDateFormat format = new SimpleDateFormat("MM-dd-yyyy | hh:mm a");
-        try {
-            return format.parse(deadlineString);
-        } catch (ParseException e) {
-            e.printStackTrace();
-            return null;
-        }
-    }
-
     private void displayTimeOfDay(View rootView) {
         // Find the TextView for displaying time of day
         TextView timeOfDayTextView = rootView.findViewById(R.id.tasksText);
@@ -272,6 +227,14 @@ public class AddTaskFragment extends Fragment implements DatabaseChangeListener 
         timeOfDayImageView.setImageResource(drawableResId);
     }
 
+    // Create a Runnable to update the time continuously
+    private Runnable updateTimeRunnable = new Runnable() {
+        @Override
+        public void run() {
+            displayTimeOfDay(rootView); // Call the method to update time
+            handler.postDelayed(this, 60000); // Run every minute
+        }
+    };
 
     private void setUpRecyclerView() {
         List<Calendar> calendarList = getDatesForCurrentMonth();
@@ -607,5 +570,18 @@ public class AddTaskFragment extends Fragment implements DatabaseChangeListener 
     public void onDatabaseChange() {
         // Update RecyclerView whenever database changes
         updateRecyclerView();
+    }
+
+    public void onResume() {
+        super.onResume();
+        // Start updating time when the activity resumes
+        handler.post(updateTimeRunnable);
+    }
+
+    @Override
+    public void onPause() {
+        super.onPause();
+        // Stop updating time when the activity is paused
+        handler.removeCallbacks(updateTimeRunnable);
     }
 }
