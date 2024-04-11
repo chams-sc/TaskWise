@@ -1,6 +1,9 @@
 package com.example.taskwiserebirth;
 
 import android.os.Bundle;
+import android.view.View;
+import android.view.animation.AccelerateInterpolator;
+import android.view.animation.DecelerateInterpolator;
 
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.fragment.app.Fragment;
@@ -52,4 +55,22 @@ public class HomeActivity extends AppCompatActivity {
         fragmentTransaction.replace(R.id.frame_layout, fragment);
         fragmentTransaction.commit();
     }
+
+    public void toggleNavBarVisibility(boolean visible, boolean isScrollToggle) {
+        if (isScrollToggle) {
+            if (visible) {
+                bottomNavigationView.animate().translationY(0).setDuration(200).setInterpolator(new DecelerateInterpolator());
+            } else {
+                bottomNavigationView.animate().translationY(bottomNavigationView.getHeight()).setDuration(200).setInterpolator(new AccelerateInterpolator());
+            }
+        } else {
+            if (bottomNavigationView.getVisibility() == View.VISIBLE) {
+                bottomNavigationView.animate().translationY(bottomNavigationView.getHeight()).setDuration(200).setInterpolator(new AccelerateInterpolator()).withEndAction(() -> bottomNavigationView.setVisibility(View.GONE));
+            } else {
+                bottomNavigationView.setVisibility(View.VISIBLE);
+                bottomNavigationView.animate().translationY(0).setDuration(200).setInterpolator(new DecelerateInterpolator());
+            }
+        }
+    }
+
 }
