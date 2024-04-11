@@ -18,9 +18,6 @@ public class TaskPriorityCalculator {
         double urgencyFactor = calculateUrgencyFactor(task.getUrgencyLevel());
         double deadlineFactor = calculateDeadlineFactor(task.getDeadline(), currentDate, earliestDeadline, longestDeadline);
 
-        String priorityLevel = getPriorityLevel(task.getUrgencyLevel(), task.getImportanceLevel());
-        task.setPriorityLevel(priorityLevel);
-
         return (importanceFactor * urgencyFactor) + deadlineFactor;
     }
 
@@ -121,6 +118,12 @@ public class TaskPriorityCalculator {
                 return Double.compare(priority2, priority1); // Descending order
             }
         });
+
+        // Set priority level for each task
+        for (Task task : tasks) {
+            String priorityLevel = getPriorityLevel(task.getUrgencyLevel(), task.getImportanceLevel());
+            task.setPriorityLevel(priorityLevel);
+        }
 
         return tasks;
     }
