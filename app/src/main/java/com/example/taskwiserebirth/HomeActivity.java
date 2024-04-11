@@ -18,7 +18,6 @@ public class HomeActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_home);
         bottomNavigationView = findViewById(R.id.bottomNavigationView);
-        bottomNavigationView = findViewById(R.id.bottomNavigationView);
 
         SystemUIHelper.setSystemUIVisibility(this);
 

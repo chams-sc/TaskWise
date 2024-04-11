@@ -24,6 +24,7 @@ import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.core.widget.NestedScrollView;
 import androidx.fragment.app.Fragment;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
@@ -41,7 +42,6 @@ import com.google.android.material.timepicker.TimeFormat;
 
 import org.bson.Document;
 
-import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -57,7 +57,7 @@ import io.realm.mongodb.User;
 import io.realm.mongodb.mongo.MongoCollection;
 import io.realm.mongodb.mongo.iterable.MongoCursor;
 
-public class AddTaskFragment extends Fragment implements DatabaseChangeListener {
+public class AddTaskFragment extends Fragment implements DatabaseChangeListener, NestedScrollView.OnScrollChangeListener {
 
     // TODO: Please fix naming conventions, taskRecyclerView but the contents is the calendar. cardRecyclerView should be the taskRecyclerView.
     private RecyclerView recyclerView;
@@ -73,10 +73,12 @@ public class AddTaskFragment extends Fragment implements DatabaseChangeListener 
     private App app;
     private MongoCollection<Document> taskCollection;
     private final String TAG = "MongoDb";
+    private View bottomNavigationView;
 
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
         rootView = inflater.inflate(R.layout.fragment_add_task, container, false);
+
         // Realm initialization
         app = MongoDbRealmHelper.initializeRealmApp();
         MongoDbRealmHelper.addDatabaseChangeListener(this);
@@ -86,17 +88,17 @@ public class AddTaskFragment extends Fragment implements DatabaseChangeListener 
 
         recyclerView = rootView.findViewById(R.id.tasksRecyclerView);
 
-        // Set up RecyclerView for the calendar
-        setUpCalendarRecyclerView(rootView);
+        NestedScrollView nestedScrollView = rootView.findViewById(R.id.nestedScrollView);
+        nestedScrollView.setOnScrollChangeListener(this);
 
-        // Set up RecyclerView for the card items
+        bottomNavigationView = getActivity().findViewById(R.id.bottomNavigationView);
+
+        setUpCalendarRecyclerView(rootView);
         setUpCardRecyclerView(rootView);
 
-        // Floating action button setup
         FloatingActionButton fab = rootView.findViewById(R.id.fab);
         fab.setOnClickListener(v -> showBottomSheetDialog());
 
-        // Display the time of day
         displayTimeOfDay(rootView);
 
         return rootView;
@@ -169,7 +171,6 @@ public class AddTaskFragment extends Fragment implements DatabaseChangeListener 
                 // Update RecyclerView with fetched documents
                 requireActivity().runOnUiThread(() -> {
                     taskAdapter.setTasks(sortedTasks);
-                    taskAdapter.notifyDataSetChanged();
                 });
             } else {
                 Log.e(TAG, "failed to find documents with: ", task.getError());
@@ -583,5 +584,20 @@ public class AddTaskFragment extends Fragment implements DatabaseChangeListener 
         super.onPause();
         // Stop updating time when the activity is paused
         handler.removeCallbacks(updateTimeRunnable);
+    }
+
+    @Override
+    public void onScrollChange(@NonNull NestedScrollView v, int scrollX, int scrollY, int oldScrollX, int oldScrollY) {
+        if (scrollY > oldScrollY) {
+            // Scrolling down
+            if (bottomNavigationView.getVisibility() == View.VISIBLE) {
+                bottomNavigationView.setVisibility(View.GONE);
+            }
+        } else {
+            // Scrolling up
+            if (bottomNavigationView.getVisibility() != View.VISIBLE) {
+                bottomNavigationView.setVisibility(View.VISIBLE);
+            }
+        }
     }
 }
