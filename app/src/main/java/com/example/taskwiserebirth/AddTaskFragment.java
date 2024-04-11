@@ -19,6 +19,7 @@ import android.widget.CheckBox;
 import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.Spinner;
+import android.widget.TextClock;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -49,7 +50,6 @@ import java.util.Calendar;
 import java.util.Date;
 import java.util.List;
 import java.util.Locale;
-import java.util.TimeZone;
 
 import io.realm.mongodb.App;
 import io.realm.mongodb.RealmResultTask;
@@ -66,11 +66,11 @@ public class AddTaskFragment extends Fragment implements DatabaseChangeListener,
     private String daysSelected = null;
     private TaskAdapter taskAdapter;
     private View rootView;
-    private Handler handler;
 
 
     // Realm
     private App app;
+    private User user;
     private MongoCollection<Document> taskCollection;
     private final String TAG = "MongoDb";
     private View bottomNavigationView;
@@ -81,10 +81,9 @@ public class AddTaskFragment extends Fragment implements DatabaseChangeListener,
 
         // Realm initialization
         app = MongoDbRealmHelper.initializeRealmApp();
+        user = app.currentUser();
         MongoDbRealmHelper.addDatabaseChangeListener(this);
         taskCollection = MongoDbRealmHelper.getMongoCollection("UserTaskData");
-
-        handler = new Handler();
 
         recyclerView = rootView.findViewById(R.id.tasksRecyclerView);
 
@@ -141,7 +140,7 @@ public class AddTaskFragment extends Fragment implements DatabaseChangeListener,
     }
 
     private void updateRecyclerView() {
-        Document queryFilter = new Document();
+        Document queryFilter = new Document("owner_id", user.getId());
         RealmResultTask<MongoCursor<Document>> findTask = taskCollection.find(queryFilter).iterator();
         findTask.getAsync(task -> {
             if (task.isSuccess()) {
@@ -164,14 +163,12 @@ public class AddTaskFragment extends Fragment implements DatabaseChangeListener,
 
                 List<Task> sortedTasks = TaskPriorityCalculator.sortTasksByPriority(tasks, new Date());
 
-                for (Task task2 : sortedTasks) {
-                    Log.d("PriorityScore", task2.getTaskName() + ": " + task2.getPriorityScore());
-                }
-
                 // Update RecyclerView with fetched documents
-                requireActivity().runOnUiThread(() -> {
-                    taskAdapter.setTasks(sortedTasks);
-                });
+                if(isAdded()) {
+                    requireActivity().runOnUiThread(() -> {
+                        taskAdapter.setTasks(sortedTasks);
+                    });
+                }
             } else {
                 Log.e(TAG, "failed to find documents with: ", task.getError());
             }
@@ -179,63 +176,33 @@ public class AddTaskFragment extends Fragment implements DatabaseChangeListener,
     }
 
     private void displayTimeOfDay(View rootView) {
-        // Find the TextView for displaying time of day
         TextView timeOfDayTextView = rootView.findViewById(R.id.tasksText);
-        // Find the ImageView for displaying the corresponding drawable
         ImageView timeOfDayImageView = rootView.findViewById(R.id.timeOfDayImageView);
 
-        // Get the current time in Philippine Time (UTC+8:00)
-        Calendar calendar = Calendar.getInstance(TimeZone.getTimeZone("GMT+8:00"));
+        Calendar calendar = Calendar.getInstance();
         int hourOfDay = calendar.get(Calendar.HOUR_OF_DAY);
-        int minute = calendar.get(Calendar.MINUTE);
-        String am_pm;
 
-        // Determine whether it's morning, noon, evening, or night
         String timeOfDay;
         int drawableResId;
 
         if (hourOfDay >= 6 && hourOfDay < 12) {
             timeOfDay = "Morning";
-            am_pm = "AM";
-            drawableResId = R.drawable.baseline_sunny;
+            drawableResId = R.drawable.baseline_sun2;
         } else if (hourOfDay >= 12 && hourOfDay < 18) {
             timeOfDay = "Afternoon";
-            am_pm = "PM";
-            drawableResId = R.drawable.baseline_sunny;
+            drawableResId = R.drawable.baseline_sun2;
         } else if (hourOfDay >= 18 && hourOfDay < 24) {
             timeOfDay = "Evening";
-            am_pm = "PM";
-            drawableResId = R.drawable.baseline_night;
+            drawableResId = R.drawable.baseline_night2;
         } else {
             timeOfDay = "Night";
-            am_pm = "PM";
-            drawableResId = R.drawable.baseline_night;
+            drawableResId = R.drawable.baseline_night2;
         }
 
-        // Adjust hour to be in 12-hour format
-        if (hourOfDay == 0) {
-            hourOfDay = 12;
-        } else if (hourOfDay > 12) {
-            hourOfDay -= 12;
-        }
-
-        // Format the current time
-        String formattedTime = String.format(Locale.getDefault(), "%d:%02d %s", hourOfDay, minute, am_pm);
-
-        // Display the time of day and current time in the desired format
-        timeOfDayTextView.setText(formattedTime + " " + timeOfDay);
-        // Set the corresponding drawable
+        timeOfDayTextView.setText(timeOfDay);
         timeOfDayImageView.setImageResource(drawableResId);
     }
 
-    // Create a Runnable to update the time continuously
-    private Runnable updateTimeRunnable = new Runnable() {
-        @Override
-        public void run() {
-            displayTimeOfDay(rootView); // Call the method to update time
-            handler.postDelayed(this, 60000); // Run every minute
-        }
-    };
 
     private void setUpRecyclerView() {
         List<Calendar> calendarList = getDatesForCurrentMonth();
@@ -246,6 +213,7 @@ public class AddTaskFragment extends Fragment implements DatabaseChangeListener,
         recyclerView.setAdapter(calendarAdapter);
 
     }
+
     private List<Calendar> getDatesForCurrentMonth() {
         List<Calendar> calendarList = new ArrayList<>();
         Calendar currentDate = Calendar.getInstance();
@@ -342,10 +310,7 @@ public class AddTaskFragment extends Fragment implements DatabaseChangeListener,
     }
 
     private void insertTask(Task task) {
-        User user = app.currentUser();
         if (user != null) {
-            MongoCollection<Document> mongoCollection = MongoDbRealmHelper.getMongoCollection("UserTaskData");
-
             Document taskDocument = new Document("owner_id", user.getId())
                     .append("task_name", task.getTaskName())
                     .append("importance_level", task.getImportanceLevel())
@@ -358,7 +323,7 @@ public class AddTaskFragment extends Fragment implements DatabaseChangeListener,
                     .append("notes", task.getNotes())
                     .append("creation_date", task.getCreationDate());
 
-            mongoCollection.insertOne(taskDocument).getAsync(result -> {
+            taskCollection.insertOne(taskDocument).getAsync(result -> {
                 if (result.isSuccess()) {
                     Log.d("Data", "Data Inserted Successfully");
                     MongoDbRealmHelper.notifyDatabaseChangeListeners();
@@ -573,18 +538,6 @@ public class AddTaskFragment extends Fragment implements DatabaseChangeListener,
         updateRecyclerView();
     }
 
-    public void onResume() {
-        super.onResume();
-        // Start updating time when the activity resumes
-        handler.post(updateTimeRunnable);
-    }
-
-    @Override
-    public void onPause() {
-        super.onPause();
-        // Stop updating time when the activity is paused
-        handler.removeCallbacks(updateTimeRunnable);
-    }
 
     @Override
     public void onScrollChange(@NonNull NestedScrollView v, int scrollX, int scrollY, int oldScrollX, int oldScrollY) {
