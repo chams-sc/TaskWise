@@ -37,7 +37,7 @@ public class Live2DFragment extends Fragment implements View.OnTouchListener {
         collapseButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                toggleBottomNavigationView();
+                ((HomeActivity) requireActivity()).toggleNavBarVisibility(false, false);
             }
         });
 
@@ -98,14 +98,6 @@ public class Live2DFragment extends Fragment implements View.OnTouchListener {
                 break;
         }
         return true; // Consume the touch event
-    }
-
-    private void toggleBottomNavigationView() {
-        if (bottomNavigationView.getVisibility() == View.VISIBLE) {
-            bottomNavigationView.setVisibility(View.GONE);
-        } else {
-            bottomNavigationView.setVisibility(View.VISIBLE);
-        }
     }
 }
 
