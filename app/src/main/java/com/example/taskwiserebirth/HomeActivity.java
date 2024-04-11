@@ -57,18 +57,19 @@ public class HomeActivity extends AppCompatActivity {
     }
 
     public void toggleNavBarVisibility(boolean visible, boolean isScrollToggle) {
+        long duration = 100;
         if (isScrollToggle) {
             if (visible) {
-                bottomNavigationView.animate().translationY(0).setDuration(200).setInterpolator(new DecelerateInterpolator());
+                bottomNavigationView.animate().translationY(0).setDuration(duration).setInterpolator(new DecelerateInterpolator());
             } else {
-                bottomNavigationView.animate().translationY(bottomNavigationView.getHeight()).setDuration(200).setInterpolator(new AccelerateInterpolator());
+                bottomNavigationView.animate().translationY(bottomNavigationView.getHeight()).setDuration(duration).setInterpolator(new AccelerateInterpolator());
             }
         } else {
             if (bottomNavigationView.getVisibility() == View.VISIBLE) {
-                bottomNavigationView.animate().translationY(bottomNavigationView.getHeight()).setDuration(200).setInterpolator(new AccelerateInterpolator()).withEndAction(() -> bottomNavigationView.setVisibility(View.GONE));
+                bottomNavigationView.animate().translationY(bottomNavigationView.getHeight()).setDuration(duration).setInterpolator(new AccelerateInterpolator()).withEndAction(() -> bottomNavigationView.setVisibility(View.GONE));
             } else {
                 bottomNavigationView.setVisibility(View.VISIBLE);
-                bottomNavigationView.animate().translationY(0).setDuration(200).setInterpolator(new DecelerateInterpolator());
+                bottomNavigationView.animate().translationY(0).setDuration(duration).setInterpolator(new DecelerateInterpolator());
             }
         }
     }

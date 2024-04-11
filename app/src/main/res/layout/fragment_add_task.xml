@@ -15,34 +15,43 @@
             android:layout_width="match_parent"
             android:layout_height="match_parent">
 
-            <!-- Placeholder morning drawable -->
-
             <androidx.constraintlayout.widget.ConstraintLayout
                 android:layout_width="match_parent"
                 android:layout_height="match_parent">
 
-                <TextView
-                    android:id="@+id/tasksText"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_marginStart="56dp"
-                    android:layout_marginTop="16dp"
-                    android:fontFamily="@font/inter_bold"
-                    android:paddingLeft="12dp"
-                    android:text="hi"
-                    android:textSize="24sp"
-                    app:layout_constraintStart_toStartOf="parent"
-                    app:layout_constraintTop_toTopOf="parent" />
+                <LinearLayout
+                    android:id="@+id/headerContainer"
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent"
+                    android:orientation="horizontal"
+                    android:padding="16dp"
+                    android:gravity="center_vertical"
+                    app:layout_constraintTop_toTopOf="parent">
 
-                <ImageView
-                    android:id="@+id/timeOfDayImageView"
-                    android:layout_width="40dp"
-                    android:layout_height="40dp"
-                    android:layout_marginStart="16dp"
-                    android:layout_marginTop="16dp"
-                    android:src="@drawable/baseline_sunny"
-                    app:layout_constraintStart_toStartOf="parent"
-                    app:layout_constraintTop_toTopOf="parent" />
+                    <ImageView
+                        android:id="@+id/timeOfDayImageView"
+                        android:layout_width="40dp"
+                        android:layout_height="40dp"
+                        android:src="@drawable/baseline_sun2"
+                        android:layout_marginEnd="16dp"/>
+
+                    <TextClock
+                        android:id="@+id/digitalClock"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:fontFamily="@font/inter"
+                        android:textColor="@color/dark"
+                        android:textSize="32sp"
+                        android:layout_marginEnd="16dp"/>
+
+                    <TextView
+                        android:id="@+id/tasksText"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:fontFamily="@font/inter"
+                        android:text="Morning"
+                        android:textSize="20sp"/>
+                </LinearLayout>
 
                 <androidx.recyclerview.widget.RecyclerView
                     android:id="@+id/tasksRecyclerView"
@@ -51,7 +60,7 @@
                     android:layout_marginTop="24dp"
                     android:nestedScrollingEnabled="true"
                     app:layoutManager="androidx.recyclerview.widget.LinearLayoutManager"
-                    app:layout_constraintTop_toBottomOf="@id/timeOfDayImageView" />
+                    app:layout_constraintTop_toBottomOf="@id/headerContainer" />
 
                 <androidx.recyclerview.widget.RecyclerView
                     android:id="@+id/Cardrecyclerview1"
@@ -64,15 +73,6 @@
                     app:layout_constraintStart_toStartOf="parent"
                     app:layout_constraintTop_toBottomOf="@+id/tasksRecyclerView"
                     app:layout_constraintVertical_bias="0.24000001" />
-
-                <ImageView
-                    android:id="@+id/nightImageView"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:src="@drawable/baseline_night"
-                    android:visibility="gone"
-                    app:layout_constraintStart_toStartOf="@+id/timeOfDayImageView"
-                    app:layout_constraintTop_toTopOf="@+id/timeOfDayImageView" />
 
             </androidx.constraintlayout.widget.ConstraintLayout>
 
