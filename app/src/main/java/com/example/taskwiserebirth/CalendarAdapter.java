@@ -38,13 +38,11 @@ public class CalendarAdapter extends RecyclerView.Adapter<CalendarAdapter.Calend
     @Override
     public void onBindViewHolder(@NonNull CalendarViewHolder holder, int position) {
         Calendar calendar = calendarList.get(position);
-        SimpleDateFormat sdfDate = new SimpleDateFormat("d", Locale.getDefault());
-        SimpleDateFormat sdfMonth = new SimpleDateFormat("MMM", Locale.getDefault());
-        SimpleDateFormat sdfDayOfWeek = new SimpleDateFormat("EEE", Locale.getDefault());
 
-        String monthName = sdfMonth.format(calendar.getTime());
-        String dayOfMonth = sdfDate.format(calendar.getTime());
-        String dayOfWeek = sdfDayOfWeek.format(calendar.getTime());
+        // Format date components
+        String monthName = formatDate(calendar, "MMM");
+        String dayOfMonth = formatDate(calendar, "d");
+        String dayOfWeek = formatDate(calendar, "EEE");
 
         // Log the values for debugging
         Log.d("CalendarAdapter", dayOfMonth + " " + dayOfWeek + " " + monthName);
@@ -53,25 +51,7 @@ public class CalendarAdapter extends RecyclerView.Adapter<CalendarAdapter.Calend
         holder.dateText.setText(dayOfMonth);
         holder.dayOfWeekText.setText(dayOfWeek);
 
-        Calendar currentCalendar = Calendar.getInstance();
-        int currentDayOfMonth = currentCalendar.get(Calendar.DAY_OF_MONTH);
-
-        if (calendar.get(Calendar.YEAR) == currentCalendar.get(Calendar.YEAR)
-                && calendar.get(Calendar.MONTH) == currentCalendar.get(Calendar.MONTH)
-                && Integer.parseInt(dayOfMonth) == currentDayOfMonth) {
-            // Set background color for today's date
-            holder.cardView.setCardBackgroundColor(Color.parseColor("#383F51"));
-            // Set text color for today's date
-            holder.dateText.setTextColor(Color.WHITE);
-            holder.monthText.setTextColor(Color.WHITE);
-            holder.dayOfWeekText.setTextColor(Color.WHITE);
-        } else {
-            // Set default background color for other dates
-            holder.cardView.setCardBackgroundColor(Color.WHITE);
-            // Set default text color for other dates
-            holder.dateText.setTextColor(Color.BLACK);
-            holder.monthText.setTextColor(Color.BLACK);
-        }
+        setCardColors(holder, calendar);
 
         holder.itemView.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -81,11 +61,42 @@ public class CalendarAdapter extends RecyclerView.Adapter<CalendarAdapter.Calend
         });
     }
 
-
     @Override
     public int getItemCount() {
         return calendarList.size();
     }
+
+    private String formatDate(Calendar calendar, String pattern) {
+        SimpleDateFormat sdf = new SimpleDateFormat(pattern, Locale.getDefault());
+        try {
+            return sdf.format(calendar.getTime());
+        } catch (Exception e) {
+            e.printStackTrace();
+            return "";
+        }
+    }
+
+    private void setCardColors(CalendarViewHolder holder, Calendar calendar) {
+        Calendar currentCalendar = Calendar.getInstance();
+        int currentDayOfMonth = currentCalendar.get(Calendar.DAY_OF_MONTH);
+
+        if (calendar.get(Calendar.YEAR) == currentCalendar.get(Calendar.YEAR)
+                && calendar.get(Calendar.MONTH) == currentCalendar.get(Calendar.MONTH)
+                && calendar.get(Calendar.DAY_OF_MONTH) == currentDayOfMonth) {
+            // Set background color for today's date
+            holder.cardView.setCardBackgroundColor(Color.parseColor("#383F51"));
+            holder.dateText.setTextColor(Color.WHITE);
+            holder.monthText.setTextColor(Color.WHITE);
+            holder.dayOfWeekText.setTextColor(Color.WHITE);
+        } else {
+            // Set default background color for other dates
+            holder.cardView.setCardBackgroundColor(Color.WHITE);
+            holder.dateText.setTextColor(Color.BLACK);
+            holder.monthText.setTextColor(Color.BLACK);
+            holder.dayOfWeekText.setTextColor(Color.BLACK);
+        }
+    }
+
 
     // Inside CalendarViewHolder class
     static class CalendarViewHolder extends RecyclerView.ViewHolder {
