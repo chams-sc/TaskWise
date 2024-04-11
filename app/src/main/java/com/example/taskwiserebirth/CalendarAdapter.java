@@ -1,6 +1,7 @@
 package com.example.taskwiserebirth;
 
 import android.graphics.Color;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -45,6 +46,9 @@ public class CalendarAdapter extends RecyclerView.Adapter<CalendarAdapter.Calend
         String dayOfMonth = sdfDate.format(calendar.getTime());
         String dayOfWeek = sdfDayOfWeek.format(calendar.getTime());
 
+        // Log the values for debugging
+        Log.d("CalendarAdapter", dayOfMonth + " " + dayOfWeek + " " + monthName);
+
         holder.monthText.setText(monthName);
         holder.dateText.setText(dayOfMonth);
         holder.dayOfWeekText.setText(dayOfWeek);
@@ -56,17 +60,17 @@ public class CalendarAdapter extends RecyclerView.Adapter<CalendarAdapter.Calend
                 && calendar.get(Calendar.MONTH) == currentCalendar.get(Calendar.MONTH)
                 && Integer.parseInt(dayOfMonth) == currentDayOfMonth) {
             // Set background color for today's date
-            holder.cardView.setCardBackgroundColor(Color.parseColor("#383F51")); // Change color as needed
+            holder.cardView.setCardBackgroundColor(Color.parseColor("#383F51"));
             // Set text color for today's date
-            holder.dateText.setTextColor(Color.WHITE); // Change color as needed
-            holder.monthText.setTextColor(Color.WHITE); // Change color as needed
-            holder.dayOfWeekText.setTextColor(Color.WHITE); // Change color as needed
+            holder.dateText.setTextColor(Color.WHITE);
+            holder.monthText.setTextColor(Color.WHITE);
+            holder.dayOfWeekText.setTextColor(Color.WHITE);
         } else {
             // Set default background color for other dates
-            holder.cardView.setCardBackgroundColor(Color.WHITE); // Change color as needed
+            holder.cardView.setCardBackgroundColor(Color.WHITE);
             // Set default text color for other dates
-            holder.dateText.setTextColor(Color.BLACK); // Change color as needed
-            holder.monthText.setTextColor(Color.BLACK); // Change color as needed
+            holder.dateText.setTextColor(Color.BLACK);
+            holder.monthText.setTextColor(Color.BLACK);
         }
 
         holder.itemView.setOnClickListener(new View.OnClickListener() {
@@ -95,27 +99,7 @@ public class CalendarAdapter extends RecyclerView.Adapter<CalendarAdapter.Calend
             monthText = itemView.findViewById(R.id.monthText);
             dateText = itemView.findViewById(R.id.dateText);
             dayOfWeekText = itemView.findViewById(R.id.dayOfWeekText);
-            cardView = itemView.findViewById(R.id.cardView1); // Initialize the CardView
-
-
-
-// Load Inter Bold font from resources
-            Typeface interBold = ResourcesCompat.getFont(itemView.getContext(), R.font.inter_bold);
-            if (interBold != null) {
-                // Set Inter Bold font to TextViews
-                monthText.setTypeface(interBold);
-                dateText.setTypeface(interBold);
-                dayOfWeekText.setTypeface(interBold);
-            } else {
-                // Fallback to default font
-                monthText.setTypeface(Typeface.DEFAULT_BOLD);
-                dateText.setTypeface(Typeface.DEFAULT_BOLD);
-                dayOfWeekText.setTypeface(interBold);
-            }
-            // Set Inter Bold font to TextViews
-            monthText.setTypeface(interBold);
-            dateText.setTypeface(interBold);
-            dayOfWeekText.setTypeface(interBold);
+            cardView = itemView.findViewById(R.id.dateCardView); // Initialize the CardView
         }
     }
 
