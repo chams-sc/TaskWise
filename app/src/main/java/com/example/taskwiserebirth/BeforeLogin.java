@@ -29,8 +29,7 @@ import io.realm.mongodb.Credentials;
 public class BeforeLogin extends AppCompatActivity {
 
     // TODO: find a way to hide appId
-    private String appId = "taskwise-bxyah";
-    private String TAG = "MongoDb";
+    private final String TAG = "MongoDb";
     private App app;
     Button bottomlogin;
     private Dialog loginDialog;
@@ -180,7 +179,6 @@ public class BeforeLogin extends AppCompatActivity {
                 Log.d(TAG, "Registered with email successfully");
                 Toast.makeText(getApplicationContext(), "Successful registration!", Toast.LENGTH_SHORT).show();
             } else {
-                Log.e(TAG, result.getError().getErrorMessage());
                 handleMongoError(result.getError());
             }
         });
