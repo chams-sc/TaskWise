@@ -61,6 +61,8 @@ public class AddTaskFragment extends Fragment implements DatabaseChangeListener,
     private RecyclerView recyclerView;
     private CalendarAdapter calendarAdapter;
     private ImageView calendarIcon;
+    private EditText duration;
+    private EditText deadline;
     private String daysSelected = null;
     private TaskAdapter taskAdapter;
     private View rootView;
@@ -163,7 +165,6 @@ public class AddTaskFragment extends Fragment implements DatabaseChangeListener,
 
                 List<Task> sortedTasks = TaskPriorityCalculator.sortTasksByPriority(tasks, new Date());
 
-                // Update RecyclerView with fetched documents
                 if(isAdded()) {
                     requireActivity().runOnUiThread(() -> {
                         taskAdapter.setTasks(sortedTasks);
@@ -262,8 +263,16 @@ public class AddTaskFragment extends Fragment implements DatabaseChangeListener,
 
         ((View) bottomSheetView.getParent()).setBackgroundColor(Color.TRANSPARENT);
 
-        calendarIcon = bottomSheetView.findViewById(R.id.calendarIcon);
-        calendarIcon.setOnClickListener(v -> showDatePicker(bottomSheetDialog));
+        deadline = bottomSheetView.findViewById(R.id.deadline);
+        deadline.setOnClickListener(v -> showDatePicker(bottomSheetDialog));
+
+        duration = bottomSheetDialog.findViewById(R.id.duration);
+        duration.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                showTimePicker(bottomSheetDialog, null, true);
+            }
+        });
 
         setupRecurrenceSpinner(recurrenceSpinner);
     }
@@ -482,18 +491,26 @@ public class AddTaskFragment extends Fragment implements DatabaseChangeListener,
                 .build();
         materialDatePicker.addOnPositiveButtonClickListener(selection -> {
             String date = new SimpleDateFormat("MM-dd-yyyy", Locale.getDefault()).format(new Date(selection));
-            showTimePicker(bottomSheetDialog, date);
+            showTimePicker(bottomSheetDialog, date, false);
         });
         materialDatePicker.show(requireActivity().getSupportFragmentManager(), "DATE_PICKER");
     }
 
-    private void showTimePicker(final Dialog bottomSheetDialog, final String selectedDate) {
-        MaterialTimePicker timePicker = new MaterialTimePicker.Builder()
+    private void showTimePicker(final Dialog bottomSheetDialog, final String selectedDate, final boolean isDuration) {
+        MaterialTimePicker.Builder timePickerBuilder = new MaterialTimePicker.Builder()
                 .setTimeFormat(TimeFormat.CLOCK_12H)
                 .setInputMode(MaterialTimePicker.INPUT_MODE_CLOCK)
                 .setTitleText("Pick Time")
-                .setTheme(R.style.TimePickerTheme)
-                .build();
+                .setTheme(R.style.TimePickerTheme);
+
+        if (isDuration) {
+            timePickerBuilder.setTimeFormat(TimeFormat.CLOCK_24H)
+                    .setInputMode(MaterialTimePicker.INPUT_MODE_KEYBOARD)
+                    .setTitleText("Task Duration");
+        }
+
+        MaterialTimePicker timePicker = timePickerBuilder.build();
+
         timePicker.addOnPositiveButtonClickListener(v -> {
             int hourOfDay = timePicker.getHour();
             int minute = timePicker.getMinute();
@@ -503,13 +520,23 @@ public class AddTaskFragment extends Fragment implements DatabaseChangeListener,
 
             String dateTime = selectedDate + " | " + formattedTime;
 
-            EditText editTextDateTime = bottomSheetDialog.findViewById(R.id.deadline);
-            if (editTextDateTime != null) {
-                editTextDateTime.setText(dateTime);
+            if (!isDuration) {
+                deadline.setText(dateTime);
+            } else {
+                if (hourOfDay == 0) {
+                    formattedTime = String.format(Locale.getDefault(), "%d min", minute);
+                } else if (minute == 0) {
+                    formattedTime = String.format(Locale.getDefault(), "%d hr", hourOfDay);
+                } else {
+                    formattedTime = String.format(Locale.getDefault(), "%d hr and %d min", hourOfDay, minute);
+                }
+                duration.setText(formattedTime);
             }
         });
+
         timePicker.show(requireActivity().getSupportFragmentManager(), "TIME_PICKER");
     }
+
 
     private void showError(View view) {
         String message = "Required field";
