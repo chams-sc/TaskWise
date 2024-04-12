@@ -36,7 +36,7 @@ public class TaskAdapter extends RecyclerView.Adapter<TaskViewHolder> {
         Task currentTask = tasks.get(position);
         holder.taskName.setText(currentTask.getTaskName());
         holder.deadline.setText(currentTask.getDeadline());
-        holder.priority.setText(currentTask.getPriorityLevel()); // TODO: replace with priority
+        holder.priority.setText(currentTask.getPriorityCategory()); // TODO: replace with priority
 
         // Attach OnClickListener to the ImageView in the ViewHolder
         holder.imageView.setOnClickListener(new View.OnClickListener() {

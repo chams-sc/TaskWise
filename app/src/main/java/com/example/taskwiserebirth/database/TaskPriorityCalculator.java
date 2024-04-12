@@ -1,7 +1,5 @@
 package com.example.taskwiserebirth.database;
 
-import android.util.Log;
-
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
@@ -18,7 +16,12 @@ public class TaskPriorityCalculator {
         double urgencyFactor = calculateUrgencyFactor(task.getUrgencyLevel());
         double deadlineFactor = calculateDeadlineFactor(task.getDeadline(), currentDate, earliestDeadline, longestDeadline);
 
-        return (importanceFactor * urgencyFactor) + deadlineFactor;
+        if (deadlineFactor == 0) {
+            return importanceFactor * urgencyFactor;
+        }
+        else {
+            return (importanceFactor * urgencyFactor) + deadlineFactor;
+        }
     }
 
     private static double calculateImportanceFactor(String importanceLevel) {
@@ -52,11 +55,11 @@ public class TaskPriorityCalculator {
     }
 
     private static double calculateDeadlineFactor(String deadlineString, Date currentDate, Date earliestDeadline, Date longestDeadline) {
-        Date deadline = parseDeadline(deadlineString);
-
-        if (deadline == null) {
-            return 0;
+        if (deadlineString.equals("No deadline")) {
+            return 0.0;
         }
+
+        Date deadline = parseDeadline(deadlineString);
 
         long timeRemaining = deadline.getTime() - currentDate.getTime();
         long timeMin = earliestDeadline.getTime() - currentDate.getTime();
@@ -68,6 +71,10 @@ public class TaskPriorityCalculator {
     }
 
     private static Date parseDeadline(String deadline) {
+        if (deadline.equals("No deadline")) {
+            return null;
+        }
+
         SimpleDateFormat format = new SimpleDateFormat("MM-dd-yyyy | hh:mm a");
         try {
             return format.parse(deadline);
@@ -81,42 +88,33 @@ public class TaskPriorityCalculator {
         Date earliestDeadline = null;
         Date longestDeadline = null;
 
-        for (Task task : tasks) {
-            Date deadline = parseDeadline(task.getDeadline());
+        List<Task> tasksWithDeadlines = new ArrayList<>();
+        List<Task> tasksWithoutDeadlines = new ArrayList<>();
 
-            if (deadline != null) { // Add null check
+        for (Task task : tasks) {
+            if (task.getDeadline().equals("No deadline")) {
+                tasksWithoutDeadlines.add(task);
+            } else {
+                tasksWithDeadlines.add(task);
+
+                Date deadline = parseDeadline(task.getDeadline());
+
                 if (earliestDeadline == null || deadline.before(earliestDeadline)) {
                     earliestDeadline = deadline;
                 }
-                if (longestDeadline == null || deadline.after(longestDeadline)) {
+                if (longestDeadline ==  null || deadline.after(longestDeadline)) {
                     longestDeadline = deadline;
                 }
             }
         }
 
-        // If all deadlines are null, return the tasks list as is
-        if (earliestDeadline == null || longestDeadline == null) {
-            return tasks;
-        }
-
         final Date finalEarliestDeadline = earliestDeadline;
         final Date finalLongestDeadline = longestDeadline;
 
-        Collections.sort(tasks, new Comparator<Task>() {
+        // Sort tasks with deadlines
+        Collections.sort(tasksWithDeadlines, new Comparator<Task>() {
             @Override
             public int compare(Task task1, Task task2) {
-                Date deadline1 = parseDeadline(task1.getDeadline());
-                Date deadline2 = parseDeadline(task2.getDeadline());
-
-                // Add null checks for deadlines
-                if (deadline1 == null && deadline2 == null) {
-                    return 0; // Both deadlines are null, consider them equal
-                } else if (deadline1 == null) {
-                    return 1; // Task1 has a null deadline, it should be after Task2
-                } else if (deadline2 == null) {
-                    return -1; // Task2 has a null deadline, it should be after Task1
-                }
-
                 double priority1 = calculateTaskPriority(task1, currentDate, finalEarliestDeadline, finalLongestDeadline);
                 double priority2 = calculateTaskPriority(task2, currentDate, finalEarliestDeadline, finalLongestDeadline);
 
@@ -124,17 +122,29 @@ public class TaskPriorityCalculator {
             }
         });
 
-        // Set priority level for each task
+        // Sort tasks without deadlines
+        Collections.sort(tasksWithoutDeadlines, new Comparator<Task>() {
+            @Override
+            public int compare(Task task1, Task task2) {
+                double priority1 = calculateTaskPriority(task1, currentDate, finalEarliestDeadline, finalLongestDeadline);
+                double priority2 = calculateTaskPriority(task2, currentDate, finalEarliestDeadline, finalLongestDeadline);
+
+                return Double.compare(priority2, priority1); // Descending order
+            }
+        });
+
+        List<Task> sortedTasks = new ArrayList<>(tasksWithDeadlines);
+        sortedTasks.addAll(tasksWithoutDeadlines);
+
         for (Task task : tasks) {
-            String priorityLevel = getPriorityLevel(task.getUrgencyLevel(), task.getImportanceLevel());
-            task.setPriorityLevel(priorityLevel);
+            String priorityCategory = findPriorityCategory(task.getUrgencyLevel(), task.getImportanceLevel());
+            task.setPriorityCategory(priorityCategory);
         }
 
-        return tasks;
+        return sortedTasks;
     }
 
-
-    public static String getPriorityLevel(String urgencyLevel, String importanceLevel) {
+    public static String findPriorityCategory(String urgencyLevel, String importanceLevel) {
         if (urgencyLevel.equals("Not Urgent") || urgencyLevel.equals("Somewhat Urgent")) {
             if (importanceLevel.equals("Not Important") || importanceLevel.equals("Somewhat Important")) {
                 return "Low Priority";
