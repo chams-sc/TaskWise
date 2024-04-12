@@ -31,7 +31,7 @@ public class TaskAdapter extends RecyclerView.Adapter<TaskViewHolder> {
     public void onBindViewHolder(@NonNull TaskViewHolder holder, int position) {
         holder.taskName.setText(tasks.get(position).getTaskName());
         holder.deadline.setText(tasks.get(position).getDeadline());
-        holder.priority.setText(tasks.get(position).getPriorityLevel()); // TODO: replace with priority
+        holder.priority.setText(tasks.get(position).getPriorityCategory()); // TODO: replace with priority
     }
 
     @Override

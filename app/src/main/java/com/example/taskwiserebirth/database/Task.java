@@ -12,19 +12,18 @@ public class Task {
     private String importanceLevel;
     private String urgencyLevel;
     private String notes;
-    private double priorityScore;
-    private String priorityLevel;
+    private String priorityCategory;
     private boolean reminder;
 
     public Task() {
     }
 
-    public Task(String taskName, String deadlineString, String importanceLevel, String urgencyLevel, String priorityLevel) {
+    public Task(String taskName, String deadlineString, String importanceLevel, String urgencyLevel, String priorityCategory) {
         this.taskName = taskName;
         this.deadline = deadlineString;
         this.importanceLevel = importanceLevel;
         this.urgencyLevel = urgencyLevel;
-        this.priorityLevel = priorityLevel;
+        this.priorityCategory = priorityCategory;
     }
 
     public String getTaskName() {
@@ -99,20 +98,12 @@ public class Task {
         this.notes = notes;
     }
 
-    public double getPriorityScore() {
-        return priorityScore;
+    public String getPriorityCategory() {
+        return priorityCategory;
     }
 
-    public void setPriorityScore(double priorityScore) {
-        this.priorityScore = priorityScore;
-    }
-
-    public String getPriorityLevel() {
-        return priorityLevel;
-    }
-
-    public void setPriorityLevel(String priorityLevel) {
-        this.priorityLevel = priorityLevel;
+    public void setPriorityCategory(String priorityCategory) {
+        this.priorityCategory = priorityCategory;
     }
 
     public boolean isReminder() {
