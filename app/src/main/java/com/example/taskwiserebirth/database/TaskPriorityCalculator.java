@@ -53,6 +53,11 @@ public class TaskPriorityCalculator {
 
     private static double calculateDeadlineFactor(String deadlineString, Date currentDate, Date earliestDeadline, Date longestDeadline) {
         Date deadline = parseDeadline(deadlineString);
+
+        if (deadline == null) {
+            return 0;
+        }
+
         long timeRemaining = deadline.getTime() - currentDate.getTime();
         long timeMin = earliestDeadline.getTime() - currentDate.getTime();
         long timeMax = longestDeadline.getTime() - currentDate.getTime();
