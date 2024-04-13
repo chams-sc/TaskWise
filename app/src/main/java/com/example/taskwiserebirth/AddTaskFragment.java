@@ -330,14 +330,49 @@ public class AddTaskFragment extends Fragment implements DatabaseChangeListener,
         EditText deadlineEditText = bottomSheetDialog.findViewById(R.id.deadline);
         EditText scheduleEditText = bottomSheetDialog.findViewById(R.id.schedule);
 
+        String taskName = editTaskName.getText().toString().trim();
         String deadline = deadlineEditText.getText().toString().trim();
         String schedule = scheduleEditText.getText().toString().trim();
+        Date currentDate = new Date();
 
-        boolean validSched = true;
-        if (!deadline.isEmpty() && !schedule.isEmpty()) {
-            validSched = isScheduleValid(schedule, deadline);
+        boolean validDeadline = true;
+        boolean validSchedule = true;
+
+        // Check if deadline is not empty and not earlier than current date
+        if (!deadline.isEmpty()) {
+            DateFormat dateFormat = new SimpleDateFormat("MM-dd-yyyy | hh:mm a", Locale.getDefault());
+            try {
+                Date deadlineDate = dateFormat.parse(deadline);
+                if (deadlineDate.before(currentDate)) {
+                    validDeadline = false;
+                }
+            } catch (ParseException e) {
+                e.printStackTrace();
+                validDeadline = false;
+            }
         }
 
+        // Check if schedule is not empty and not earlier than current date
+        if (!schedule.isEmpty()) {
+            DateFormat dateFormat = new SimpleDateFormat("MM-dd-yyyy | hh:mm a", Locale.getDefault());
+            try {
+                Date scheduleDate = dateFormat.parse(schedule);
+                if (scheduleDate.before(currentDate)) {
+                    validSchedule = false;
+                } else if (!deadline.isEmpty()) {
+                    // Check if schedule is later than deadline
+                    Date deadlineDate = dateFormat.parse(deadline);
+                    if (scheduleDate.after(deadlineDate)) {
+                        validSchedule = false;
+                    }
+                }
+            } catch (ParseException e) {
+                e.printStackTrace();
+                validSchedule = false;
+            }
+        }
+
+        // Check required fields
         boolean validFields = true;
         List<View> fieldsToValidate = Arrays.asList(editTaskName, importanceSpinner, urgencySpinner);
         for (View field : fieldsToValidate) {
@@ -350,32 +385,18 @@ public class AddTaskFragment extends Fragment implements DatabaseChangeListener,
             }
         }
 
-        if (!validFields || !validSched) {
+        if (!validFields || !validDeadline || !validSchedule) {
             if (!validFields) {
                 Toast.makeText(requireContext(), "Missing required fields", Toast.LENGTH_SHORT).show();
-            } else {
-                Toast.makeText(requireContext(), "Schedule cannot be later than deadline", Toast.LENGTH_SHORT).show();
+            } else if (!validDeadline) {
+                Toast.makeText(requireContext(), "Deadline cannot be earlier than current date and time", Toast.LENGTH_SHORT).show();
+            } else if (!validSchedule) {
+                Toast.makeText(requireContext(), "Schedule cannot be earlier than current date and time or later than deadline", Toast.LENGTH_SHORT).show();
             }
             return false;
         } else {
             Toast.makeText(requireContext(), "Task saved", Toast.LENGTH_SHORT).show();
             return true;
-        }
-    }
-
-    private boolean isScheduleValid(String schedule, String deadline) {
-        if (deadline.equals("No deadline")) {
-            return true;
-        }
-
-        DateFormat dateFormat = new SimpleDateFormat("MM-dd-yyyy | hh:mm a", Locale.getDefault());
-        try {
-            Date scheduleDate = dateFormat.parse(schedule);
-            Date deadlineDate = dateFormat.parse(deadline);
-            return !scheduleDate.after(deadlineDate);
-        } catch (ParseException e) {
-            e.printStackTrace();
-            return false;
         }
     }
 
