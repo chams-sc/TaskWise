@@ -5,8 +5,7 @@
     <style name="Base.Theme.TaskWiseRebirth" parent="Theme.MaterialComponents.Light.NoActionBar.Bridge">
         <!-- Remove customization of light theme here. -->
         <item name="android:fontFamily">@font/inter</item>
-
-<!--        Theme.MaterialComponents.Light.NoActionBar.Bridge-->
+        <item name="android:popupMenuStyle">@style/PopupMenuStyle</item>
 
     </style>
 

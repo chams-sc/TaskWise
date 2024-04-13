@@ -8,12 +8,13 @@
         app:showAsAction="ifRoom" />
 
     <item
-        android:id="@+id/menuUpdate"
-        android:title="Update"
+        android:id="@+id/menuEdit"
+        android:title="Edit"
         app:showAsAction="ifRoom" />
 
     <item
-        android:id="@+id/menuComplete"
-        android:title="Complete"
+        android:id="@+id/menuDone"
+        android:title="Done"
         app:showAsAction="ifRoom" />
+
 </menu>

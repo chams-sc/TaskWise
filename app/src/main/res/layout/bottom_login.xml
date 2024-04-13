@@ -5,7 +5,7 @@
     android:orientation="vertical"
     android:layout_width="match_parent"
     android:layout_height="450dp"
-    android:background="@drawable/dialog_bg">
+    android:background="@drawable/bg_dialog">
 
 
     <androidx.constraintlayout.widget.ConstraintLayout
@@ -79,7 +79,7 @@
                     android:width="280dp"
                     android:height="48dp"
                     android:autofillHints=""
-                    android:background="@drawable/login_bg"
+                    android:background="@drawable/bg_login"
                     android:drawableStart="@drawable/ic_person"
                     android:hint="Email"
                     android:inputType="textEmailAddress"
@@ -98,7 +98,7 @@
                     android:width="280dp"
                     android:height="48dp"
                     android:autofillHints=""
-                    android:background="@drawable/login_bg"
+                    android:background="@drawable/bg_login"
                     android:drawableStart="@drawable/ic_lock"
                     android:hint="Password"
                     android:inputType="textPassword"

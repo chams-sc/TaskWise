@@ -12,5 +12,12 @@
         <item name="colorAccent">@color/gray</item>
         <item name="android:textColorSecondary">@color/gray</item>
     </style>
+
+    <style name="PopupMenuStyle" parent="Widget.AppCompat.PopupMenu">
+        <item name="android:popupBackground">@drawable/bg_popup_menu</item>
+        <item name="android:textColor">@color/gray</item>
+        <!-- Add more customizations here -->
+    </style>
+
 </resources>
 
