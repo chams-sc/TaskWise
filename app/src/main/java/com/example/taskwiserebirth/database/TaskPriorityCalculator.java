@@ -1,12 +1,18 @@
 package com.example.taskwiserebirth.database;
 
+import android.util.Log;
+
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Calendar;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.Date;
 import java.util.List;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
+
 public class TaskPriorityCalculator {
 
     private static final long MILLIS_PER_DAY = 24 * 60 * 60 * 1000;
@@ -92,6 +98,9 @@ public class TaskPriorityCalculator {
         List<Task> tasksWithoutDeadlines = new ArrayList<>();
 
         for (Task task : tasks) {
+            String priorityCategory = findPriorityCategory(task.getUrgencyLevel(), task.getImportanceLevel());
+            task.setPriorityCategory(priorityCategory);
+
             if (task.getDeadline().equals("No deadline")) {
                 tasksWithoutDeadlines.add(task);
             } else {
@@ -135,11 +144,6 @@ public class TaskPriorityCalculator {
 
         List<Task> sortedTasks = new ArrayList<>(tasksWithDeadlines);
         sortedTasks.addAll(tasksWithoutDeadlines);
-
-        for (Task task : tasks) {
-            String priorityCategory = findPriorityCategory(task.getUrgencyLevel(), task.getImportanceLevel());
-            task.setPriorityCategory(priorityCategory);
-        }
 
         return sortedTasks;
     }

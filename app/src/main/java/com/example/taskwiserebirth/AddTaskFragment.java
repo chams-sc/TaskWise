@@ -30,6 +30,7 @@ import androidx.recyclerview.widget.RecyclerView;
 
 import com.example.taskwiserebirth.database.DatabaseChangeListener;
 import com.example.taskwiserebirth.database.MongoDbRealmHelper;
+import com.example.taskwiserebirth.database.SmartScheduling;
 import com.example.taskwiserebirth.database.Task;
 import com.example.taskwiserebirth.database.TaskAdapter;
 import com.example.taskwiserebirth.database.TaskPriorityCalculator;
@@ -138,10 +139,10 @@ public class AddTaskFragment extends Fragment implements DatabaseChangeListener,
         // Set RecyclerView adapter with the items list
         cardRecyclerView.setAdapter(taskAdapter);
 
-        updateRecyclerView();
+        updateTaskRecyclerView();
     }
 
-    private void updateRecyclerView() {
+    private void updateTaskRecyclerView() {
         Document queryFilter = new Document("owner_id", user.getId());
         RealmResultTask<MongoCursor<Document>> findTask = taskCollection.find(queryFilter).iterator();
         findTask.getAsync(task -> {
@@ -156,10 +157,11 @@ public class AddTaskFragment extends Fragment implements DatabaseChangeListener,
                     String taskName = document.getString("task_name");
                     String importanceLevel = document.getString("importance_level");
                     String urgencyLevel = document.getString("urgency_level");
-
                     String deadlineString = document.getString("deadline");
+                    String duration = document.getString("duration");
+                    String schedule = document.getString("schedule");
 
-                    Task newTask = new Task(taskName, deadlineString, importanceLevel, urgencyLevel, priorityLevel);
+                    Task newTask = new Task(taskName, deadlineString, importanceLevel, urgencyLevel, priorityLevel, duration, schedule);
                     tasks.add(newTask);
                 }
 
@@ -204,16 +206,6 @@ public class AddTaskFragment extends Fragment implements DatabaseChangeListener,
         timeOfDayImageView.setImageResource(drawableResId);
     }
 
-
-    private void setUpRecyclerView() {
-        List<Calendar> calendarList = getDatesForCurrentMonth();
-        calendarAdapter = new CalendarAdapter(calendarList, date -> {
-            // Handle item click if needed
-        });
-        recyclerView.setLayoutManager(new LinearLayoutManager(requireContext(), LinearLayoutManager.HORIZONTAL, false));
-        recyclerView.setAdapter(calendarAdapter);
-
-    }
 
     private List<Calendar> getDatesForCurrentMonth() {
         List<Calendar> calendarList = new ArrayList<>();
@@ -264,15 +256,10 @@ public class AddTaskFragment extends Fragment implements DatabaseChangeListener,
         ((View) bottomSheetView.getParent()).setBackgroundColor(Color.TRANSPARENT);
 
         deadline = bottomSheetView.findViewById(R.id.deadline);
-        deadline.setOnClickListener(v -> showDatePicker(bottomSheetDialog));
+        deadline.setOnClickListener(v -> showDatePicker());
 
         duration = bottomSheetDialog.findViewById(R.id.duration);
-        duration.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                showTimePicker(bottomSheetDialog, null, true);
-            }
-        });
+        duration.setOnClickListener(v -> showTimePicker(null, true));
 
         setupRecurrenceSpinner(recurrenceSpinner);
     }
@@ -289,6 +276,7 @@ public class AddTaskFragment extends Fragment implements DatabaseChangeListener,
         Spinner recurrenceSpinner = bottomSheetDialog.findViewById(R.id.recurrence);
 
         CheckBox reminderCheckbox = bottomSheetDialog.findViewById(R.id.reminder);
+        CheckBox taskChunking = bottomSheetDialog.findViewById(R.id.chunkTask);
 
         String recurrence = recurrenceSpinner.getSelectedItem().toString();
         Date currentDate = new Date(); // UTC time
@@ -313,6 +301,7 @@ public class AddTaskFragment extends Fragment implements DatabaseChangeListener,
         task.setRecurrence(recurrence);
         task.setSchedule(editSchedule.getText().toString());
         task.setReminder(reminderCheckbox.isChecked());
+        task.setTaskChunking(taskChunking.isChecked());
         task.setNotes(editNotes.getText().toString());
 
         return task;
@@ -417,9 +406,7 @@ public class AddTaskFragment extends Fragment implements DatabaseChangeListener,
         for (int checkBoxId : checkBoxIds) {
             CheckBox checkBox = bottomSheetDialog.findViewById(checkBoxId);
             checkBoxes.add(checkBox);
-            checkBox.setOnCheckedChangeListener((buttonView, isChecked) -> {
-                setButton.setEnabled(isAnyCheckBoxChecked(checkBoxes));
-            });
+            checkBox.setOnCheckedChangeListener((buttonView, isChecked) -> setButton.setEnabled(isAnyCheckBoxChecked(checkBoxes)));
         }
 
         bottomSheetDialog.setOnCancelListener(dialog -> spinner.setSelection(0));
@@ -483,7 +470,7 @@ public class AddTaskFragment extends Fragment implements DatabaseChangeListener,
         return selectedDays;
     }
 
-    private void showDatePicker(final Dialog bottomSheetDialog) {
+    private void showDatePicker() {
         MaterialDatePicker<Long> materialDatePicker = MaterialDatePicker.Builder.datePicker()
                 .setTitleText("Select Date")
                 .setSelection(MaterialDatePicker.todayInUtcMilliseconds())
@@ -491,12 +478,12 @@ public class AddTaskFragment extends Fragment implements DatabaseChangeListener,
                 .build();
         materialDatePicker.addOnPositiveButtonClickListener(selection -> {
             String date = new SimpleDateFormat("MM-dd-yyyy", Locale.getDefault()).format(new Date(selection));
-            showTimePicker(bottomSheetDialog, date, false);
+            showTimePicker(date, false);
         });
         materialDatePicker.show(requireActivity().getSupportFragmentManager(), "DATE_PICKER");
     }
 
-    private void showTimePicker(final Dialog bottomSheetDialog, final String selectedDate, final boolean isDuration) {
+    private void showTimePicker(final String selectedDate, final boolean isDuration) {
         MaterialTimePicker.Builder timePickerBuilder = new MaterialTimePicker.Builder()
                 .setTimeFormat(TimeFormat.CLOCK_12H)
                 .setInputMode(MaterialTimePicker.INPUT_MODE_CLOCK)
@@ -562,7 +549,7 @@ public class AddTaskFragment extends Fragment implements DatabaseChangeListener,
     @Override
     public void onDatabaseChange() {
         // Update RecyclerView whenever database changes
-        updateRecyclerView();
+        updateTaskRecyclerView();
     }
 
 

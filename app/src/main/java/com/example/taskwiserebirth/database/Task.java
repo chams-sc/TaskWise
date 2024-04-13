@@ -9,21 +9,25 @@ public class Task {
     private String duration;
     private String recurrence;
     private String schedule;
+    private String smartSchedule;
     private String importanceLevel;
     private String urgencyLevel;
     private String notes;
     private String priorityCategory;
     private boolean reminder;
+    private boolean taskChunking;
 
     public Task() {
     }
 
-    public Task(String taskName, String deadlineString, String importanceLevel, String urgencyLevel, String priorityCategory) {
+    public Task(String taskName, String deadlineString, String importanceLevel, String urgencyLevel, String priorityCategory, String duration, String schedule) {
         this.taskName = taskName;
         this.deadline = deadlineString;
         this.importanceLevel = importanceLevel;
         this.urgencyLevel = urgencyLevel;
         this.priorityCategory = priorityCategory;
+        this.duration = duration;
+        this.schedule = schedule;
     }
 
     public String getTaskName() {
@@ -74,6 +78,14 @@ public class Task {
         this.schedule = schedule;
     }
 
+    public String getSmartSchedule() {
+        return smartSchedule;
+    }
+
+    public void setSmartSchedule(String smartSchedule) {
+        this.smartSchedule = smartSchedule;
+    }
+
     public String getImportanceLevel() {
         return importanceLevel;
     }
@@ -113,4 +125,13 @@ public class Task {
     public void setReminder(boolean reminder) {
         this.reminder = reminder;
     }
+
+    public boolean isTaskChunking() {
+        return taskChunking;
+    }
+
+    public void setTaskChunking(boolean taskChunking) {
+        this.taskChunking = taskChunking;
+    }
+
 }
