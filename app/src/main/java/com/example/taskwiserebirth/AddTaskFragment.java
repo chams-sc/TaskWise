@@ -30,7 +30,6 @@ import androidx.recyclerview.widget.RecyclerView;
 
 import com.example.taskwiserebirth.database.DatabaseChangeListener;
 import com.example.taskwiserebirth.database.MongoDbRealmHelper;
-import com.example.taskwiserebirth.database.SmartScheduling;
 import com.example.taskwiserebirth.database.Task;
 import com.example.taskwiserebirth.database.TaskAdapter;
 import com.example.taskwiserebirth.database.TaskPriorityCalculator;
@@ -42,6 +41,8 @@ import com.google.android.material.timepicker.TimeFormat;
 
 import org.bson.Document;
 
+import java.text.DateFormat;
+import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -59,39 +60,31 @@ import io.realm.mongodb.mongo.iterable.MongoCursor;
 public class AddTaskFragment extends Fragment implements DatabaseChangeListener, NestedScrollView.OnScrollChangeListener {
 
     // TODO: Please fix naming conventions, taskRecyclerView but the contents is the calendar. cardRecyclerView should be the taskRecyclerView.
-    private RecyclerView recyclerView;
-    private CalendarAdapter calendarAdapter;
-    private ImageView calendarIcon;
-    private EditText duration;
-    private EditText deadline;
+
     private String daysSelected = null;
     private TaskAdapter taskAdapter;
-    private View rootView;
 
 
-    // Realm
-    private App app;
     private User user;
     private MongoCollection<Document> taskCollection;
     private final String TAG = "MongoDb";
-    private View bottomNavigationView;
+
+    public AddTaskFragment() {
+    }
 
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
-        rootView = inflater.inflate(R.layout.fragment_add_task2, container, false);
+        View rootView = inflater.inflate(R.layout.fragment_add_task, container, false);
 
         // Realm initialization
-        app = MongoDbRealmHelper.initializeRealmApp();
+        // Realm
+        App app = MongoDbRealmHelper.initializeRealmApp();
         user = app.currentUser();
         MongoDbRealmHelper.addDatabaseChangeListener(this);
         taskCollection = MongoDbRealmHelper.getMongoCollection("UserTaskData");
 
-        recyclerView = rootView.findViewById(R.id.tasksRecyclerView);
-
         NestedScrollView nestedScrollView = rootView.findViewById(R.id.nestedScrollView);
         nestedScrollView.setOnScrollChangeListener(this);
-
-        bottomNavigationView = getActivity().findViewById(R.id.bottomNavigationView);
 
         setUpCalendarRecyclerView(rootView);
         setUpCardRecyclerView(rootView);
@@ -158,10 +151,9 @@ public class AddTaskFragment extends Fragment implements DatabaseChangeListener,
                     String importanceLevel = document.getString("importance_level");
                     String urgencyLevel = document.getString("urgency_level");
                     String deadlineString = document.getString("deadline");
-                    String duration = document.getString("duration");
                     String schedule = document.getString("schedule");
 
-                    Task newTask = new Task(taskName, deadlineString, importanceLevel, urgencyLevel, priorityLevel, duration, schedule);
+                    Task newTask = new Task(taskName, deadlineString, importanceLevel, urgencyLevel, priorityLevel, schedule);
                     tasks.add(newTask);
                 }
 
@@ -226,7 +218,7 @@ public class AddTaskFragment extends Fragment implements DatabaseChangeListener,
 
     private void showBottomSheetDialog() {
         final BottomSheetDialog bottomSheetDialog = new BottomSheetDialog(requireContext());
-        View bottomSheetView = getLayoutInflater().inflate(R.layout.add_task2, null);
+        View bottomSheetView = getLayoutInflater().inflate(R.layout.add_task, null);
         bottomSheetDialog.setContentView(bottomSheetView);
 
         bottomSheetDialog.getWindow().setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_ADJUST_RESIZE);
@@ -255,11 +247,16 @@ public class AddTaskFragment extends Fragment implements DatabaseChangeListener,
 
         ((View) bottomSheetView.getParent()).setBackgroundColor(Color.TRANSPARENT);
 
-        deadline = bottomSheetView.findViewById(R.id.deadline);
-        deadline.setOnClickListener(v -> showDatePicker());
+        EditText deadline = bottomSheetView.findViewById(R.id.deadline);
+        EditText schedule = bottomSheetView.findViewById(R.id.schedule);
 
-        duration = bottomSheetDialog.findViewById(R.id.duration);
-        duration.setOnClickListener(v -> showTimePicker(null, true));
+        deadline.setOnClickListener(v -> showDatePicker(deadline));
+        schedule.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                showDatePicker(schedule);
+            }
+        });
 
         setupRecurrenceSpinner(recurrenceSpinner);
     }
@@ -267,7 +264,6 @@ public class AddTaskFragment extends Fragment implements DatabaseChangeListener,
     private Task createTaskFromFields(Dialog bottomSheetDialog) {
         EditText editTaskName = bottomSheetDialog.findViewById(R.id.taskName);
         EditText editDeadline = bottomSheetDialog.findViewById(R.id.deadline);
-        EditText editDuration = bottomSheetDialog.findViewById(R.id.duration);
         EditText editSchedule = bottomSheetDialog.findViewById(R.id.schedule);
         EditText editNotes = bottomSheetDialog.findViewById(R.id.notes);
 
@@ -276,7 +272,6 @@ public class AddTaskFragment extends Fragment implements DatabaseChangeListener,
         Spinner recurrenceSpinner = bottomSheetDialog.findViewById(R.id.recurrence);
 
         CheckBox reminderCheckbox = bottomSheetDialog.findViewById(R.id.reminder);
-        CheckBox taskChunking = bottomSheetDialog.findViewById(R.id.chunkTask);
 
         String recurrence = recurrenceSpinner.getSelectedItem().toString();
         Date currentDate = new Date(); // UTC time
@@ -297,11 +292,9 @@ public class AddTaskFragment extends Fragment implements DatabaseChangeListener,
         task.setImportanceLevel(importanceSpinner.getSelectedItem().toString());
         task.setUrgencyLevel(urgencySpinner.getSelectedItem().toString());
         task.setDeadline(deadline);
-        task.setDuration(editDuration.getText().toString());
         task.setRecurrence(recurrence);
         task.setSchedule(editSchedule.getText().toString());
         task.setReminder(reminderCheckbox.isChecked());
-        task.setTaskChunking(taskChunking.isChecked());
         task.setNotes(editNotes.getText().toString());
 
         return task;
@@ -314,9 +307,7 @@ public class AddTaskFragment extends Fragment implements DatabaseChangeListener,
                     .append("importance_level", task.getImportanceLevel())
                     .append("urgency_level", task.getUrgencyLevel())
                     .append("deadline", task.getDeadline())
-                    .append("duration", task.getDuration())
                     .append("schedule", task.getSchedule())
-                    .append("notes", task.getNotes())
                     .append("reminder", task.isReminder())
                     .append("notes", task.getNotes())
                     .append("creation_date", task.getCreationDate());
@@ -336,24 +327,54 @@ public class AddTaskFragment extends Fragment implements DatabaseChangeListener,
         EditText editTaskName = bottomSheetDialog.findViewById(R.id.taskName);
         Spinner importanceSpinner = bottomSheetDialog.findViewById(R.id.importance);
         Spinner urgencySpinner = bottomSheetDialog.findViewById(R.id.urgency);
+        EditText deadlineEditText = bottomSheetDialog.findViewById(R.id.deadline);
+        EditText scheduleEditText = bottomSheetDialog.findViewById(R.id.schedule);
 
+        String deadline = deadlineEditText.getText().toString().trim();
+        String schedule = scheduleEditText.getText().toString().trim();
+
+        boolean validSched = true;
+        if (!deadline.isEmpty() && !schedule.isEmpty()) {
+            validSched = isScheduleValid(schedule, deadline);
+        }
+
+        boolean validFields = true;
         List<View> fieldsToValidate = Arrays.asList(editTaskName, importanceSpinner, urgencySpinner);
-        boolean allFieldsFilled = true;
         for (View field : fieldsToValidate) {
             if (field instanceof EditText && ((EditText) field).getText().toString().trim().isEmpty()) {
                 showError(field);
-                allFieldsFilled = false;
+                validFields = false;
             } else if (field instanceof Spinner && ((Spinner) field).getSelectedItemPosition() == 0) {
                 showError(field);
-                allFieldsFilled = false;
+                validFields = false;
             }
         }
 
-        if (allFieldsFilled) {
-            Toast.makeText(requireContext(), "All fields are filled", Toast.LENGTH_SHORT).show();
-            return true;
+        if (!validFields || !validSched) {
+            if (!validFields) {
+                Toast.makeText(requireContext(), "Missing required fields", Toast.LENGTH_SHORT).show();
+            } else {
+                Toast.makeText(requireContext(), "Schedule cannot be later than deadline", Toast.LENGTH_SHORT).show();
+            }
+            return false;
         } else {
-            Toast.makeText(requireContext(), "Missing required fields", Toast.LENGTH_SHORT).show();
+            Toast.makeText(requireContext(), "Task saved", Toast.LENGTH_SHORT).show();
+            return true;
+        }
+    }
+
+    private boolean isScheduleValid(String schedule, String deadline) {
+        if (deadline.equals("No deadline")) {
+            return true;
+        }
+
+        DateFormat dateFormat = new SimpleDateFormat("MM-dd-yyyy | hh:mm a", Locale.getDefault());
+        try {
+            Date scheduleDate = dateFormat.parse(schedule);
+            Date deadlineDate = dateFormat.parse(deadline);
+            return !scheduleDate.after(deadlineDate);
+        } catch (ParseException e) {
+            e.printStackTrace();
             return false;
         }
     }
@@ -470,7 +491,7 @@ public class AddTaskFragment extends Fragment implements DatabaseChangeListener,
         return selectedDays;
     }
 
-    private void showDatePicker() {
+    private void showDatePicker(EditText field) {
         MaterialDatePicker<Long> materialDatePicker = MaterialDatePicker.Builder.datePicker()
                 .setTitleText("Select Date")
                 .setSelection(MaterialDatePicker.todayInUtcMilliseconds())
@@ -478,23 +499,17 @@ public class AddTaskFragment extends Fragment implements DatabaseChangeListener,
                 .build();
         materialDatePicker.addOnPositiveButtonClickListener(selection -> {
             String date = new SimpleDateFormat("MM-dd-yyyy", Locale.getDefault()).format(new Date(selection));
-            showTimePicker(date, false);
+            showTimePicker(field, date);
         });
         materialDatePicker.show(requireActivity().getSupportFragmentManager(), "DATE_PICKER");
     }
 
-    private void showTimePicker(final String selectedDate, final boolean isDuration) {
+    private void showTimePicker(EditText field, String selectedDate) {
         MaterialTimePicker.Builder timePickerBuilder = new MaterialTimePicker.Builder()
                 .setTimeFormat(TimeFormat.CLOCK_12H)
                 .setInputMode(MaterialTimePicker.INPUT_MODE_CLOCK)
-                .setTitleText("Pick Time")
+                .setTitleText("Select Time")
                 .setTheme(R.style.TimePickerTheme);
-
-        if (isDuration) {
-            timePickerBuilder.setTimeFormat(TimeFormat.CLOCK_24H)
-                    .setInputMode(MaterialTimePicker.INPUT_MODE_KEYBOARD)
-                    .setTitleText("Task Duration");
-        }
 
         MaterialTimePicker timePicker = timePickerBuilder.build();
 
@@ -507,17 +522,8 @@ public class AddTaskFragment extends Fragment implements DatabaseChangeListener,
 
             String dateTime = selectedDate + " | " + formattedTime;
 
-            if (!isDuration) {
-                deadline.setText(dateTime);
-            } else {
-                if (hourOfDay == 0) {
-                    formattedTime = String.format(Locale.getDefault(), "%d min", minute);
-                } else if (minute == 0) {
-                    formattedTime = String.format(Locale.getDefault(), "%d hr", hourOfDay);
-                } else {
-                    formattedTime = String.format(Locale.getDefault(), "%d hr and %d min", hourOfDay, minute);
-                }
-                duration.setText(formattedTime);
+            if (field != null) {
+                field.setText(dateTime);
             }
         });
 
