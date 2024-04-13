@@ -82,12 +82,19 @@ public class TaskPriorityCalculator {
         for (Task task : tasks) {
             Date deadline = parseDeadline(task.getDeadline());
 
-            if (earliestDeadline == null || deadline.before(earliestDeadline)) {
-                earliestDeadline = deadline;
+            if (deadline != null) { // Add null check
+                if (earliestDeadline == null || deadline.before(earliestDeadline)) {
+                    earliestDeadline = deadline;
+                }
+                if (longestDeadline == null || deadline.after(longestDeadline)) {
+                    longestDeadline = deadline;
+                }
             }
-            if (longestDeadline ==  null || deadline.after(longestDeadline)) {
-                longestDeadline = deadline;
-            }
+        }
+
+        // If all deadlines are null, return the tasks list as is
+        if (earliestDeadline == null || longestDeadline == null) {
+            return tasks;
         }
 
         final Date finalEarliestDeadline = earliestDeadline;
@@ -96,6 +103,18 @@ public class TaskPriorityCalculator {
         Collections.sort(tasks, new Comparator<Task>() {
             @Override
             public int compare(Task task1, Task task2) {
+                Date deadline1 = parseDeadline(task1.getDeadline());
+                Date deadline2 = parseDeadline(task2.getDeadline());
+
+                // Add null checks for deadlines
+                if (deadline1 == null && deadline2 == null) {
+                    return 0; // Both deadlines are null, consider them equal
+                } else if (deadline1 == null) {
+                    return 1; // Task1 has a null deadline, it should be after Task2
+                } else if (deadline2 == null) {
+                    return -1; // Task2 has a null deadline, it should be after Task1
+                }
+
                 double priority1 = calculateTaskPriority(task1, currentDate, finalEarliestDeadline, finalLongestDeadline);
                 double priority2 = calculateTaskPriority(task2, currentDate, finalEarliestDeadline, finalLongestDeadline);
 
@@ -105,6 +124,7 @@ public class TaskPriorityCalculator {
 
         return tasks;
     }
+
 
     public static String getPriorityLevel(String urgencyLevel, String importanceLevel) {
         if (urgencyLevel.equals("Not Urgent") || urgencyLevel.equals("Somewhat Urgent")) {

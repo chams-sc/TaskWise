@@ -104,6 +104,8 @@ public class AddTaskFragment extends Fragment implements DatabaseChangeListener,
         return rootView;
     }
 
+
+
     private void setUpCalendarRecyclerView(View rootView) {
         RecyclerView calendarRecyclerView = rootView.findViewById(R.id.tasksRecyclerView);
 

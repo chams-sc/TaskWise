@@ -17,5 +17,6 @@ public class TaskViewHolder extends RecyclerView.ViewHolder {
         taskName = itemView.findViewById(R.id.taskNameTxt);
         deadline = itemView.findViewById(R.id.deadlineTxt);
         priority = itemView.findViewById(R.id.priority);
+        imageView = itemView.findViewById(R.id.menus);
     }
 }
