@@ -44,9 +44,6 @@ public class CalendarAdapter extends RecyclerView.Adapter<CalendarAdapter.Calend
         String dayOfMonth = formatDate(calendar, "d");
         String dayOfWeek = formatDate(calendar, "EEE");
 
-        // Log the values for debugging
-        Log.d("CalendarAdapter", dayOfMonth + " " + dayOfWeek + " " + monthName);
-
         holder.monthText.setText(monthName);
         holder.dateText.setText(dayOfMonth);
         holder.dayOfWeekText.setText(dayOfWeek);
