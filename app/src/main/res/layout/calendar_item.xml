@@ -2,8 +2,8 @@
 <androidx.cardview.widget.CardView xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     android:id="@+id/dateCardView"
-    android:layout_width="80dp"
-    android:layout_height="136dp"
+    android:layout_width="100dp"
+    android:layout_height="130dp"
     android:layout_gravity="center"
     android:layout_margin="4dp"
     android:padding="8dp"
@@ -11,19 +11,21 @@
 
     <LinearLayout
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
+        android:layout_height="match_parent"
         android:gravity="center"
-        android:orientation="vertical">
+        android:orientation="vertical"
+        android:padding="8dp">
 
         <TextView
-            android:id="@+id/monthText"
+            android:id="@+id/dayOfWeekText"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:fontFamily="@font/inter"
-            android:gravity="center"
-            android:text="April"
+            android:layout_below="@id/dateText"
+            android:layout_marginTop="4dp"
+            android:fontFamily="@font/inter_bold"
+            android:text="Mon"
             android:textColor="@android:color/black"
-            android:textSize="24sp" />
+            android:textSize="16sp" />
 
         <TextView
             android:id="@+id/dateText"
@@ -38,17 +40,5 @@
             android:text="12"
             android:textColor="@android:color/black"
             android:textSize="32sp" />
-
-        <TextView
-            android:id="@+id/dayOfWeekText"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_below="@id/dateText"
-            android:layout_marginTop="4dp"
-            android:fontFamily="@font/inter_bold"
-            android:text="Mon"
-            android:textColor="@android:color/black"
-            android:textSize="12sp" />
-
     </LinearLayout>
 </androidx.cardview.widget.CardView>

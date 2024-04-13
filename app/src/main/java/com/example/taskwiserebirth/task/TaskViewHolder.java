@@ -1,4 +1,4 @@
-package com.example.taskwiserebirth.database;
+package com.example.taskwiserebirth.task;
 
 import android.view.View;
 import android.widget.ImageView;

@@ -30,9 +30,9 @@ import androidx.recyclerview.widget.RecyclerView;
 
 import com.example.taskwiserebirth.database.DatabaseChangeListener;
 import com.example.taskwiserebirth.database.MongoDbRealmHelper;
-import com.example.taskwiserebirth.database.Task;
-import com.example.taskwiserebirth.database.TaskAdapter;
-import com.example.taskwiserebirth.database.TaskPriorityCalculator;
+import com.example.taskwiserebirth.task.Task;
+import com.example.taskwiserebirth.task.TaskAdapter;
+import com.example.taskwiserebirth.task.TaskPriorityCalculator;
 import com.google.android.material.bottomsheet.BottomSheetDialog;
 import com.google.android.material.datepicker.MaterialDatePicker;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
@@ -42,6 +42,7 @@ import com.google.android.material.timepicker.TimeFormat;
 import org.bson.Document;
 
 import java.text.DateFormat;
+import java.text.DateFormatSymbols;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
@@ -102,6 +103,16 @@ public class AddTaskFragment extends Fragment implements DatabaseChangeListener,
     private void setUpCalendarRecyclerView(View rootView) {
         RecyclerView calendarRecyclerView = rootView.findViewById(R.id.tasksRecyclerView);
 
+        TextView currentMonth = rootView.findViewById(R.id.monthTxt);
+        // Get the current month
+        Calendar calendar = Calendar.getInstance();
+        int currentMonthIndex = calendar.get(Calendar.MONTH);
+        String[] months = new DateFormatSymbols().getMonths();
+        String currentMonthName = months[currentMonthIndex].toUpperCase();
+
+        // Set the current month to the TextView
+        currentMonth.setText(currentMonthName);
+
         // Get list of calendar dates
         List<Calendar> calendarList = getDatesForCurrentMonth();
 
@@ -111,10 +122,31 @@ public class AddTaskFragment extends Fragment implements DatabaseChangeListener,
         });
 
         // Set up RecyclerView with LinearLayoutManager
-        calendarRecyclerView.setLayoutManager(new LinearLayoutManager(requireContext(), LinearLayoutManager.HORIZONTAL, false));
+        LinearLayoutManager layoutManager = new LinearLayoutManager(requireContext(), LinearLayoutManager.HORIZONTAL, false);
+        calendarRecyclerView.setLayoutManager(layoutManager);
 
         // Set RecyclerView adapter
         calendarRecyclerView.setAdapter(calendarAdapter);
+
+        // Scroll to current date position
+        int currentPosition = getCurrentDatePosition(calendarList);
+        if (currentPosition != -1) {
+            layoutManager.scrollToPosition(currentPosition);
+        }
+    }
+
+    private int getCurrentDatePosition(List<Calendar> calendarList) {
+        Calendar currentDate = Calendar.getInstance();
+        int currentDay = currentDate.get(Calendar.DAY_OF_MONTH);
+
+        for (int i = 0; i < calendarList.size(); i++) {
+            Calendar calendar = calendarList.get(i);
+            if (calendar.get(Calendar.DAY_OF_MONTH) == currentDay) {
+                return i;
+            }
+        }
+
+        return -1; // Current date not found
     }
 
     private void setUpCardRecyclerView(View rootView) {

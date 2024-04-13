@@ -1,7 +1,6 @@
 package com.example.taskwiserebirth;
 
 import android.graphics.Color;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -9,9 +8,7 @@ import android.widget.TextView;
 
 import androidx.annotation.NonNull;
 import androidx.cardview.widget.CardView;
-import androidx.core.content.res.ResourcesCompat;
 import androidx.recyclerview.widget.RecyclerView;
-import android.graphics.Typeface;
 
 import java.text.SimpleDateFormat;
 import java.util.Calendar;
@@ -40,11 +37,9 @@ public class CalendarAdapter extends RecyclerView.Adapter<CalendarAdapter.Calend
         Calendar calendar = calendarList.get(position);
 
         // Format date components
-        String monthName = formatDate(calendar, "MMM");
         String dayOfMonth = formatDate(calendar, "d");
         String dayOfWeek = formatDate(calendar, "EEE");
 
-        holder.monthText.setText(monthName);
         holder.dateText.setText(dayOfMonth);
         holder.dayOfWeekText.setText(dayOfWeek);
 
@@ -83,13 +78,11 @@ public class CalendarAdapter extends RecyclerView.Adapter<CalendarAdapter.Calend
             // Set background color for today's date
             holder.cardView.setCardBackgroundColor(Color.parseColor("#383F51"));
             holder.dateText.setTextColor(Color.WHITE);
-            holder.monthText.setTextColor(Color.WHITE);
             holder.dayOfWeekText.setTextColor(Color.WHITE);
         } else {
             // Set default background color for other dates
             holder.cardView.setCardBackgroundColor(Color.WHITE);
             holder.dateText.setTextColor(Color.BLACK);
-            holder.monthText.setTextColor(Color.BLACK);
             holder.dayOfWeekText.setTextColor(Color.BLACK);
         }
     }
@@ -97,14 +90,12 @@ public class CalendarAdapter extends RecyclerView.Adapter<CalendarAdapter.Calend
 
     // Inside CalendarViewHolder class
     static class CalendarViewHolder extends RecyclerView.ViewHolder {
-        TextView monthText;
         TextView dateText;
         TextView dayOfWeekText;
         CardView cardView;
 
         CalendarViewHolder(@NonNull View itemView) {
             super(itemView);
-            monthText = itemView.findViewById(R.id.monthText);
             dateText = itemView.findViewById(R.id.dateText);
             dayOfWeekText = itemView.findViewById(R.id.dayOfWeekText);
             cardView = itemView.findViewById(R.id.dateCardView); // Initialize the CardView

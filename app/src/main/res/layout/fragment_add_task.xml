@@ -8,7 +8,8 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:orientation="horizontal"
-        android:padding="16dp"
+        android:paddingHorizontal="16dp"
+        android:paddingTop="16dp"
         android:gravity="center_vertical"
         app:layout_constraintTop_toTopOf="parent">
 
@@ -45,13 +46,26 @@
         app:layout_constraintTop_toBottomOf="@+id/headerContainer"
         app:layout_constraintBottom_toBottomOf="parent">
 
+        <TextView
+            android:id="@+id/monthTxt"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            app:layout_constraintTop_toTopOf="parent"
+            android:text="MONTH"
+            android:textSize="24dp"
+            android:textAlignment="center"
+            android:textColor="@color/dark"
+            android:fontFamily="@font/inter_semibold"
+            android:padding="8dp"
+            android:letterSpacing="1"/>
+
         <androidx.recyclerview.widget.RecyclerView
             android:id="@+id/tasksRecyclerView"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:nestedScrollingEnabled="true"
             app:layoutManager="androidx.recyclerview.widget.LinearLayoutManager"
-            app:layout_constraintTop_toTopOf="parent"
+            app:layout_constraintTop_toBottomOf="@id/monthTxt"
             app:layout_constraintBottom_toTopOf="@+id/nestedScrollView" />
 
         <androidx.core.widget.NestedScrollView
