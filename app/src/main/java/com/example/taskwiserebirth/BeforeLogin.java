@@ -118,7 +118,6 @@ public class BeforeLogin extends AppCompatActivity {
             }
             else
             {
-                Log.e(TAG, result.getError().getErrorCode().toString());
                 handleMongoError(result.getError());
             }
         });
@@ -179,6 +178,7 @@ public class BeforeLogin extends AppCompatActivity {
                 Log.d(TAG, "Registered with email successfully");
                 Toast.makeText(getApplicationContext(), "Successful registration!", Toast.LENGTH_SHORT).show();
             } else {
+                Log.d(TAG, result.getError().getErrorCode().toString());
                 handleMongoError(result.getError());
             }
         });
@@ -191,12 +191,16 @@ public class BeforeLogin extends AppCompatActivity {
             // TODO: add other error codes if possible
             switch (errorIntValue) {
                 case 4348:
-                    Log.e(TAG, "Account name already exists.");
+                    Log.e(TAG, exception.getErrorMessage());
                     Toast.makeText(getApplicationContext(), "Account name already exists.", Toast.LENGTH_SHORT).show();
                     break;
                 case 4349:
-                    Log.e(TAG, "Invalid email or password");
+                    Log.e(TAG, exception.getErrorMessage());
                     Toast.makeText(getApplicationContext(), "Invalid email or password", Toast.LENGTH_SHORT).show();
+                    break;
+                case 1000:
+                    Log.e(TAG, exception.getErrorMessage());
+                    Toast.makeText(getApplicationContext(), "Network failed", Toast.LENGTH_SHORT).show();
                     break;
                 default:
                     Log.e(TAG, exception.getErrorMessage());
