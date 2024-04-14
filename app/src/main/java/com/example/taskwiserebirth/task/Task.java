@@ -1,8 +1,11 @@
 package com.example.taskwiserebirth.task;
 
+import org.bson.types.ObjectId;
+
 import java.util.Date;
 
 public class Task {
+    private ObjectId id;
     private String taskName;
     private Date creationDate;
     private String deadline;
@@ -12,18 +15,28 @@ public class Task {
     private String urgencyLevel;
     private String notes;
     private String priorityCategory;
+    private String status;
     private boolean reminder;
 
     public Task() {
     }
 
-    public Task(String taskName, String deadlineString, String importanceLevel, String urgencyLevel, String priorityCategory, String schedule) {
+    public Task(ObjectId id, String taskName, String deadlineString, String importanceLevel, String urgencyLevel, String priorityCategory, String schedule) {
+        this.id = id;
         this.taskName = taskName;
         this.deadline = deadlineString;
         this.importanceLevel = importanceLevel;
         this.urgencyLevel = urgencyLevel;
         this.priorityCategory = priorityCategory;
         this.schedule = schedule;
+    }
+
+    public ObjectId getId() {
+        return id;
+    }
+
+    public void setId(ObjectId id) {
+        this.id = id;
     }
 
     public String getTaskName() {
@@ -96,6 +109,14 @@ public class Task {
 
     public void setPriorityCategory(String priorityCategory) {
         this.priorityCategory = priorityCategory;
+    }
+
+    public String getStatus() {
+        return status;
+    }
+
+    public void setStatus(String status) {
+        this.status = status;
     }
 
     public boolean isReminder() {

@@ -40,6 +40,7 @@ import com.google.android.material.timepicker.MaterialTimePicker;
 import com.google.android.material.timepicker.TimeFormat;
 
 import org.bson.Document;
+import org.bson.types.ObjectId;
 
 import java.text.DateFormat;
 import java.text.DateFormatSymbols;
@@ -58,7 +59,7 @@ import io.realm.mongodb.User;
 import io.realm.mongodb.mongo.MongoCollection;
 import io.realm.mongodb.mongo.iterable.MongoCursor;
 
-public class AddTaskFragment extends Fragment implements DatabaseChangeListener, NestedScrollView.OnScrollChangeListener {
+public class AddTaskFragment extends Fragment implements DatabaseChangeListener, NestedScrollView.OnScrollChangeListener, TaskAdapter.TaskActionListener {
 
     // TODO: Please fix naming conventions, taskRecyclerView but the contents is the calendar. cardRecyclerView should be the taskRecyclerView.
 
@@ -78,7 +79,6 @@ public class AddTaskFragment extends Fragment implements DatabaseChangeListener,
         View rootView = inflater.inflate(R.layout.fragment_add_task, container, false);
 
         // Realm initialization
-        // Realm
         App app = MongoDbRealmHelper.initializeRealmApp();
         user = app.currentUser();
         MongoDbRealmHelper.addDatabaseChangeListener(this);
@@ -156,7 +156,7 @@ public class AddTaskFragment extends Fragment implements DatabaseChangeListener,
         List<Task> tasks = new ArrayList<>();
 
         // Set up CardAdapter
-        taskAdapter = new TaskAdapter(requireContext(), tasks);
+        taskAdapter = new TaskAdapter(requireContext(), tasks, this);
 
         // Set up RecyclerView with LinearLayoutManager
         cardRecyclerView.setLayoutManager(new LinearLayoutManager(requireContext()));
@@ -178,14 +178,14 @@ public class AddTaskFragment extends Fragment implements DatabaseChangeListener,
 
                 while (results.hasNext()) {
                     Document document = results.next();
-                    // TODO: update with priority once implemented
+                    ObjectId taskId = document.getObjectId("_id");
                     String taskName = document.getString("task_name");
                     String importanceLevel = document.getString("importance_level");
                     String urgencyLevel = document.getString("urgency_level");
                     String deadlineString = document.getString("deadline");
                     String schedule = document.getString("schedule");
 
-                    Task newTask = new Task(taskName, deadlineString, importanceLevel, urgencyLevel, priorityLevel, schedule);
+                    Task newTask = new Task(taskId, taskName, deadlineString, importanceLevel, urgencyLevel, priorityLevel, schedule);
                     tasks.add(newTask);
                 }
 
@@ -218,7 +218,7 @@ public class AddTaskFragment extends Fragment implements DatabaseChangeListener,
         } else if (hourOfDay >= 12 && hourOfDay < 18) {
             timeOfDay = "Afternoon";
             drawableResId = R.drawable.baseline_sun2;
-        } else if (hourOfDay >= 18 && hourOfDay < 24) {
+        } else if (hourOfDay >= 18) {
             timeOfDay = "Evening";
             drawableResId = R.drawable.baseline_night2;
         } else {
@@ -306,6 +306,7 @@ public class AddTaskFragment extends Fragment implements DatabaseChangeListener,
         CheckBox reminderCheckbox = bottomSheetDialog.findViewById(R.id.reminder);
 
         String recurrence = recurrenceSpinner.getSelectedItem().toString();
+        String deadline = editDeadline.getText().toString().trim();
         Date currentDate = new Date(); // UTC time
 
         if (recurrence.equals("Specific Days")) {
@@ -313,7 +314,6 @@ public class AddTaskFragment extends Fragment implements DatabaseChangeListener,
         }
 
         // Set No deadline if deadline is empty
-        String deadline = editDeadline.getText().toString().trim();
         if (deadline.isEmpty()) {
             deadline = "No deadline";
         }
@@ -422,7 +422,7 @@ public class AddTaskFragment extends Fragment implements DatabaseChangeListener,
                 Toast.makeText(requireContext(), "Missing required fields", Toast.LENGTH_SHORT).show();
             } else if (!validDeadline) {
                 Toast.makeText(requireContext(), "Deadline cannot be earlier than current date and time", Toast.LENGTH_SHORT).show();
-            } else if (!validSchedule) {
+            } else {
                 Toast.makeText(requireContext(), "Schedule cannot be earlier than current date and time or later than deadline", Toast.LENGTH_SHORT).show();
             }
             return false;
@@ -462,6 +462,7 @@ public class AddTaskFragment extends Fragment implements DatabaseChangeListener,
                 R.array.recurrence_array, android.R.layout.simple_spinner_item);
         recurrenceAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
 
+        importanceSpinner.setAdapter(importanceAdapter);
         importanceSpinner.setAdapter(importanceAdapter);
         urgencySpinner.setAdapter(urgencyAdapter);
         recurrenceSpinner.setAdapter(recurrenceAdapter);
@@ -600,22 +601,34 @@ public class AddTaskFragment extends Fragment implements DatabaseChangeListener,
     @Override
     public void onDestroyView() {
         super.onDestroyView();
-        // Unregister this fragment as a listener
         MongoDbRealmHelper.removeDatabaseChangeListener(this);
     }
 
 
     @Override
     public void onDatabaseChange() {
-        // Update RecyclerView whenever database changes
         updateTaskRecyclerView();
     }
-
 
     @Override
     public void onScrollChange(@NonNull NestedScrollView v, int scrollX, int scrollY, int oldScrollX, int oldScrollY) {
         // If scrolling up visibility = true; else false
         boolean scrollingUp = scrollY < oldScrollY;
         ((HomeActivity) requireActivity()).toggleNavBarVisibility(scrollingUp, true);
+    }
+
+    @Override
+    public void onEditTask(Task task) {
+
+    }
+
+    @Override
+    public void onDeleteTask(Task task) {
+        Log.d("delete", task.getTaskName() + " id: " + task.getId());
+    }
+
+    @Override
+    public void onDoneTask(Task task) {
+
     }
 }

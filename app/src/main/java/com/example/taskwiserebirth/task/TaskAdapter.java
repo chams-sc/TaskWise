@@ -11,16 +11,10 @@ import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.PopupMenu;
-import android.widget.TextView;
-
 
 import androidx.annotation.NonNull;
-
-
 import androidx.core.content.ContextCompat;
 import androidx.recyclerview.widget.RecyclerView;
-
-
 
 import com.example.taskwiserebirth.R;
 
@@ -30,10 +24,18 @@ public class TaskAdapter extends RecyclerView.Adapter<TaskViewHolder> {
 
     Context context;
     List<Task> tasks;
+    TaskActionListener actionListener;
 
-    public TaskAdapter(Context context, List<Task> tasks) {
+    public interface TaskActionListener {
+        void onEditTask(Task task);
+        void onDeleteTask(Task task);
+        void onDoneTask(Task task);
+    }
+
+    public TaskAdapter(Context context, List<Task> tasks, TaskActionListener listener) {
         this.context = context;
         this.tasks = tasks;
+        this.actionListener = listener;
     }
 
     @NonNull
@@ -49,14 +51,7 @@ public class TaskAdapter extends RecyclerView.Adapter<TaskViewHolder> {
         holder.deadline.setText(tasks.get(position).getDeadline());
         holder.priority.setText(tasks.get(position).getPriorityCategory());
 
-        // Attach OnClickListener to the ImageView in the ViewHolder
-        holder.imageView.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                // Show popup menu
-                showPopupMenu(v, currentTask);
-            }
-        });
+        holder.imageView.setOnClickListener(v -> showPopupMenu(v, currentTask));
     }
 
 
@@ -64,8 +59,7 @@ public class TaskAdapter extends RecyclerView.Adapter<TaskViewHolder> {
         PopupMenu popupMenu = new PopupMenu(context, v);
         MenuInflater inflater = popupMenu.getMenuInflater();
         inflater.inflate(R.menu.show_menu, popupMenu.getMenu());
-
-        // Get the Menu object
+        
         Menu menu = popupMenu.getMenu();
         for (int i = 0; i < menu.size(); i++) {
             MenuItem menuItem = menu.getItem(i);
@@ -85,27 +79,19 @@ public class TaskAdapter extends RecyclerView.Adapter<TaskViewHolder> {
 
                 int itemId = item.getItemId();
                 if (itemId == R.id.menuEdit) {
-                    // Handle edit action
-                    editTask(task);
+                    actionListener.onEditTask(task);
                     return true;
                 } else if (itemId == R.id.menuDelete) {
-                    // Handle delete action
-                    deleteTask(task);
+                    actionListener.onDeleteTask(task);
+                    return true;
+                } else if (itemId == R.id.menuDone) {
+                    actionListener.onDoneTask(task);
                     return true;
                 }
                 return false;
             }
         });
         popupMenu.show();
-    }
-
-    private void editTask(Task task) {
-        // Implement edit functionality for the task
-        Log.d("menu", task.getTaskName());
-    }
-
-    private void deleteTask(Task task) {
-        // Implement delete functionality for the task
     }
 
     @Override
