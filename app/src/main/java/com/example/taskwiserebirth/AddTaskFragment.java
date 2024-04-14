@@ -12,7 +12,6 @@ import android.view.ViewGroup;
 import android.view.Window;
 import android.view.WindowManager;
 import android.widget.AdapterView;
-import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.CheckBox;
 import android.widget.EditText;
@@ -450,19 +449,14 @@ public class AddTaskFragment extends Fragment implements DatabaseChangeListener,
     }
 
     private void setupSpinners(Spinner importanceSpinner, Spinner urgencySpinner, Spinner recurrenceSpinner) {
-        ArrayAdapter<CharSequence> importanceAdapter = ArrayAdapter.createFromResource(requireContext(),
-                R.array.importance_array, android.R.layout.simple_spinner_item);
-        importanceAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
+        List<String> importanceList = Arrays.asList(getResources().getStringArray(R.array.importance_array));
+        List<String> urgencyList = Arrays.asList(getResources().getStringArray(R.array.urgency_array));
+        List<String> recurrenceList = Arrays.asList(getResources().getStringArray(R.array.recurrence_array));
 
-        ArrayAdapter<CharSequence> urgencyAdapter = ArrayAdapter.createFromResource(requireContext(),
-                R.array.urgency_array, android.R.layout.simple_spinner_item);
-        urgencyAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
+        CustomSpinnerAdapter importanceAdapter = new CustomSpinnerAdapter(requireContext(), R.layout.item_spinner, importanceList);
+        CustomSpinnerAdapter urgencyAdapter = new CustomSpinnerAdapter(requireContext(), R.layout.item_spinner, urgencyList);
+        CustomSpinnerAdapter recurrenceAdapter = new CustomSpinnerAdapter(requireContext(), R.layout.item_spinner, recurrenceList);
 
-        ArrayAdapter<CharSequence> recurrenceAdapter = ArrayAdapter.createFromResource(requireContext(),
-                R.array.recurrence_array, android.R.layout.simple_spinner_item);
-        recurrenceAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
-
-        importanceSpinner.setAdapter(importanceAdapter);
         importanceSpinner.setAdapter(importanceAdapter);
         urgencySpinner.setAdapter(urgencyAdapter);
         recurrenceSpinner.setAdapter(recurrenceAdapter);

@@ -165,10 +165,8 @@
             android:layout_height="48dp"
             android:layout_marginTop="16dp"
             android:background="@drawable/custom_spinner_arrow"
-            android:padding="8dp"
             android:prompt="@string/none_prompt"
             android:spinnerMode="dropdown"
-            android:textSize="12sp"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toEndOf="@+id/guideline"
             app:layout_constraintTop_toBottomOf="@+id/RecurrenceLabel" />
@@ -212,6 +210,8 @@
             android:layout_height="wrap_content"
             android:layout_marginTop="64dp"
             android:text="Remind Me"
+            android:theme="@style/CustomCheckBox"
+            android:textColor="@color/black"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toEndOf="@+id/guideline"
             app:layout_constraintTop_toBottomOf="@+id/recurrence" />

@@ -6,7 +6,7 @@
         <!-- Remove customization of light theme here. -->
         <item name="android:fontFamily">@font/inter</item>
         <item name="android:popupMenuStyle">@style/PopupMenuStyle</item>
-
+        <item name="android:spinnerStyle">@style/SpinnerStyle</item>
     </style>
 
     <style name="DialogAnimation">

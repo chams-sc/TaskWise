@@ -8,6 +8,7 @@
         <item name="cornerFamily">rounded</item>
         <item name="cornerSize">8dp</item> <!-- Adjust corner size as per your preference -->
     </style>
+
     <style name="CustomCheckBox" parent="Theme.AppCompat.NoActionBar">
         <item name="colorAccent">@color/gray</item>
         <item name="android:textColorSecondary">@color/gray</item>
@@ -19,5 +20,8 @@
         <!-- Add more customizations here -->
     </style>
 
+    <style name="SpinnerStyle" parent="Widget.AppCompat.Spinner">
+        <item name="android:popupBackground">@drawable/bg_spinner</item>
+    </style>
 </resources>
 
