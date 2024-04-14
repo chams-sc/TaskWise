@@ -18,7 +18,7 @@
             android:layout_width="40dp"
             android:layout_height="40dp"
             android:src="@drawable/baseline_sun2"
-            android:layout_marginEnd="16dp"/>
+            android:layout_marginEnd="8dp"/>
 
         <TextClock
             android:id="@+id/digitalClock"
@@ -27,7 +27,7 @@
             android:fontFamily="@font/inter"
             android:textColor="@color/dark"
             android:textSize="32sp"
-            android:layout_marginEnd="16dp"/>
+            android:layout_marginEnd="8dp"/>
 
         <TextView
             android:id="@+id/tasksText"
@@ -35,7 +35,7 @@
             android:layout_height="wrap_content"
             android:fontFamily="@font/inter"
             android:text="Morning"
-            android:textSize="20sp"/>
+            android:textSize="16sp"/>
     </LinearLayout>
 
     <androidx.constraintlayout.widget.ConstraintLayout
@@ -84,21 +84,25 @@
         </androidx.core.widget.NestedScrollView>
     </androidx.constraintlayout.widget.ConstraintLayout>
 
+    <androidx.constraintlayout.widget.ConstraintLayout
+        android:layout_width="match_parent"
+        android:layout_height="132dp"
+        app:layout_constraintBottom_toBottomOf="parent">
 
+        <com.google.android.material.floatingactionbutton.FloatingActionButton
+            android:id="@+id/fab"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:backgroundTint="@android:color/white"
+            android:contentDescription="fab_button"
+            android:elevation="2dp"
+            android:src="@drawable/baseline_add"
+            app:borderWidth="0dp"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintTop_toTopOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            />
 
-    <!-- Floating Action Button (FAB) -->
-    <com.google.android.material.floatingactionbutton.FloatingActionButton
-        android:id="@+id/fab"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_marginStart="325dp"
-        android:layout_marginBottom="70dp"
-        android:backgroundTint="@android:color/white"
-        android:contentDescription="fab_button"
-        android:elevation="2dp"
-        android:src="@drawable/baseline_add"
-        app:borderWidth="0dp"
-        app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintStart_toStartOf="parent" />
+    </androidx.constraintlayout.widget.ConstraintLayout>
 
 </androidx.constraintlayout.widget.ConstraintLayout>

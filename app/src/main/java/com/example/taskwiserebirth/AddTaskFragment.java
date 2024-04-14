@@ -327,6 +327,7 @@ public class AddTaskFragment extends Fragment implements DatabaseChangeListener,
         task.setSchedule(editSchedule.getText().toString());
         task.setReminder(reminderCheckbox.isChecked());
         task.setNotes(editNotes.getText().toString());
+        task.setStatus("Unfinished");
 
         return task;
     }
@@ -341,6 +342,7 @@ public class AddTaskFragment extends Fragment implements DatabaseChangeListener,
                     .append("schedule", task.getSchedule())
                     .append("reminder", task.isReminder())
                     .append("notes", task.getNotes())
+                    .append("status", task.getStatus())
                     .append("creation_date", task.getCreationDate());
 
             taskCollection.insertOne(taskDocument).getAsync(result -> {
@@ -493,9 +495,11 @@ public class AddTaskFragment extends Fragment implements DatabaseChangeListener,
             }
 
             daysSelected = stringBuilder.toString();
-
             spinner.setSelection(pos);
-            ((TextView) spinner.getSelectedView()).setText(daysSelected);
+            View selectedView = spinner.getSelectedView();
+            if (selectedView instanceof TextView) {
+                ((TextView) selectedView).setText(daysSelected);
+            }
 
             bottomSheetDialog.dismiss();
         });
@@ -618,11 +622,34 @@ public class AddTaskFragment extends Fragment implements DatabaseChangeListener,
 
     @Override
     public void onDeleteTask(Task task) {
-        Log.d("delete", task.getTaskName() + " id: " + task.getId());
+        Document queryFilter = new Document("owner_id", user.getId())
+                .append("_id", task.getId());
+
+        taskCollection.deleteOne(queryFilter).getAsync(result -> {
+            if (result.isSuccess()) {
+                Log.d("Data", "Task deleted successfully");
+                MongoDbRealmHelper.notifyDatabaseChangeListeners();
+                Toast.makeText(requireContext(), "Task deleted", Toast.LENGTH_SHORT).show();
+            } else {
+                Log.e("Data", "Failed to delete task: " + result.getError().getMessage());
+            }
+        });
     }
 
     @Override
     public void onDoneTask(Task task) {
+        Document queryFilter = new Document("owner_id", user.getId())
+                .append("_id", task.getId());
+        Document updateDocument = new Document("$set", new Document("status", "Done"));
 
+        taskCollection.updateOne(queryFilter, updateDocument).getAsync(result -> {
+            if (result.isSuccess()) {
+                Log.d("Data", "Task status updated");
+                MongoDbRealmHelper.notifyDatabaseChangeListeners();
+                Toast.makeText(requireContext(), "Task status updated", Toast.LENGTH_SHORT).show();
+            } else {
+                Log.e("Data", "Failed to update task status: " + result.getError().getMessage());
+            }
+        });
     }
 }
