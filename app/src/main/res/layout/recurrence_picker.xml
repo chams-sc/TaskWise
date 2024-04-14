@@ -2,11 +2,11 @@
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
-    android:orientation="vertical"
     android:layout_width="256dp"
     android:layout_height="420dp"
     android:background="@drawable/bg_recurrence"
-    android:elevation="2dp">
+    android:elevation="2dp"
+    android:orientation="vertical">
 
     <androidx.constraintlayout.widget.ConstraintLayout
         android:layout_width="match_parent"
@@ -21,6 +21,8 @@
             android:fontFamily="@font/inter"
             android:paddingStart="8dp"
             android:text="Monday"
+            android:textColor="@color/black"
+            android:theme="@style/CustomCheckBox"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toTopOf="parent" />
@@ -34,6 +36,8 @@
             android:fontFamily="@font/inter"
             android:paddingStart="8dp"
             android:text="Tuesday"
+            android:textColor="@color/black"
+            android:theme="@style/CustomCheckBox"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toTopOf="@+id/Monday" />
@@ -47,6 +51,8 @@
             android:fontFamily="@font/inter"
             android:paddingStart="8dp"
             android:text="Wednesday"
+            android:textColor="@color/black"
+            android:theme="@style/CustomCheckBox"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toTopOf="@+id/Tuesday" />
@@ -60,6 +66,8 @@
             android:fontFamily="@font/inter"
             android:paddingStart="8dp"
             android:text="Thursday"
+            android:textColor="@color/black"
+            android:theme="@style/CustomCheckBox"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toTopOf="@+id/Wednesday" />
@@ -73,6 +81,8 @@
             android:fontFamily="@font/inter"
             android:paddingStart="8dp"
             android:text="Friday"
+            android:textColor="@color/black"
+            android:theme="@style/CustomCheckBox"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toTopOf="@+id/Thursday" />
@@ -86,6 +96,8 @@
             android:fontFamily="@font/inter"
             android:paddingStart="8dp"
             android:text="Saturday"
+            android:textColor="@color/black"
+            android:theme="@style/CustomCheckBox"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toTopOf="@+id/Friday" />
@@ -99,6 +111,8 @@
             android:fontFamily="@font/inter"
             android:paddingStart="8dp"
             android:text="Sunday"
+            android:textColor="@color/black"
+            android:theme="@style/CustomCheckBox"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toTopOf="@+id/Saturday" />
@@ -107,12 +121,12 @@
             android:id="@+id/setBtn"
             android:layout_width="wrap_content"
             android:layout_height="48dp"
-            android:text="Set"
             android:layout_marginRight="12dp"
             android:layout_marginBottom="24dp"
-            android:fontFamily="@font/inter_bold"
-            android:textColor="@color/white"
             android:background="@drawable/login_button_shape"
+            android:fontFamily="@font/inter_bold"
+            android:text="Set"
+            android:textColor="@color/white"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintEnd_toEndOf="parent" />
 

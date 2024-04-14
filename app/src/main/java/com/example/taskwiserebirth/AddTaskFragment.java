@@ -89,8 +89,9 @@ public class AddTaskFragment extends Fragment implements DatabaseChangeListener,
         setUpCalendarRecyclerView(rootView);
         setUpCardRecyclerView(rootView);
 
+        Task task = null;
         FloatingActionButton fab = rootView.findViewById(R.id.fab);
-        fab.setOnClickListener(v -> showBottomSheetDialog());
+        fab.setOnClickListener(v -> showBottomSheetDialog(task));
 
         displayTimeOfDay(rootView);
 
@@ -173,6 +174,7 @@ public class AddTaskFragment extends Fragment implements DatabaseChangeListener,
             if (task.isSuccess()) {
                 MongoCursor<Document> results = task.get();
                 List<Task> tasks = new ArrayList<>();
+
                 String priorityLevel = "";
 
                 while (results.hasNext()) {
@@ -183,8 +185,12 @@ public class AddTaskFragment extends Fragment implements DatabaseChangeListener,
                     String urgencyLevel = document.getString("urgency_level");
                     String deadlineString = document.getString("deadline");
                     String schedule = document.getString("schedule");
+                    String recurrence = document.getString("recurrence");
+                    boolean reminder = document.getBoolean("reminder");
+                    String notes = document.getString("notes");
+                    String status = document.getString("status");
 
-                    Task newTask = new Task(taskId, taskName, deadlineString, importanceLevel, urgencyLevel, priorityLevel, schedule);
+                    Task newTask = new Task(taskId, taskName, deadlineString, importanceLevel, urgencyLevel, priorityLevel, schedule, recurrence, reminder, notes, status);
                     tasks.add(newTask);
                 }
 
@@ -247,49 +253,84 @@ public class AddTaskFragment extends Fragment implements DatabaseChangeListener,
         return calendarList;
     }
 
-    private void showBottomSheetDialog() {
+    private void showBottomSheetDialog(Task task) {
         final BottomSheetDialog bottomSheetDialog = new BottomSheetDialog(requireContext());
         View bottomSheetView = getLayoutInflater().inflate(R.layout.add_task, null);
         bottomSheetDialog.setContentView(bottomSheetView);
 
         bottomSheetDialog.getWindow().setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_ADJUST_RESIZE);
 
-        setUpViews(bottomSheetDialog, bottomSheetView);
+        setUpViews(bottomSheetDialog, bottomSheetView, task);
 
         bottomSheetDialog.show();
     }
 
-    private void setUpViews(BottomSheetDialog bottomSheetDialog, View bottomSheetView) {
+    private void setUpViews(BottomSheetDialog bottomSheetDialog, View bottomSheetView, Task task) {
         Spinner importanceSpinner = bottomSheetView.findViewById(R.id.importance);
         Spinner urgencySpinner = bottomSheetView.findViewById(R.id.urgency);
         Spinner recurrenceSpinner = bottomSheetView.findViewById(R.id.recurrence);
 
+        setupSpinners(importanceSpinner, urgencySpinner, recurrenceSpinner);
+
+        EditText editTaskName = bottomSheetView.findViewById(R.id.taskName);
+        EditText editDeadline = bottomSheetView.findViewById(R.id.deadline);
+        EditText editSchedule = bottomSheetView.findViewById(R.id.schedule);
+        EditText editNotes = bottomSheetView.findViewById(R.id.notes);
+        CheckBox reminder = bottomSheetView.findViewById(R.id.reminder);
+
+        if(task != null) {
+            editTaskName.setText(task.getTaskName());
+            editDeadline.setText(task.getDeadline());
+            editSchedule.setText(task.getSchedule());
+            editNotes.setText(task.getNotes());
+            reminder.setChecked(task.isReminder());
+
+            if(!task.getRecurrence().isEmpty()) {
+                if (task.getRecurrence().equals("None") || task.getRecurrence().equals("Daily")) {
+                    recurrenceSpinner.setSelection(getIndex(recurrenceSpinner, task.getRecurrence()));
+                } else {
+                    recurrenceSpinner.setSelection(getIndex(recurrenceSpinner, "Specific Days"), false);
+                    View selectedView = recurrenceSpinner.getSelectedView();
+                    if (selectedView instanceof TextView) {
+                        ((TextView) selectedView).setText(task.getRecurrence());
+                    }
+                }
+            }
+
+            importanceSpinner.setSelection(getIndex(importanceSpinner, task.getImportanceLevel()));
+            urgencySpinner.setSelection(getIndex(urgencySpinner, task.getUrgencyLevel()));
+        }
+
         Button saveBtn = bottomSheetView.findViewById(R.id.saveButton);
         saveBtn.setOnClickListener(v -> {
             if (validateFields(bottomSheetDialog)) {
-                Task task = createTaskFromFields(bottomSheetDialog);
-                insertTask(task);
+                Task newTask = createTaskFromFields(bottomSheetDialog);
+                insertTask(newTask);
                 bottomSheetDialog.dismiss();
             }
             daysSelected = null;
         });
 
-        setupSpinners(importanceSpinner, urgencySpinner, recurrenceSpinner);
-
         ((View) bottomSheetView.getParent()).setBackgroundColor(Color.TRANSPARENT);
 
-        EditText deadline = bottomSheetView.findViewById(R.id.deadline);
-        EditText schedule = bottomSheetView.findViewById(R.id.schedule);
-
-        deadline.setOnClickListener(v -> showDatePicker(deadline));
-        schedule.setOnClickListener(new View.OnClickListener() {
+        editDeadline.setOnClickListener(v -> showDatePicker(editDeadline));
+        editSchedule.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                showDatePicker(schedule);
+                showDatePicker(editSchedule);
             }
         });
 
         setupRecurrenceSpinner(recurrenceSpinner);
+    }
+
+    private int getIndex(Spinner spinner, String value) {
+        for (int i = 0; i < spinner.getCount(); i++) {
+            if (spinner.getItemAtPosition(i).toString().equalsIgnoreCase(value)) {
+                return i;
+            }
+        }
+        return 0; // Default to first item if not found
     }
 
     private Task createTaskFromFields(Dialog bottomSheetDialog) {
@@ -319,15 +360,15 @@ public class AddTaskFragment extends Fragment implements DatabaseChangeListener,
 
         Task task = new Task();
         task.setTaskName(editTaskName.getText().toString());
-        task.setCreationDate(currentDate);
         task.setImportanceLevel(importanceSpinner.getSelectedItem().toString());
         task.setUrgencyLevel(urgencySpinner.getSelectedItem().toString());
         task.setDeadline(deadline);
-        task.setRecurrence(recurrence);
         task.setSchedule(editSchedule.getText().toString());
+        task.setRecurrence(recurrence);
         task.setReminder(reminderCheckbox.isChecked());
         task.setNotes(editNotes.getText().toString());
         task.setStatus("Unfinished");
+        task.setCreationDate(currentDate);
 
         return task;
     }
@@ -340,6 +381,7 @@ public class AddTaskFragment extends Fragment implements DatabaseChangeListener,
                     .append("urgency_level", task.getUrgencyLevel())
                     .append("deadline", task.getDeadline())
                     .append("schedule", task.getSchedule())
+                    .append("recurrence", task.getRecurrence())
                     .append("reminder", task.isReminder())
                     .append("notes", task.getNotes())
                     .append("status", task.getStatus())
@@ -617,7 +659,7 @@ public class AddTaskFragment extends Fragment implements DatabaseChangeListener,
 
     @Override
     public void onEditTask(Task task) {
-
+        showBottomSheetDialog(task);
     }
 
     @Override

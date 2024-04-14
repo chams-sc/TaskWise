@@ -18,10 +18,11 @@ public class Task {
     private String status;
     private boolean reminder;
 
-    public Task() {
+    public Task () {
+
     }
 
-    public Task(ObjectId id, String taskName, String deadlineString, String importanceLevel, String urgencyLevel, String priorityCategory, String schedule) {
+    public Task(ObjectId id, String taskName, String deadlineString, String importanceLevel, String urgencyLevel, String priorityCategory, String schedule, String recurrence, boolean reminder, String notes, String status) {
         this.id = id;
         this.taskName = taskName;
         this.deadline = deadlineString;
@@ -29,6 +30,10 @@ public class Task {
         this.urgencyLevel = urgencyLevel;
         this.priorityCategory = priorityCategory;
         this.schedule = schedule;
+        this.recurrence = recurrence;
+        this.reminder = reminder;
+        this.notes = notes;
+        this.status = status;
     }
 
     public ObjectId getId() {
