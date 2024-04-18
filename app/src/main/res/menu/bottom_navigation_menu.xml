@@ -8,11 +8,11 @@
     <item
         android:id="@+id/bottom_clip"
         android:icon="@drawable/clipboard"
-        android:title="Clip" />
+        android:title="Tasks" />
     <item
         android:id="@+id/bottom_sms"
         android:icon="@drawable/sms"
-        android:title="SMS" />
+        android:title="Logs" />
     <item
         android:id="@+id/bottom_settings"
         android:icon="@drawable/settings"

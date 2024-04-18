@@ -22,7 +22,7 @@ public class HomeActivity extends AppCompatActivity {
         setContentView(R.layout.activity_home);
         bottomNavigationView = findViewById(R.id.bottomNavigationView);
 
-        SystemUIHelper.setSystemUIVisibility(this);
+        SystemUIHelper.setSystemUIVisibility(this); //TODO: in android 7 and 6 this causes the icons on bottom nav view to be invisible, fix later
 
         replaceFragment(new Live2DFragment());
 

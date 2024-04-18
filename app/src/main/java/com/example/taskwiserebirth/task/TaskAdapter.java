@@ -13,10 +13,12 @@ import android.view.ViewGroup;
 import android.widget.PopupMenu;
 
 import androidx.annotation.NonNull;
+import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.content.ContextCompat;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.example.taskwiserebirth.R;
+import com.example.taskwiserebirth.SystemUIHelper;
 
 import java.util.List;
 
@@ -56,6 +58,8 @@ public class TaskAdapter extends RecyclerView.Adapter<TaskViewHolder> {
 
 
     private void showPopupMenu(View v, final Task task) {
+        SystemUIHelper.setSystemUIVisibility((AppCompatActivity) context);
+
         PopupMenu popupMenu = new PopupMenu(context, v);
         MenuInflater inflater = popupMenu.getMenuInflater();
         inflater.inflate(R.menu.show_menu, popupMenu.getMenu());

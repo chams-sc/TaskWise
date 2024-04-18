@@ -60,8 +60,6 @@ import io.realm.mongodb.mongo.iterable.MongoCursor;
 
 public class AddTaskFragment extends Fragment implements DatabaseChangeListener, NestedScrollView.OnScrollChangeListener, TaskAdapter.TaskActionListener {
 
-    // TODO: Please fix naming conventions, taskRecyclerView but the contents is the calendar. cardRecyclerView should be the taskRecyclerView.
-
     private String daysSelected = null;
     private TaskAdapter taskAdapter;
 
@@ -101,7 +99,7 @@ public class AddTaskFragment extends Fragment implements DatabaseChangeListener,
 
 
     private void setUpCalendarRecyclerView(View rootView) {
-        RecyclerView calendarRecyclerView = rootView.findViewById(R.id.tasksRecyclerView);
+        RecyclerView calendarRecyclerView = rootView.findViewById(R.id.calendarRecyclerView);
 
         TextView currentMonth = rootView.findViewById(R.id.monthTxt);
         // Get the current month
@@ -150,7 +148,7 @@ public class AddTaskFragment extends Fragment implements DatabaseChangeListener,
     }
 
     private void setUpCardRecyclerView(View rootView) {
-        RecyclerView cardRecyclerView = rootView.findViewById(R.id.Cardrecyclerview1);
+        RecyclerView cardRecyclerView = rootView.findViewById(R.id.tasksRecyclerView);
 
         // Dummy data for card items
         List<Task> tasks = new ArrayList<>();
@@ -301,14 +299,24 @@ public class AddTaskFragment extends Fragment implements DatabaseChangeListener,
             urgencySpinner.setSelection(getIndex(urgencySpinner, task.getUrgencyLevel()));
         }
 
+        getRecurrenceSpinnerValue(recurrenceSpinner);
+
         Button saveBtn = bottomSheetView.findViewById(R.id.saveButton);
         saveBtn.setOnClickListener(v -> {
-            if (validateFields(bottomSheetDialog)) {
-                Task newTask = createTaskFromFields(bottomSheetDialog);
-                insertTask(newTask);
-                bottomSheetDialog.dismiss();
+            Task newTask = setTaskFromFields(bottomSheetDialog, task);
+            if (task != null) {
+                if (newTask != null) {
+                    updateTask(newTask);
+                    bottomSheetDialog.dismiss();
+                    daysSelected = task.getRecurrence();
+                }
+            } else {
+                if (newTask != null) {
+                    insertTask(newTask);
+                    bottomSheetDialog.dismiss();
+                    daysSelected = null;
+                }
             }
-            daysSelected = null;
         });
 
         ((View) bottomSheetView.getParent()).setBackgroundColor(Color.TRANSPARENT);
@@ -320,8 +328,6 @@ public class AddTaskFragment extends Fragment implements DatabaseChangeListener,
                 showDatePicker(editSchedule);
             }
         });
-
-        setupRecurrenceSpinner(recurrenceSpinner);
     }
 
     private int getIndex(Spinner spinner, String value) {
@@ -333,7 +339,7 @@ public class AddTaskFragment extends Fragment implements DatabaseChangeListener,
         return 0; // Default to first item if not found
     }
 
-    private Task createTaskFromFields(Dialog bottomSheetDialog) {
+    private Task setTaskFromFields(Dialog bottomSheetDialog, Task task) {
         EditText editTaskName = bottomSheetDialog.findViewById(R.id.taskName);
         EditText editDeadline = bottomSheetDialog.findViewById(R.id.deadline);
         EditText editSchedule = bottomSheetDialog.findViewById(R.id.schedule);
@@ -345,33 +351,145 @@ public class AddTaskFragment extends Fragment implements DatabaseChangeListener,
 
         CheckBox reminderCheckbox = bottomSheetDialog.findViewById(R.id.reminder);
 
-        String recurrence = recurrenceSpinner.getSelectedItem().toString();
         String deadline = editDeadline.getText().toString().trim();
+        String schedule = editSchedule.getText().toString().trim();
+        String notes = editNotes.getText().toString().trim();
+        String recurrence = recurrenceSpinner.getSelectedItem().toString();
+        String importance = importanceSpinner.getSelectedItem().toString();
+        String urgency = urgencySpinner.getSelectedItem().toString();
+
         Date currentDate = new Date(); // UTC time
+
+        if (deadline.isEmpty()) {
+            deadline = "No deadline";
+        }
+
+        if (schedule.isEmpty()) {
+            schedule = "No schedule";
+        }
 
         if (recurrence.equals("Specific Days")) {
             recurrence = daysSelected;
         }
 
-        // Set No deadline if deadline is empty
-        if (deadline.isEmpty()) {
-            deadline = "No deadline";
+        if (!validateFields(editTaskName, deadline, schedule, currentDate)) {
+            return null;
         }
 
-        Task task = new Task();
-        task.setTaskName(editTaskName.getText().toString());
-        task.setImportanceLevel(importanceSpinner.getSelectedItem().toString());
-        task.setUrgencyLevel(urgencySpinner.getSelectedItem().toString());
-        task.setDeadline(deadline);
-        task.setSchedule(editSchedule.getText().toString());
-        task.setRecurrence(recurrence);
-        task.setReminder(reminderCheckbox.isChecked());
-        task.setNotes(editNotes.getText().toString());
-        task.setStatus("Unfinished");
-        task.setCreationDate(currentDate);
+        // if updating task
+        Task newTask = new Task();
+        if (task != null) {
+            newTask.setId(task.getId());
+        }
 
-        return task;
+        newTask.setTaskName(editTaskName.getText().toString().trim());
+        newTask.setImportanceLevel(importance);
+        newTask.setUrgencyLevel(urgency);
+        newTask.setDeadline(deadline);
+        newTask.setSchedule(schedule);
+        newTask.setRecurrence(recurrence);
+        newTask.setReminder(reminderCheckbox.isChecked());
+        newTask.setNotes(notes);
+        newTask.setStatus("Unfinished");
+        newTask.setCreationDate(currentDate);
+
+        return newTask;
     }
+
+    private boolean validateFields(EditText taskName, String deadline, String schedule, Date currentDate) {
+        boolean validDeadline = true;
+        boolean validSchedule = true;
+
+        Log.d("deadline", deadline);
+
+        // Check if deadline is not empty and not earlier than current date
+        if (!deadline.equals("No deadline")) {
+            DateFormat dateFormat = new SimpleDateFormat("MM-dd-yyyy | hh:mm a", Locale.getDefault());
+            try {
+                Date deadlineDate = dateFormat.parse(deadline);
+                if (deadlineDate.before(currentDate)) {
+                    validDeadline = false;
+                }
+            } catch (ParseException e) {
+                e.printStackTrace();
+                validDeadline = false;
+            }
+        }
+
+        // Check if schedule is not empty and not earlier than current date
+        if (!schedule.equals("No schedule")) {
+            DateFormat dateFormat = new SimpleDateFormat("MM-dd-yyyy | hh:mm a", Locale.getDefault());
+            try {
+                Date scheduleDate = dateFormat.parse(schedule);
+                if (scheduleDate.before(currentDate)) {
+                    validSchedule = false;
+                } if (!deadline.equals("No deadline")) {
+                    // Check if schedule is later than deadline
+                    Date deadlineDate = dateFormat.parse(deadline);
+                    if (scheduleDate.after(deadlineDate)) {
+                        validSchedule = false;
+                    }
+                }
+            } catch (ParseException e) {
+                e.printStackTrace();
+                validSchedule = false;
+            }
+        }
+
+        // Check required fields
+        boolean validFields = true;
+        if (taskName.getText().toString().trim().isEmpty()) {
+            taskName.setError("Task name is required");
+            validFields = false;
+        }
+
+        if (!validFields || !validDeadline || !validSchedule) {
+            if (!validFields) {
+                Toast.makeText(requireContext(), "Missing required fields", Toast.LENGTH_SHORT).show();
+            } else if (!validDeadline) {
+                Toast.makeText(requireContext(), "Deadline cannot be earlier than current date and time", Toast.LENGTH_SHORT).show();
+            } else if (!validSchedule) {
+                Toast.makeText(requireContext(), "Schedule cannot be earlier than current date and time or later than deadline", Toast.LENGTH_SHORT).show();
+            }
+            return false;
+        } else {
+            return true;
+        }
+    }
+
+    private void updateTask(Task task) {
+        if (user != null) {
+            // Define the filter to find the task to be updated
+            Document filter = new Document("owner_id", user.getId())
+                    .append("_id", task.getId());
+
+            // Define the update operation
+            Document updateDocument = new Document("$set", new Document()
+                    .append("task_name", task.getTaskName())
+                    .append("importance_level", task.getImportanceLevel())
+                    .append("urgency_level", task.getUrgencyLevel())
+                    .append("deadline", task.getDeadline())
+                    .append("schedule", task.getSchedule())
+                    .append("recurrence", task.getRecurrence())
+                    .append("reminder", task.isReminder())
+                    .append("notes", task.getNotes())
+                    .append("status", task.getStatus())
+                    .append("creation_date", task.getCreationDate())
+            );
+
+            // Perform the update operation
+            taskCollection.updateOne(filter, updateDocument).getAsync(result -> {
+                if (result.isSuccess()) {
+                    Log.d("Data", "Data Updated Successfully");
+                    Toast.makeText(requireContext(), "Task updated", Toast.LENGTH_SHORT).show();
+                    MongoDbRealmHelper.notifyDatabaseChangeListeners();
+                } else {
+                    Log.e("Data", "Failed to update data: " + result.getError().getMessage());
+                }
+            });
+        }
+    }
+
 
     private void insertTask(Task task) {
         if (user != null) {
@@ -390,6 +508,7 @@ public class AddTaskFragment extends Fragment implements DatabaseChangeListener,
             taskCollection.insertOne(taskDocument).getAsync(result -> {
                 if (result.isSuccess()) {
                     Log.d("Data", "Data Inserted Successfully");
+                    Toast.makeText(requireContext(), "Task saved", Toast.LENGTH_SHORT).show();
                     MongoDbRealmHelper.notifyDatabaseChangeListeners();
                 } else {
                     Log.e("Data", "Failed to insert data: " + result.getError().getMessage());
@@ -398,84 +517,7 @@ public class AddTaskFragment extends Fragment implements DatabaseChangeListener,
         }
     }
 
-    private boolean validateFields(Dialog bottomSheetDialog) {
-        EditText editTaskName = bottomSheetDialog.findViewById(R.id.taskName);
-        Spinner importanceSpinner = bottomSheetDialog.findViewById(R.id.importance);
-        Spinner urgencySpinner = bottomSheetDialog.findViewById(R.id.urgency);
-        EditText deadlineEditText = bottomSheetDialog.findViewById(R.id.deadline);
-        EditText scheduleEditText = bottomSheetDialog.findViewById(R.id.schedule);
-
-        String taskName = editTaskName.getText().toString().trim();
-        String deadline = deadlineEditText.getText().toString().trim();
-        String schedule = scheduleEditText.getText().toString().trim();
-        Date currentDate = new Date();
-
-        boolean validDeadline = true;
-        boolean validSchedule = true;
-
-        // Check if deadline is not empty and not earlier than current date
-        if (!deadline.isEmpty()) {
-            DateFormat dateFormat = new SimpleDateFormat("MM-dd-yyyy | hh:mm a", Locale.getDefault());
-            try {
-                Date deadlineDate = dateFormat.parse(deadline);
-                if (deadlineDate.before(currentDate)) {
-                    validDeadline = false;
-                }
-            } catch (ParseException e) {
-                e.printStackTrace();
-                validDeadline = false;
-            }
-        }
-
-        // Check if schedule is not empty and not earlier than current date
-        if (!schedule.isEmpty()) {
-            DateFormat dateFormat = new SimpleDateFormat("MM-dd-yyyy | hh:mm a", Locale.getDefault());
-            try {
-                Date scheduleDate = dateFormat.parse(schedule);
-                if (scheduleDate.before(currentDate)) {
-                    validSchedule = false;
-                } else if (!deadline.isEmpty()) {
-                    // Check if schedule is later than deadline
-                    Date deadlineDate = dateFormat.parse(deadline);
-                    if (scheduleDate.after(deadlineDate)) {
-                        validSchedule = false;
-                    }
-                }
-            } catch (ParseException e) {
-                e.printStackTrace();
-                validSchedule = false;
-            }
-        }
-
-        // Check required fields
-        boolean validFields = true;
-        List<View> fieldsToValidate = Arrays.asList(editTaskName, importanceSpinner, urgencySpinner);
-        for (View field : fieldsToValidate) {
-            if (field instanceof EditText && ((EditText) field).getText().toString().trim().isEmpty()) {
-                showError(field);
-                validFields = false;
-            } else if (field instanceof Spinner && ((Spinner) field).getSelectedItemPosition() == 0) {
-                showError(field);
-                validFields = false;
-            }
-        }
-
-        if (!validFields || !validDeadline || !validSchedule) {
-            if (!validFields) {
-                Toast.makeText(requireContext(), "Missing required fields", Toast.LENGTH_SHORT).show();
-            } else if (!validDeadline) {
-                Toast.makeText(requireContext(), "Deadline cannot be earlier than current date and time", Toast.LENGTH_SHORT).show();
-            } else {
-                Toast.makeText(requireContext(), "Schedule cannot be earlier than current date and time or later than deadline", Toast.LENGTH_SHORT).show();
-            }
-            return false;
-        } else {
-            Toast.makeText(requireContext(), "Task saved", Toast.LENGTH_SHORT).show();
-            return true;
-        }
-    }
-
-    private void setupRecurrenceSpinner(Spinner recurrenceSpinner) {
+    private void getRecurrenceSpinnerValue(Spinner recurrenceSpinner) {
         recurrenceSpinner.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
             @Override
             public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
@@ -625,25 +667,11 @@ public class AddTaskFragment extends Fragment implements DatabaseChangeListener,
     }
 
 
-    private void showError(View view) {
-        String message = "Required field";
-
-        if (view instanceof EditText) {
-            ((EditText) view).setError(message);
-        } else if (view instanceof Spinner) {
-            View selectedView = ((Spinner) view).getSelectedView();
-            if (selectedView instanceof TextView) {
-                ((TextView) selectedView).setError(message);
-            }
-        }
-    }
-
     @Override
     public void onDestroyView() {
         super.onDestroyView();
         MongoDbRealmHelper.removeDatabaseChangeListener(this);
     }
-
 
     @Override
     public void onDatabaseChange() {
