@@ -4,7 +4,7 @@
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
     android:background="@drawable/bg_dialog"
-    android:padding="24dp">
+    android:padding="16dp">
 
     <ImageView
         android:id="@+id/imageView1"
@@ -17,7 +17,7 @@
 
     <androidx.cardview.widget.CardView
         android:id="@+id/cardView"
-        android:layout_width="wrap_content"
+        android:layout_width="0dp"
         android:layout_height="wrap_content"
         android:layout_centerInParent="true"
         android:layout_margin="16dp"
@@ -30,7 +30,7 @@
         <androidx.constraintlayout.widget.ConstraintLayout
             android:layout_width="match_parent"
             android:layout_height="match_parent"
-            android:padding="16dp">
+            android:padding="24dp">
 
             <LinearLayout
                 android:id="@+id/logInTxtContainer"
@@ -67,10 +67,10 @@
                 android:id="@+id/email_edittext"
                 android:layout_width="0dp"
                 android:layout_height="48dp"
+                android:layout_marginTop="16dp"
                 android:autofillHints=""
                 android:background="@drawable/bg_login"
                 android:drawableStart="@drawable/ic_person"
-                android:layout_marginTop="16dp"
                 android:hint="Email"
                 android:inputType="textEmailAddress"
                 android:padding="8dp"
@@ -97,7 +97,7 @@
 
             <Button
                 android:id="@+id/login_button"
-                android:layout_width="300dp"
+                android:layout_width="0dp"
                 android:layout_height="48dp"
                 android:layout_marginTop="16dp"
                 android:background="@drawable/login_button_shape"
