@@ -74,4 +74,15 @@ public class HomeActivity extends AppCompatActivity {
         }
     }
 
+    @Override
+    public void onWindowFocusChanged(boolean hasFocus) {
+        super.onWindowFocusChanged(hasFocus);
+        if (hasFocus) {
+            SystemUIHelper.setSystemUIVisibility(this);
+        } else {
+            SystemUIHelper.setFlagsOnThePeekView();
+        }
+    }
+
+
 }

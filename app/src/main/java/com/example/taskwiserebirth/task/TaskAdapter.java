@@ -98,17 +98,6 @@ public class TaskAdapter extends RecyclerView.Adapter<TaskViewHolder> {
             }
         });
 
-        // Set an OnDismissListener to restore system UI visibility when the menu is dismissed
-        popupMenu.setOnDismissListener(new PopupMenu.OnDismissListener() {
-            @Override
-            public void onDismiss(PopupMenu menu) {
-                AppCompatActivity activity = (AppCompatActivity) context;
-                SystemUIHelper.setSystemUIVisibility(activity);
-            }
-        });
-
-        AppCompatActivity activity = (AppCompatActivity) context;
-        SystemUIHelper.setSystemUIVisibility(activity);
         popupMenu.show();
     }
 
