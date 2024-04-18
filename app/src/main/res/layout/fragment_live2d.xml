@@ -27,23 +27,27 @@
             android:id="@+id/fullscreen_button"
             android:layout_width="60dp"
             android:layout_height="60dp"
-            android:layout_marginTop="20dp"
-            android:layout_marginEnd="20dp"
+            android:layout_marginTop="24dp"
+            android:layout_marginEnd="24dp"
             android:background="@drawable/fullscreen"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintTop_toTopOf="parent"
             android:contentDescription="@string/fullscreen" />
 
-        <ImageButton
-            android:id="@+id/mic_button"
-            android:layout_width="80dp"
-            android:layout_height="80dp"
-            android:layout_marginBottom="100dp"
-            android:background="@drawable/mic"
+        <com.google.android.material.floatingactionbutton.FloatingActionButton
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:backgroundTint="@color/white"
+            android:contentDescription="Speak"
+            android:src="@drawable/mic"
+            android:layout_marginBottom="80dp"
+            android:layout_marginEnd="32dp"
+            app:borderWidth="0dp"
+            app:elevation="2dp"
+            app:layout_anchorGravity="bottom|end"
+            app:maxImageSize="40dp"
             app:layout_constraintBottom_toBottomOf="parent"
-            app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintStart_toStartOf="parent"
-            android:contentDescription="@string/mic" />
+            app:layout_constraintEnd_toEndOf="parent"/>
     </androidx.constraintlayout.widget.ConstraintLayout>
 
 

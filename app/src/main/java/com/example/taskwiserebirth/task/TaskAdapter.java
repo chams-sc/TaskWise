@@ -1,15 +1,18 @@
 package com.example.taskwiserebirth.task;
 
+import android.app.Activity;
 import android.content.Context;
+import android.os.Build;
 import android.text.SpannableString;
 import android.text.style.ForegroundColorSpan;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
+import android.view.WindowInsets;
+import android.view.WindowInsetsController;
 import android.widget.PopupMenu;
 
 import androidx.annotation.NonNull;
@@ -53,13 +56,12 @@ public class TaskAdapter extends RecyclerView.Adapter<TaskViewHolder> {
         holder.deadline.setText(tasks.get(position).getDeadline());
         holder.priority.setText(tasks.get(position).getPriorityCategory());
 
-        holder.imageView.setOnClickListener(v -> showPopupMenu(v, currentTask));
+        holder.imageView.setOnClickListener(v ->
+                showPopupMenu(v, currentTask));
     }
 
 
     private void showPopupMenu(View v, final Task task) {
-        SystemUIHelper.setSystemUIVisibility((AppCompatActivity) context);
-
         PopupMenu popupMenu = new PopupMenu(context, v);
         MenuInflater inflater = popupMenu.getMenuInflater();
         inflater.inflate(R.menu.show_menu, popupMenu.getMenu());
@@ -95,6 +97,18 @@ public class TaskAdapter extends RecyclerView.Adapter<TaskViewHolder> {
                 return false;
             }
         });
+
+        // Set an OnDismissListener to restore system UI visibility when the menu is dismissed
+        popupMenu.setOnDismissListener(new PopupMenu.OnDismissListener() {
+            @Override
+            public void onDismiss(PopupMenu menu) {
+                AppCompatActivity activity = (AppCompatActivity) context;
+                SystemUIHelper.setSystemUIVisibility(activity);
+            }
+        });
+
+        AppCompatActivity activity = (AppCompatActivity) context;
+        SystemUIHelper.setSystemUIVisibility(activity);
         popupMenu.show();
     }
 
