@@ -257,6 +257,8 @@ public class AddTaskFragment extends Fragment implements DatabaseChangeListener,
         View bottomSheetView = getLayoutInflater().inflate(R.layout.add_task, null);
         bottomSheetDialog.setContentView(bottomSheetView);
 
+        SystemUIHelper.adjustDialog((AppCompatActivity) getActivity(), bottomSheetDialog);
+
         bottomSheetDialog.getWindow().setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_ADJUST_RESIZE);
 
         setUpViews(bottomSheetDialog, bottomSheetView, task);
