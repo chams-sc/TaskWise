@@ -1,6 +1,7 @@
 package com.example.taskwiserebirth;
 
 import android.app.Dialog;
+import android.content.Intent;
 import android.graphics.Color;
 import android.graphics.drawable.ColorDrawable;
 import android.os.Bundle;
@@ -26,6 +27,9 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.core.widget.NestedScrollView;
 import androidx.fragment.app.Fragment;
+import androidx.fragment.app.FragmentManager;
+import androidx.fragment.app.FragmentTransaction;
+import androidx.navigation.Navigation;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
@@ -51,6 +55,7 @@ import java.util.List;
 import java.util.Locale;
 import java.util.TimeZone;
 import java.util.concurrent.TimeUnit;
+
 
 import io.realm.mongodb.App;
 import io.realm.mongodb.RealmResultTask;
@@ -102,10 +107,20 @@ public class AddTaskFragment extends Fragment implements DatabaseChangeListener,
 
         displayTimeOfDay(rootView);
 
+        TextView textView = rootView.findViewById(R.id.viewAll);
+        textView.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                openSecondActivity();
+            }
+        });
         return rootView;
     }
 
-
+    public void openSecondActivity() {
+        Intent intent = new Intent(requireContext(), AllTask.class);
+        startActivity(intent);
+    }
 
 
     private void setUpCalendarRecyclerView(View rootView) {
