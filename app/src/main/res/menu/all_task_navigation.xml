@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="utf-8"?>
+<menu xmlns:android="http://schemas.android.com/apk/res/android">
+
+    <item
+        android:id="@+id/unfinished_task"
+        android:title="Unfinished" />
+
+    <item
+        android:id="@+id/finished_task"
+        android:title="Finished" />
+
+</menu>

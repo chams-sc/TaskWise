@@ -53,11 +53,55 @@
                     app:layoutManager="androidx.recyclerview.widget.LinearLayoutManager"
                     app:layout_constraintTop_toBottomOf="@id/timeOfDayImageView" />
 
+                <TextView
+                    android:id="@+id/todayTask"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginStart="8dp"
+                    android:layout_marginTop="8dp"
+                    android:layout_marginBottom="8dp"
+                    android:fontFamily="@font/inter_bold"
+                    android:paddingLeft="12dp"
+                    android:text="Today's Task"
+                    android:textSize="16sp"
+                    app:layout_constraintBottom_toTopOf="@+id/Cardrecyclerview1"
+                    app:layout_constraintStart_toStartOf="parent"
+                    app:layout_constraintTop_toBottomOf="@+id/tasksRecyclerView" />
+
+
+                <TextView
+                    android:id="@+id/viewAll"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginStart="8dp"
+                    android:layout_marginTop="8dp"
+                    android:layout_marginBottom="8dp"
+                    android:fontFamily="@font/inter_semibold"
+                    android:paddingLeft="12dp"
+                    android:text="View All"
+                    android:textAlignment="center"
+                    android:textSize="12sp"
+                    app:layout_constraintBottom_toTopOf="@+id/Cardrecyclerview1"
+                    app:layout_constraintStart_toEndOf="@+id/todayTask"
+                    app:layout_constraintTop_toBottomOf="@+id/tasksRecyclerView" />
+
+                <ImageView
+                    android:id="@+id/arrowForward"
+                    android:layout_width="8dp"
+                    android:layout_height="16dp"
+                    android:layout_marginStart="4dp"
+                    android:layout_marginTop="8dp"
+                    android:layout_marginBottom="8dp"
+                    android:src="@drawable/baseline_arrow_forward_ios_24"
+                    app:layout_constraintBottom_toTopOf="@+id/Cardrecyclerview1"
+                    app:layout_constraintStart_toEndOf="@+id/viewAll"
+                    app:layout_constraintTop_toBottomOf="@+id/tasksRecyclerView" />
+
                 <androidx.recyclerview.widget.RecyclerView
                     android:id="@+id/Cardrecyclerview1"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:layout_marginTop="24dp"
+                    android:layout_marginTop="48dp"
                     app:layoutManager="androidx.recyclerview.widget.LinearLayoutManager"
                     app:layout_constraintBottom_toBottomOf="parent"
                     app:layout_constraintEnd_toEndOf="parent"
