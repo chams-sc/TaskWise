@@ -25,6 +25,8 @@ import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.widget.NestedScrollView;
 import androidx.fragment.app.Fragment;
+import androidx.fragment.app.FragmentManager;
+import androidx.fragment.app.FragmentTransaction;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
@@ -93,6 +95,20 @@ public class AddTaskFragment extends Fragment implements DatabaseChangeListener,
         fab.setOnClickListener(v -> showBottomSheetDialog(task));
 
         displayTimeOfDay(rootView);
+
+
+        TextView textView = rootView.findViewById(R.id.viewAll);
+        textView.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                // Navigate to Fragment B
+                AllTask fragmentB = new AllTask();
+                FragmentTransaction transaction = getFragmentManager().beginTransaction();
+                transaction.replace(R.id.frame_layout, fragmentB);
+                transaction.addToBackStack(null);
+                transaction.commit();
+            }
+        });
 
         return rootView;
     }
