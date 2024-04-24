@@ -509,7 +509,6 @@ public class AddTaskFragment extends Fragment implements DatabaseChangeListener,
         }
     }
 
-
     private void insertTask(Task task) {
         if (user != null) {
             Document taskDocument = new Document("owner_id", user.getId())
@@ -715,7 +714,6 @@ public class AddTaskFragment extends Fragment implements DatabaseChangeListener,
 
         taskCollection.deleteOne(queryFilter).getAsync(result -> {
             if (result.isSuccess()) {
-                Log.d("Data", "Task deleted successfully");
                 MongoDbRealmHelper.notifyDatabaseChangeListeners();
                 Toast.makeText(requireContext(), "Task deleted", Toast.LENGTH_SHORT).show();
             } else {
@@ -732,7 +730,6 @@ public class AddTaskFragment extends Fragment implements DatabaseChangeListener,
 
         taskCollection.updateOne(queryFilter, updateDocument).getAsync(result -> {
             if (result.isSuccess()) {
-                Log.d("Data", "Task status updated");
                 MongoDbRealmHelper.notifyDatabaseChangeListeners();
                 Toast.makeText(requireContext(), "Task status updated", Toast.LENGTH_SHORT).show();
             } else {

@@ -57,30 +57,27 @@ public class BeforeLogin extends AppCompatActivity {
         bottomlogin.setOnClickListener(v -> showLoginDialog());
 
         if (ContextCompat.checkSelfPermission(this, Manifest.permission.RECORD_AUDIO) != PackageManager.PERMISSION_GRANTED) {
-            checkPermission();
+            ActivityCompat.requestPermissions(this, new String[]{Manifest.permission.RECORD_AUDIO}, RecordAudioRequestCode);
         }
     }
 
-    private void checkPermission() {
-        ActivityCompat.requestPermissions(this, new String[]{Manifest.permission.RECORD_AUDIO}, RecordAudioRequestCode);
-    }
+//    @Override
+//    public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
+//        super.onRequestPermissionsResult(requestCode, permissions, grantResults);
+//        if (requestCode == RecordAudioRequestCode) {
+//            if (grantResults.length > 0 && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
+//
+//            } else {
+//                Snackbar.make(findViewById(android.R.id.content), "Permission needed for speech recognition.", Snackbar.LENGTH_LONG)
+//                        .setAction("Grant", v -> {
+//                            // Request permission again
+//                            requestPermission();
+//                        })
+//                        .show();
+//            }
+//        }
+//    }
 
-    @Override
-    public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
-        super.onRequestPermissionsResult(requestCode, permissions, grantResults);
-        if (requestCode == RecordAudioRequestCode) {
-            if (grantResults.length > 0 && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
-
-            } else {
-                Snackbar.make(findViewById(android.R.id.content), "Permission needed for speech recognition.", Snackbar.LENGTH_LONG)
-                        .setAction("Grant", v -> {
-                            // Request permission again
-                            ActivityCompat.requestPermissions(BeforeLogin.this, new String[]{Manifest.permission.RECORD_AUDIO}, RecordAudioRequestCode);
-                        })
-                        .show();
-            }
-        }
-    }
 
     // Show custom dialog
     private Dialog showCustomDialog(final int layoutResId) {
