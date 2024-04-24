@@ -683,7 +683,6 @@ public class AddTaskFragment extends Fragment implements DatabaseChangeListener,
 
     @Override
     public void onScrollChange(@NonNull NestedScrollView v, int scrollX, int scrollY, int oldScrollX, int oldScrollY) {
-        // If scrolling up visibility = true; else false
         boolean scrollingUp = scrollY < oldScrollY;
         ((HomeActivity) requireActivity()).toggleNavBarVisibility(scrollingUp, true);
     }

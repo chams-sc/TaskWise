@@ -14,18 +14,23 @@ import com.google.android.material.bottomnavigation.BottomNavigationView;
 
 public class HomeActivity extends AppCompatActivity {
 
+    // TODO: Rename to MainActivity
     BottomNavigationView bottomNavigationView;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_home);
+
+        SystemUIHelper.setSystemUIVisibility(this);
+
         bottomNavigationView = findViewById(R.id.bottomNavigationView);
-
-        SystemUIHelper.setSystemUIVisibility(this); //TODO: in android 7 and 6 this causes the icons on bottom nav view to be invisible, fix later
-
         replaceFragment(new Live2DFragment());
 
+        setupBottomNavigationListener();
+    }
+
+    private void setupBottomNavigationListener() {
         bottomNavigationView.setOnItemSelectedListener(menuItem -> {
             int itemId = menuItem.getItemId();
             Fragment currentFragment = getSupportFragmentManager().findFragmentById(R.id.frame_layout);
@@ -56,6 +61,12 @@ public class HomeActivity extends AppCompatActivity {
         fragmentTransaction.commit();
     }
 
+    /**
+     * Toggles the visibility of the navigation bar.
+     *
+     * @param visible        true to make the navigation bar visible, false to hide it
+     * @param isScrollToggle true if the toggle action involves scrolling, false otherwise
+     */
     public void toggleNavBarVisibility(boolean visible, boolean isScrollToggle) {
         long duration = 100;
         if (isScrollToggle) {

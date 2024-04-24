@@ -1,7 +1,9 @@
 package com.example.taskwiserebirth;
 
+import android.Manifest;
 import android.app.Dialog;
 import android.content.Intent;
+import android.content.pm.PackageManager;
 import android.graphics.Color;
 import android.graphics.drawable.ColorDrawable;
 import android.os.Bundle;
@@ -14,9 +16,13 @@ import android.widget.EditText;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.core.app.ActivityCompat;
+import androidx.core.content.ContextCompat;
 
 import com.example.taskwiserebirth.database.MongoDbRealmHelper;
+import com.google.android.material.snackbar.Snackbar;
 
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -28,12 +34,13 @@ import io.realm.mongodb.Credentials;
 
 public class BeforeLogin extends AppCompatActivity {
 
-    // TODO: find a way to hide appId
+    // TODO: Rename to AccountActivity
     private final String TAG = "MongoDb";
     private App app;
     Button bottomlogin;
     private Dialog loginDialog;
     private Dialog registerDialog;
+    public static final Integer RecordAudioRequestCode = 1;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -49,6 +56,30 @@ public class BeforeLogin extends AppCompatActivity {
         bottomlogin = findViewById(R.id.before_button);
         bottomlogin.setOnClickListener(v -> showLoginDialog());
 
+        if (ContextCompat.checkSelfPermission(this, Manifest.permission.RECORD_AUDIO) != PackageManager.PERMISSION_GRANTED) {
+            checkPermission();
+        }
+    }
+
+    private void checkPermission() {
+        ActivityCompat.requestPermissions(this, new String[]{Manifest.permission.RECORD_AUDIO}, RecordAudioRequestCode);
+    }
+
+    @Override
+    public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
+        super.onRequestPermissionsResult(requestCode, permissions, grantResults);
+        if (requestCode == RecordAudioRequestCode) {
+            if (grantResults.length > 0 && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
+
+            } else {
+                Snackbar.make(findViewById(android.R.id.content), "Permission needed for speech recognition.", Snackbar.LENGTH_LONG)
+                        .setAction("Grant", v -> {
+                            // Request permission again
+                            ActivityCompat.requestPermissions(BeforeLogin.this, new String[]{Manifest.permission.RECORD_AUDIO}, RecordAudioRequestCode);
+                        })
+                        .show();
+            }
+        }
     }
 
     // Show custom dialog
@@ -107,7 +138,7 @@ public class BeforeLogin extends AppCompatActivity {
 
         Credentials credentials = Credentials.emailPassword(email, password);
         app.loginAsync(credentials, result -> {
-            if(result.isSuccess()){
+            if (result.isSuccess()) {
                 Log.d(TAG, "Logged in successfully");
 
                 // TODO: possibly remove toast message
@@ -115,9 +146,7 @@ public class BeforeLogin extends AppCompatActivity {
 
                 // Start home activity
                 startActivity(new Intent(BeforeLogin.this, HomeActivity.class));
-            }
-            else
-            {
+            } else {
                 handleMongoError(result.getError());
             }
         });
@@ -140,7 +169,7 @@ public class BeforeLogin extends AppCompatActivity {
     }
 
     // Show register dialog
-    private void showRegisterDialog(){
+    private void showRegisterDialog() {
         registerDialog = showCustomDialog(R.layout.bottom_register);
 
         Button registerBtn = registerDialog.findViewById(R.id.register_button);
@@ -155,17 +184,13 @@ public class BeforeLogin extends AppCompatActivity {
 
             if (email.isEmpty() || !isValidEmail(email)) {
                 showError(inputEmail, "Please put a valid email");
-            }
-            else if (password.isEmpty() || password.length() < 8) {
+            } else if (password.isEmpty() || password.length() < 8) {
                 showError(inputPassword, "Password must be at least 8 characters");
-            }
-            else if (cPassword.isEmpty()){
+            } else if (cPassword.isEmpty()) {
                 showError(inputCPassword, "Please confirm password");
-            }
-            else if (!cPassword.equals(password)) {
+            } else if (!cPassword.equals(password)) {
                 showError(inputCPassword, "Please re-enter your password correctly");
-            }
-            else {
+            } else {
                 registerUser(email, password);
             }
         });
@@ -187,24 +212,29 @@ public class BeforeLogin extends AppCompatActivity {
     private void handleMongoError(AppException exception) {
         if (exception != null) {
             int errorIntValue = exception.getErrorIntValue();
+            String errorMessage = exception.getErrorMessage();
+
+            if (errorMessage == null) {
+                errorMessage = "Unknown error occurred";
+            }
 
             // TODO: add other error codes if possible
             switch (errorIntValue) {
                 case 4348:
-                    Log.e(TAG, exception.getErrorMessage());
+                    Log.e(TAG, errorMessage);
                     Toast.makeText(getApplicationContext(), "Account name already exists.", Toast.LENGTH_SHORT).show();
                     break;
                 case 4349:
-                    Log.e(TAG, exception.getErrorMessage());
+                    Log.e(TAG, errorMessage);
                     Toast.makeText(getApplicationContext(), "Invalid email or password", Toast.LENGTH_SHORT).show();
                     break;
                 case 1000:
-                    Log.e(TAG, exception.getErrorMessage());
+                    Log.e(TAG, errorMessage);
                     Toast.makeText(getApplicationContext(), "Network failed", Toast.LENGTH_SHORT).show();
                     break;
                 default:
-                    Log.e(TAG, exception.getErrorMessage());
-                    Toast.makeText(getApplicationContext(), exception.getErrorMessage(), Toast.LENGTH_SHORT).show();
+                    Log.e(TAG, errorMessage);
+                    Toast.makeText(getApplicationContext(), errorMessage, Toast.LENGTH_SHORT).show();
                     break;
             }
 
@@ -213,7 +243,6 @@ public class BeforeLogin extends AppCompatActivity {
             Toast.makeText(getApplicationContext(), "Unknown error occurred", Toast.LENGTH_SHORT).show();
         }
     }
-
     // Prevent leaked window
     @Override
     protected void onPause() {

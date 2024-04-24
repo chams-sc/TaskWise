@@ -64,9 +64,7 @@ public class SystemUIHelper {
                         }
                     } else {
                         peekView.setSystemUiVisibility(SystemUIHelper.FLAGS);
-                        peekView.setOnSystemUiVisibilityChangeListener(visibility -> {
-                            peekView.setSystemUiVisibility(SystemUIHelper.FLAGS);
-                        });
+                        peekView.setOnSystemUiVisibilityChangeListener(visibility -> peekView.setSystemUiVisibility(SystemUIHelper.FLAGS));
                     }
                 }
             }
