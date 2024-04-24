@@ -9,4 +9,9 @@
     <color name="white_2">#D9D9D9</color>
     <color name="gray3">#9396AB</color>
     <color name="disabled_gray">#CCCCCC</color>
+    <color name="green">#2FD65E</color>
+    <color name="blue">#3C5CCC</color>
+    <color name="red">#E72A2A</color>
+    <color name="ashgray">#9D9D9D</color>
+
 </resources>
