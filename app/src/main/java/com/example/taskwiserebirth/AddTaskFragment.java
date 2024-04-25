@@ -119,31 +119,25 @@ public class AddTaskFragment extends Fragment implements DatabaseChangeListener,
         RecyclerView calendarRecyclerView = rootView.findViewById(R.id.calendarRecyclerView);
 
         TextView currentMonth = rootView.findViewById(R.id.monthTxt);
-        // Get the current month
+
         Calendar calendar = Calendar.getInstance();
         int currentMonthIndex = calendar.get(Calendar.MONTH);
         String[] months = new DateFormatSymbols().getMonths();
         String currentMonthName = months[currentMonthIndex].toUpperCase();
 
-        // Set the current month to the TextView
         currentMonth.setText(currentMonthName);
 
-        // Get list of calendar dates
         List<Calendar> calendarList = getDatesForCurrentMonth();
 
-        // Set up CalendarAdapter
         CalendarAdapter calendarAdapter = new CalendarAdapter(calendarList, date -> {
             // Handle calendar item click if needed
         });
 
-        // Set up RecyclerView with LinearLayoutManager
         LinearLayoutManager layoutManager = new LinearLayoutManager(requireContext(), LinearLayoutManager.HORIZONTAL, false);
         calendarRecyclerView.setLayoutManager(layoutManager);
 
-        // Set RecyclerView adapter
         calendarRecyclerView.setAdapter(calendarAdapter);
 
-        // Scroll to current date position
         int currentPosition = getCurrentDatePosition(calendarList);
         if (currentPosition != -1) {
             layoutManager.scrollToPosition(currentPosition);
@@ -167,16 +161,10 @@ public class AddTaskFragment extends Fragment implements DatabaseChangeListener,
     private void setUpCardRecyclerView(View rootView) {
         RecyclerView cardRecyclerView = rootView.findViewById(R.id.tasksRecyclerView);
 
-        // Dummy data for card items
         List<Task> tasks = new ArrayList<>();
-
-        // Set up CardAdapter
         taskAdapter = new TaskAdapter(requireContext(), tasks, this);
 
-        // Set up RecyclerView with LinearLayoutManager
         cardRecyclerView.setLayoutManager(new LinearLayoutManager(requireContext()));
-
-        // Set RecyclerView adapter with the items list
         cardRecyclerView.setAdapter(taskAdapter);
 
         updateTaskRecyclerView();
@@ -255,7 +243,6 @@ public class AddTaskFragment extends Fragment implements DatabaseChangeListener,
         List<Calendar> calendarList = new ArrayList<>();
         Calendar currentDate = Calendar.getInstance();
 
-        // Set to the first day of the current month
         currentDate.set(Calendar.DAY_OF_MONTH, 1);
 
         int daysInMonth = currentDate.getActualMaximum(Calendar.DAY_OF_MONTH);
@@ -355,7 +342,7 @@ public class AddTaskFragment extends Fragment implements DatabaseChangeListener,
                 return i;
             }
         }
-        return 0; // Default to first item if not found
+        return 0;
     }
 
     private Task setTaskFromFields(Dialog bottomSheetDialog, Task task) {
@@ -482,7 +469,6 @@ public class AddTaskFragment extends Fragment implements DatabaseChangeListener,
             Document filter = new Document("owner_id", user.getId())
                     .append("_id", task.getId());
 
-            // Define the update operation
             Document updateDocument = new Document("$set", new Document()
                     .append("task_name", task.getTaskName())
                     .append("importance_level", task.getImportanceLevel())
@@ -496,7 +482,6 @@ public class AddTaskFragment extends Fragment implements DatabaseChangeListener,
                     .append("creation_date", task.getCreationDate())
             );
 
-            // Perform the update operation
             taskCollection.updateOne(filter, updateDocument).getAsync(result -> {
                 if (result.isSuccess()) {
                     Log.d("Data", "Data Updated Successfully");

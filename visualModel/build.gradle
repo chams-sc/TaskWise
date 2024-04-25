@@ -57,7 +57,7 @@ dependencies {
     implementation 'com.google.android.material:material:1.4.0'
     implementation 'androidx.constraintlayout:constraintlayout:2.1.4'
     implementation project(":Framework:framework")
-    implementation 'com.microsoft.cognitiveservices.speech:client-sdk:1.35.0'
+    api 'com.microsoft.cognitiveservices.speech:client-sdk:1.35.0'
 
 
     androidTestImplementation 'androidx.test.ext:junit:1.1.3'

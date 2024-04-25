@@ -110,7 +110,7 @@ public class Live2DFragment extends Fragment implements View.OnTouchListener {
                         Toast.makeText(requireContext(), "Network error occurred. Please check your internet connection and try again.", Toast.LENGTH_SHORT).show();
                         break;
                     case SpeechRecognizer.ERROR_NO_MATCH:
-                        Toast.makeText(requireContext(), "I'm sorry, what did you say again?", Toast.LENGTH_SHORT).show();
+                        Toast.makeText(requireContext(), "I'm sorry, I didn't catch that can you say that again?", Toast.LENGTH_SHORT).show();
                         break;
                     case SpeechRecognizer.ERROR_INSUFFICIENT_PERMISSIONS:
                         Toast.makeText(requireContext(), "Insufficient permissions.", Toast.LENGTH_SHORT).show();
@@ -150,7 +150,7 @@ public class Live2DFragment extends Fragment implements View.OnTouchListener {
     private boolean checkPermission() {
         if (ContextCompat.checkSelfPermission(requireContext(), Manifest.permission.RECORD_AUDIO) != PackageManager.PERMISSION_GRANTED) {
             AlertDialog.Builder builder = new AlertDialog.Builder(requireContext());
-            builder.setMessage("This app requires RECORD_AUDIO permission for particular feature to work as expected.")
+            builder.setMessage("This app requires RECORD_AUDIO permission for speech recognition to feature to work as expected.")
                     .setTitle("Permission Required")
                     .setCancelable(false)
                     .setNegativeButton("Cancel", ((dialog, which) -> dialog.dismiss()))
