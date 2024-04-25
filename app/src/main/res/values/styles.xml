@@ -23,5 +23,11 @@
     <style name="SpinnerStyle" parent="Widget.AppCompat.Spinner">
         <item name="android:popupBackground">@drawable/bg_spinner</item>
     </style>
+
+    <style name="CustomTabTextAppearance" parent="TextAppearance.Design.Tab">
+        <item name="android:fontFamily">@font/inter_bold</item>
+        <!-- Add other text appearance attributes as needed -->
+    </style>
+
 </resources>
 
