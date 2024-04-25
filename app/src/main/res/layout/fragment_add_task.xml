@@ -1,34 +1,35 @@
 <?xml version="1.0" encoding="utf-8"?>
 <androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
-    android:layout_height="match_parent"
-    xmlns:app="http://schemas.android.com/apk/res-auto">
+    android:layout_height="match_parent">
+
     <LinearLayout
         android:id="@+id/headerContainer"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
+        android:gravity="center_vertical"
         android:orientation="horizontal"
         android:paddingHorizontal="16dp"
         android:paddingTop="16dp"
-        android:gravity="center_vertical"
         app:layout_constraintTop_toTopOf="parent">
 
         <ImageView
             android:id="@+id/timeOfDayImageView"
             android:layout_width="40dp"
             android:layout_height="40dp"
-            android:src="@drawable/baseline_sun2"
-            android:layout_marginEnd="8dp"/>
+            android:layout_marginEnd="8dp"
+            android:src="@drawable/baseline_sun2" />
 
         <TextClock
             android:id="@+id/digitalClock"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
+            android:layout_marginEnd="8dp"
             android:fontFamily="@font/inter"
             android:textColor="@color/dark"
-            android:textSize="32sp"
-            android:layout_marginEnd="8dp"/>
+            android:textSize="32sp" />
 
         <TextView
             android:id="@+id/tasksText"
@@ -36,9 +37,8 @@
             android:layout_height="wrap_content"
             android:fontFamily="@font/inter"
             android:text="Morning"
-            android:textSize="16sp"/>
+            android:textSize="16sp" />
     </LinearLayout>
-
 
     <androidx.constraintlayout.widget.ConstraintLayout
         android:id="@+id/recyclerHolder"
@@ -46,53 +46,7 @@
         android:layout_height="0dp"
         android:orientation="horizontal"
         app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/headerContainer"
-        app:layout_constraintVertical_bias="0.0"
-        tools:layout_editor_absoluteX="98dp">
-
-        <TextView
-            android:id="@+id/todayTask"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_marginStart="8dp"
-            android:layout_marginTop="8dp"
-            android:fontFamily="@font/inter_bold"
-            android:paddingLeft="12dp"
-            android:text="Today's Task"
-            android:textSize="16sp"
-            app:layout_constraintBottom_toTopOf="@+id/nestedScrollView"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@+id/calendarRecyclerView"
-            app:layout_constraintVertical_bias="0.0" />
-
-
-        <TextView
-            android:id="@+id/viewAll"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_marginStart="8dp"
-            android:layout_marginTop="8dp"
-            android:fontFamily="@font/inter_semibold"
-            android:paddingLeft="12dp"
-            android:text="View All"
-            android:textAlignment="center"
-            android:textSize="12sp"
-            app:layout_constraintBottom_toTopOf="@+id/nestedScrollView"
-            app:layout_constraintStart_toEndOf="@+id/todayTask"
-            app:layout_constraintTop_toBottomOf="@+id/calendarRecyclerView"
-            app:layout_constraintVertical_bias="0.07999998" />
-
-        <ImageView
-            android:id="@+id/arrowForward"
-            android:layout_width="8dp"
-            android:layout_height="16dp"
-            android:layout_marginStart="4dp"
-            android:layout_marginTop="8dp"
-            android:src="@drawable/baseline_arrow_forward_ios_24"
-            app:layout_constraintBottom_toTopOf="@+id/nestedScrollView"
-            app:layout_constraintStart_toEndOf="@+id/viewAll"
-            app:layout_constraintTop_toBottomOf="@+id/calendarRecyclerView"
-            app:layout_constraintVertical_bias="0.07999998" />
+        app:layout_constraintTop_toBottomOf="@+id/headerContainer">
 
         <TextView
             android:id="@+id/monthTxt"
@@ -107,124 +61,146 @@
             android:textSize="24dp"
             app:layout_constraintTop_toTopOf="parent" />
 
-
-        <TextView
-            android:id="@+id/unfinishedLegend"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_marginTop="8dp"
-            android:layout_marginBottom="8dp"
-            android:fontFamily="@font/inter_semibold"
-            android:paddingLeft="12dp"
-            android:text="Unfinished"
-            android:textAlignment="center"
-            android:textSize="12sp"
-            app:layout_constraintBottom_toTopOf="@+id/nestedScrollView"
-            app:layout_constraintStart_toEndOf="@+id/blueCircle"
-            app:layout_constraintTop_toBottomOf="@+id/todayTask" />
-
-        <ImageView
-            android:id="@+id/blueCircle"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_marginStart="16dp"
-            android:background="@drawable/round_legends"
-            app:layout_constraintBottom_toTopOf="@+id/nestedScrollView"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@+id/todayTask" />
-
-        <TextView
-            android:id="@+id/finishedLegend"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_marginTop="8dp"
-            android:layout_marginBottom="8dp"
-            android:fontFamily="@font/inter_semibold"
-            android:paddingLeft="12dp"
-            android:text="Finished"
-            android:textAlignment="center"
-            android:textSize="12sp"
-            app:layout_constraintBottom_toTopOf="@+id/nestedScrollView"
-            app:layout_constraintStart_toEndOf="@+id/greenCircle"
-            app:layout_constraintTop_toBottomOf="@+id/todayTask" />
-
-        <ImageView
-            android:id="@+id/greenCircle"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_marginStart="16dp"
-            android:background="@drawable/green_circle"
-            app:layout_constraintBottom_toTopOf="@+id/nestedScrollView"
-            app:layout_constraintStart_toEndOf="@+id/unfinishedLegend"
-            app:layout_constraintTop_toBottomOf="@+id/todayTask" />
-
-        <TextView
-            android:id="@+id/closeLegend"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_marginTop="8dp"
-            android:layout_marginBottom="8dp"
-            android:fontFamily="@font/inter_semibold"
-            android:paddingLeft="12dp"
-            android:text="Close to Due"
-            android:textAlignment="center"
-            android:textSize="12sp"
-            app:layout_constraintBottom_toTopOf="@+id/nestedScrollView"
-            app:layout_constraintStart_toEndOf="@+id/redCircle"
-            app:layout_constraintTop_toBottomOf="@+id/todayTask" />
-
-        <ImageView
-            android:id="@+id/redCircle"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_marginStart="16dp"
-            android:background="@drawable/red_circle"
-            app:layout_constraintBottom_toTopOf="@+id/nestedScrollView"
-            app:layout_constraintStart_toEndOf="@+id/finishedLegend"
-            app:layout_constraintTop_toBottomOf="@+id/todayTask" />
-
-        <TextView
-            android:id="@+id/pastLegend"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_marginTop="8dp"
-            android:layout_marginBottom="8dp"
-            android:fontFamily="@font/inter_semibold"
-            android:paddingLeft="12dp"
-            android:text="Past Due"
-            android:textAlignment="center"
-            android:textSize="12sp"
-            app:layout_constraintBottom_toTopOf="@+id/nestedScrollView"
-            app:layout_constraintStart_toEndOf="@+id/grayCircle"
-            app:layout_constraintTop_toBottomOf="@+id/todayTask" />
-
-        <ImageView
-            android:id="@+id/grayCircle"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_marginStart="16dp"
-            android:background="@drawable/gray_circle"
-            app:layout_constraintBottom_toTopOf="@+id/nestedScrollView"
-            app:layout_constraintStart_toEndOf="@+id/closeLegend"
-            app:layout_constraintTop_toBottomOf="@+id/todayTask" />
-
         <androidx.recyclerview.widget.RecyclerView
             android:id="@+id/calendarRecyclerView"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:nestedScrollingEnabled="true"
             app:layoutManager="androidx.recyclerview.widget.LinearLayoutManager"
-            app:layout_constraintBottom_toTopOf="@+id/nestedScrollView"
+            app:layout_constraintBottom_toTopOf="@+id/allTaskContainer"
             app:layout_constraintTop_toBottomOf="@id/monthTxt" />
+
+        <androidx.constraintlayout.widget.ConstraintLayout
+            android:id="@+id/allTaskContainer"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_margin="8dp"
+            android:paddingHorizontal="8dp"
+            app:layout_constraintBottom_toTopOf="@+id/nestedScrollView"
+            app:layout_constraintTop_toBottomOf="@id/calendarRecyclerView">
+
+            <LinearLayout
+                android:id="@+id/todayTaskContainer"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:paddingHorizontal="8dp"
+                android:paddingTop="8dp"
+                android:gravity="center_vertical"
+                android:orientation="horizontal"
+                app:layout_constraintStart_toStartOf="@+id/categoryContainer"
+                app:layout_constraintTop_toTopOf="parent">
+
+                <TextView
+                    android:id="@+id/todayTask"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginEnd="16dp"
+                    android:fontFamily="@font/inter_bold"
+                    android:text="Today's Task"
+                    android:textSize="16sp" />
+
+                <TextView
+                    android:id="@+id/viewAll"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginEnd="8dp"
+                    android:fontFamily="@font/inter_semibold"
+                    android:text="View All"
+                    android:clickable="true"
+                    android:focusable="true"
+                    android:textAlignment="center"
+                    android:textSize="12sp" />
+
+                <ImageView
+                    android:id="@+id/arrowForward"
+                    android:layout_width="8dp"
+                    android:layout_height="16dp"
+                    android:src="@drawable/baseline_arrow_forward_ios_24" />
+            </LinearLayout>
+
+            <LinearLayout
+                android:id="@+id/categoryContainer"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="8dp"
+                android:gravity="center_vertical"
+                android:padding="8dp"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toBottomOf="@+id/todayTaskContainer">
+
+                <ImageView
+                    android:id="@+id/blueCircle"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginEnd="8dp"
+                    android:background="@drawable/round_legends" />
+
+                <TextView
+                    android:id="@+id/unfinishedLegend"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginEnd="16dp"
+                    android:fontFamily="@font/inter_semibold"
+                    android:text="Unfinished"
+                    android:textSize="12sp" />
+
+                <ImageView
+                    android:id="@+id/greenCircle"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginEnd="8dp"
+                    android:background="@drawable/green_circle" />
+
+                <TextView
+                    android:id="@+id/finishedLegend"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginEnd="16dp"
+                    android:fontFamily="@font/inter_semibold"
+                    android:text="Finished"
+                    android:textSize="12sp" />
+
+                <ImageView
+                    android:id="@+id/redCircle"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginEnd="8dp"
+                    android:background="@drawable/red_circle" />
+
+                <TextView
+                    android:id="@+id/closeLegend"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginEnd="16dp"
+                    android:fontFamily="@font/inter_semibold"
+                    android:text="Close to Due"
+                    android:textSize="12sp" />
+
+                <ImageView
+                    android:id="@+id/grayCircle"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginEnd="8dp"
+                    android:background="@drawable/gray_circle" />
+
+                <TextView
+                    android:id="@+id/pastLegend"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:fontFamily="@font/inter_semibold"
+                    android:text="Past Due"
+                    android:textSize="12sp" />
+            </LinearLayout>
+
+        </androidx.constraintlayout.widget.ConstraintLayout>
 
         <androidx.core.widget.NestedScrollView
             android:id="@+id/nestedScrollView"
             android:layout_width="match_parent"
             android:layout_height="0dp"
-            android:layout_marginTop="80dp"
             app:layout_constraintBottom_toBottomOf="parent"
-            app:layout_constraintTop_toBottomOf="@id/calendarRecyclerView"
-            tools:layout_editor_absoluteX="81dp">
+            app:layout_constraintTop_toBottomOf="@id/allTaskContainer">
 
             <androidx.recyclerview.widget.RecyclerView
                 android:id="@+id/tasksRecyclerView"
@@ -233,6 +209,7 @@
 
         </androidx.core.widget.NestedScrollView>
     </androidx.constraintlayout.widget.ConstraintLayout>
+
 
     <androidx.constraintlayout.widget.ConstraintLayout
         android:layout_width="match_parent"
@@ -249,9 +226,8 @@
             android:src="@drawable/baseline_add"
             app:borderWidth="0dp"
             app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintTop_toTopOf="parent"
             app:layout_constraintStart_toStartOf="parent"
-            />
+            app:layout_constraintTop_toTopOf="parent" />
 
     </androidx.constraintlayout.widget.ConstraintLayout>
 

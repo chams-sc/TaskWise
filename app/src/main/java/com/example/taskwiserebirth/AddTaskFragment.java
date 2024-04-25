@@ -16,6 +16,7 @@ import android.widget.Button;
 import android.widget.CheckBox;
 import android.widget.EditText;
 import android.widget.ImageView;
+import android.widget.LinearLayout;
 import android.widget.Spinner;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -25,13 +26,13 @@ import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.widget.NestedScrollView;
 import androidx.fragment.app.Fragment;
-import androidx.fragment.app.FragmentManager;
 import androidx.fragment.app.FragmentTransaction;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.example.taskwiserebirth.database.DatabaseChangeListener;
 import com.example.taskwiserebirth.database.MongoDbRealmHelper;
+import com.example.taskwiserebirth.database.TaskDatabaseManager;
 import com.example.taskwiserebirth.task.Task;
 import com.example.taskwiserebirth.task.TaskAdapter;
 import com.example.taskwiserebirth.task.TaskPriorityCalculator;
@@ -69,7 +70,8 @@ public class AddTaskFragment extends Fragment implements DatabaseChangeListener,
 
     private User user;
     private MongoCollection<Document> taskCollection;
-    private final String TAG = "MongoDb";
+    private final String TAG_MONGO_DB = "MONGO_DB";
+    TaskDatabaseManager databaseManager;
 
     public AddTaskFragment() {
     }
@@ -81,8 +83,11 @@ public class AddTaskFragment extends Fragment implements DatabaseChangeListener,
         // Realm initialization
         App app = MongoDbRealmHelper.initializeRealmApp();
         user = app.currentUser();
+
         MongoDbRealmHelper.addDatabaseChangeListener(this);
+
         taskCollection = MongoDbRealmHelper.getMongoCollection("UserTaskData");
+        databaseManager = new TaskDatabaseManager(user, requireContext());
 
         NestedScrollView nestedScrollView = rootView.findViewById(R.id.nestedScrollView);
         nestedScrollView.setOnScrollChangeListener(this);
@@ -96,9 +101,8 @@ public class AddTaskFragment extends Fragment implements DatabaseChangeListener,
 
         displayTimeOfDay(rootView);
 
-
-        TextView textView = rootView.findViewById(R.id.viewAll);
-        textView.setOnClickListener(new View.OnClickListener() {
+        LinearLayout todayTaskContainer = rootView.findViewById(R.id.todayTaskContainer);
+        todayTaskContainer.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 // Navigate to Fragment B
@@ -205,7 +209,7 @@ public class AddTaskFragment extends Fragment implements DatabaseChangeListener,
                     });
                 }
             } else {
-                Log.e(TAG, "failed to find documents with: ", task.getError());
+                Log.e(TAG_MONGO_DB, "failed to find documents with: ", task.getError());
             }
         });
     }
@@ -261,15 +265,14 @@ public class AddTaskFragment extends Fragment implements DatabaseChangeListener,
         bottomSheetDialog.setContentView(bottomSheetView);
 
         SystemUIHelper.adjustDialog((AppCompatActivity) getActivity(), bottomSheetDialog);
-
         bottomSheetDialog.getWindow().setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_ADJUST_RESIZE);
 
-        setUpViews(bottomSheetDialog, bottomSheetView, task);
+        setUpTaskForm(bottomSheetDialog, bottomSheetView, task);
 
         bottomSheetDialog.show();
     }
 
-    private void setUpViews(BottomSheetDialog bottomSheetDialog, View bottomSheetView, Task task) {
+    private void setUpTaskForm(BottomSheetDialog bottomSheetDialog, View bottomSheetView, Task task) {
         Spinner importanceSpinner = bottomSheetView.findViewById(R.id.importance);
         Spinner urgencySpinner = bottomSheetView.findViewById(R.id.urgency);
         Spinner recurrenceSpinner = bottomSheetView.findViewById(R.id.recurrence);
@@ -312,13 +315,13 @@ public class AddTaskFragment extends Fragment implements DatabaseChangeListener,
             Task newTask = setTaskFromFields(bottomSheetDialog, task);
             if (task != null) {
                 if (newTask != null) {
-                    updateTask(newTask);
+                    databaseManager.updateTask(newTask);
                     bottomSheetDialog.dismiss();
                     daysSelected = task.getRecurrence();
                 }
             } else {
                 if (newTask != null) {
-                    insertTask(newTask);
+                    databaseManager.insertTask(newTask);
                     bottomSheetDialog.dismiss();
                     daysSelected = null;
                 }
@@ -406,8 +409,6 @@ public class AddTaskFragment extends Fragment implements DatabaseChangeListener,
         boolean validDeadline = true;
         boolean validSchedule = true;
 
-        Log.d("deadline", deadline);
-
         // Check if deadline is not empty and not earlier than current date
         if (!deadline.equals("No deadline")) {
             DateFormat dateFormat = new SimpleDateFormat("MM-dd-yyyy | hh:mm a", Locale.getDefault());
@@ -417,7 +418,7 @@ public class AddTaskFragment extends Fragment implements DatabaseChangeListener,
                     validDeadline = false;
                 }
             } catch (ParseException e) {
-                e.printStackTrace();
+                Log.e("ParseException", "Error encountered: " + e);
                 validDeadline = false;
             }
         }
@@ -437,7 +438,7 @@ public class AddTaskFragment extends Fragment implements DatabaseChangeListener,
                     }
                 }
             } catch (ParseException e) {
-                e.printStackTrace();
+                Log.e("ParseException", "Error encountered: " + e);
                 validSchedule = false;
             }
         }
@@ -460,63 +461,6 @@ public class AddTaskFragment extends Fragment implements DatabaseChangeListener,
             return false;
         } else {
             return true;
-        }
-    }
-
-    private void updateTask(Task task) {
-        if (user != null) {
-            // Define the filter to find the task to be updated
-            Document filter = new Document("owner_id", user.getId())
-                    .append("_id", task.getId());
-
-            Document updateDocument = new Document("$set", new Document()
-                    .append("task_name", task.getTaskName())
-                    .append("importance_level", task.getImportanceLevel())
-                    .append("urgency_level", task.getUrgencyLevel())
-                    .append("deadline", task.getDeadline())
-                    .append("schedule", task.getSchedule())
-                    .append("recurrence", task.getRecurrence())
-                    .append("reminder", task.isReminder())
-                    .append("notes", task.getNotes())
-                    .append("status", task.getStatus())
-                    .append("creation_date", task.getCreationDate())
-            );
-
-            taskCollection.updateOne(filter, updateDocument).getAsync(result -> {
-                if (result.isSuccess()) {
-                    Log.d("Data", "Data Updated Successfully");
-                    Toast.makeText(requireContext(), "Task updated", Toast.LENGTH_SHORT).show();
-                    MongoDbRealmHelper.notifyDatabaseChangeListeners();
-                } else {
-                    Log.e("Data", "Failed to update data: " + result.getError().getMessage());
-                }
-            });
-        }
-    }
-
-    private void insertTask(Task task) {
-        if (user != null) {
-            Document taskDocument = new Document("owner_id", user.getId())
-                    .append("task_name", task.getTaskName())
-                    .append("importance_level", task.getImportanceLevel())
-                    .append("urgency_level", task.getUrgencyLevel())
-                    .append("deadline", task.getDeadline())
-                    .append("schedule", task.getSchedule())
-                    .append("recurrence", task.getRecurrence())
-                    .append("reminder", task.isReminder())
-                    .append("notes", task.getNotes())
-                    .append("status", task.getStatus())
-                    .append("creation_date", task.getCreationDate());
-
-            taskCollection.insertOne(taskDocument).getAsync(result -> {
-                if (result.isSuccess()) {
-                    Log.d("Data", "Data Inserted Successfully");
-                    Toast.makeText(requireContext(), "Task saved", Toast.LENGTH_SHORT).show();
-                    MongoDbRealmHelper.notifyDatabaseChangeListeners();
-                } else {
-                    Log.e("Data", "Failed to insert data: " + result.getError().getMessage());
-                }
-            });
         }
     }
 
@@ -694,33 +638,12 @@ public class AddTaskFragment extends Fragment implements DatabaseChangeListener,
 
     @Override
     public void onDeleteTask(Task task) {
-        Document queryFilter = new Document("owner_id", user.getId())
-                .append("_id", task.getId());
-
-        taskCollection.deleteOne(queryFilter).getAsync(result -> {
-            if (result.isSuccess()) {
-                MongoDbRealmHelper.notifyDatabaseChangeListeners();
-                Toast.makeText(requireContext(), "Task deleted", Toast.LENGTH_SHORT).show();
-            } else {
-                Log.e("Data", "Failed to delete task: " + result.getError().getMessage());
-            }
-        });
+        databaseManager.deleteTask(task);
     }
 
     @Override
     public void onDoneTask(Task task) {
-        Document queryFilter = new Document("owner_id", user.getId())
-                .append("_id", task.getId());
-        Document updateDocument = new Document("$set", new Document("status", "Done"));
-
-        taskCollection.updateOne(queryFilter, updateDocument).getAsync(result -> {
-            if (result.isSuccess()) {
-                MongoDbRealmHelper.notifyDatabaseChangeListeners();
-                Toast.makeText(requireContext(), "Task status updated", Toast.LENGTH_SHORT).show();
-            } else {
-                Log.e("Data", "Failed to update task status: " + result.getError().getMessage());
-            }
-        });
+        databaseManager.markTaskAsFinished(task);
     }
 
 }
