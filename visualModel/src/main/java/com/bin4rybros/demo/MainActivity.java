@@ -17,8 +17,6 @@ import android.view.WindowInsets;
 import android.view.WindowInsetsController;
 import android.widget.Button;
 
-import java.util.concurrent.ExecutionException;
-
 public class MainActivity extends Activity {
 
     private GLSurfaceView glSurfaceView;
@@ -51,18 +49,18 @@ public class MainActivity extends Activity {
             getWindow().getInsetsController().setSystemBarsBehavior(WindowInsetsController.BEHAVIOR_SHOW_TRANSIENT_BARS_BY_SWIPE);
         }
 
-        SynthesisWithViseme s = new SynthesisWithViseme();
+//        SynthesisWithViseme s = new SynthesisWithViseme();
         Button testLipsync = findViewById(R.id.button);
         testLipsync.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                try {
-                    s.synthesizeSpeech("This is a test speech. Longer version to test bugs occurrences. I am Haru, I like strawberries and purple.");
-                } catch (InterruptedException e) {
-                    throw new RuntimeException(e);
-                } catch (ExecutionException e) {
-                    throw new RuntimeException(e);
-                }
+//                try {
+//                    s.synthesizeSpeech("This is a test speech. Longer version to test bugs occurrences. I am Haru, I like strawberries and purple.");
+//                } catch (InterruptedException e) {
+//                    throw new RuntimeException(e);
+//                } catch (ExecutionException e) {
+//                    throw new RuntimeException(e);
+//                }
 
             }
         });

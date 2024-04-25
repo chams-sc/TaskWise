@@ -1,5 +1,6 @@
-package com.bin4rybros.demo;
+package com.example.taskwiserebirth.conversational;
 
+import com.bin4rybros.demo.LAppModel;
 import com.microsoft.cognitiveservices.speech.CancellationReason;
 import com.microsoft.cognitiveservices.speech.ResultReason;
 import com.microsoft.cognitiveservices.speech.SpeechConfig;
@@ -8,8 +9,6 @@ import com.microsoft.cognitiveservices.speech.SpeechSynthesisResult;
 import com.microsoft.cognitiveservices.speech.SpeechSynthesizer;
 import com.microsoft.cognitiveservices.speech.audio.AudioConfig;
 
-import java.io.InputStream;
-import java.util.Scanner;
 import java.util.concurrent.ExecutionException;
 
 public class SynthesisWithViseme {

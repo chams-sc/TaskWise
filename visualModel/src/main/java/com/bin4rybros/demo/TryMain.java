@@ -21,13 +21,13 @@ public class TryMain extends Activity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_try_main);
-        try {
-            SpeechSynthesis.synthesizeSpeech("Please work");
-        } catch (InterruptedException e) {
-            throw new RuntimeException(e);
-        } catch (ExecutionException e) {
-            throw new RuntimeException(e);
-        }
+//        try {
+//            SpeechSynthesis.synthesizeSpeech("Please work");
+//        } catch (InterruptedException e) {
+//            throw new RuntimeException(e);
+//        } catch (ExecutionException e) {
+//            throw new RuntimeException(e);
+//        }
     }
 
     private void checkPermission(){
