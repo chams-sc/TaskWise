@@ -7,6 +7,9 @@ import android.content.pm.PackageManager;
 import android.graphics.Color;
 import android.graphics.drawable.ColorDrawable;
 import android.os.Bundle;
+import android.text.SpannableString;
+import android.text.Spanned;
+import android.text.style.ForegroundColorSpan;
 import android.util.Log;
 import android.view.Gravity;
 import android.view.ViewGroup;
@@ -16,13 +19,11 @@ import android.widget.EditText;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.app.ActivityCompat;
 import androidx.core.content.ContextCompat;
 
 import com.example.taskwiserebirth.database.MongoDbRealmHelper;
-import com.google.android.material.snackbar.Snackbar;
 
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -32,7 +33,7 @@ import io.realm.mongodb.App;
 import io.realm.mongodb.AppException;
 import io.realm.mongodb.Credentials;
 
-public class BeforeLogin extends AppCompatActivity {
+public class LoginActivity extends AppCompatActivity {
 
     // TODO: Rename to AccountActivity
     private final String TAG = "MongoDb";
@@ -45,7 +46,7 @@ public class BeforeLogin extends AppCompatActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_before_login);
+        setContentView(R.layout.activity_login);
 
         SystemUIHelper.setSystemUIVisibility(this);
 
@@ -142,7 +143,7 @@ public class BeforeLogin extends AppCompatActivity {
                 Toast.makeText(getApplicationContext(), "Logged in successfully", Toast.LENGTH_SHORT).show();
 
                 // Start home activity
-                startActivity(new Intent(BeforeLogin.this, HomeActivity.class));
+                startActivity(new Intent(LoginActivity.this, MainActivity.class));
             } else {
                 handleMongoError(result.getError());
             }
@@ -173,6 +174,15 @@ public class BeforeLogin extends AppCompatActivity {
         EditText inputEmail = registerDialog.findViewById(R.id.emailRegister_edittext);
         EditText inputPassword = registerDialog.findViewById(R.id.passwordRegister_edittext);
         EditText inputCPassword = registerDialog.findViewById(R.id.cpasswordRegister_edittext);
+
+        TextView createAccountText = registerDialog.findViewById(R.id.createAccountText);
+        String text = "CREATE ACCOUNT";
+        SpannableString spannableString = new SpannableString(text);
+        ForegroundColorSpan grayColorSpan = new ForegroundColorSpan(getResources().getColor(R.color.gray));
+        ForegroundColorSpan orangeColorSpan = new ForegroundColorSpan(getResources().getColor(R.color.orange));
+        spannableString.setSpan(grayColorSpan, 0, 6, Spanned.SPAN_EXCLUSIVE_EXCLUSIVE);
+        spannableString.setSpan(orangeColorSpan, 7, text.length(), Spanned.SPAN_EXCLUSIVE_EXCLUSIVE);
+        createAccountText.setText(spannableString);
 
         registerBtn.setOnClickListener(v -> {
             String email = inputEmail.getText().toString();

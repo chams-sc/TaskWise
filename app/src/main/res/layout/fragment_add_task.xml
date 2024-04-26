@@ -85,7 +85,7 @@
                 android:layout_height="wrap_content"
                 android:paddingHorizontal="8dp"
                 android:paddingTop="8dp"
-                android:gravity="center_vertical"
+                android:gravity="center"
                 android:orientation="horizontal"
                 app:layout_constraintStart_toStartOf="@+id/categoryContainer"
                 app:layout_constraintTop_toTopOf="parent">
@@ -99,23 +99,30 @@
                     android:text="Today's Task"
                     android:textSize="16sp" />
 
-                <TextView
-                    android:id="@+id/viewAll"
+                <LinearLayout
+                    android:id="@+id/viewAllContainer"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:layout_marginEnd="8dp"
-                    android:fontFamily="@font/inter_semibold"
-                    android:text="View All"
+                    android:orientation="horizontal"
+                    android:gravity="center"
                     android:clickable="true"
-                    android:focusable="true"
-                    android:textAlignment="center"
-                    android:textSize="12sp" />
+                    android:foreground="?attr/selectableItemBackground">
+                    <TextView
+                        android:id="@+id/viewAll"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_marginEnd="4dp"
+                        android:fontFamily="@font/inter_semibold"
+                        android:text="View All"
+                        android:textAlignment="center"
+                        android:textSize="12sp" />
 
-                <ImageView
-                    android:id="@+id/arrowForward"
-                    android:layout_width="8dp"
-                    android:layout_height="16dp"
-                    android:src="@drawable/baseline_arrow_forward_ios_24" />
+                    <ImageView
+                        android:id="@+id/arrowForward"
+                        android:layout_width="8dp"
+                        android:layout_height="16dp"
+                        android:src="@drawable/baseline_arrow_forward_ios_24" />
+                </LinearLayout>
             </LinearLayout>
 
             <LinearLayout

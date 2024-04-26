@@ -18,9 +18,9 @@ import java.util.Locale;
 public class CalendarAdapter extends RecyclerView.Adapter<CalendarAdapter.CalendarViewHolder> {
 
     private List<Calendar> calendarList;
-    private OnItemClickListener listener;
+    private OnDateSelectedListener listener;
 
-    public CalendarAdapter(List<Calendar> calendarList, OnItemClickListener listener) {
+    public CalendarAdapter(List<Calendar> calendarList, OnDateSelectedListener listener) {
         this.calendarList = calendarList;
         this.listener = listener;
     }
@@ -48,7 +48,7 @@ public class CalendarAdapter extends RecyclerView.Adapter<CalendarAdapter.Calend
         holder.itemView.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                listener.onItemClick(calendar);
+                listener.onDateCardSelected(calendar);
             }
         });
     }
@@ -102,7 +102,8 @@ public class CalendarAdapter extends RecyclerView.Adapter<CalendarAdapter.Calend
         }
     }
 
-    interface OnItemClickListener {
-        void onItemClick(Calendar date);
+    interface OnDateSelectedListener {
+        void onDateCardSelected(Calendar date);
     }
+
 }

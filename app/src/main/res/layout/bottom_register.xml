@@ -35,7 +35,7 @@
             <LinearLayout
                 android:id="@+id/createTxtContainer"
                 android:layout_width="0dp"
-                android:layout_height="40dp"
+                android:layout_height="wrap_content"
                 android:gravity="center_horizontal"
                 android:orientation="horizontal"
                 android:paddingHorizontal="8dp"
@@ -46,36 +46,16 @@
                 app:layout_constraintTop_toTopOf="parent">
 
                 <TextView
-                    android:id="@+id/createText"
-                    android:layout_width="0dp"
+                    android:id="@+id/createAccountText"
+                    android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:layout_weight="1"
                     android:autoSizeStepGranularity="2sp"
                     android:fontFamily="@font/inter_bold"
                     android:gravity="center"
-                    android:text="CREATE"
+                    android:text="CREATE ACCOUNT"
                     android:textColor="@color/gray"
                     android:textSize="26sp"
-                    android:textStyle="bold"
-                    app:autoSizeMaxTextSize="26sp"
-                    app:autoSizeMinTextSize="12sp"
-                    app:autoSizeTextType="uniform"  />
-
-                <TextView
-                    android:id="@+id/accountText"
-                    android:layout_width="0dp"
-                    android:layout_height="wrap_content"
-                    android:layout_weight="1"
-                    android:autoSizeStepGranularity="2sp"
-                    android:fontFamily="@font/inter_bold"
-                    android:gravity="center"
-                    android:text="ACCOUNT"
-                    android:textColor="@color/orange"
-                    android:textSize="26sp"
-                    android:textStyle="bold"
-                    app:autoSizeMaxTextSize="26sp"
-                    app:autoSizeMinTextSize="12sp"
-                    app:autoSizeTextType="uniform" />
+                    android:textStyle="bold" />
             </LinearLayout>
 
             <EditText

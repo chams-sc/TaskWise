@@ -35,7 +35,7 @@ public class Live2DFragment extends Fragment implements View.OnTouchListener, Sp
         glSurfaceView.setRenderMode(GLSurfaceView.RENDERMODE_CONTINUOUSLY);
         glSurfaceView.setOnTouchListener(this);
 
-        collapseBtn.setOnClickListener(v -> ((HomeActivity) requireActivity()).toggleNavBarVisibility(false, false));
+        collapseBtn.setOnClickListener(v -> ((MainActivity) requireActivity()).toggleNavBarVisibility(false, false));
 
         speechRecognition = new SpeechRecognition(requireContext(), speakBtn, this);
         speakBtn.setOnClickListener(v -> speechRecognition.startSpeechRecognition());

@@ -1,16 +1,15 @@
 package com.example.taskwiserebirth.task;
 
+import android.util.Log;
+
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Collections;
-import java.util.Comparator;
 import java.util.Date;
 import java.util.List;
 
 public class TaskPriorityCalculator {
-
-    private static final long MILLIS_PER_DAY = 24 * 60 * 60 * 1000;
 
     public static double calculateTaskPriority(Task task, Date currentDate, Date earliestDeadline, Date longestDeadline) {
         double importanceFactor = calculateImportanceFactor(task.getImportanceLevel());
@@ -71,7 +70,7 @@ public class TaskPriorityCalculator {
         return Math.max(deadlineFactor, 0.0);
     }
 
-    private static Date parseDeadline(String deadline) {
+    public static Date parseDeadline(String deadline) {
         if (deadline.equals("No deadline")) {
             return null;
         }
@@ -80,7 +79,7 @@ public class TaskPriorityCalculator {
         try {
             return format.parse(deadline);
         } catch (ParseException e) {
-            e.printStackTrace();
+            Log.e("ParseDate", String.valueOf(e));
             return null;
         }
     }
@@ -116,25 +115,19 @@ public class TaskPriorityCalculator {
         final Date finalLongestDeadline = longestDeadline;
 
         // Sort tasks with deadlines
-        Collections.sort(tasksWithDeadlines, new Comparator<Task>() {
-            @Override
-            public int compare(Task task1, Task task2) {
-                double priority1 = calculateTaskPriority(task1, currentDate, finalEarliestDeadline, finalLongestDeadline);
-                double priority2 = calculateTaskPriority(task2, currentDate, finalEarliestDeadline, finalLongestDeadline);
+        Collections.sort(tasksWithDeadlines, (task1, task2) -> {
+            double priority1 = calculateTaskPriority(task1, currentDate, finalEarliestDeadline, finalLongestDeadline);
+            double priority2 = calculateTaskPriority(task2, currentDate, finalEarliestDeadline, finalLongestDeadline);
 
-                return Double.compare(priority2, priority1); // Descending order
-            }
+            return Double.compare(priority2, priority1); // Descending order
         });
 
         // Sort tasks without deadlines
-        Collections.sort(tasksWithoutDeadlines, new Comparator<Task>() {
-            @Override
-            public int compare(Task task1, Task task2) {
-                double priority1 = calculateTaskPriority(task1, currentDate, finalEarliestDeadline, finalLongestDeadline);
-                double priority2 = calculateTaskPriority(task2, currentDate, finalEarliestDeadline, finalLongestDeadline);
+        Collections.sort(tasksWithoutDeadlines, (task1, task2) -> {
+            double priority1 = calculateTaskPriority(task1, currentDate, finalEarliestDeadline, finalLongestDeadline);
+            double priority2 = calculateTaskPriority(task2, currentDate, finalEarliestDeadline, finalLongestDeadline);
 
-                return Double.compare(priority2, priority1); // Descending order
-            }
+            return Double.compare(priority2, priority1); // Descending order
         });
 
         List<Task> sortedTasks = new ArrayList<>(tasksWithDeadlines);

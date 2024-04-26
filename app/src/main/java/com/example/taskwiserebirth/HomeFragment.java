@@ -25,7 +25,7 @@ public class HomeFragment extends Fragment {
         collapseButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                ((HomeActivity) requireActivity()).toggleNavBarVisibility(false, false);
+                ((MainActivity) requireActivity()).toggleNavBarVisibility(false, false);
             }
         });
 

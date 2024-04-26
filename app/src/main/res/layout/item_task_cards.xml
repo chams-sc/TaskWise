@@ -33,8 +33,8 @@
             android:layout_height="wrap_content"
             android:layout_below="@id/taskNameTxt"
             android:layout_marginStart="40dp"
-            android:fontFamily="@font/inter_semibold"
-            android:textColor="#393939"
+            android:fontFamily="@font/inter_bold"
+            android:textColor="@color/dark_gray"
             android:textSize="12sp"
             tools:text="8:00 AM - 5:00 PM" />
 
@@ -49,7 +49,7 @@
             android:paddingVertical="2dp"
             android:background="@drawable/bg_priority"
             android:fontFamily="@font/inter"
-            android:textColor="#1C1B1F"
+            android:textColor="@color/dark"
             android:textSize="12sp"
             tools:text="Priority" />
 

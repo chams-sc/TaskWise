@@ -12,8 +12,8 @@ drawable ic_launcher_foreground
 id button
 id gl_surface_view
 id textView
-layout activity_main
 layout activity_main2
+layout activity_main_vm
 layout activity_try_main
 mipmap ic_launcher
 mipmap ic_launcher_round

@@ -16,13 +16,14 @@ public class Task {
     private String notes;
     private String priorityCategory;
     private String status;
+    private Date dateFinished;
     private boolean reminder;
 
     public Task () {
 
     }
 
-    public Task(ObjectId id, String taskName, String deadlineString, String importanceLevel, String urgencyLevel, String priorityCategory, String schedule, String recurrence, boolean reminder, String notes, String status) {
+    public Task(ObjectId id, String taskName, String deadlineString, String importanceLevel, String urgencyLevel, String priorityCategory, String schedule, String recurrence, boolean reminder, String notes, String status, Date dateFinished) {
         this.id = id;
         this.taskName = taskName;
         this.deadline = deadlineString;
@@ -34,6 +35,7 @@ public class Task {
         this.reminder = reminder;
         this.notes = notes;
         this.status = status;
+        this.dateFinished = dateFinished;
     }
 
     public ObjectId getId() {
@@ -122,6 +124,14 @@ public class Task {
 
     public void setStatus(String status) {
         this.status = status;
+    }
+
+    public Date getDateFinished() {
+        return dateFinished;
+    }
+
+    public void setDateFinished(Date dateFinished) {
+        this.dateFinished = dateFinished;
     }
 
     public boolean isReminder() {

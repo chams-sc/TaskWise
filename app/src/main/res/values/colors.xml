@@ -12,6 +12,6 @@
     <color name="green">#2FD65E</color>
     <color name="blue">#3C5CCC</color>
     <color name="red">#E72A2A</color>
-    <color name="ashgray">#9D9D9D</color>
-
+    <color name="ash_gray">#9D9D9D</color>
+    <color name="dark_gray">#393939</color>
 </resources>

@@ -42,9 +42,6 @@ import com.google.android.material.floatingactionbutton.FloatingActionButton;
 import com.google.android.material.timepicker.MaterialTimePicker;
 import com.google.android.material.timepicker.TimeFormat;
 
-import org.bson.Document;
-import org.bson.types.ObjectId;
-
 import java.text.DateFormat;
 import java.text.DateFormatSymbols;
 import java.text.ParseException;
@@ -57,61 +54,52 @@ import java.util.List;
 import java.util.Locale;
 
 import io.realm.mongodb.App;
-import io.realm.mongodb.RealmResultTask;
 import io.realm.mongodb.User;
-import io.realm.mongodb.mongo.MongoCollection;
-import io.realm.mongodb.mongo.iterable.MongoCursor;
 
-public class AddTaskFragment extends Fragment implements DatabaseChangeListener, NestedScrollView.OnScrollChangeListener, TaskAdapter.TaskActionListener {
+public class AddTaskFragment extends Fragment implements DatabaseChangeListener, NestedScrollView.OnScrollChangeListener, TaskAdapter.TaskActionListener, CalendarAdapter.OnDateSelectedListener {
 
     private String daysSelected = null;
     private TaskAdapter taskAdapter;
+    private Date selectedDate;
+    private View rootView;
 
 
-    private User user;
-    private MongoCollection<Document> taskCollection;
-    private final String TAG_MONGO_DB = "MONGO_DB";
-    TaskDatabaseManager databaseManager;
+    TaskDatabaseManager taskDatabaseManager;
 
     public AddTaskFragment() {
     }
 
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
-        View rootView = inflater.inflate(R.layout.fragment_add_task, container, false);
+        rootView = inflater.inflate(R.layout.fragment_add_task, container, false);
 
         // Realm initialization
         App app = MongoDbRealmHelper.initializeRealmApp();
-        user = app.currentUser();
+        User user = app.currentUser();
 
         MongoDbRealmHelper.addDatabaseChangeListener(this);
 
-        taskCollection = MongoDbRealmHelper.getMongoCollection("UserTaskData");
-        databaseManager = new TaskDatabaseManager(user, requireContext());
+        taskDatabaseManager = new TaskDatabaseManager(user, requireContext());
 
         NestedScrollView nestedScrollView = rootView.findViewById(R.id.nestedScrollView);
         nestedScrollView.setOnScrollChangeListener(this);
 
         setUpCalendarRecyclerView(rootView);
-        setUpCardRecyclerView(rootView);
+        setUpTaskRecyclerView(rootView);
 
-        Task task = null;
         FloatingActionButton fab = rootView.findViewById(R.id.fab);
-        fab.setOnClickListener(v -> showBottomSheetDialog(task));
+        fab.setOnClickListener(v -> showBottomSheetDialog(null));
 
         displayTimeOfDay(rootView);
 
-        LinearLayout todayTaskContainer = rootView.findViewById(R.id.todayTaskContainer);
-        todayTaskContainer.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                // Navigate to Fragment B
-                AllTask fragmentB = new AllTask();
-                FragmentTransaction transaction = getFragmentManager().beginTransaction();
-                transaction.replace(R.id.frame_layout, fragmentB);
-                transaction.addToBackStack(null);
-                transaction.commit();
-            }
+        LinearLayout todayTaskContainer = rootView.findViewById(R.id.viewAllContainer);
+        todayTaskContainer.setOnClickListener(v -> {
+            // Navigate to Fragment B
+            AllTask fragmentB = new AllTask();
+            FragmentTransaction transaction = getFragmentManager().beginTransaction();
+            transaction.replace(R.id.frame_layout, fragmentB);
+            transaction.addToBackStack(null);
+            transaction.commit();
         });
 
         return rootView;
@@ -125,6 +113,10 @@ public class AddTaskFragment extends Fragment implements DatabaseChangeListener,
         TextView currentMonth = rootView.findViewById(R.id.monthTxt);
 
         Calendar calendar = Calendar.getInstance();
+
+        // Set current selected day by user
+        selectedDate = calendar.getTime();
+
         int currentMonthIndex = calendar.get(Calendar.MONTH);
         String[] months = new DateFormatSymbols().getMonths();
         String currentMonthName = months[currentMonthIndex].toUpperCase();
@@ -133,9 +125,7 @@ public class AddTaskFragment extends Fragment implements DatabaseChangeListener,
 
         List<Calendar> calendarList = getDatesForCurrentMonth();
 
-        CalendarAdapter calendarAdapter = new CalendarAdapter(calendarList, date -> {
-            // Handle calendar item click if needed
-        });
+        CalendarAdapter calendarAdapter = new CalendarAdapter(calendarList, this);
 
         LinearLayoutManager layoutManager = new LinearLayoutManager(requireContext(), LinearLayoutManager.HORIZONTAL, false);
         calendarRecyclerView.setLayoutManager(layoutManager);
@@ -148,25 +138,11 @@ public class AddTaskFragment extends Fragment implements DatabaseChangeListener,
         }
     }
 
-    private int getCurrentDatePosition(List<Calendar> calendarList) {
-        Calendar currentDate = Calendar.getInstance();
-        int currentDay = currentDate.get(Calendar.DAY_OF_MONTH);
-
-        for (int i = 0; i < calendarList.size(); i++) {
-            Calendar calendar = calendarList.get(i);
-            if (calendar.get(Calendar.DAY_OF_MONTH) == currentDay) {
-                return i;
-            }
-        }
-
-        return -1; // Current date not found
-    }
-
-    private void setUpCardRecyclerView(View rootView) {
+    private void setUpTaskRecyclerView(View rootView) {
         RecyclerView cardRecyclerView = rootView.findViewById(R.id.tasksRecyclerView);
 
         List<Task> tasks = new ArrayList<>();
-        taskAdapter = new TaskAdapter(requireContext(), tasks, this);
+        taskAdapter = new TaskAdapter(requireContext(), tasks,this);
 
         cardRecyclerView.setLayoutManager(new LinearLayoutManager(requireContext()));
         cardRecyclerView.setAdapter(taskAdapter);
@@ -175,43 +151,17 @@ public class AddTaskFragment extends Fragment implements DatabaseChangeListener,
     }
 
     private void updateTaskRecyclerView() {
-        Document queryFilter = new Document("owner_id", user.getId());
-        RealmResultTask<MongoCursor<Document>> findTask = taskCollection.find(queryFilter).iterator();
-        findTask.getAsync(task -> {
-            if (task.isSuccess()) {
-                MongoCursor<Document> results = task.get();
-                List<Task> tasks = new ArrayList<>();
+        taskDatabaseManager.fetchTasks(tasks -> {
 
-                String priorityLevel = "";
+            List<Task> sortedTasks = TaskPriorityCalculator.sortTasksByPriority(tasks, new Date());
 
-                while (results.hasNext()) {
-                    Document document = results.next();
-                    ObjectId taskId = document.getObjectId("_id");
-                    String taskName = document.getString("task_name");
-                    String importanceLevel = document.getString("importance_level");
-                    String urgencyLevel = document.getString("urgency_level");
-                    String deadlineString = document.getString("deadline");
-                    String schedule = document.getString("schedule");
-                    String recurrence = document.getString("recurrence");
-                    boolean reminder = document.getBoolean("reminder");
-                    String notes = document.getString("notes");
-                    String status = document.getString("status");
-
-                    Task newTask = new Task(taskId, taskName, deadlineString, importanceLevel, urgencyLevel, priorityLevel, schedule, recurrence, reminder, notes, status);
-                    tasks.add(newTask);
-                }
-
-                List<Task> sortedTasks = TaskPriorityCalculator.sortTasksByPriority(tasks, new Date());
-
-                if(isAdded()) {
-                    requireActivity().runOnUiThread(() -> {
-                        taskAdapter.setTasks(sortedTasks);
-                    });
-                }
-            } else {
-                Log.e(TAG_MONGO_DB, "failed to find documents with: ", task.getError());
+            if (isAdded()) {
+                requireActivity().runOnUiThread(() -> {
+                    taskAdapter.setTasks(sortedTasks);
+                    taskAdapter.setSelectedDate(selectedDate);
+                });
             }
-        });
+        }, selectedDate);
     }
 
     private void displayTimeOfDay(View rootView) {
@@ -242,7 +192,6 @@ public class AddTaskFragment extends Fragment implements DatabaseChangeListener,
         timeOfDayImageView.setImageResource(drawableResId);
     }
 
-
     private List<Calendar> getDatesForCurrentMonth() {
         List<Calendar> calendarList = new ArrayList<>();
         Calendar currentDate = Calendar.getInstance();
@@ -257,6 +206,20 @@ public class AddTaskFragment extends Fragment implements DatabaseChangeListener,
         }
 
         return calendarList;
+    }
+
+    private int getCurrentDatePosition(List<Calendar> calendarList) {
+        Calendar currentDate = Calendar.getInstance();
+        int currentDay = currentDate.get(Calendar.DAY_OF_MONTH);
+
+        for (int i = 0; i < calendarList.size(); i++) {
+            Calendar calendar = calendarList.get(i);
+            if (calendar.get(Calendar.DAY_OF_MONTH) == currentDay) {
+                return i;
+            }
+        }
+
+        return -1; // Current date not found
     }
 
     private void showBottomSheetDialog(Task task) {
@@ -313,30 +276,22 @@ public class AddTaskFragment extends Fragment implements DatabaseChangeListener,
         Button saveBtn = bottomSheetView.findViewById(R.id.saveButton);
         saveBtn.setOnClickListener(v -> {
             Task newTask = setTaskFromFields(bottomSheetDialog, task);
-            if (task != null) {
-                if (newTask != null) {
-                    databaseManager.updateTask(newTask);
-                    bottomSheetDialog.dismiss();
+            if (newTask != null) {
+                if (task != null) {
+                    taskDatabaseManager.updateTask(newTask);
                     daysSelected = task.getRecurrence();
-                }
-            } else {
-                if (newTask != null) {
-                    databaseManager.insertTask(newTask);
-                    bottomSheetDialog.dismiss();
+                } else {
+                    taskDatabaseManager.insertTask(newTask);
                     daysSelected = null;
                 }
+                bottomSheetDialog.dismiss();
             }
         });
 
         ((View) bottomSheetView.getParent()).setBackgroundColor(Color.TRANSPARENT);
 
         editDeadline.setOnClickListener(v -> showDatePicker(editDeadline));
-        editSchedule.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                showDatePicker(editSchedule);
-            }
-        });
+        editSchedule.setOnClickListener(v -> showDatePicker(editSchedule));
     }
 
     private int getIndex(Spinner spinner, String value) {
@@ -400,6 +355,7 @@ public class AddTaskFragment extends Fragment implements DatabaseChangeListener,
         newTask.setReminder(reminderCheckbox.isChecked());
         newTask.setNotes(notes);
         newTask.setStatus("Unfinished");
+        newTask.setDateFinished(null);
         newTask.setCreationDate(currentDate);
 
         return newTask;
@@ -455,7 +411,7 @@ public class AddTaskFragment extends Fragment implements DatabaseChangeListener,
                 Toast.makeText(requireContext(), "Missing required fields", Toast.LENGTH_SHORT).show();
             } else if (!validDeadline) {
                 Toast.makeText(requireContext(), "Deadline cannot be earlier than current date and time", Toast.LENGTH_SHORT).show();
-            } else if (!validSchedule) {
+            } else {
                 Toast.makeText(requireContext(), "Schedule cannot be earlier than current date and time or later than deadline", Toast.LENGTH_SHORT).show();
             }
             return false;
@@ -628,7 +584,7 @@ public class AddTaskFragment extends Fragment implements DatabaseChangeListener,
     @Override
     public void onScrollChange(@NonNull NestedScrollView v, int scrollX, int scrollY, int oldScrollX, int oldScrollY) {
         boolean scrollingUp = scrollY < oldScrollY;
-        ((HomeActivity) requireActivity()).toggleNavBarVisibility(scrollingUp, true);
+        ((MainActivity) requireActivity()).toggleNavBarVisibility(scrollingUp, true);
     }
 
     @Override
@@ -638,12 +594,30 @@ public class AddTaskFragment extends Fragment implements DatabaseChangeListener,
 
     @Override
     public void onDeleteTask(Task task) {
-        databaseManager.deleteTask(task);
+        taskDatabaseManager.deleteTask(task);
     }
 
     @Override
     public void onDoneTask(Task task) {
-        databaseManager.markTaskAsFinished(task);
+        taskDatabaseManager.markTaskAsFinished(task);
     }
 
+    @Override
+    public void onDateCardSelected(Calendar date) {
+        selectedDate = date.getTime();
+        updateTaskRecyclerView();
+
+        TextView todayTask = rootView.findViewById(R.id.todayTask);
+        Calendar currentDate = Calendar.getInstance();
+
+        if (date.get(Calendar.YEAR) == currentDate.get(Calendar.YEAR)
+                && date.get(Calendar.MONTH) == currentDate.get(Calendar.MONTH)
+                && date.get(Calendar.DAY_OF_MONTH) == currentDate.get(Calendar.DAY_OF_MONTH)) {
+            todayTask.setText("Today's Task");
+        } else {
+            SimpleDateFormat dateFormat = new SimpleDateFormat("MMMM d, yyyy", Locale.getDefault());
+            String formattedDate = dateFormat.format(date.getTime());
+            todayTask.setText(formattedDate);
+        }
+    }
 }

@@ -1,35 +1,33 @@
 package com.example.taskwiserebirth.task;
 
-import android.app.Activity;
 import android.content.Context;
-import android.os.Build;
 import android.text.SpannableString;
 import android.text.style.ForegroundColorSpan;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
-import android.view.WindowInsets;
-import android.view.WindowInsetsController;
 import android.widget.PopupMenu;
 
 import androidx.annotation.NonNull;
-import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.content.ContextCompat;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.example.taskwiserebirth.R;
-import com.example.taskwiserebirth.SystemUIHelper;
 
+import java.util.Date;
 import java.util.List;
 
 public class TaskAdapter extends RecyclerView.Adapter<TaskViewHolder> {
 
-    Context context;
-    List<Task> tasks;
-    TaskActionListener actionListener;
+    private Context context;
+    private List<Task> tasks;
+    private TaskActionListener actionListener;
+    private Date selectedDate;
+    private final int closeToDueHours = 12;
 
     public interface TaskActionListener {
         void onEditTask(Task task);
@@ -46,20 +44,52 @@ public class TaskAdapter extends RecyclerView.Adapter<TaskViewHolder> {
     @NonNull
     @Override
     public TaskViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
-        return new TaskViewHolder(LayoutInflater.from(context).inflate(R.layout.item_view, parent, false));
+        return new TaskViewHolder(LayoutInflater.from(context).inflate(R.layout.item_task_cards, parent, false));
     }
 
     @Override
     public void onBindViewHolder(@NonNull TaskViewHolder holder, int position) {
         Task currentTask = tasks.get(position);
-        holder.taskName.setText(tasks.get(position).getTaskName());
-        holder.deadline.setText(tasks.get(position).getDeadline());
-        holder.priority.setText(tasks.get(position).getPriorityCategory());
+        holder.taskName.setText(currentTask.getTaskName());
+        holder.priority.setText(currentTask.getPriorityCategory());
+
+        int deadlineColor = getTaskDeadlineColor(currentTask);
+
+        holder.deadline.setText(currentTask.getDeadline());
+        holder.deadline.setTextColor(deadlineColor);
 
         holder.imageView.setOnClickListener(v ->
                 showPopupMenu(v, currentTask));
     }
 
+    private int getTaskDeadlineColor (Task task) {
+        Log.d("COLOR_CODING", selectedDate.toString());
+        if (task.getStatus().equals("Finished")) {
+            return ContextCompat.getColor(context, R.color.green);
+        // Unfinished tasks
+        } else {
+            Date taskDeadline = TaskPriorityCalculator.parseDeadline(task.getDeadline());
+            // No deadline
+            if (taskDeadline == null) {
+                return ContextCompat.getColor(context, R.color.blue);
+            } else {
+                // Past due
+                if (taskDeadline.before(selectedDate)) {
+                    return ContextCompat.getColor(context, R.color.ash_gray);
+                // Close to due
+                } else {
+                    long diffMillis = taskDeadline.getTime() - selectedDate.getTime();
+                    long diffHours = diffMillis / (60 * 60 * 1000); // millis to hours
+
+                    if (diffHours <= closeToDueHours) {
+                        return ContextCompat.getColor(context, R.color.red);
+                    }
+                }
+            }
+        }
+        // Unfinished with reasonable deadline
+        return ContextCompat.getColor(context, R.color.blue);
+    }
 
     private void showPopupMenu(View v, final Task task) {
         PopupMenu popupMenu = new PopupMenu(context, v);
@@ -75,27 +105,25 @@ public class TaskAdapter extends RecyclerView.Adapter<TaskViewHolder> {
             menuItem.setTitle(spannable);
         }
 
-        popupMenu.setOnMenuItemClickListener(new PopupMenu.OnMenuItemClickListener() {
-            public boolean onMenuItemClick(MenuItem item) {
+        popupMenu.setOnMenuItemClickListener(item -> {
 
-                // Get the selected MenuItem
-                SpannableString selectedSpannable = new SpannableString(item.getTitle());
-                selectedSpannable.setSpan(new ForegroundColorSpan(ContextCompat.getColor(context, R.color.orange)), 0, selectedSpannable.length(), 0);
-                item.setTitle(selectedSpannable);
+            // Get the selected MenuItem
+            SpannableString selectedSpannable = new SpannableString(item.getTitle());
+            selectedSpannable.setSpan(new ForegroundColorSpan(ContextCompat.getColor(context, R.color.orange)), 0, selectedSpannable.length(), 0);
+            item.setTitle(selectedSpannable);
 
-                int itemId = item.getItemId();
-                if (itemId == R.id.menuEdit) {
-                    actionListener.onEditTask(task);
-                    return true;
-                } else if (itemId == R.id.menuDelete) {
-                    actionListener.onDeleteTask(task);
-                    return true;
-                } else if (itemId == R.id.menuDone) {
-                    actionListener.onDoneTask(task);
-                    return true;
-                }
-                return false;
+            int itemId = item.getItemId();
+            if (itemId == R.id.menuEdit) {
+                actionListener.onEditTask(task);
+                return true;
+            } else if (itemId == R.id.menuDelete) {
+                actionListener.onDeleteTask(task);
+                return true;
+            } else if (itemId == R.id.menuDone) {
+                actionListener.onDoneTask(task);
+                return true;
             }
+            return false;
         });
 
         popupMenu.show();
@@ -108,6 +136,11 @@ public class TaskAdapter extends RecyclerView.Adapter<TaskViewHolder> {
 
     public void setTasks(List<Task> tasks) {
         this.tasks = tasks;
+        notifyDataSetChanged();
+    }
+
+    public void setSelectedDate(Date selectedDate) {
+        this.selectedDate = selectedDate;
         notifyDataSetChanged();
     }
 }
