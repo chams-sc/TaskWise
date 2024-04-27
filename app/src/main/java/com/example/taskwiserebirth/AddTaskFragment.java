@@ -1,6 +1,7 @@
 package com.example.taskwiserebirth;
 
 import android.app.Dialog;
+import android.content.Context;
 import android.graphics.Color;
 import android.graphics.drawable.ColorDrawable;
 import android.os.Bundle;
@@ -64,7 +65,7 @@ public class AddTaskFragment extends Fragment implements DatabaseChangeListener,
     private View rootView;
 
 
-    TaskDatabaseManager taskDatabaseManager;
+    private TaskDatabaseManager taskDatabaseManager;
 
     public AddTaskFragment() {
     }
@@ -88,16 +89,16 @@ public class AddTaskFragment extends Fragment implements DatabaseChangeListener,
         setUpTaskRecyclerView(rootView);
 
         FloatingActionButton fab = rootView.findViewById(R.id.fab);
-        fab.setOnClickListener(v -> showBottomSheetDialog(null));
+        fab.setOnClickListener(v -> showBottomSheetDialog(requireContext(),null));
 
         displayTimeOfDay(rootView);
 
         LinearLayout todayTaskContainer = rootView.findViewById(R.id.viewAllContainer);
         todayTaskContainer.setOnClickListener(v -> {
-            // Navigate to Fragment B
-            AllTask fragmentB = new AllTask();
+            // Navigate to All Task Fragment
+            AllTaskFragment fragmentAllTask = new AllTaskFragment();
             FragmentTransaction transaction = getFragmentManager().beginTransaction();
-            transaction.replace(R.id.frame_layout, fragmentB);
+            transaction.replace(R.id.frame_layout, fragmentAllTask);
             transaction.addToBackStack(null);
             transaction.commit();
         });
@@ -151,7 +152,7 @@ public class AddTaskFragment extends Fragment implements DatabaseChangeListener,
     }
 
     private void updateTaskRecyclerView() {
-        taskDatabaseManager.fetchTasks(tasks -> {
+        taskDatabaseManager.fetchSelectedDayTasks(tasks -> {
 
             List<Task> sortedTasks = TaskPriorityCalculator.sortTasksByPriority(tasks, new Date());
 
@@ -222,8 +223,8 @@ public class AddTaskFragment extends Fragment implements DatabaseChangeListener,
         return -1; // Current date not found
     }
 
-    private void showBottomSheetDialog(Task task) {
-        final BottomSheetDialog bottomSheetDialog = new BottomSheetDialog(requireContext());
+    public void showBottomSheetDialog(Context context, Task task) {
+        final BottomSheetDialog bottomSheetDialog = new BottomSheetDialog(context);
         View bottomSheetView = getLayoutInflater().inflate(R.layout.add_task, null);
         bottomSheetDialog.setContentView(bottomSheetView);
 
@@ -589,7 +590,7 @@ public class AddTaskFragment extends Fragment implements DatabaseChangeListener,
 
     @Override
     public void onEditTask(Task task) {
-        showBottomSheetDialog(task);
+        showBottomSheetDialog(requireContext(), task);
     }
 
     @Override

@@ -151,7 +151,7 @@ public class TaskPriorityCalculator {
             }
         }
         else {
-            return "Unknown Priority";
+            return "No priority set";
         }
     }
 }

@@ -3,7 +3,6 @@ package com.example.taskwiserebirth.task;
 import android.content.Context;
 import android.text.SpannableString;
 import android.text.style.ForegroundColorSpan;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuInflater;
@@ -63,7 +62,7 @@ public class TaskAdapter extends RecyclerView.Adapter<TaskViewHolder> {
     }
 
     private int getTaskDeadlineColor (Task task) {
-        Log.d("COLOR_CODING", selectedDate.toString());
+
         if (task.getStatus().equals("Finished")) {
             return ContextCompat.getColor(context, R.color.green);
         // Unfinished tasks
