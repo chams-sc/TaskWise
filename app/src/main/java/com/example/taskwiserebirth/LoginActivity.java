@@ -3,6 +3,7 @@ package com.example.taskwiserebirth;
 import android.Manifest;
 import android.app.Dialog;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
 import android.graphics.Color;
 import android.graphics.drawable.ColorDrawable;
@@ -35,13 +36,14 @@ import io.realm.mongodb.Credentials;
 
 public class LoginActivity extends AppCompatActivity {
 
-    // TODO: Rename to AccountActivity
     private final String TAG = "MongoDb";
     private App app;
     Button bottomlogin;
     private Dialog loginDialog;
     private Dialog registerDialog;
     public static final Integer RecordAudioRequestCode = 1;
+    public static final String SHARED_PREFS = "sharedPrefs";
+    private static final String STATUS_KEY = "status";
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -54,6 +56,8 @@ public class LoginActivity extends AppCompatActivity {
         Realm.init(this);
         app = MongoDbRealmHelper.initializeRealmApp();
 
+        checkStatus();
+
         bottomlogin = findViewById(R.id.before_button);
         bottomlogin.setOnClickListener(v -> showLoginDialog());
 
@@ -62,23 +66,14 @@ public class LoginActivity extends AppCompatActivity {
         }
     }
 
-//    @Override
-//    public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
-//        super.onRequestPermissionsResult(requestCode, permissions, grantResults);
-//        if (requestCode == RecordAudioRequestCode) {
-//            if (grantResults.length > 0 && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
-//
-//            } else {
-//                Snackbar.make(findViewById(android.R.id.content), "Permission needed for speech recognition.", Snackbar.LENGTH_LONG)
-//                        .setAction("Grant", v -> {
-//                            // Request permission again
-//                            requestPermission();
-//                        })
-//                        .show();
-//            }
-//        }
-//    }
-
+    private void checkStatus() {
+        SharedPreferences sharedPreferences = getSharedPreferences(SHARED_PREFS, MODE_PRIVATE);
+        boolean isLoggedIn = sharedPreferences.getBoolean(STATUS_KEY, false);
+        if(isLoggedIn){
+            startActivity(new Intent(LoginActivity.this, MainActivity.class));
+            finish();
+        }
+    }
 
     // Show custom dialog
     private Dialog showCustomDialog(final int layoutResId) {
@@ -137,9 +132,12 @@ public class LoginActivity extends AppCompatActivity {
         Credentials credentials = Credentials.emailPassword(email, password);
         app.loginAsync(credentials, result -> {
             if (result.isSuccess()) {
-                Log.d(TAG, "Logged in successfully");
+                SharedPreferences sharedPreferences = getSharedPreferences(SHARED_PREFS, MODE_PRIVATE);
+                SharedPreferences.Editor editor = sharedPreferences.edit();
 
-                // TODO: possibly remove toast message
+                editor.putBoolean(STATUS_KEY, true);
+                editor.apply();
+
                 Toast.makeText(getApplicationContext(), "Logged in successfully", Toast.LENGTH_SHORT).show();
 
                 // Start home activity

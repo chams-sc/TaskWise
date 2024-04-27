@@ -5,10 +5,16 @@
     android:layout_height="match_parent"
     tools:context=".FinishedTaskFragment">
 
-    <!-- TODO: Update blank fragment layout -->
-    <TextView
+    <androidx.core.widget.NestedScrollView
+        android:id="@+id/scrollFinishedTask"
         android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        android:text="Finished fragment" />
+        android:layout_height="match_parent">
+
+        <androidx.recyclerview.widget.RecyclerView
+            android:id="@+id/finishedRecyclerView"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"/>
+    </androidx.core.widget.NestedScrollView>
+
 
 </FrameLayout>

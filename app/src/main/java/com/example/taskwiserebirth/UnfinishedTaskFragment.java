@@ -17,6 +17,7 @@ import com.example.taskwiserebirth.database.TaskDatabaseManager;
 import com.example.taskwiserebirth.task.Task;
 import com.example.taskwiserebirth.task.TaskAdapter;
 import com.example.taskwiserebirth.task.TaskPriorityCalculator;
+import com.example.taskwiserebirth.utils.DialogUtils;
 
 import java.util.ArrayList;
 import java.util.Date;
@@ -29,6 +30,7 @@ public class UnfinishedTaskFragment extends Fragment implements TaskAdapter.Task
 
     private TaskAdapter taskAdapter;
     private TaskDatabaseManager taskDatabaseManager;
+    private DialogUtils dialogUtils;
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
@@ -40,6 +42,8 @@ public class UnfinishedTaskFragment extends Fragment implements TaskAdapter.Task
 
         MongoDbRealmHelper.addDatabaseChangeListener(this);
         taskDatabaseManager = new TaskDatabaseManager(user, requireContext());
+
+        dialogUtils = new DialogUtils(requireActivity(), taskDatabaseManager);
 
         NestedScrollView nestedScrollView = rootView.findViewById(R.id.scrollUnfinishedTask);
         nestedScrollView.setOnScrollChangeListener(this);
@@ -54,7 +58,7 @@ public class UnfinishedTaskFragment extends Fragment implements TaskAdapter.Task
         RecyclerView cardRecyclerView = rootView.findViewById(R.id.unfinishedRecyclerView);
 
         List<Task> tasks = new ArrayList<>();
-        taskAdapter = new TaskAdapter(requireContext(), tasks,this);
+        taskAdapter = new TaskAdapter(requireContext(), tasks, this);
 
         cardRecyclerView.setLayoutManager(new LinearLayoutManager(requireContext()));
         cardRecyclerView.setAdapter(taskAdapter);
@@ -80,7 +84,7 @@ public class UnfinishedTaskFragment extends Fragment implements TaskAdapter.Task
 
     @Override
     public void onEditTask(Task task) {
-
+        dialogUtils.showBottomSheetDialog(task);
     }
 
     @Override

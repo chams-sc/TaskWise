@@ -83,8 +83,7 @@
                 android:id="@+id/todayTaskContainer"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:paddingHorizontal="8dp"
-                android:paddingTop="8dp"
+                android:padding="8dp"
                 android:gravity="center"
                 android:orientation="horizontal"
                 app:layout_constraintStart_toStartOf="@+id/categoryContainer"
@@ -97,6 +96,7 @@
                     android:layout_marginEnd="16dp"
                     android:fontFamily="@font/inter_bold"
                     android:text="Today's Task"
+                    android:textColor="@color/dark"
                     android:textSize="16sp" />
 
                 <LinearLayout
@@ -104,7 +104,6 @@
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:orientation="horizontal"
-                    android:gravity="center"
                     android:clickable="true"
                     android:foreground="?attr/selectableItemBackground">
                     <TextView
@@ -112,7 +111,7 @@
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:layout_marginEnd="4dp"
-                        android:fontFamily="@font/inter_semibold"
+                        android:fontFamily="@font/inter"
                         android:text="View All"
                         android:textAlignment="center"
                         android:textSize="12sp" />
@@ -129,7 +128,6 @@
                 android:id="@+id/categoryContainer"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:layout_marginTop="8dp"
                 android:gravity="center_vertical"
                 android:padding="8dp"
                 app:layout_constraintEnd_toEndOf="parent"
