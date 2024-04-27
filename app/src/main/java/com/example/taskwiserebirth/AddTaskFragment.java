@@ -4,7 +4,6 @@ import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 
@@ -22,6 +21,7 @@ import com.example.taskwiserebirth.database.TaskDatabaseManager;
 import com.example.taskwiserebirth.task.Task;
 import com.example.taskwiserebirth.task.TaskAdapter;
 import com.example.taskwiserebirth.task.TaskPriorityCalculator;
+import com.example.taskwiserebirth.utils.CalendarUtils;
 import com.example.taskwiserebirth.utils.DialogUtils;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
 
@@ -38,7 +38,6 @@ import io.realm.mongodb.User;
 
 public class AddTaskFragment extends Fragment implements DatabaseChangeListener, NestedScrollView.OnScrollChangeListener, TaskAdapter.TaskActionListener, CalendarAdapter.OnDateSelectedListener {
 
-    private String daysSelected = null;
     private TaskAdapter taskAdapter;
     private Date selectedDate;
     private View rootView;
@@ -70,7 +69,7 @@ public class AddTaskFragment extends Fragment implements DatabaseChangeListener,
         FloatingActionButton fab = rootView.findViewById(R.id.fab);
         fab.setOnClickListener(v -> dialogUtils.showBottomSheetDialog(null));
 
-        displayTimeOfDay(rootView);
+        CalendarUtils.displayTimeOfDay(rootView);
 
         LinearLayout todayTaskContainer = rootView.findViewById(R.id.viewAllContainer);
         todayTaskContainer.setOnClickListener(v -> {
@@ -102,7 +101,7 @@ public class AddTaskFragment extends Fragment implements DatabaseChangeListener,
 
         currentMonth.setText(currentMonthName);
 
-        List<Calendar> calendarList = getDatesForCurrentMonth();
+        List<Calendar> calendarList = CalendarUtils.getDatesForCurrentMonth();
 
         CalendarAdapter calendarAdapter = new CalendarAdapter(calendarList, this);
 
@@ -111,7 +110,7 @@ public class AddTaskFragment extends Fragment implements DatabaseChangeListener,
 
         calendarRecyclerView.setAdapter(calendarAdapter);
 
-        int currentPosition = getCurrentDatePosition(calendarList);
+        int currentPosition = CalendarUtils.getCurrentDatePosition(calendarList);
         if (currentPosition != -1) {
             layoutManager.scrollToPosition(currentPosition);
         }
@@ -141,64 +140,6 @@ public class AddTaskFragment extends Fragment implements DatabaseChangeListener,
                 });
             }
         }, selectedDate);
-    }
-
-    private void displayTimeOfDay(View rootView) {
-        TextView timeOfDayTextView = rootView.findViewById(R.id.tasksText);
-        ImageView timeOfDayImageView = rootView.findViewById(R.id.timeOfDayImageView);
-
-        Calendar calendar = Calendar.getInstance();
-        int hourOfDay = calendar.get(Calendar.HOUR_OF_DAY);
-
-        String timeOfDay;
-        int drawableResId;
-
-        if (hourOfDay >= 6 && hourOfDay < 12) {
-            timeOfDay = "Morning";
-            drawableResId = R.drawable.baseline_sun2;
-        } else if (hourOfDay >= 12 && hourOfDay < 18) {
-            timeOfDay = "Afternoon";
-            drawableResId = R.drawable.baseline_sun2;
-        } else if (hourOfDay >= 18) {
-            timeOfDay = "Evening";
-            drawableResId = R.drawable.baseline_night2;
-        } else {
-            timeOfDay = "Night";
-            drawableResId = R.drawable.baseline_night2;
-        }
-
-        timeOfDayTextView.setText(timeOfDay);
-        timeOfDayImageView.setImageResource(drawableResId);
-    }
-
-    private List<Calendar> getDatesForCurrentMonth() {
-        List<Calendar> calendarList = new ArrayList<>();
-        Calendar currentDate = Calendar.getInstance();
-
-        currentDate.set(Calendar.DAY_OF_MONTH, 1);
-
-        int daysInMonth = currentDate.getActualMaximum(Calendar.DAY_OF_MONTH);
-        for (int day = 1; day <= daysInMonth; day++) {
-            Calendar date = (Calendar) currentDate.clone();
-            date.set(Calendar.DAY_OF_MONTH, day);
-            calendarList.add(date);
-        }
-
-        return calendarList;
-    }
-
-    private int getCurrentDatePosition(List<Calendar> calendarList) {
-        Calendar currentDate = Calendar.getInstance();
-        int currentDay = currentDate.get(Calendar.DAY_OF_MONTH);
-
-        for (int i = 0; i < calendarList.size(); i++) {
-            Calendar calendar = calendarList.get(i);
-            if (calendar.get(Calendar.DAY_OF_MONTH) == currentDay) {
-                return i;
-            }
-        }
-
-        return -1; // Current date not found
     }
 
     @Override
@@ -244,7 +185,7 @@ public class AddTaskFragment extends Fragment implements DatabaseChangeListener,
         if (date.get(Calendar.YEAR) == currentDate.get(Calendar.YEAR)
                 && date.get(Calendar.MONTH) == currentDate.get(Calendar.MONTH)
                 && date.get(Calendar.DAY_OF_MONTH) == currentDate.get(Calendar.DAY_OF_MONTH)) {
-            todayTask.setText("Today's Task");
+            todayTask.setText("Today's Tasks");
         } else {
             SimpleDateFormat dateFormat = new SimpleDateFormat("MMMM d, yyyy", Locale.getDefault());
             String formattedDate = dateFormat.format(date.getTime());

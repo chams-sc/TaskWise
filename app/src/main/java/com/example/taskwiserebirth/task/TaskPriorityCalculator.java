@@ -1,9 +1,7 @@
 package com.example.taskwiserebirth.task;
 
-import android.util.Log;
+import com.example.taskwiserebirth.utils.CalendarUtils;
 
-import java.text.ParseException;
-import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Date;
@@ -59,7 +57,7 @@ public class TaskPriorityCalculator {
             return 0.0;
         }
 
-        Date deadline = parseDeadline(deadlineString);
+        Date deadline = CalendarUtils.parseDeadline(deadlineString);
 
         long timeRemaining = deadline.getTime() - currentDate.getTime();
         long timeMin = earliestDeadline.getTime() - currentDate.getTime();
@@ -68,20 +66,6 @@ public class TaskPriorityCalculator {
         double deadlineFactor = 1.0 - (double) (timeRemaining - timeMin) / (timeMax - timeMin);
 
         return Math.max(deadlineFactor, 0.0);
-    }
-
-    public static Date parseDeadline(String deadline) {
-        if (deadline.equals("No deadline")) {
-            return null;
-        }
-
-        SimpleDateFormat format = new SimpleDateFormat("MM-dd-yyyy | hh:mm a");
-        try {
-            return format.parse(deadline);
-        } catch (ParseException e) {
-            Log.e("ParseDate", String.valueOf(e));
-            return null;
-        }
     }
 
     public static List<Task> sortTasksByPriority(List<Task> tasks, Date currentDate) {
@@ -100,7 +84,7 @@ public class TaskPriorityCalculator {
             } else {
                 tasksWithDeadlines.add(task);
 
-                Date deadline = parseDeadline(task.getDeadline());
+                Date deadline = CalendarUtils.parseDeadline(task.getDeadline());
 
                 if (earliestDeadline == null || deadline.before(earliestDeadline)) {
                     earliestDeadline = deadline;
@@ -137,20 +121,23 @@ public class TaskPriorityCalculator {
     }
 
     public static String findPriorityCategory(String urgencyLevel, String importanceLevel) {
-        if (urgencyLevel.equals("Not Urgent") || urgencyLevel.equals("Somewhat Urgent")) {
-            if (importanceLevel.equals("Not Important") || importanceLevel.equals("Somewhat Important")) {
+
+        if (importanceLevel.equals("None")) {
+            return "No priority set";
+        }
+        if (importanceLevel.equals("Not Important") || importanceLevel.equals("Somewhat Important")) {
+            if (urgencyLevel.equals("Not Urgent") || urgencyLevel.equals("Somewhat Urgent")) {
                 return "Low Priority";
             } else {
                 return "Medium Priority";
             }
-        } else if (urgencyLevel.equals("Urgent") || urgencyLevel.equals("Very Urgent")){
-            if (importanceLevel.equals("Not Important") || importanceLevel.equals("Somewhat Important")) {
+        } else if (importanceLevel.equals("Important") || importanceLevel.equals("Very Important")) {
+            if (urgencyLevel.equals("Not Urgent") || urgencyLevel.equals("Somewhat Urgent")) {
                 return "High Priority";
             } else {
                 return "Very High Priority";
             }
-        }
-        else {
+        } else {
             return "No priority set";
         }
     }

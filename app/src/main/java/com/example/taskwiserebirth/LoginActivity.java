@@ -176,8 +176,8 @@ public class LoginActivity extends AppCompatActivity {
         TextView createAccountText = registerDialog.findViewById(R.id.createAccountText);
         String text = "CREATE ACCOUNT";
         SpannableString spannableString = new SpannableString(text);
-        ForegroundColorSpan grayColorSpan = new ForegroundColorSpan(getResources().getColor(R.color.gray));
-        ForegroundColorSpan orangeColorSpan = new ForegroundColorSpan(getResources().getColor(R.color.orange));
+        ForegroundColorSpan grayColorSpan = new ForegroundColorSpan(ContextCompat.getColor(this, R.color.gray));
+        ForegroundColorSpan orangeColorSpan = new ForegroundColorSpan(ContextCompat.getColor(this, R.color.orange));
         spannableString.setSpan(grayColorSpan, 0, 6, Spanned.SPAN_EXCLUSIVE_EXCLUSIVE);
         spannableString.setSpan(orangeColorSpan, 7, text.length(), Spanned.SPAN_EXCLUSIVE_EXCLUSIVE);
         createAccountText.setText(spannableString);

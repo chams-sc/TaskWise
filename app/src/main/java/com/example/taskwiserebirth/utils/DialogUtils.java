@@ -39,6 +39,7 @@ import java.util.Arrays;
 import java.util.Date;
 import java.util.List;
 import java.util.Locale;
+import java.util.concurrent.TimeUnit;
 
 public class DialogUtils {
     private FragmentActivity activity;
@@ -200,6 +201,11 @@ public class DialogUtils {
             deadline = "No deadline";
         }
 
+        if (urgency.equals("None")) {
+            urgency = setAutomaticUrgency(deadline);
+            Log.d("NUM_DAYS", urgency);
+        }
+
         if (schedule.isEmpty()) {
             schedule = "No schedule";
         }
@@ -231,6 +237,27 @@ public class DialogUtils {
         newTask.setCreationDate(currentDate);
 
         return newTask;
+    }
+
+    private String setAutomaticUrgency(String deadline) {
+        Date taskDeadline = CalendarUtils.parseDeadline(deadline);
+        Date currentDate = new Date();
+
+        if (taskDeadline == null) {
+            return "Not Urgent";
+        } else {
+            long diffInMillis = taskDeadline.getTime()-currentDate.getTime();
+            long diffInDays = TimeUnit.MILLISECONDS.toDays(diffInMillis);
+            if (diffInDays > 8) {
+                return "Not Urgent";
+            } else if (diffInDays >= 2 && diffInDays <= 7) {
+                return "Somewhat Urgent";
+            } else if (diffInDays >= 1 && diffInDays <= 2) {
+                return "Urgent";
+            } else {
+                return "Very Urgent";
+            }
+        }
     }
 
     private boolean validateFields(EditText taskName, String deadline, String schedule, Date currentDate) {
@@ -291,7 +318,6 @@ public class DialogUtils {
             return true;
         }
     }
-
 
     private static int getIndex(Spinner spinner, String value) {
         for (int i = 0; i < spinner.getCount(); i++) {
@@ -397,9 +423,4 @@ public class DialogUtils {
         }
         return false;
     }
-
-    // Add setTaskFromFields method here
-
-    // Add any other helper methods related to the bottom sheet dialog here
-
 }

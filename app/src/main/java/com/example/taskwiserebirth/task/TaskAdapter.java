@@ -16,6 +16,7 @@ import androidx.core.content.ContextCompat;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.example.taskwiserebirth.R;
+import com.example.taskwiserebirth.utils.CalendarUtils;
 
 import java.util.Date;
 import java.util.List;
@@ -67,7 +68,7 @@ public class TaskAdapter extends RecyclerView.Adapter<TaskViewHolder> {
             return ContextCompat.getColor(context, R.color.green);
         // Unfinished tasks
         } else {
-            Date taskDeadline = TaskPriorityCalculator.parseDeadline(task.getDeadline());
+            Date taskDeadline = CalendarUtils.parseDeadline(task.getDeadline());
             // No deadline
             if (taskDeadline == null) {
                 return ContextCompat.getColor(context, R.color.blue);
