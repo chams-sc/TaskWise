@@ -5,6 +5,7 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_margin="8dp"
     android:elevation="8dp"
+    app:cardElevation="3dp"
     app:cardCornerRadius="8dp">
 
     <RelativeLayout
@@ -33,7 +34,8 @@
             android:layout_height="wrap_content"
             android:layout_below="@id/taskNameTxt"
             android:layout_marginStart="40dp"
-            android:fontFamily="@font/inter_bold"
+            android:fontFamily="@font/inter"
+            android:textStyle="bold"
             android:textColor="@color/dark_gray"
             android:textSize="12sp"
             tools:text="8:00 AM - 5:00 PM" />

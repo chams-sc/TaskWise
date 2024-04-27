@@ -53,6 +53,7 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:fontFamily="@font/inter_semibold"
+            android:background="?attr/selectableItemBackground"
             android:letterSpacing="1"
             android:padding="8dp"
             android:text="MONTH"
@@ -66,6 +67,7 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:nestedScrollingEnabled="true"
+            android:background="@android:color/transparent"
             app:layoutManager="androidx.recyclerview.widget.LinearLayoutManager"
             app:layout_constraintBottom_toTopOf="@+id/allTaskContainer"
             app:layout_constraintTop_toBottomOf="@id/monthTxt" />
@@ -76,6 +78,7 @@
             android:layout_height="wrap_content"
             android:layout_margin="8dp"
             android:paddingHorizontal="8dp"
+            android:background="@android:color/transparent"
             app:layout_constraintBottom_toTopOf="@+id/nestedScrollView"
             app:layout_constraintTop_toBottomOf="@id/calendarRecyclerView">
 

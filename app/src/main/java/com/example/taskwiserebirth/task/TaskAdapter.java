@@ -9,6 +9,7 @@ import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
+import android.view.animation.AnimationUtils;
 import android.widget.PopupMenu;
 
 import androidx.annotation.NonNull;
@@ -50,6 +51,9 @@ public class TaskAdapter extends RecyclerView.Adapter<TaskViewHolder> {
     @Override
     public void onBindViewHolder(@NonNull TaskViewHolder holder, int position) {
         Task currentTask = tasks.get(position);
+
+        holder.itemView.startAnimation(AnimationUtils.loadAnimation(holder.itemView.getContext(), R.anim.fade_in));
+
         holder.taskName.setText(currentTask.getTaskName());
         holder.priority.setText(currentTask.getPriorityCategory());
 
@@ -66,17 +70,17 @@ public class TaskAdapter extends RecyclerView.Adapter<TaskViewHolder> {
 
         if (task.getStatus().equals("Finished")) {
             return ContextCompat.getColor(context, R.color.green);
-        // Unfinished tasks
+        // unfinished tasks
         } else {
             Date taskDeadline = CalendarUtils.parseDeadline(task.getDeadline());
-            // No deadline
+            // no deadline
             if (taskDeadline == null) {
                 return ContextCompat.getColor(context, R.color.blue);
             } else {
-                // Past due
+                // past due
                 if (taskDeadline.before(selectedDate)) {
                     return ContextCompat.getColor(context, R.color.ash_gray);
-                // Close to due
+                // close to due
                 } else {
                     long diffMillis = taskDeadline.getTime() - selectedDate.getTime();
                     long diffHours = diffMillis / (60 * 60 * 1000); // millis to hours
@@ -87,7 +91,7 @@ public class TaskAdapter extends RecyclerView.Adapter<TaskViewHolder> {
                 }
             }
         }
-        // Unfinished with reasonable deadline
+        // unfinished with reasonable deadline
         return ContextCompat.getColor(context, R.color.blue);
     }
 

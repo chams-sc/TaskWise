@@ -203,7 +203,6 @@ public class DialogUtils {
 
         if (urgency.equals("None")) {
             urgency = setAutomaticUrgency(deadline);
-            Log.d("NUM_DAYS", urgency);
         }
 
         if (schedule.isEmpty()) {
@@ -248,6 +247,7 @@ public class DialogUtils {
         } else {
             long diffInMillis = taskDeadline.getTime()-currentDate.getTime();
             long diffInDays = TimeUnit.MILLISECONDS.toDays(diffInMillis);
+            Log.d("NUM_DAYS", String.valueOf(diffInDays));
             if (diffInDays > 8) {
                 return "Not Urgent";
             } else if (diffInDays >= 2 && diffInDays <= 7) {

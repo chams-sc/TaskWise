@@ -13,6 +13,7 @@ import androidx.core.widget.NestedScrollView;
 import androidx.fragment.app.Fragment;
 import androidx.fragment.app.FragmentTransaction;
 import androidx.recyclerview.widget.LinearLayoutManager;
+import androidx.recyclerview.widget.LinearSmoothScroller;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.example.taskwiserebirth.database.DatabaseChangeListener;
@@ -110,11 +111,38 @@ public class AddTaskFragment extends Fragment implements DatabaseChangeListener,
 
         calendarRecyclerView.setAdapter(calendarAdapter);
 
-        int currentPosition = CalendarUtils.getCurrentDatePosition(calendarList);
-        if (currentPosition != -1) {
-            layoutManager.scrollToPosition(currentPosition);
-        }
+        scrollToCurrentDatePosition(calendarRecyclerView, calendarList);
+        TextView monthTextView = rootView.findViewById(R.id.monthTxt);
+        monthTextView.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                scrollToCurrentDatePosition(calendarRecyclerView, calendarList);
+            }
+        });
     }
+
+    private void scrollToCurrentDatePosition(RecyclerView calendarRecyclerView, List<Calendar> calendarList) {
+        int currentPosition = CalendarUtils.getCurrentDatePosition(calendarList);
+
+        if (currentPosition != -1) {
+            smoothScrollToPosition(calendarRecyclerView, currentPosition);
+        }
+
+        onDateCardSelected(Calendar.getInstance());
+    }
+
+    private void smoothScrollToPosition(final RecyclerView recyclerView, final int position) {
+        final LinearSmoothScroller smoothScroller = new LinearSmoothScroller(requireContext()) {
+            @Override
+            protected int getHorizontalSnapPreference() {
+                return SNAP_TO_START;
+            }
+        };
+
+        smoothScroller.setTargetPosition(position);
+        recyclerView.getLayoutManager().startSmoothScroll(smoothScroller);
+    }
+
 
     private void setUpTaskRecyclerView(View rootView) {
         RecyclerView cardRecyclerView = rootView.findViewById(R.id.tasksRecyclerView);

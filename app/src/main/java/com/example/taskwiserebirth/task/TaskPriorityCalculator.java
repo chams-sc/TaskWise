@@ -74,6 +74,7 @@ public class TaskPriorityCalculator {
 
         List<Task> tasksWithDeadlines = new ArrayList<>();
         List<Task> tasksWithoutDeadlines = new ArrayList<>();
+        List<Task> finishedTasks = new ArrayList<>();
 
         for (Task task : tasks) {
             String priorityCategory = findPriorityCategory(task.getUrgencyLevel(), task.getImportanceLevel());
@@ -92,6 +93,15 @@ public class TaskPriorityCalculator {
                 if (longestDeadline ==  null || deadline.after(longestDeadline)) {
                     longestDeadline = deadline;
                 }
+            }
+
+            if (task.getStatus().equals("Finished")) {
+                if (tasksWithDeadlines.contains(task)) {
+                    tasksWithDeadlines.remove(task);
+                } else if (tasksWithoutDeadlines.contains(task)) {
+                    tasksWithoutDeadlines.remove(task);
+                }
+                finishedTasks.add(task);
             }
         }
 
@@ -116,7 +126,7 @@ public class TaskPriorityCalculator {
 
         List<Task> sortedTasks = new ArrayList<>(tasksWithDeadlines);
         sortedTasks.addAll(tasksWithoutDeadlines);
-
+        sortedTasks.addAll(finishedTasks);
         return sortedTasks;
     }
 
