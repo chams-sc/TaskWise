@@ -66,7 +66,7 @@
                 android:layout_width="match_parent"
                 android:layout_height="1dp"
                 android:layout_below="@id/taskNameDetail"
-                android:background="@color/black"
+                android:background="@color/dark_gray"
                 android:layout_marginTop="32dp" />
 
         </RelativeLayout>
@@ -114,7 +114,7 @@
                 android:layout_height="1dp"
                 android:layout_below="@id/timeDetails"
                 android:layout_marginTop="32dp"
-                android:background="@color/black" />
+                android:background="@color/dark_gray" />
 
         </RelativeLayout>
 
@@ -158,7 +158,7 @@
                 android:layout_height="1dp"
                 android:layout_below="@id/importanceDetails"
                 android:layout_marginTop="32dp"
-                android:background="@color/black" />
+                android:background="@color/dark_gray"/>
 
         </RelativeLayout>
 
@@ -202,19 +202,20 @@
                 android:layout_height="1dp"
                 android:layout_below="@id/urgencyDetail"
                 android:layout_marginTop="32dp"
-                android:background="@color/black" />
+                android:background="@color/dark_gray" />
 
         </RelativeLayout>
 
         <RelativeLayout
             android:id="@+id/reccureDetail"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
+            android:layout_width="217dp"
+            android:layout_height="57dp"
             android:layout_marginStart="16dp"
             android:layout_marginTop="8dp"
-            android:layout_marginEnd="16dp"
+            android:layout_marginEnd="80dp"
             android:paddingBottom="10dp"
             app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintHorizontal_bias="0.0"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toBottomOf="@+id/urgencyDetails">
 
@@ -244,8 +245,8 @@
                 android:layout_width="match_parent"
                 android:layout_height="1dp"
                 android:layout_below="@id/reccureDetails"
-                android:layout_marginTop="32dp"
-                android:background="@color/black" />
+                android:layout_marginTop="24dpdp"
+                android:background="@color/dark_gray" />
 
         </RelativeLayout>
 
@@ -290,44 +291,42 @@
                 android:layout_height="1dp"
                 android:layout_below="@id/noteDetail"
                 android:layout_marginTop="32dp"
-                android:background="@color/black" />
+                android:background="@color/dark_gray" />
 
         </RelativeLayout>
 
 
-
         <RelativeLayout
             android:id="@+id/remindMeLayout"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_marginStart="16dp"
+            android:layout_width="143dp"
+            android:layout_height="48dp"
             android:layout_marginEnd="16dp"
-            android:layout_marginTop="16dp"
             android:paddingBottom="10dp"
+            app:layout_constraintBottom_toTopOf="@+id/notesDetails"
             app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@+id/notesDetails">
+            app:layout_constraintStart_toEndOf="@+id/reccureDetail"
+            app:layout_constraintTop_toBottomOf="@+id/urgencyDetails">
 
             <!-- CheckBox for the reminder -->
             <CheckBox
                 android:id="@+id/remindMeCheckBox"
                 android:layout_width="32dp"
-                android:layout_height="22dp"
+                android:layout_height="32dp"
                 android:layout_alignParentStart="true"
                 android:layout_centerVertical="true"
-                android:buttonTint="@color/black"/>
+                android:buttonTint="@color/black" />
 
             <!-- TextView for the "Remind me" label -->
             <TextView
                 android:id="@+id/remindMeLabel"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:layout_toEndOf="@+id/remindMeCheckBox"
                 android:layout_centerVertical="true"
+                android:layout_marginStart="8dp"
+                android:layout_toEndOf="@+id/remindMeCheckBox"
                 android:text="Remind me"
-                android:textSize="18sp"
                 android:textColor="@color/black"
-                android:layout_marginStart="8dp"/> <!-- Adjust margin as needed -->
+                android:textSize="18sp" /> <!-- Adjust margin as needed -->
 
         </RelativeLayout>
 
