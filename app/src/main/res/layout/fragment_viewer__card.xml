@@ -1,0 +1,345 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.coordinatorlayout.widget.CoordinatorLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/fragment_container"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    tools:context=".AllTaskFragment">
+
+    <androidx.constraintlayout.widget.ConstraintLayout
+        android:id="@+id/all_constraint"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent">
+
+
+        <RelativeLayout
+            android:id="@+id/backTaskContainer"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="16dp"
+            android:layout_marginTop="16dp"
+            android:gravity="center"
+            android:orientation="horizontal"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent">
+
+            <ImageView
+                android:id="@+id/back_arrow"
+                android:layout_width="40dp"
+                android:layout_height="40dp"
+                android:foreground="?attr/selectableItemBackground"
+                android:src="@drawable/baseline_arrow_back_24" />
+
+
+        </RelativeLayout>
+
+        <RelativeLayout
+            android:id="@+id/taskNameDetailContainer"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="16dp"
+            android:layout_marginTop="40dp"
+            android:layout_marginEnd="16dp"
+            android:paddingBottom="10dp"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@+id/backTaskContainer"> <!-- Add padding at the bottom -->
+
+
+
+            <!-- TextView for task name -->
+            <TextView
+                android:id="@+id/taskNameDetail"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="8dp"
+                android:fontFamily="@font/inter_semibold"
+                android:textColor="@color/dark"
+                android:textSize="24sp"
+                tools:text="My title"
+                android:layout_centerVertical="true" />
+
+            <!-- View to display line at the bottom -->
+            <View
+                android:id="@+id/bottomLine"
+                android:layout_width="match_parent"
+                android:layout_height="1dp"
+                android:layout_below="@id/taskNameDetail"
+                android:background="@color/dark_gray"
+                android:layout_marginTop="32dp" />
+
+        </RelativeLayout>
+
+
+        <RelativeLayout
+            android:id="@+id/timeDetail"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="16dp"
+            android:layout_marginTop="16dp"
+            android:layout_marginEnd="16dp"
+            android:paddingBottom="10dp"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@+id/taskNameDetailContainer"> <!-- Add padding at the bottom -->
+
+            <!-- Clock icon -->
+            <ImageView
+                android:id="@+id/clockIcon"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_centerVertical="true"
+                android:layout_marginStart="16dp"
+                android:padding="8dp"
+                android:src="@drawable/baseline_clock" />
+
+            <!-- TextView for task name -->
+            <TextView
+                android:id="@+id/timeDetails"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_centerVertical="true"
+                android:layout_marginStart="8dp"
+                android:layout_toEndOf="@id/clockIcon"
+                android:fontFamily="@font/inter_semibold"
+                android:textColor="@color/dark"
+                android:textSize="16dp"
+                tools:text="Tue, 2 Jan 7:00 PM - Tue, 2 Jan 9:00 PM" />
+
+            <!-- View to display line at the bottom -->
+            <View
+                android:id="@+id/bottomLine1"
+                android:layout_width="match_parent"
+                android:layout_height="1dp"
+                android:layout_below="@id/timeDetails"
+                android:layout_marginTop="32dp"
+                android:background="@color/dark_gray" />
+
+        </RelativeLayout>
+
+
+        <RelativeLayout
+            android:id="@+id/importanceDetail"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="16dp"
+            android:layout_marginTop="8dp"
+            android:layout_marginEnd="16dp"
+            android:paddingBottom="10dp"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@+id/timeDetail">
+
+            <ImageView
+                android:id="@+id/clockIcon_urgency"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_centerVertical="true"
+                android:layout_marginStart="16dp"
+                android:padding="8dp"
+                android:src="@drawable/baseline_report_gmailerrorred_24" />
+
+            <TextView
+                android:id="@+id/importanceDetails"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_centerVertical="true"
+                android:layout_marginStart="8dp"
+                android:layout_toEndOf="@id/clockIcon_urgency"
+                android:fontFamily="@font/inter_semibold"
+                android:textColor="@color/dark"
+                android:textSize="16dp"
+                tools:text="Very Important" />
+
+            <View
+                android:id="@+id/bottomLine2"
+                android:layout_width="match_parent"
+                android:layout_height="1dp"
+                android:layout_below="@id/importanceDetails"
+                android:layout_marginTop="32dp"
+                android:background="@color/dark_gray"/>
+
+        </RelativeLayout>
+
+
+        <RelativeLayout
+            android:id="@+id/urgencyDetails"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="16dp"
+            android:layout_marginTop="8dp"
+            android:layout_marginEnd="16dp"
+            android:paddingBottom="10dp"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@+id/importanceDetail">
+
+            <ImageView
+                android:id="@+id/clockIcon_reccurrence"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_centerVertical="true"
+                android:layout_marginStart="16dp"
+                android:padding="8dp"
+                android:src="@drawable/outline_info_24" />
+
+            <TextView
+                android:id="@+id/urgencyDetail"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_centerVertical="true"
+                android:layout_marginStart="8dp"
+                android:layout_toEndOf="@id/clockIcon_reccurrence"
+                android:fontFamily="@font/inter_semibold"
+                android:textColor="@color/dark"
+                android:textSize="16dp"
+                tools:text="Urgent" />
+
+            <View
+                android:id="@+id/bottomLine3"
+                android:layout_width="match_parent"
+                android:layout_height="1dp"
+                android:layout_below="@id/urgencyDetail"
+                android:layout_marginTop="32dp"
+                android:background="@color/dark_gray" />
+
+        </RelativeLayout>
+
+        <RelativeLayout
+            android:id="@+id/reccureDetail"
+            android:layout_width="217dp"
+            android:layout_height="57dp"
+            android:layout_marginStart="16dp"
+            android:layout_marginTop="8dp"
+            android:layout_marginEnd="80dp"
+            android:paddingBottom="10dp"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintHorizontal_bias="0.0"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@+id/urgencyDetails">
+
+            <ImageView
+                android:id="@+id/clockIcon_reccurrence2"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_centerVertical="true"
+                android:layout_marginStart="16dp"
+                android:padding="8dp"
+                android:src="@drawable/baseline_loop_24" />
+
+            <TextView
+                android:id="@+id/reccureDetails"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_centerVertical="true"
+                android:layout_marginStart="8dp"
+                android:layout_toEndOf="@id/clockIcon_reccurrence2"
+                android:fontFamily="@font/inter_semibold"
+                android:textColor="@color/dark"
+                android:textSize="16dp"
+                tools:text="None" />
+
+            <View
+                android:id="@+id/bottomLine45"
+                android:layout_width="match_parent"
+                android:layout_height="1dp"
+                android:layout_below="@id/reccureDetails"
+                android:layout_marginTop="8dp"
+                android:background="@color/dark_gray" />
+
+        </RelativeLayout>
+        <RelativeLayout
+            android:id="@+id/notesDetails"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="16dp"
+            android:layout_marginTop="8dp"
+            android:layout_marginEnd="16dp"
+            android:paddingBottom="10dp"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@+id/reccureDetail"> <!-- Add padding at the bottom -->
+
+            <!-- Clock icon -->
+            <ImageView
+                android:id="@+id/clockIcon_notes"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_centerVertical="true"
+                android:layout_marginStart="16dp"
+                android:padding="8dp"
+                android:src="@drawable/outline_description_24" />
+
+            <TextView
+                android:id="@+id/noteDetail"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_centerVertical="true"
+                android:layout_marginStart="8dp"
+                android:layout_toEndOf="@id/clockIcon_notes"
+                android:fontFamily="@font/inter_semibold"
+                android:textColor="@color/dark"
+                android:textSize="16dp"
+                tools:text="Notes" />
+
+            <!-- View to display line at the bottom -->
+            <View
+                android:id="@+id/bottomLine4"
+                android:layout_width="match_parent"
+                android:layout_height="1dp"
+                android:layout_below="@id/noteDetail"
+                android:layout_marginTop="32dp"
+                android:background="@color/dark_gray" />
+
+        </RelativeLayout>
+
+
+        <RelativeLayout
+            android:id="@+id/remindMeLayout"
+            android:layout_width="143dp"
+            android:layout_height="48dp"
+            android:layout_marginEnd="16dp"
+            android:paddingBottom="10dp"
+            app:layout_constraintBottom_toTopOf="@+id/notesDetails"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toEndOf="@+id/reccureDetail"
+            app:layout_constraintTop_toBottomOf="@+id/urgencyDetails">
+
+            <!-- CheckBox for the reminder -->
+            <CheckBox
+                android:id="@+id/remindMeCheckBox"
+                android:layout_width="32dp"
+                android:layout_height="32dp"
+                android:layout_alignParentStart="true"
+                android:layout_centerVertical="true"
+                android:buttonTint="@color/black" />
+
+            <!-- TextView for the "Remind me" label -->
+            <TextView
+                android:id="@+id/remindMeLabel"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_centerVertical="true"
+                android:layout_marginStart="8dp"
+                android:layout_toEndOf="@+id/remindMeCheckBox"
+                android:text="Remind me"
+                android:textColor="@color/black"
+                android:textSize="18sp" /> <!-- Adjust margin as needed -->
+
+        </RelativeLayout>
+
+        <ImageView
+            android:id="@+id/more_menu"
+            android:layout_width="40dp"
+            android:layout_height="40dp"
+            android:layout_marginTop="16dp"
+            android:layout_marginEnd="16dp"
+            android:src="@drawable/baseline_menu"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintTop_toTopOf="parent" />
+
+
+
+    </androidx.constraintlayout.widget.ConstraintLayout>
+</androidx.coordinatorlayout.widget.CoordinatorLayout>

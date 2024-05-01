@@ -13,10 +13,13 @@ import android.view.animation.AnimationUtils;
 import android.widget.PopupMenu;
 
 import androidx.annotation.NonNull;
+import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.content.ContextCompat;
+import androidx.fragment.app.FragmentTransaction;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.example.taskwiserebirth.R;
+import com.example.taskwiserebirth.Viewer_Card;
 import com.example.taskwiserebirth.utils.CalendarUtils;
 
 import java.util.Date;
@@ -45,14 +48,15 @@ public class TaskAdapter extends RecyclerView.Adapter<TaskViewHolder> {
     @NonNull
     @Override
     public TaskViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
-        return new TaskViewHolder(LayoutInflater.from(context).inflate(R.layout.item_task_cards, parent, false));
+        View itemView = LayoutInflater.from(context).inflate(R.layout.item_task_cards, parent, false);
+        return new TaskViewHolder(itemView);
     }
 
     @Override
     public void onBindViewHolder(@NonNull TaskViewHolder holder, int position) {
         Task currentTask = tasks.get(position);
 
-        holder.itemView.startAnimation(AnimationUtils.loadAnimation(holder.itemView.getContext(), R.anim.fade_in));
+        holder.itemView.startAnimation(AnimationUtils.loadAnimation(context, R.anim.fade_in));
 
         holder.taskName.setText(currentTask.getTaskName());
         holder.priority.setText(currentTask.getPriorityCategory());
@@ -62,25 +66,28 @@ public class TaskAdapter extends RecyclerView.Adapter<TaskViewHolder> {
         holder.deadline.setText(currentTask.getDeadline());
         holder.deadline.setTextColor(deadlineColor);
 
-        holder.imageView.setOnClickListener(v ->
-                showPopupMenu(v, currentTask));
+        holder.imageView.setOnClickListener(v -> showPopupMenu(v, currentTask));
+
+        holder.itemView.setOnClickListener(v -> {
+            // Navigate to Fragment Viewer Card
+            Viewer_Card fragmentViewerCard = new Viewer_Card(); // Assuming ViewerCardFragment is the name of your Fragment
+            FragmentTransaction transaction = ((AppCompatActivity) context).getSupportFragmentManager().beginTransaction();
+            transaction.replace(R.id.frame_layout, fragmentViewerCard);
+            transaction.addToBackStack(null);
+            transaction.commit();
+        });
     }
 
-    private int getTaskDeadlineColor (Task task) {
-
+    private int getTaskDeadlineColor(Task task) {
         if (task.getStatus().equals("Finished")) {
             return ContextCompat.getColor(context, R.color.green);
-        // unfinished tasks
         } else {
             Date taskDeadline = CalendarUtils.parseDeadline(task.getDeadline());
-            // no deadline
             if (taskDeadline == null) {
                 return ContextCompat.getColor(context, R.color.blue);
             } else {
-                // past due
                 if (taskDeadline.before(selectedDate)) {
                     return ContextCompat.getColor(context, R.color.ash_gray);
-                // close to due
                 } else {
                     long diffMillis = taskDeadline.getTime() - selectedDate.getTime();
                     long diffHours = diffMillis / (60 * 60 * 1000); // millis to hours
@@ -91,7 +98,6 @@ public class TaskAdapter extends RecyclerView.Adapter<TaskViewHolder> {
                 }
             }
         }
-        // unfinished with reasonable deadline
         return ContextCompat.getColor(context, R.color.blue);
     }
 
@@ -99,19 +105,16 @@ public class TaskAdapter extends RecyclerView.Adapter<TaskViewHolder> {
         PopupMenu popupMenu = new PopupMenu(context, v);
         MenuInflater inflater = popupMenu.getMenuInflater();
         inflater.inflate(R.menu.show_menu, popupMenu.getMenu());
-        
+
         Menu menu = popupMenu.getMenu();
         for (int i = 0; i < menu.size(); i++) {
             MenuItem menuItem = menu.getItem(i);
-            // Set text color for normal state
             SpannableString spannable = new SpannableString(menuItem.getTitle());
             spannable.setSpan(new ForegroundColorSpan(ContextCompat.getColor(context, R.color.dark)), 0, spannable.length(), 0);
             menuItem.setTitle(spannable);
         }
 
         popupMenu.setOnMenuItemClickListener(item -> {
-
-            // Get the selected MenuItem
             SpannableString selectedSpannable = new SpannableString(item.getTitle());
             selectedSpannable.setSpan(new ForegroundColorSpan(ContextCompat.getColor(context, R.color.orange)), 0, selectedSpannable.length(), 0);
             item.setTitle(selectedSpannable);

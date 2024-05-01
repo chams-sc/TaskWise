@@ -52,6 +52,8 @@ public class AddTaskFragment extends Fragment implements DatabaseChangeListener,
     public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
         rootView = inflater.inflate(R.layout.fragment_add_task, container, false);
 
+
+
         // Realm initialization
         App app = MongoDbRealmHelper.initializeRealmApp();
         User user = app.currentUser();
