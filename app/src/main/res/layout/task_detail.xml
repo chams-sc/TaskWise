@@ -64,10 +64,10 @@
             <View
                 android:id="@+id/bottomLine"
                 android:layout_width="match_parent"
-                android:layout_height="1dp"
+                android:layout_height="2dp"
                 android:layout_below="@id/taskNameDetail"
                 android:background="@color/dark_gray"
-                android:layout_marginTop="32dp" />
+                android:layout_marginTop="16dp" />
 
         </RelativeLayout>
 
@@ -111,9 +111,9 @@
             <View
                 android:id="@+id/bottomLine1"
                 android:layout_width="match_parent"
-                android:layout_height="1dp"
+                android:layout_height="2dp"
                 android:layout_below="@id/timeDetails"
-                android:layout_marginTop="32dp"
+                android:layout_marginTop="16dp"
                 android:background="@color/dark_gray" />
 
         </RelativeLayout>
@@ -155,9 +155,9 @@
             <View
                 android:id="@+id/bottomLine2"
                 android:layout_width="match_parent"
-                android:layout_height="1dp"
+                android:layout_height="2dp"
                 android:layout_below="@id/importanceDetails"
-                android:layout_marginTop="32dp"
+                android:layout_marginTop="16dp"
                 android:background="@color/dark_gray"/>
 
         </RelativeLayout>
@@ -199,9 +199,9 @@
             <View
                 android:id="@+id/bottomLine3"
                 android:layout_width="match_parent"
-                android:layout_height="1dp"
+                android:layout_height="2dp"
                 android:layout_below="@id/urgencyDetail"
-                android:layout_marginTop="32dp"
+                android:layout_marginTop="16dp"
                 android:background="@color/dark_gray" />
 
         </RelativeLayout>
@@ -243,9 +243,9 @@
             <View
                 android:id="@+id/bottomLine45"
                 android:layout_width="match_parent"
-                android:layout_height="1dp"
+                android:layout_height="2dp"
                 android:layout_below="@id/reccureDetails"
-                android:layout_marginTop="8dp"
+                android:layout_marginTop="4dp"
                 android:background="@color/dark_gray" />
 
         </RelativeLayout>
@@ -288,9 +288,9 @@
             <View
                 android:id="@+id/bottomLine4"
                 android:layout_width="match_parent"
-                android:layout_height="1dp"
+                android:layout_height="2dp"
                 android:layout_below="@id/noteDetail"
-                android:layout_marginTop="32dp"
+                android:layout_marginTop="16dp"
                 android:background="@color/dark_gray" />
 
         </RelativeLayout>
