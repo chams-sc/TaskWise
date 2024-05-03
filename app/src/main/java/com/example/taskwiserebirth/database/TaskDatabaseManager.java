@@ -101,6 +101,32 @@ public class TaskDatabaseManager {
         });
     }
 
+    public void fetchTaskByName(TaskFetchListener listener, String taskName) {
+        if (user != null) {
+            Document taskNameFilter = new Document("owner_id", user.getId())
+                    .append("task_name", new Document("$regex", taskName).append("$options", "i"));
+
+            taskCollection.findOne(taskNameFilter).getAsync(task -> {
+                if (task.isSuccess()) {
+                    Document document = task.get();
+                    if (document != null) {
+                        Task taskFetched = documentToTask(document);
+                        List<Task> tasks = new ArrayList<>();
+                        tasks.add(taskFetched);
+
+                        if (listener != null) {
+                            listener.onTasksFetched(tasks);
+                        }
+                    } else {
+                        Toast.makeText(context, taskName + " is not found", Toast.LENGTH_SHORT).show();
+                    }
+                } else {
+                    Toast.makeText(context, "Failed to fetch task", Toast.LENGTH_SHORT).show();
+                }
+            });
+        }
+    }
+
     public void fetchSelectedDayTasks(TaskFetchListener listener, Date selectedDate) {
         if (user != null) {
             Document unfinishedFilter = new Document("owner_id", user.getId())
@@ -208,8 +234,7 @@ public class TaskDatabaseManager {
                 .append("reminder", task.isReminder())
                 .append("notes", task.getNotes())
                 .append("status", task.getStatus())
-                .append("date_finished", task.getDateFinished())
-                .append("creation_date", task.getCreationDate());
+                .append("date_finished", task.getDateFinished());
 
         if (task.getId() != null) {
             Document updateDocument = new Document("$set", taskDocument);

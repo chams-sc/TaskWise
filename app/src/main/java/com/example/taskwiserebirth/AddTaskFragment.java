@@ -173,7 +173,14 @@ public class AddTaskFragment extends Fragment implements DatabaseChangeListener,
     @Override
     public void onDestroyView() {
         super.onDestroyView();
+        dialogUtils.dismissDialogs();
+        dialogUtils = null;
         MongoDbRealmHelper.removeDatabaseChangeListener(this);
+    }
+    @Override
+    public void onPause() {
+        super.onPause();
+        dialogUtils.dismissDialogs();
     }
 
     @Override

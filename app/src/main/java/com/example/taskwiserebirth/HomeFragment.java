@@ -22,12 +22,7 @@ public class HomeFragment extends Fragment {
         collapseButton = view.findViewById(R.id.fullscreen_button);
         bottomNavigationView = getActivity().findViewById(R.id.bottomNavigationView); // Assuming bottom navigation view is defined in the activity layout
 
-        collapseButton.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                ((MainActivity) requireActivity()).toggleNavBarVisibility(false, false);
-            }
-        });
+        collapseButton.setOnClickListener(v -> ((MainActivity) requireActivity()).toggleNavBarVisibility(false, false));
 
         return view;
     }

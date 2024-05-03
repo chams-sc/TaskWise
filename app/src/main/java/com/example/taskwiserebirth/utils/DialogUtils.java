@@ -45,6 +45,7 @@ public class DialogUtils {
     private FragmentActivity activity;
     private String daysSelected = null;
     private TaskDatabaseManager taskDatabaseManager;
+    private List<Dialog> dialogs = new ArrayList<>();
 
     public DialogUtils (FragmentActivity activity, TaskDatabaseManager taskDatabaseManager) {
         this.activity = activity;
@@ -62,6 +63,7 @@ public class DialogUtils {
         setUpTaskForm(bottomSheetDialog, bottomSheetView, task);
 
         bottomSheetDialog.show();
+        dialogs.add(bottomSheetDialog);
     }
 
     private void setUpTaskForm(Dialog bottomSheetDialog, View bottomSheetView, Task task) {
@@ -141,6 +143,8 @@ public class DialogUtils {
                 .setTimeFormat(TimeFormat.CLOCK_12H)
                 .setInputMode(MaterialTimePicker.INPUT_MODE_CLOCK)
                 .setTitleText("Select Time")
+                .setHour(23)
+                .setMinute(59)
                 .setTheme(R.style.TimePickerTheme);
 
         MaterialTimePicker timePicker = timePickerBuilder.build();
@@ -233,12 +237,11 @@ public class DialogUtils {
         newTask.setNotes(notes);
         newTask.setStatus("Unfinished");
         newTask.setDateFinished(null);
-        newTask.setCreationDate(currentDate);
 
         return newTask;
     }
 
-    private String setAutomaticUrgency(String deadline) {
+    public static String setAutomaticUrgency(String deadline) {
         Date taskDeadline = CalendarUtils.parseDeadline(deadline);
         Date currentDate = new Date();
 
@@ -248,11 +251,11 @@ public class DialogUtils {
             long diffInMillis = taskDeadline.getTime()-currentDate.getTime();
             long diffInDays = TimeUnit.MILLISECONDS.toDays(diffInMillis);
             Log.d("NUM_DAYS", String.valueOf(diffInDays));
-            if (diffInDays > 8) {
+            if (diffInDays >= 8) {
                 return "Not Urgent";
-            } else if (diffInDays >= 2 && diffInDays <= 7) {
+            } else if (diffInDays >= 2) {
                 return "Somewhat Urgent";
-            } else if (diffInDays >= 1 && diffInDays <= 2) {
+            } else if (diffInDays >= 1) {
                 return "Urgent";
             } else {
                 return "Very Urgent";
@@ -386,6 +389,7 @@ public class DialogUtils {
         });
 
         bottomSheetDialog.show();
+        dialogs.add(bottomSheetDialog);
 
         WindowManager.LayoutParams layoutParams = new WindowManager.LayoutParams();
         Window window = bottomSheetDialog.getWindow();
@@ -422,5 +426,15 @@ public class DialogUtils {
             }
         }
         return false;
+    }
+
+    public void dismissDialogs() {
+        for (Dialog dialog : dialogs) {
+            if (dialog != null && dialog.isShowing()) {
+                dialog.dismiss();
+            }
+        }
+        // Clear the list of dialogs
+        dialogs.clear();
     }
 }

@@ -38,7 +38,6 @@ public class LoginActivity extends AppCompatActivity {
 
     private final String TAG = "MongoDb";
     private App app;
-    Button bottomlogin;
     private Dialog loginDialog;
     private Dialog registerDialog;
     public static final Integer RecordAudioRequestCode = 1;
@@ -58,8 +57,8 @@ public class LoginActivity extends AppCompatActivity {
 
         checkStatus();
 
-        bottomlogin = findViewById(R.id.before_button);
-        bottomlogin.setOnClickListener(v -> showLoginDialog());
+        Button bottomLogin = findViewById(R.id.before_button);
+        bottomLogin.setOnClickListener(v -> showLoginDialog());
 
         if (ContextCompat.checkSelfPermission(this, Manifest.permission.RECORD_AUDIO) != PackageManager.PERMISSION_GRANTED) {
             ActivityCompat.requestPermissions(this, new String[]{Manifest.permission.RECORD_AUDIO}, RecordAudioRequestCode);
@@ -248,7 +247,7 @@ public class LoginActivity extends AppCompatActivity {
             Toast.makeText(getApplicationContext(), "Unknown error occurred", Toast.LENGTH_SHORT).show();
         }
     }
-    // Prevent leaked window
+
     @Override
     protected void onPause() {
         super.onPause();
@@ -264,9 +263,11 @@ public class LoginActivity extends AppCompatActivity {
     private void dismissDialogs() {
         if (loginDialog != null && loginDialog.isShowing()) {
             loginDialog.dismiss();
+            loginDialog = null;
         }
         if (registerDialog != null && registerDialog.isShowing()) {
             registerDialog.dismiss();
+            registerDialog = null;
         }
     }
 }

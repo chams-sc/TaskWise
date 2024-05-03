@@ -7,7 +7,6 @@ import java.util.Date;
 public class Task {
     private ObjectId id;
     private String taskName;
-    private Date creationDate;
     private String deadline;
     private String recurrence;
     private String schedule;
@@ -52,14 +51,6 @@ public class Task {
 
     public void setTaskName(String taskName) {
         this.taskName = taskName;
-    }
-
-    public Date getCreationDate() {
-        return creationDate;
-    }
-
-    public void setCreationDate(Date creationDate) {
-        this.creationDate = creationDate;
     }
 
     public String getDeadline() {

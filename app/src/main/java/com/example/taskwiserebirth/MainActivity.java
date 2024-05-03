@@ -52,9 +52,10 @@ public class MainActivity extends AppCompatActivity {
     private void replaceFragment(Fragment fragment) {
         FragmentManager fragmentManager = getSupportFragmentManager();
         FragmentTransaction fragmentTransaction = fragmentManager.beginTransaction();
+
         // Check if there's already a fragment attached, and remove it if necessary
         Fragment currentFragment = fragmentManager.findFragmentById(R.id.frame_layout);
-        if (currentFragment != null) {
+        if (currentFragment != null && currentFragment.isAdded()) {
             fragmentTransaction.remove(currentFragment);
         }
         fragmentTransaction.replace(R.id.frame_layout, fragment);
