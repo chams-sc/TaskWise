@@ -24,9 +24,9 @@ import java.util.List;
 
 public class TaskAdapter extends RecyclerView.Adapter<TaskViewHolder> {
 
-    private Context context;
+    private final Context context;
     private List<Task> tasks;
-    private TaskActionListener actionListener;
+    private final TaskActionListener actionListener;
     private Date selectedDate;
     private final int closeToDueHours = 12;
 

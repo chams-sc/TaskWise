@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="utf-8"?>
+<network-security-config>
+    <domain-config cleartextTrafficPermitted="true">
+        <domain includeSubdomains="true">clearly-legible-akita.ngrok-free.app</domain>
+        <!-- Add more <domain> elements for additional hosts -->
+    </domain-config>
+</network-security-config>

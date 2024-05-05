@@ -10,9 +10,13 @@ import com.example.taskwiserebirth.R;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Calendar;
 import java.util.Date;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
+import java.util.regex.Pattern;
 
 public class CalendarUtils {
 
@@ -87,4 +91,60 @@ public class CalendarUtils {
             return null;
         }
     }
+
+    /**
+     * Checks if the given date is accepted based on current date.
+     *
+     * @param date The date string to be checked.
+     * @return {@code true} if the given date is after the current date, {@code false} otherwise.
+     */
+    public static boolean isDateAccepted(String date) {
+        Date currentDate = new Date();
+        Date parsedDate = CalendarUtils.parseDeadline(date);
+        return parsedDate != null && parsedDate.after(currentDate);
+    }
+
+    public static boolean isRecurrenceAccepted(String recurrence) {
+        Pattern RECURRENCE_PATTERN = Pattern.compile("^(Monday|Tuesday|Wednesday|Thursday|Friday|Saturday|Sunday)(,\\s*(Monday|Tuesday|Wednesday|Thursday|Friday|Saturday|Sunday))*$");
+
+        return RECURRENCE_PATTERN.matcher(recurrence).matches();
+    }
+
+    public static String formatRecurrence(String value) {
+        StringBuilder formattedRecurrence = new StringBuilder();
+        Set<String> days = new HashSet<>(Arrays.asList(value.split(",\\s*")));
+
+        for (String day : ValidValues.VALID_RECURRENCE_LEVELS) {
+            if (days.contains(day)) {
+                if (formattedRecurrence.length() > 0) {
+                    formattedRecurrence.append(" | ");
+                }
+                formattedRecurrence.append(getAbbreviation(day));
+            }
+        }
+
+        return formattedRecurrence.toString();
+    }
+
+    private static String getAbbreviation(String day) {
+        switch (day) {
+            case "Monday":
+                return "M";
+            case "Tuesday":
+                return "T";
+            case "Wednesday":
+                return "W";
+            case "Thursday":
+                return "Th";
+            case "Friday":
+                return "F";
+            case "Saturday":
+                return "Sa";
+            case "Sunday":
+                return "Su";
+            default:
+                return "";
+        }
+    }
+
 }

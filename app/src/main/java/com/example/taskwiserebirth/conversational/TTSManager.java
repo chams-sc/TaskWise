@@ -58,6 +58,7 @@ public class TTSManager {
         if (tts != null) {
             tts.stop();
             tts.shutdown();
+            tts = null;
         }
     }
 }

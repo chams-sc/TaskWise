@@ -25,11 +25,11 @@ import androidx.core.app.ActivityCompat;
 import androidx.core.content.ContextCompat;
 
 import com.example.taskwiserebirth.database.MongoDbRealmHelper;
+import com.example.taskwiserebirth.utils.SystemUIHelper;
 
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-import io.realm.Realm;
 import io.realm.mongodb.App;
 import io.realm.mongodb.AppException;
 import io.realm.mongodb.Credentials;
@@ -51,8 +51,6 @@ public class LoginActivity extends AppCompatActivity {
 
         SystemUIHelper.setSystemUIVisibility(this);
 
-        // First Initialization of Realm
-        Realm.init(this);
         app = MongoDbRealmHelper.initializeRealmApp();
 
         checkStatus();

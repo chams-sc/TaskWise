@@ -15,12 +15,10 @@ public class TaskViewPagerAdapter extends FragmentStateAdapter {
     @Override
     public Fragment createFragment(int position) {
         switch (position) {
-            case 0:
-                return new UnfinishedTaskFragment();
             case 1:
                 return new FinishedTaskFragment();
             default:
-                return new AddTaskFragment();
+                return new UnfinishedTaskFragment();
         }
     }
 

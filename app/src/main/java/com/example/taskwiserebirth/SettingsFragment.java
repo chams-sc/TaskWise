@@ -1,6 +1,7 @@
 package com.example.taskwiserebirth;
 
 import android.os.Bundle;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -9,6 +10,7 @@ import android.widget.Button;
 import androidx.fragment.app.Fragment;
 
 import com.example.taskwiserebirth.conversational.SpeechSynthesis;
+import com.example.taskwiserebirth.utils.CalendarUtils;
 
 
 public class SettingsFragment extends Fragment {
@@ -23,6 +25,8 @@ public class SettingsFragment extends Fragment {
             @Override
             public void onClick(View v) {
                 SpeechSynthesis.synthesizeSpeechAsync("I like carrots and purple");
+                String test = String.valueOf(CalendarUtils.isDateAccepted("hey there"));
+                Log.w("TEST", test);
             }
         });
 

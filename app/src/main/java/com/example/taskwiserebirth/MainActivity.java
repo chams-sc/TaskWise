@@ -10,6 +10,7 @@ import androidx.fragment.app.Fragment;
 import androidx.fragment.app.FragmentManager;
 import androidx.fragment.app.FragmentTransaction;
 
+import com.example.taskwiserebirth.utils.SystemUIHelper;
 import com.google.android.material.bottomnavigation.BottomNavigationView;
 
 public class MainActivity extends AppCompatActivity {
@@ -49,7 +50,7 @@ public class MainActivity extends AppCompatActivity {
         });
     }
 
-    private void replaceFragment(Fragment fragment) {
+    public void replaceFragment(Fragment fragment) {
         FragmentManager fragmentManager = getSupportFragmentManager();
         FragmentTransaction fragmentTransaction = fragmentManager.beginTransaction();
 
@@ -65,7 +66,7 @@ public class MainActivity extends AppCompatActivity {
     /**
      * Toggles the visibility of the navigation bar.
      *
-     * @param visible        true to make the navigation bar visible, false to hide it
+     * @param visible        true to make the navigation bar visible when scrolling up, false to hide it
      * @param isScrollToggle true if the toggle action involves scrolling, false otherwise
      */
     public void toggleNavBarVisibility(boolean visible, boolean isScrollToggle) {
@@ -95,6 +96,5 @@ public class MainActivity extends AppCompatActivity {
             SystemUIHelper.setFlagsOnThePeekView();
         }
     }
-
 
 }

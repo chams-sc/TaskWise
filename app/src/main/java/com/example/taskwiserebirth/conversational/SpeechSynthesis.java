@@ -63,4 +63,9 @@ public class SpeechSynthesis {
                 "    </voice>\n" +
                 "</speak>";
     }
+
+    // Shutdown ExecutorService
+    public static void shutdown() {
+        executor.shutdown();
+    }
 }

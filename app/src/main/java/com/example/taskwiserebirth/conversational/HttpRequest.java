@@ -22,16 +22,26 @@ import okhttp3.Response;
 public class HttpRequest {
 
     // NGROK command: ngrok http --domain=clearly-legible-akita.ngrok-free.app 5000
-    private static final String SERVER_ADDRESS = "https://clearly-legible-akita.ngrok-free.app/";
+    private static final String SERVER_ADDRESS = "https://taskwise.michacaldaira.com/";
+    private static String GET_TASK_DETAIL = "task_detail";
 
-    public static void sendRequest(String userMessage, String aiName, final HttpRequestCallback callback) {
+
+    // add boolean isTurnBased if true change server address
+    public static void sendRequest(String userMessage, String aiName, boolean inTurnBasedInteraction, final HttpRequestCallback callback) {
         OkHttpClient client = new OkHttpClient();
 
         MediaType JSON = MediaType.parse("application/json; charset=utf-8");
         String requestBody = "{\"user_prompt\": \"" + userMessage + "\", \"ai_name\": \"" + aiName + "\"}";
 
+        String url;
+        if (inTurnBasedInteraction) {
+            url = SERVER_ADDRESS + GET_TASK_DETAIL;
+        } else {
+            url = SERVER_ADDRESS;
+        }
+
         Request request = new Request.Builder()
-                .url(SERVER_ADDRESS)
+                .url(url)
                 .post(RequestBody.create(requestBody, JSON))
                 .build();
 

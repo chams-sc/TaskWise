@@ -1,4 +1,4 @@
-package com.example.taskwiserebirth;
+package com.example.taskwiserebirth.utils;
 
 import android.app.Dialog;
 import android.os.Build;

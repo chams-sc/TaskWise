@@ -6,9 +6,10 @@ import android.os.Handler;
 
 import androidx.appcompat.app.AppCompatActivity;
 
+import com.example.taskwiserebirth.utils.SystemUIHelper;
+
 public class SplashActivity extends AppCompatActivity {
 
-    // TODO: Rename to SplashActivity
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -16,16 +17,13 @@ public class SplashActivity extends AppCompatActivity {
 
         SystemUIHelper.setSystemUIVisibility(this);
 
-        new Handler().postDelayed(new Runnable() {
-            @Override
-            public void run() {
-                // Start the main activity after the splash time has elapsed
-                Intent intent = new Intent(SplashActivity.this, LoginActivity.class);
-                startActivity(intent);
+        new Handler().postDelayed(() -> {
+            // Start the main activity after the splash time has elapsed
+            Intent intent = new Intent(SplashActivity.this, LoginActivity.class);
+            startActivity(intent);
 
-                // Close the splash activity to prevent going back to it
-                finish();
-            }
+            // Close the splash activity to prevent going back to it
+            finish();
         }, 2000); // 2 seconds
     }
 }

@@ -23,7 +23,6 @@ import androidx.fragment.app.FragmentActivity;
 
 import com.example.taskwiserebirth.CustomSpinnerAdapter;
 import com.example.taskwiserebirth.R;
-import com.example.taskwiserebirth.SystemUIHelper;
 import com.example.taskwiserebirth.database.TaskDatabaseManager;
 import com.example.taskwiserebirth.task.Task;
 import com.google.android.material.bottomsheet.BottomSheetDialog;

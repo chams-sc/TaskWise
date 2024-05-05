@@ -11,7 +11,6 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.core.widget.NestedScrollView;
 import androidx.fragment.app.Fragment;
-import androidx.fragment.app.FragmentTransaction;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.LinearSmoothScroller;
 import androidx.recyclerview.widget.RecyclerView;
@@ -75,11 +74,8 @@ public class AddTaskFragment extends Fragment implements DatabaseChangeListener,
         LinearLayout todayTaskContainer = rootView.findViewById(R.id.viewAllContainer);
         todayTaskContainer.setOnClickListener(v -> {
             // Navigate to All Task Fragment
-            AllTaskFragment fragmentAllTask = new AllTaskFragment();
-            FragmentTransaction transaction = getFragmentManager().beginTransaction();
-            transaction.replace(R.id.frame_layout, fragmentAllTask);
-            transaction.addToBackStack(null);
-            transaction.commit();
+            AllTaskFragment allTaskFragment = new AllTaskFragment();
+            ((MainActivity) requireActivity()).replaceFragment(allTaskFragment);
         });
 
         return rootView;
@@ -176,6 +172,8 @@ public class AddTaskFragment extends Fragment implements DatabaseChangeListener,
         dialogUtils.dismissDialogs();
         dialogUtils = null;
         MongoDbRealmHelper.removeDatabaseChangeListener(this);
+        rootView = null;
+        taskAdapter = null;
     }
     @Override
     public void onPause() {

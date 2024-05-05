@@ -111,5 +111,7 @@ public class FinishedTaskFragment extends Fragment implements TaskAdapter.TaskAc
     public void onDestroyView() {
         super.onDestroyView();
         MongoDbRealmHelper.removeDatabaseChangeListener(this);
+        taskAdapter = null;
+        dialogUtils.dismissDialogs();
     }
 }

@@ -28,15 +28,20 @@ public class SpeechRecognition {
     private final Context context;
     private final FloatingActionButton speakBtn;
     private final SpeechRecognitionListener listener;
+    private boolean isListening = false;
 
     public interface SpeechRecognitionListener {
         void onSpeechRecognized(String recognizedSpeech);
     }
 
     public SpeechRecognition(Context context, FloatingActionButton speakBtn, SpeechRecognitionListener listener) {
-        this.context = context;
+        this.context = context.getApplicationContext();
         this.speakBtn = speakBtn;
         this.listener = listener;
+    }
+
+    public boolean isListening() {
+        return isListening;
     }
 
     public void startSpeechRecognition() {
@@ -45,6 +50,7 @@ public class SpeechRecognition {
         } else {
             Toast.makeText(context, "Permission is needed for speech recognition to work.", Toast.LENGTH_SHORT).show();
         }
+        isListening = true;
     }
 
     private void initializeSpeechRecognizer() {
@@ -94,6 +100,7 @@ public class SpeechRecognition {
                 } else {
                     Toast.makeText(context, "No speech recognized", Toast.LENGTH_SHORT).show();
                 }
+                speakBtn.setImageDrawable(ContextCompat.getDrawable(context, R.drawable.mic_standby));
             }
 
             @Override
@@ -107,6 +114,18 @@ public class SpeechRecognition {
         speechRecognizerIntent.putExtra(RecognizerIntent.EXTRA_LANGUAGE_MODEL, RecognizerIntent.LANGUAGE_MODEL_FREE_FORM);
         speechRecognizerIntent.putExtra(RecognizerIntent.EXTRA_LANGUAGE, Locale.getDefault());
         speechRecognizer.startListening(speechRecognizerIntent);
+    }
+
+
+    public void stopSpeechRecognition() {
+        isListening = false;
+        speakBtn.setImageDrawable(ContextCompat.getDrawable(context, R.drawable.mic_standby));
+        if (speechRecognizer != null) {
+            speechRecognizer.stopListening();
+            speechRecognizer.cancel();
+            speechRecognizer.destroy();
+            speechRecognizer = null;
+        }
     }
 
     private boolean checkPermission() {
@@ -131,14 +150,6 @@ public class SpeechRecognition {
             return false;
         } else {
             return true;
-        }
-    }
-
-    public void stopSpeechRecognition() {
-        if (speechRecognizer != null) {
-            speechRecognizer.stopListening();
-            speechRecognizer.cancel();
-            speechRecognizer.destroy();
         }
     }
 }
