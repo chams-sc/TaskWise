@@ -15,7 +15,7 @@ import com.example.taskwiserebirth.task.Task;
 
 public class TaskDetailFragment extends Fragment {
 
-    private Task task;
+    private final Task task;
 
     public TaskDetailFragment (Task task) {
         this.task = task;
@@ -27,12 +27,7 @@ public class TaskDetailFragment extends Fragment {
         View rootView = inflater.inflate(R.layout.fragment_task_detail, container, false);
 
         ImageView backArrowImageView = rootView.findViewById(R.id.back_arrow);
-        backArrowImageView.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                requireActivity().getOnBackPressedDispatcher().onBackPressed();
-            }
-        });
+        backArrowImageView.setOnClickListener(v -> requireActivity().getOnBackPressedDispatcher().onBackPressed());
 
         setUpTaskDetail(rootView);
 
