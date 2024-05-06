@@ -117,7 +117,7 @@
                 android:fontFamily="@font/inter_semibold"
                 android:textColor="@color/dark"
                 android:textSize="16dp"
-                tools:text="-" />
+                android:text="-" />
 
             <TextView
                 android:id="@+id/deadlineDetail"
