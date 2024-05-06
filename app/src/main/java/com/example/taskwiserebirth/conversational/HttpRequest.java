@@ -68,9 +68,9 @@ public class HttpRequest {
                 try {
                     if (!response.isSuccessful()) {
                         if (response.code() == 404) {
-                            callback.onFailure("Sorry, server is not available at the moment");
+                            callback.onFailure("Page not found");
                         } else if (response.code() == 502) {
-                            callback.onFailure("The server encountered an error while trying to fulfill the request");
+                            callback.onFailure("Sorry, server is not available at the moment");
                         } else {
                             callback.onFailure("Unexpected code: " + response.code());
                         }

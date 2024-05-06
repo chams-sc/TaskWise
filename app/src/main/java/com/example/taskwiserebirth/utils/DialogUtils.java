@@ -53,7 +53,7 @@ public class DialogUtils {
 
     public void showBottomSheetDialog(Task task) {
         final BottomSheetDialog bottomSheetDialog = new BottomSheetDialog(activity);
-        View bottomSheetView = LayoutInflater.from(activity).inflate(R.layout.add_task, null);
+        View bottomSheetView = LayoutInflater.from(activity).inflate(R.layout.bottom_add_task, null);
         bottomSheetDialog.setContentView(bottomSheetView);
 
         SystemUIHelper.adjustDialog((AppCompatActivity) activity, bottomSheetDialog);
