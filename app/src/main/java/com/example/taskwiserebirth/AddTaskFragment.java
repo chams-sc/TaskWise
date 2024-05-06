@@ -110,8 +110,8 @@ public class AddTaskFragment extends Fragment implements DatabaseChangeListener,
         calendarRecyclerView.setAdapter(calendarAdapter);
 
         scrollToCurrentDatePosition(calendarRecyclerView, calendarList);
-        TextView monthTextView = rootView.findViewById(R.id.monthTxt);
-        monthTextView.setOnClickListener(new View.OnClickListener() {
+
+        currentMonth.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 scrollToCurrentDatePosition(calendarRecyclerView, calendarList);

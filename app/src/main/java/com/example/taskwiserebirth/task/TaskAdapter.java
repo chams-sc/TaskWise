@@ -19,7 +19,7 @@ import androidx.fragment.app.FragmentTransaction;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.example.taskwiserebirth.R;
-import com.example.taskwiserebirth.Viewer_Card;
+import com.example.taskwiserebirth.TaskDetailFragment;
 import com.example.taskwiserebirth.utils.CalendarUtils;
 
 import java.util.Date;
@@ -69,8 +69,7 @@ public class TaskAdapter extends RecyclerView.Adapter<TaskViewHolder> {
         holder.imageView.setOnClickListener(v -> showPopupMenu(v, currentTask));
 
         holder.itemView.setOnClickListener(v -> {
-            // Navigate to Fragment Viewer Card
-            Viewer_Card fragmentViewerCard = new Viewer_Card(); // Assuming ViewerCardFragment is the name of your Fragment
+            TaskDetailFragment fragmentViewerCard = new TaskDetailFragment(currentTask);
             FragmentTransaction transaction = ((AppCompatActivity) context).getSupportFragmentManager().beginTransaction();
             transaction.replace(R.id.frame_layout, fragmentViewerCard);
             transaction.addToBackStack(null);
