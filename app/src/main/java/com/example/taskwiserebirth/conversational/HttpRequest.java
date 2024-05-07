@@ -10,6 +10,7 @@ import org.json.JSONObject;
 import java.io.IOException;
 import java.net.SocketTimeoutException;
 import java.net.UnknownHostException;
+import java.util.concurrent.TimeUnit;
 
 import okhttp3.Call;
 import okhttp3.Callback;
@@ -21,17 +22,29 @@ import okhttp3.Response;
 
 public class HttpRequest {
 
-    // NGROK command: ngrok http --domain=clearly-legible-akita.ngrok-free.app 5000
     private static final String SERVER_ADDRESS = "https://taskwise.michacaldaira.com/";
     private static String GET_TASK_DETAIL = "task_detail";
 
 
     // add boolean isTurnBased if true change server address
-    public static void sendRequest(String userMessage, String aiName, boolean inTurnBasedInteraction, final HttpRequestCallback callback) {
-        OkHttpClient client = new OkHttpClient();
+    public static void sendRequest(String userMessage, String aiName, String userId, boolean inTurnBasedInteraction, final HttpRequestCallback callback) {
+        OkHttpClient client = new OkHttpClient.Builder()
+                .connectTimeout(1, TimeUnit.MINUTES) // Set connection timeout
+                .readTimeout(1, TimeUnit.MINUTES) // Set read timeout
+                .writeTimeout(1, TimeUnit.MINUTES) // Set write timeout
+                .build();
 
         MediaType JSON = MediaType.parse("application/json; charset=utf-8");
-        String requestBody = "{\"user_prompt\": \"" + userMessage + "\", \"ai_name\": \"" + aiName + "\"}";
+        JSONObject requestBodyJson = new JSONObject();
+        try {
+            requestBodyJson.put("user_prompt", userMessage);
+            requestBodyJson.put("ai_name", aiName);
+            requestBodyJson.put("user_id", userId);
+        } catch (JSONException e) {
+            e.printStackTrace();
+        }
+
+        RequestBody requestBody = RequestBody.create(requestBodyJson.toString(), JSON);
 
         String url;
         if (inTurnBasedInteraction) {
@@ -42,7 +55,7 @@ public class HttpRequest {
 
         Request request = new Request.Builder()
                 .url(url)
-                .post(RequestBody.create(requestBody, JSON))
+                .post(requestBody)
                 .build();
 
         client.newCall(request).enqueue(new Callback() {

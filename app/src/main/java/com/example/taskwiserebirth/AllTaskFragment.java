@@ -1,73 +1,79 @@
 package com.example.taskwiserebirth;
 
 import android.os.Bundle;
+import android.os.Handler;
+import android.os.Looper;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageView;
 
+import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
 import androidx.viewpager2.widget.ViewPager2;
 
 import com.google.android.material.tabs.TabLayout;
+import com.google.android.material.tabs.TabLayoutMediator;
 
 public class AllTaskFragment extends Fragment {
 
+    private ViewPager2 viewPager;
     private TabLayout tabLayout;
-    private ViewPager2 viewPager2;
-    private TaskViewPagerAdapter taskViewPagerAdapter;
+    private int selectedTabIndex = 0;
 
+    @Nullable
     @Override
-    public View onCreateView(LayoutInflater inflater, ViewGroup container,
-                             Bundle savedInstanceState) {
+    public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
         View rootView = inflater.inflate(R.layout.fragment_all_task, container, false);
 
         ImageView imageView = rootView.findViewById(R.id.back_arrow);
-        imageView.setOnClickListener(v -> {
-            // Navigate to Add Task Fragment
-            AddTaskFragment addTaskFragment = new AddTaskFragment();
-            ((MainActivity) requireActivity()).replaceFragment(addTaskFragment);
+        imageView.setOnClickListener(v -> requireActivity().getSupportFragmentManager().popBackStack());
+
+        viewPager = rootView.findViewById(R.id.view_pager);
+        tabLayout = rootView.findViewById(R.id.tab_layout);
+
+        TaskPagerAdapter pagerAdapter = new TaskPagerAdapter(requireActivity());
+        viewPager.setAdapter(pagerAdapter);
+
+        new TabLayoutMediator(tabLayout, viewPager, (tab, position) -> {
+            if (position == 0) {
+                tab.setText("Unfinished");
+            } else if (position == 1) {
+                tab.setText("Finished");
+            }
+        }).attach();
+
+        // Set the saved selected tab index
+        viewPager.post(() -> {
+            viewPager.setCurrentItem(selectedTabIndex, false);
+            viewPager.registerOnPageChangeCallback(new ViewPager2.OnPageChangeCallback() {
+                @Override
+                public void onPageSelected(int position) {
+                    super.onPageSelected(position);
+                    selectedTabIndex = position;
+                }
+            });
         });
 
-        tabLayout = rootView.findViewById(R.id.tab_layout);
-        viewPager2 = rootView.findViewById(R.id.view_pager);
-        taskViewPagerAdapter = new TaskViewPagerAdapter(requireActivity());
-        viewPager2.setAdapter(taskViewPagerAdapter);
-
-        tabLayout.addOnTabSelectedListener(tabSelectedListener);
-        viewPager2.registerOnPageChangeCallback(pageChangeCallback);
+        viewPager.setSaveEnabled(false);
 
         return rootView;
     }
 
-    private final TabLayout.OnTabSelectedListener tabSelectedListener = new TabLayout.OnTabSelectedListener() {
-        @Override
-        public void onTabSelected(TabLayout.Tab tab) {
-            viewPager2.setCurrentItem(tab.getPosition());
-        }
-
-        @Override
-        public void onTabUnselected(TabLayout.Tab tab) {}
-
-        @Override
-        public void onTabReselected(TabLayout.Tab tab) {}
-    };
-
-    private final ViewPager2.OnPageChangeCallback pageChangeCallback = new ViewPager2.OnPageChangeCallback() {
-        @Override
-        public void onPageSelected(int position) {
-            super.onPageSelected(position);
-            tabLayout.getTabAt(position).select();
-        }
-    };
+    public void setSelectedTabIndex(int index) {
+        selectedTabIndex = index;
+    }
 
     @Override
     public void onDestroyView() {
         super.onDestroyView();
-        tabLayout.removeOnTabSelectedListener(tabSelectedListener);
-        viewPager2.unregisterOnPageChangeCallback(pageChangeCallback);
-        tabLayout = null;
-        viewPager2 = null;
-        taskViewPagerAdapter = null;
+        // Postpone the removal of fragments until after the current transaction is completed
+        new Handler(Looper.getMainLooper()).post(() -> {
+            // Release ViewPager2 and its adapter
+            viewPager.setAdapter(null);
+            viewPager = null;
+            tabLayout = null;
+        });
     }
 }

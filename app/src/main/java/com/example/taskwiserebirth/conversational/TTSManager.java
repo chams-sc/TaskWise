@@ -44,7 +44,7 @@ public class TTSManager {
 
         Set<Voice> voices = tts.getVoices();
         List<Voice> voiceList = new ArrayList<>(voices);
-        Voice selectedVoice = voiceList.get(0); // Change to the desired voice index
+        Voice selectedVoice = voiceList.get(1); // Change to the desired voice index
         tts.setVoice(selectedVoice);
     }
 

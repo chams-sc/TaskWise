@@ -19,6 +19,7 @@ import com.bin4rybros.demo.LAppDelegate;
 import com.example.taskwiserebirth.conversational.HttpRequest;
 import com.example.taskwiserebirth.conversational.SpeechRecognition;
 import com.example.taskwiserebirth.conversational.TTSManager;
+import com.example.taskwiserebirth.database.ConversationDbManager;
 import com.example.taskwiserebirth.database.MongoDbRealmHelper;
 import com.example.taskwiserebirth.database.TaskDatabaseManager;
 import com.example.taskwiserebirth.task.Task;
@@ -40,6 +41,8 @@ public class Live2DFragment extends Fragment implements View.OnTouchListener, Sp
     private SpeechRecognition speechRecognition;
     private TTSManager ttsManager;
     private TaskDatabaseManager taskDatabaseManager;
+    private ConversationDbManager conversationDbManager;
+    private User user;
     private Task finalTask;
     private boolean inTurnBasedInteraction = false;
     private boolean isUserDone = false;
@@ -51,9 +54,10 @@ public class Live2DFragment extends Fragment implements View.OnTouchListener, Sp
         View view = inflater.inflate(R.layout.fragment_live2d, container, false);
 
         App app = MongoDbRealmHelper.initializeRealmApp();
-        User user = app.currentUser();
+        user = app.currentUser();
 
         taskDatabaseManager = new TaskDatabaseManager(user, requireContext());
+        conversationDbManager = new ConversationDbManager(user);
 
         ImageButton collapseBtn = view.findViewById(R.id.fullscreen_button);
         FloatingActionButton speakBtn = view.findViewById(R.id.speakBtn);
@@ -305,7 +309,8 @@ public class Live2DFragment extends Fragment implements View.OnTouchListener, Sp
     @Override
     public void onSpeechRecognized(String recognizedSpeech) {
         Toast.makeText(requireContext(), "User: " + recognizedSpeech, Toast.LENGTH_SHORT).show();
-        HttpRequest.sendRequest(recognizedSpeech, aiName, inTurnBasedInteraction, new HttpRequest.HttpRequestCallback() {
+        conversationDbManager.insertDialogue(recognizedSpeech, false);
+        HttpRequest.sendRequest(recognizedSpeech, aiName, user.getId(), inTurnBasedInteraction, new HttpRequest.HttpRequestCallback() {
             @Override
             public void onSuccess(String intent, String responseText) {
                 new Handler(Looper.getMainLooper()).post(() -> {
@@ -318,6 +323,7 @@ public class Live2DFragment extends Fragment implements View.OnTouchListener, Sp
                         } else {
                             Toast.makeText(requireContext(), String.format("%s: %s", aiName, responseText), Toast.LENGTH_LONG).show();
                             ttsManager.convertTextToSpeech(responseText);
+                            conversationDbManager.insertDialogue(responseText, true);
                         }
                     }
                 });

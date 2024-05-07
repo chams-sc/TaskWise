@@ -41,10 +41,10 @@ import java.util.Locale;
 import java.util.concurrent.TimeUnit;
 
 public class DialogUtils {
-    private FragmentActivity activity;
+    private final FragmentActivity activity;
     private String daysSelected = null;
-    private TaskDatabaseManager taskDatabaseManager;
-    private List<Dialog> dialogs = new ArrayList<>();
+    private final TaskDatabaseManager taskDatabaseManager;
+    private final List<Dialog> dialogs = new ArrayList<>();
 
     public DialogUtils (FragmentActivity activity, TaskDatabaseManager taskDatabaseManager) {
         this.activity = activity;
@@ -303,13 +303,13 @@ public class DialogUtils {
         // Check required fields
         boolean validFields = true;
         if (taskName.getText().toString().trim().isEmpty()) {
-            taskName.setError("Task name is required");
+            taskName.setError("Required field");
             validFields = false;
         }
 
         if (!validFields || !validDeadline || !validSchedule) {
             if (!validFields) {
-                Toast.makeText(activity, "Missing required fields", Toast.LENGTH_SHORT).show();
+                Toast.makeText(activity, "Task name is required", Toast.LENGTH_SHORT).show();
             } else if (!validDeadline) {
                 Toast.makeText(activity, "Deadline cannot be earlier than current date and time", Toast.LENGTH_SHORT).show();
             } else {
@@ -342,7 +342,7 @@ public class DialogUtils {
 
             @Override
             public void onNothingSelected(AdapterView<?> parent) {
-                // Handle nothing selected if needed
+
             }
         });
     }

@@ -77,7 +77,7 @@ public class AddTaskFragment extends Fragment implements DatabaseChangeListener,
         todayTaskContainer.setOnClickListener(v -> {
             // Navigate to All Task Fragment
             AllTaskFragment allTaskFragment = new AllTaskFragment();
-            ((MainActivity) requireActivity()).replaceFragment(allTaskFragment);
+            ((MainActivity) requireActivity()).replaceFragment(allTaskFragment, true);
         });
 
         return rootView;
@@ -141,7 +141,7 @@ public class AddTaskFragment extends Fragment implements DatabaseChangeListener,
         RecyclerView cardRecyclerView = rootView.findViewById(R.id.tasksRecyclerView);
 
         List<Task> tasks = new ArrayList<>();
-        taskAdapter = new TaskAdapter(requireContext(), tasks,this);
+        taskAdapter = new TaskAdapter(requireContext(), tasks, this);
 
         cardRecyclerView.setLayoutManager(new LinearLayoutManager(requireContext()));
         cardRecyclerView.setAdapter(taskAdapter);

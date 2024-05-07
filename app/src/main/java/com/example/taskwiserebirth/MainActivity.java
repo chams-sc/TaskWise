@@ -63,6 +63,28 @@ public class MainActivity extends AppCompatActivity {
         fragmentTransaction.commit();
     }
 
+    public void replaceFragment(Fragment fragment, boolean addToBackStack) {
+        FragmentManager fragmentManager = getSupportFragmentManager();
+        FragmentTransaction fragmentTransaction = fragmentManager.beginTransaction();
+
+        // Check if there's already a fragment attached, and remove it if necessary
+        Fragment currentFragment = fragmentManager.findFragmentById(R.id.frame_layout);
+        if (currentFragment != null && currentFragment.isAdded()) {
+            fragmentTransaction.remove(currentFragment);
+        }
+
+        // Replace the fragment
+        fragmentTransaction.replace(R.id.frame_layout, fragment);
+
+        // Add to back stack if requiredS
+        if (addToBackStack) {
+            fragmentTransaction.addToBackStack(null); // You can provide a tag if needed
+        }
+
+        fragmentTransaction.commit();
+    }
+
+
     /**
      * Toggles the visibility of the navigation bar.
      *

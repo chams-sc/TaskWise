@@ -17,6 +17,7 @@ public class TaskDetailFragment extends Fragment {
 
     private final Task task;
 
+
     public TaskDetailFragment (Task task) {
         this.task = task;
     }
@@ -27,7 +28,7 @@ public class TaskDetailFragment extends Fragment {
         View rootView = inflater.inflate(R.layout.fragment_task_detail, container, false);
 
         ImageView backArrowImageView = rootView.findViewById(R.id.back_arrow);
-        backArrowImageView.setOnClickListener(v -> requireActivity().getOnBackPressedDispatcher().onBackPressed());
+        backArrowImageView.setOnClickListener(v -> requireActivity().getSupportFragmentManager().popBackStack());
 
         setUpTaskDetail(rootView);
 

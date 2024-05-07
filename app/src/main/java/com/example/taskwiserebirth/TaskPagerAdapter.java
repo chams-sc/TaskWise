@@ -5,9 +5,9 @@ import androidx.fragment.app.Fragment;
 import androidx.fragment.app.FragmentActivity;
 import androidx.viewpager2.adapter.FragmentStateAdapter;
 
-public class TaskViewPagerAdapter extends FragmentStateAdapter {
+public class TaskPagerAdapter extends FragmentStateAdapter {
 
-    public TaskViewPagerAdapter(@NonNull FragmentActivity fragmentActivity) {
+    public TaskPagerAdapter(@NonNull FragmentActivity fragmentActivity) {
         super(fragmentActivity);
     }
 
@@ -15,10 +15,12 @@ public class TaskViewPagerAdapter extends FragmentStateAdapter {
     @Override
     public Fragment createFragment(int position) {
         switch (position) {
+            case 0:
+                return new UnfinishedTaskFragment();
             case 1:
                 return new FinishedTaskFragment();
             default:
-                return new UnfinishedTaskFragment();
+                throw new IllegalArgumentException("Invalid position: " + position);
         }
     }
 

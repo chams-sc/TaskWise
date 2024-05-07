@@ -50,6 +50,11 @@ public class FinishedTaskFragment extends Fragment implements TaskAdapter.TaskAc
 
         setUpUnfinishedRecyclerView(rootView);
 
+        // Set the selected tab index
+        if (getParentFragment() instanceof AllTaskFragment) {
+            ((AllTaskFragment) getParentFragment()).setSelectedTabIndex(1);
+        }
+
         return rootView;
     }
 
@@ -66,17 +71,14 @@ public class FinishedTaskFragment extends Fragment implements TaskAdapter.TaskAc
     }
 
     private void updateUnfinishedRecyclerView() {
-        taskDatabaseManager.fetchAllTasks(new TaskDatabaseManager.TaskFetchListener() {
-            @Override
-            public void onTasksFetched(List<Task> tasks) {
-                List<Task> sortedTasks = TaskPriorityCalculator.sortTasksByPriority(tasks, new Date());
+        taskDatabaseManager.fetchAllTasks(tasks -> {
+            List<Task> sortedTasks = TaskPriorityCalculator.sortTasksByPriority(tasks, new Date());
 
-                if (isAdded()) {
-                    requireActivity().runOnUiThread(() -> {
-                        taskAdapter.setTasks(sortedTasks);
-                        taskAdapter.setSelectedDate(new Date());
-                    });
-                }
+            if (isAdded()) {
+                requireActivity().runOnUiThread(() -> {
+                    taskAdapter.setTasks(sortedTasks);
+                    taskAdapter.setSelectedDate(new Date());
+                });
             }
         }, true);
     }

@@ -73,6 +73,7 @@ public class SpeechRecognition {
             @Override
             public void onEndOfSpeech() {
                 speakBtn.setImageDrawable(ContextCompat.getDrawable(context, R.drawable.mic_standby));
+                isListening = false;
             }
 
             @Override
@@ -89,6 +90,7 @@ public class SpeechRecognition {
                         break;
                 }
                 speakBtn.setImageDrawable(ContextCompat.getDrawable(context, R.drawable.mic_standby));
+                isListening = false;
             }
 
             @Override
