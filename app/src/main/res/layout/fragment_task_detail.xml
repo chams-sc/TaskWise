@@ -57,7 +57,7 @@
                     android:layout_height="wrap_content"
                     android:layout_marginStart="8dp"
                     android:fontFamily="@font/inter_semibold"
-                    android:textColor="@color/dark"
+                    android:color="@color/dark"
                     android:textSize="24sp"
                     tools:text="My title"
                     android:layout_centerVertical="true" />
@@ -68,7 +68,7 @@
                     android:layout_width="match_parent"
                     android:layout_height="2dp"
                     android:layout_below="@id/taskNameDetail"
-                    android:background="@color/dark_gray"
+                    android:color="@color/dark_gray"
                     android:layout_marginTop="32dp" />
 
             </RelativeLayout>
@@ -76,37 +76,38 @@
 
             <RelativeLayout
                 android:id="@+id/timeDetail"
-                android:layout_width="wrap_content"
+                android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_marginStart="16dp"
-                android:layout_marginTop="16dp"
+                android:layout_marginTop="8dp"
                 android:layout_marginEnd="16dp"
                 android:paddingBottom="10dp"
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintTop_toBottomOf="@+id/taskNameDetailContainer"> <!-- Add padding at the bottom -->
+                app:layout_constraintTop_toBottomOf="@+id/taskNameDetailContainer">
 
-                <!-- Clock icon -->
                 <ImageView
                     android:id="@+id/clockIcon"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:layout_centerVertical="true"
+                    android:layout_alignParentTop="true"
                     android:layout_marginStart="16dp"
+                    android:layout_marginTop="16dp"
                     android:padding="8dp"
                     android:src="@drawable/baseline_clock" />
 
-                <!-- TextView for task name -->
                 <TextView
                     android:id="@+id/schedDetail"
-                    android:layout_width="wrap_content"
+                    android:layout_width="80dp"
                     android:layout_height="wrap_content"
                     android:layout_centerVertical="true"
                     android:layout_marginStart="8dp"
                     android:layout_toEndOf="@id/clockIcon"
                     android:fontFamily="@font/inter_semibold"
-                    android:textColor="@color/dark"
-                    android:textSize="16dp"
+                    android:color="@color/dark"
+                    android:maxLines="5"
+                    android:ellipsize="end"
+                    android:textSize="16sp"
                     tools:text="No schedule" />
 
                 <TextView
@@ -119,18 +120,20 @@
                     android:fontFamily="@font/inter_semibold"
                     android:text="-"
                     android:textColor="@color/dark"
-                    android:textSize="16dp" />
+                    android:textSize="16sp" />
 
                 <TextView
                     android:id="@+id/deadlineDetail"
-                    android:layout_width="wrap_content"
+                    android:layout_width="80dp"
                     android:layout_height="wrap_content"
                     android:layout_centerVertical="true"
                     android:layout_marginStart="16dp"
                     android:layout_toEndOf="@id/dashDetails"
                     android:fontFamily="@font/inter_semibold"
-                    android:textColor="@color/dark"
-                    android:textSize="16dp"
+                    android:color="@color/dark"
+                    android:textSize="16sp"
+                    android:maxLines="5"
+                    android:ellipsize="end"
                     tools:text="No deadline" />
 
                 <!-- View to display line at the bottom -->
@@ -139,10 +142,11 @@
                     android:layout_width="match_parent"
                     android:layout_height="2dp"
                     android:layout_below="@id/schedDetail"
-                    android:layout_marginTop="35dp"
-                    android:background="@color/dark_gray" />
+                    android:layout_marginTop="32dp"
+                    android:background="@color/dark_gray"/>
 
             </RelativeLayout>
+
 
 
             <RelativeLayout
@@ -174,7 +178,7 @@
                     android:layout_marginStart="8dp"
                     android:layout_toEndOf="@id/clockIcon_urgency"
                     android:fontFamily="@font/inter_semibold"
-                    android:textColor="@color/dark"
+                    android:color="@color/dark"
                     android:textSize="16dp"
                     tools:text="Very Important" />
 
@@ -184,7 +188,7 @@
                     android:layout_height="2dp"
                     android:layout_below="@id/importanceDetail"
                     android:layout_marginTop="32dp"
-                    android:background="@color/dark_gray"/>
+                    android:color="@color/dark_gray"/>
 
             </RelativeLayout>
 
@@ -218,7 +222,7 @@
                     android:layout_marginStart="8dp"
                     android:layout_toEndOf="@id/clockIcon_reccurrence"
                     android:fontFamily="@font/inter_semibold"
-                    android:textColor="@color/dark"
+                    android:color="@color/dark"
                     android:textSize="16dp"
                     tools:text="Urgent" />
 
@@ -228,14 +232,14 @@
                     android:layout_height="2dp"
                     android:layout_below="@id/urgencyDetail"
                     android:layout_marginTop="32dp"
-                    android:background="@color/dark_gray" />
+                    android:color="@color/dark_gray" />
 
             </RelativeLayout>
 
             <RelativeLayout
                 android:id="@+id/reccureDetail"
                 android:layout_width="217dp"
-                android:layout_height="57dp"
+                android:layout_height="64dp"
                 android:layout_marginStart="16dp"
                 android:layout_marginTop="8dp"
                 android:layout_marginEnd="80dp"
@@ -262,19 +266,62 @@
                     android:layout_marginStart="8dp"
                     android:layout_toEndOf="@id/clockIcon_reccurrence2"
                     android:fontFamily="@font/inter_semibold"
-                    android:textColor="@color/dark"
+                    android:color="@color/dark"
                     android:textSize="16dp"
                     tools:text="None" />
 
-                <View
-                    android:id="@+id/bottomLine45"
-                    android:layout_width="match_parent"
-                    android:layout_height="2dp"
-                    android:layout_below="@id/recurrenceDetail"
-                    android:layout_marginTop="4dp"
-                    android:background="@color/dark_gray" />
+            </RelativeLayout>
+
+            <RelativeLayout
+                android:id="@+id/remindMeLayout"
+                android:layout_width="143dp"
+                android:layout_height="64dp"
+                android:layout_marginEnd="16dp"
+                android:paddingBottom="10dp"
+                app:layout_constraintBottom_toTopOf="@+id/notesDetails"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintStart_toEndOf="@+id/reccureDetail"
+                app:layout_constraintTop_toBottomOf="@+id/urgencyContainer">
+
+                <!-- CheckBox for the reminder -->
+                <CheckBox
+                    android:id="@+id/remindMeCheckBox"
+                    android:layout_width="32dp"
+                    android:layout_height="32dp"
+                    android:layout_alignParentStart="true"
+                    android:layout_centerVertical="true"
+                    android:color="@color/gray"
+                    android:clickable="false" />
+
+                <!-- TextView for the "Remind me" label -->
+                <TextView
+                    android:id="@+id/remindMeLabel"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_centerVertical="true"
+                    android:layout_marginStart="8dp"
+                    android:layout_toEndOf="@+id/remindMeCheckBox"
+                    android:text="Remind me"
+                    android:color="@color/dark"
+                    android:textSize="18sp" />
 
             </RelativeLayout>
+
+            <View
+                android:id="@+id/bottomLine112"
+                android:layout_width="match_parent"
+                android:layout_height="2dp"
+                android:layout_below="@id/remindMeLayout"
+                android:layout_marginStart="16dp"
+                android:layout_marginEnd="16dp"
+                android:color="@color/dark_gray"
+                app:layout_constraintEnd_toEndOf="@id/remindMeLayout"
+                app:layout_constraintStart_toStartOf="@id/remindMeLayout"
+                app:layout_constraintTop_toBottomOf="@id/remindMeLayout" />
+
+
+
+
             <RelativeLayout
                 android:id="@+id/notesDetails"
                 android:layout_width="match_parent"
@@ -318,7 +365,7 @@
                             android:layout_marginStart="8dp"
                             android:layout_toEndOf="@id/clockIcon_notes"
                             android:fontFamily="@font/inter_semibold"
-                            android:textColor="@color/dark"
+                            android:color="@color/dark"
                             android:textSize="16dp"
                             tools:text="Notes" />
 
@@ -329,47 +376,12 @@
                             android:layout_height="2dp"
                             android:layout_below="@id/notesDetail"
                             android:layout_marginTop="32dp"
-                            android:background="@color/dark_gray" />
+                            android:color="@color/dark_gray" />
 
                     </RelativeLayout>
                 </ScrollView>
             </RelativeLayout>
 
-            <RelativeLayout
-                android:id="@+id/remindMeLayout"
-                android:layout_width="143dp"
-                android:layout_height="48dp"
-                android:layout_marginEnd="16dp"
-                android:paddingBottom="10dp"
-                app:layout_constraintBottom_toTopOf="@+id/notesDetails"
-                app:layout_constraintEnd_toEndOf="parent"
-                app:layout_constraintStart_toEndOf="@+id/reccureDetail"
-                app:layout_constraintTop_toBottomOf="@+id/urgencyContainer">
-
-                <!-- CheckBox for the reminder -->
-                <CheckBox
-                    android:id="@+id/remindMeCheckBox"
-                    android:layout_width="32dp"
-                    android:layout_height="32dp"
-                    android:layout_alignParentStart="true"
-                    android:layout_centerVertical="true"
-                    android:buttonTint="@color/black"
-                    android:clickable="false"
-                    />
-
-                <!-- TextView for the "Remind me" label -->
-                <TextView
-                    android:id="@+id/remindMeLabel"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_centerVertical="true"
-                    android:layout_marginStart="8dp"
-                    android:layout_toEndOf="@+id/remindMeCheckBox"
-                    android:text="Remind me"
-                    android:textColor="@color/black"
-                    android:textSize="18sp" /> <!-- Adjust margin as needed -->
-
-            </RelativeLayout>
 
             <ImageView
                 android:id="@+id/more_menu"
