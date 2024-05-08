@@ -8,6 +8,7 @@ import android.widget.CheckBox;
 import android.widget.ImageView;
 import android.widget.TextView;
 
+import androidx.core.widget.NestedScrollView;
 import androidx.fragment.app.Fragment;
 
 import com.example.taskwiserebirth.task.Task;
@@ -29,6 +30,15 @@ public class TaskDetailFragment extends Fragment {
 
         ImageView backArrowImageView = rootView.findViewById(R.id.back_arrow);
         backArrowImageView.setOnClickListener(v -> requireActivity().getSupportFragmentManager().popBackStack());
+
+        NestedScrollView nestedScrollView = rootView.findViewById(R.id.nestedScrollViewTaskDetail);
+        nestedScrollView.setOnScrollChangeListener(new View.OnScrollChangeListener() {
+            @Override
+            public void onScrollChange(View v, int scrollX, int scrollY, int oldScrollX, int oldScrollY) {
+                boolean scrollingUp = scrollY < oldScrollY;
+                ((MainActivity) requireActivity()).toggleNavBarVisibility(scrollingUp, true);
+            }
+        });
 
         setUpTaskDetail(rootView);
 

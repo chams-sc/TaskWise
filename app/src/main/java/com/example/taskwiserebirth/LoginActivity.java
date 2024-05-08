@@ -1,10 +1,8 @@
 package com.example.taskwiserebirth;
 
-import android.Manifest;
 import android.app.Dialog;
 import android.content.Intent;
 import android.content.SharedPreferences;
-import android.content.pm.PackageManager;
 import android.graphics.Color;
 import android.graphics.drawable.ColorDrawable;
 import android.os.Bundle;
@@ -21,7 +19,6 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import androidx.appcompat.app.AppCompatActivity;
-import androidx.core.app.ActivityCompat;
 import androidx.core.content.ContextCompat;
 
 import com.example.taskwiserebirth.database.MongoDbRealmHelper;
@@ -40,7 +37,6 @@ public class LoginActivity extends AppCompatActivity {
     private App app;
     private Dialog loginDialog;
     private Dialog registerDialog;
-    public static final Integer RecordAudioRequestCode = 1;
     public static final String SHARED_PREFS = "sharedPrefs";
     private static final String STATUS_KEY = "status";
 
@@ -57,10 +53,6 @@ public class LoginActivity extends AppCompatActivity {
 
         Button bottomLogin = findViewById(R.id.before_button);
         bottomLogin.setOnClickListener(v -> showLoginDialog());
-
-        if (ContextCompat.checkSelfPermission(this, Manifest.permission.RECORD_AUDIO) != PackageManager.PERMISSION_GRANTED) {
-            ActivityCompat.requestPermissions(this, new String[]{Manifest.permission.RECORD_AUDIO}, RecordAudioRequestCode);
-        }
     }
 
     private void checkStatus() {

@@ -1,0 +1,45 @@
+{
+	"Version": 3,
+	"FileReferences": {
+		"Moc": "kaia.moc3",
+		"Textures": [
+			"kaia.2048/texture_00.png"
+		],
+		"Physics": "kaia.physics3.json",
+		"DisplayInfo": "kaia.cdi3.json"
+	},
+	"Groups": [
+		{
+			"Target": "Parameter",
+			"Name": "EyeBlink",
+			"Ids": []
+		},
+		{
+			"Target": "Parameter",
+			"Name": "LipSync",
+			"Ids": []
+		}
+	],
+	"HitAreas": [
+		{
+			"Id": "HitArea",
+			"Name": ""
+		},
+		{
+			"Id": "HitArea2",
+			"Name": ""
+		},
+		{
+			"Id": "HitArea3",
+			"Name": ""
+		},
+		{
+			"Id": "HitArea4",
+			"Name": ""
+		},
+		{
+			"Id": "HitArea5",
+			"Name": ""
+		}
+	]
+}

@@ -1,14 +1,8 @@
 package com.example.taskwiserebirth.conversational;
 
-import android.Manifest;
-import android.app.AlertDialog;
 import android.content.Context;
-import android.content.DialogInterface;
 import android.content.Intent;
-import android.content.pm.PackageManager;
-import android.net.Uri;
 import android.os.Bundle;
-import android.provider.Settings;
 import android.speech.RecognitionListener;
 import android.speech.RecognizerIntent;
 import android.speech.SpeechRecognizer;
@@ -17,6 +11,7 @@ import android.widget.Toast;
 import androidx.core.content.ContextCompat;
 
 import com.example.taskwiserebirth.R;
+import com.example.taskwiserebirth.utils.PermissionUtils;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
 
 import java.util.ArrayList;
@@ -35,7 +30,7 @@ public class SpeechRecognition {
     }
 
     public SpeechRecognition(Context context, FloatingActionButton speakBtn, SpeechRecognitionListener listener) {
-        this.context = context.getApplicationContext();
+        this.context = context;
         this.speakBtn = speakBtn;
         this.listener = listener;
     }
@@ -45,10 +40,8 @@ public class SpeechRecognition {
     }
 
     public void startSpeechRecognition() {
-        if (checkPermission()) {
+        if (PermissionUtils.checkRecordAudioPermission(context)) {
             initializeSpeechRecognizer();
-        } else {
-            Toast.makeText(context, "Permission is needed for speech recognition to work.", Toast.LENGTH_SHORT).show();
         }
         isListening = true;
     }
@@ -127,31 +120,6 @@ public class SpeechRecognition {
             speechRecognizer.cancel();
             speechRecognizer.destroy();
             speechRecognizer = null;
-        }
-    }
-
-    private boolean checkPermission() {
-        if (ContextCompat.checkSelfPermission(context, Manifest.permission.RECORD_AUDIO) != PackageManager.PERMISSION_GRANTED) {
-            AlertDialog.Builder builder = new AlertDialog.Builder(context);
-            builder.setMessage("This app requires RECORD_AUDIO permission for speech recognition to feature to work as expected.")
-                    .setTitle("Permission Required")
-                    .setCancelable(false)
-                    .setNegativeButton("Cancel", ((dialog, which) -> dialog.dismiss()))
-                    .setPositiveButton("Settings", new DialogInterface.OnClickListener() {
-                        @Override
-                        public void onClick(DialogInterface dialog, int which) {
-                            Intent intent = new Intent(Settings.ACTION_APPLICATION_DETAILS_SETTINGS);
-                            Uri uri = Uri.fromParts("package", context.getPackageName(), null);
-                            intent.setData(uri);
-                            context.startActivity(intent);
-
-                            dialog.dismiss();
-                        }
-                    });
-            builder.show();
-            return false;
-        } else {
-            return true;
         }
     }
 }

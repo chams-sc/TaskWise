@@ -10,12 +10,14 @@ import com.example.taskwiserebirth.utils.SystemUIHelper;
 
 public class SplashActivity extends AppCompatActivity {
 
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_splash);
 
         SystemUIHelper.setSystemUIVisibility(this);
+
 
         new Handler().postDelayed(() -> {
             // Start the main activity after the splash time has elapsed

@@ -44,6 +44,7 @@ public class DialogUtils {
     private final FragmentActivity activity;
     private String daysSelected = null;
     private final TaskDatabaseManager taskDatabaseManager;
+    private boolean isRecurrenceNone = true;
     private final List<Dialog> dialogs = new ArrayList<>();
 
     public DialogUtils (FragmentActivity activity, TaskDatabaseManager taskDatabaseManager) {
@@ -101,7 +102,7 @@ public class DialogUtils {
             urgencySpinner.setSelection(getIndex(urgencySpinner, task.getUrgencyLevel()));
         }
 
-        getRecurrenceSpinnerValue(recurrenceSpinner);
+        getRecurrenceSpinnerValue(recurrenceSpinner, editDeadline, editSchedule);
 
         Button saveBtn = bottomSheetView.findViewById(R.id.saveButton);
         saveBtn.setOnClickListener(v -> {
@@ -121,7 +122,13 @@ public class DialogUtils {
         ((View) bottomSheetView.getParent()).setBackgroundColor(Color.TRANSPARENT);
 
         editDeadline.setOnClickListener(v -> showDatePicker(editDeadline));
-        editSchedule.setOnClickListener(v -> showDatePicker(editSchedule));
+        editSchedule.setOnClickListener(v -> {
+            if (!isRecurrenceNone) {
+                showTimePicker(editSchedule, null, true );
+            } else {
+                showDatePicker(editSchedule);
+            }
+        });
     }
 
     private void showDatePicker(EditText field) {
@@ -132,18 +139,18 @@ public class DialogUtils {
                 .build();
         materialDatePicker.addOnPositiveButtonClickListener(selection -> {
             String date = new SimpleDateFormat("MM-dd-yyyy", Locale.getDefault()).format(new Date(selection));
-            showTimePicker(field, date);
+            showTimePicker(field, date, false);
         });
         materialDatePicker.show(activity.getSupportFragmentManager(), "DATE_PICKER");
     }
 
-    private void showTimePicker(EditText field, String selectedDate) {
+    private void showTimePicker(EditText field, String selectedDate, boolean isGetTimeString) {
         MaterialTimePicker.Builder timePickerBuilder = new MaterialTimePicker.Builder()
                 .setTimeFormat(TimeFormat.CLOCK_12H)
                 .setInputMode(MaterialTimePicker.INPUT_MODE_CLOCK)
                 .setTitleText("Select Time")
-                .setHour(23)
-                .setMinute(59)
+                .setHour(9)
+                .setMinute(0)
                 .setTheme(R.style.TimePickerTheme);
 
         MaterialTimePicker timePicker = timePickerBuilder.build();
@@ -154,6 +161,13 @@ public class DialogUtils {
 
             String formattedTime = String.format(Locale.getDefault(), "%02d:%02d %s",
                     hourOfDay == 12 || hourOfDay == 0 ? 12 : hourOfDay % 12, minute, hourOfDay < 12 ? "AM" : "PM");
+
+            if (isGetTimeString) {
+                if (field != null) {
+                    field.setText(formattedTime);
+                }
+                return;
+            }
 
             String dateTime = selectedDate + " | " + formattedTime;
 
@@ -266,6 +280,10 @@ public class DialogUtils {
         boolean validDeadline = true;
         boolean validSchedule = true;
 
+        if (!isRecurrenceNone) {
+            return true;
+        }
+
         // Check if deadline is not empty and not earlier than current date
         if (!deadline.equals("No deadline")) {
             DateFormat dateFormat = new SimpleDateFormat("MM-dd-yyyy | hh:mm a", Locale.getDefault());
@@ -330,13 +348,24 @@ public class DialogUtils {
         return 0;
     }
 
-    private void getRecurrenceSpinnerValue(Spinner recurrenceSpinner) {
+    private void getRecurrenceSpinnerValue(Spinner recurrenceSpinner, EditText deadline, EditText schedule) {
         recurrenceSpinner.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
             @Override
             public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
                 String selectedItem = parent.getItemAtPosition(position).toString();
                 if (selectedItem.equals("Specific Days")) {
                     showDialogForCustomRecurrence(recurrenceSpinner, position);
+                }
+
+                if (!selectedItem.equals("None")) {
+                    deadline.setEnabled(false);
+                    deadline.setText("No deadline");
+                    schedule.setText("09:00 AM");     // set default time for recurrence
+                    isRecurrenceNone = false;       // condition to set schedule to time only
+                } else {
+                    deadline.setEnabled(true);
+                    schedule.setText("No schedule");
+                    isRecurrenceNone = true;
                 }
             }
 

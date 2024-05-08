@@ -15,18 +15,17 @@ import com.google.android.material.bottomnavigation.BottomNavigationView;
 
 public class MainActivity extends AppCompatActivity {
 
-    // TODO: Rename to MainActivity
     BottomNavigationView bottomNavigationView;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
-
+        
         SystemUIHelper.setSystemUIVisibility(this);
 
         bottomNavigationView = findViewById(R.id.bottomNavigationView);
-        replaceFragment(new Live2DFragment());
+        replaceFragment(new Live2DFragment(), false);
 
         setupBottomNavigationListener();
     }
@@ -37,30 +36,17 @@ public class MainActivity extends AppCompatActivity {
             Fragment currentFragment = getSupportFragmentManager().findFragmentById(R.id.frame_layout);
 
             if (itemId == R.id.bottom_home && !(currentFragment instanceof Live2DFragment)) {
-                replaceFragment(new Live2DFragment());
+                replaceFragment(new Live2DFragment(), false);
             } else if (itemId == R.id.bottom_clip && !(currentFragment instanceof AddTaskFragment)) {
-                replaceFragment(new AddTaskFragment());
+                replaceFragment(new AddTaskFragment(), false);
             } else if (itemId == R.id.bottom_sms && !(currentFragment instanceof SMSFragment)) {
-                replaceFragment(new SMSFragment());
+                replaceFragment(new SMSFragment(), false);
             } else if (itemId == R.id.bottom_settings && !(currentFragment instanceof SettingsFragment)) {
-                replaceFragment(new SettingsFragment());
+                replaceFragment(new SettingsFragment(), false);
             }
 
             return true;
         });
-    }
-
-    public void replaceFragment(Fragment fragment) {
-        FragmentManager fragmentManager = getSupportFragmentManager();
-        FragmentTransaction fragmentTransaction = fragmentManager.beginTransaction();
-
-        // Check if there's already a fragment attached, and remove it if necessary
-        Fragment currentFragment = fragmentManager.findFragmentById(R.id.frame_layout);
-        if (currentFragment != null && currentFragment.isAdded()) {
-            fragmentTransaction.remove(currentFragment);
-        }
-        fragmentTransaction.replace(R.id.frame_layout, fragment);
-        fragmentTransaction.commit();
     }
 
     public void replaceFragment(Fragment fragment, boolean addToBackStack) {
@@ -73,12 +59,10 @@ public class MainActivity extends AppCompatActivity {
             fragmentTransaction.remove(currentFragment);
         }
 
-        // Replace the fragment
         fragmentTransaction.replace(R.id.frame_layout, fragment);
 
-        // Add to back stack if requiredS
         if (addToBackStack) {
-            fragmentTransaction.addToBackStack(null); // You can provide a tag if needed
+            fragmentTransaction.addToBackStack(null);
         }
 
         fragmentTransaction.commit();
@@ -108,6 +92,7 @@ public class MainActivity extends AppCompatActivity {
             }
         }
     }
+
 
     @Override
     public void onWindowFocusChanged(boolean hasFocus) {

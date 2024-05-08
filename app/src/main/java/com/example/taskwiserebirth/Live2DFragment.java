@@ -16,6 +16,7 @@ import androidx.fragment.app.Fragment;
 
 import com.bin4rybros.demo.GLRenderer;
 import com.bin4rybros.demo.LAppDelegate;
+import com.example.taskwiserebirth.conversational.AIRandomSpeech;
 import com.example.taskwiserebirth.conversational.HttpRequest;
 import com.example.taskwiserebirth.conversational.SpeechRecognition;
 import com.example.taskwiserebirth.conversational.TTSManager;
@@ -53,6 +54,14 @@ public class Live2DFragment extends Fragment implements View.OnTouchListener, Sp
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         View view = inflater.inflate(R.layout.fragment_live2d, container, false);
 
+        glSurfaceView = view.findViewById(R.id.gl_surface_view);
+        glSurfaceView.setEGLContextClientVersion(2); // Using OpenGL ES 2.0
+
+        GLRenderer glRenderer = new GLRenderer();
+        glSurfaceView.setRenderer(glRenderer);
+        glSurfaceView.setRenderMode(GLSurfaceView.RENDERMODE_CONTINUOUSLY);
+        glSurfaceView.setOnTouchListener(this);
+
         App app = MongoDbRealmHelper.initializeRealmApp();
         user = app.currentUser();
 
@@ -62,17 +71,9 @@ public class Live2DFragment extends Fragment implements View.OnTouchListener, Sp
         ImageButton collapseBtn = view.findViewById(R.id.fullscreen_button);
         FloatingActionButton speakBtn = view.findViewById(R.id.speakBtn);
 
-        glSurfaceView = view.findViewById(R.id.gl_surface_view);
-        glSurfaceView.setEGLContextClientVersion(2); // Using OpenGL ES 2.0
-
-        GLRenderer glRenderer = new GLRenderer();
-        glSurfaceView.setRenderer(glRenderer);
-        glSurfaceView.setRenderMode(GLSurfaceView.RENDERMODE_CONTINUOUSLY);
-        glSurfaceView.setOnTouchListener(this);
-
         collapseBtn.setOnClickListener(v -> ((MainActivity) requireActivity()).toggleNavBarVisibility(false, false));
 
-        speechRecognition = new SpeechRecognition(requireContext().getApplicationContext(), speakBtn, this);
+        speechRecognition = new SpeechRecognition(requireContext(), speakBtn, this);
         speakBtn.setOnClickListener(v -> {
             if (speechRecognition.isListening()) {
                 speechRecognition.stopSpeechRecognition();
@@ -135,11 +136,11 @@ public class Live2DFragment extends Fragment implements View.OnTouchListener, Sp
         switch(intent) {
             case "Add Task":
                 taskDatabaseManager.insertTask(setTaskFromSpeech(taskName, "No deadline"));
-                ttsManager.convertTextToSpeech("Your new task " + taskName + " was successfully added.");
+                ttsManager.convertTextToSpeech(AIRandomSpeech.generateTaskAdded(taskName));
                 return;
             case "Add Task With Deadline":
                 taskDatabaseManager.insertTask(setTaskFromSpeech(taskName, deadline));
-                ttsManager.convertTextToSpeech("I successfully added your new task " + taskName);
+                ttsManager.convertTextToSpeech(AIRandomSpeech.generateTaskAdded(taskName));
                 return;
             case "Edit Task":
                 editTaskThroughSpeech(taskName);
@@ -212,6 +213,7 @@ public class Live2DFragment extends Fragment implements View.OnTouchListener, Sp
             if (responseText.equals("DONE")) {
                 inTurnBasedInteraction = false;
                 isUserDone = true;
+                prefilterFinalTask(finalTask);
                 taskDatabaseManager.updateTask(finalTask);
                 ttsManager.convertTextToSpeech("I have updated your task " + finalTask.getTaskName());
                 return;
@@ -236,6 +238,25 @@ public class Live2DFragment extends Fragment implements View.OnTouchListener, Sp
         } else {
             Toast.makeText(requireContext(), "Couldn't determine the correct value for " + detail, Toast.LENGTH_SHORT).show();
         }
+    }
+
+    //TODO: if user edited the recurrence, tell user deadline and sched were set to default
+    private void prefilterFinalTask(Task finalTask) {
+        if(!finalTask.getRecurrence().equals("None")) {
+            finalTask.setDeadline("No deadline");   // Recurrent tasks have no deadlines
+
+            if(finalTask.getSchedule().equals("No schedule")) {
+                finalTask.setSchedule("09:00 AM");      // default sched time
+            } else {
+                String schedule = finalTask.getSchedule();
+                // Extracting the time part from the schedule string
+                String filteredSched = schedule.substring(schedule.lastIndexOf("|") + 1).trim();
+                finalTask.setSchedule(filteredSched);
+
+            }
+        }
+
+        taskDatabaseManager.updateTask(finalTask);
     }
 
     private void applyTaskDetail(String detail, String value) {
@@ -276,7 +297,7 @@ public class Live2DFragment extends Fragment implements View.OnTouchListener, Sp
                 if (CalendarUtils.isDateAccepted(value)) {
                     finalTask.setSchedule(value);
                 } else {
-                    finalTask.setSchedule("No deadline");
+                    finalTask.setSchedule("No schedule");
                 }
                 break;
             case "Reminder":

@@ -146,7 +146,8 @@ public class LAppDefine {
         MARK(2, "Mark"),
         NATORI(3, "Natori"),
         RICE(4, "Rice"),
-        MAO(5, "Mao");
+        MAO(5, "Mao"),
+        KAIA(6, "kaia");
 
         private final int order;
         private final String dirName;

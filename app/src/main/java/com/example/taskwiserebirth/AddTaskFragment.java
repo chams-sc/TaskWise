@@ -23,6 +23,7 @@ import com.example.taskwiserebirth.task.TaskAdapter;
 import com.example.taskwiserebirth.task.TaskPriorityCalculator;
 import com.example.taskwiserebirth.utils.CalendarUtils;
 import com.example.taskwiserebirth.utils.DialogUtils;
+import com.example.taskwiserebirth.utils.PermissionUtils;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
 
 import java.text.DateFormatSymbols;
@@ -51,8 +52,6 @@ public class AddTaskFragment extends Fragment implements DatabaseChangeListener,
     public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
         rootView = inflater.inflate(R.layout.fragment_add_task, container, false);
 
-
-
         // Realm initialization
         App app = MongoDbRealmHelper.initializeRealmApp();
         User user = app.currentUser();
@@ -68,8 +67,8 @@ public class AddTaskFragment extends Fragment implements DatabaseChangeListener,
         setUpCalendarRecyclerView(rootView);
         setUpTaskRecyclerView(rootView);
 
-        FloatingActionButton fab = rootView.findViewById(R.id.fab);
-        fab.setOnClickListener(v -> dialogUtils.showBottomSheetDialog(null));
+        FloatingActionButton addTaskButton = rootView.findViewById(R.id.fab);
+        addTaskButton.setOnClickListener(v -> dialogUtils.showBottomSheetDialog(null));
 
         CalendarUtils.displayTimeOfDay(rootView);
 
@@ -80,8 +79,11 @@ public class AddTaskFragment extends Fragment implements DatabaseChangeListener,
             ((MainActivity) requireActivity()).replaceFragment(allTaskFragment, true);
         });
 
+        PermissionUtils.requestNotificationPermission(requireActivity());
+
         return rootView;
     }
+
 
 
     private void setUpCalendarRecyclerView(View rootView) {
