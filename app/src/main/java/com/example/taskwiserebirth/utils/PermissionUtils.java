@@ -59,14 +59,14 @@ public class PermissionUtils {
 
     public static void requestAlarmReminderOn(Context context) {
         AlertDialog.Builder builder = new AlertDialog.Builder(context);
-        builder.setMessage("Alarms and reminders permission is required to receive notifications on time. Go to App Settings -> Alarms and Reminders")
+        builder.setMessage("Alarms and reminders permission is required to receive notifications on time.")
                 .setTitle("Permission Required")
                 .setCancelable(false)
                 .setNegativeButton("Cancel", ((dialog, which) -> dialog.dismiss()))
                 .setPositiveButton("Settings", new DialogInterface.OnClickListener() {
                     @Override
                     public void onClick(DialogInterface dialog, int which) {
-                        Intent intent = new Intent(Settings.ACTION_APPLICATION_DETAILS_SETTINGS);
+                        Intent intent = new Intent(Settings.ACTION_REQUEST_SCHEDULE_EXACT_ALARM);
                         Uri uri = Uri.fromParts("package", context.getPackageName(), null);
                         intent.setData(uri);
                         context.startActivity(intent);

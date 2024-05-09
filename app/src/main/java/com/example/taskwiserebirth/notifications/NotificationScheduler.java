@@ -7,12 +7,7 @@ import android.content.Intent;
 import android.os.Build;
 import android.widget.Toast;
 
-import androidx.fragment.app.FragmentActivity;
-
 import com.example.taskwiserebirth.task.Task;
-import com.example.taskwiserebirth.utils.PermissionUtils;
-
-import java.util.Calendar;
 
 public class NotificationScheduler {
 
@@ -20,6 +15,16 @@ public class NotificationScheduler {
     private static PendingIntent pendingIntent;
 
     public static void scheduleNotification(Context context, Task task) {
+        AlarmManager alarmManager = (AlarmManager) context.getSystemService(Context.ALARM_SERVICE);
+
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
+            if (alarmManager.canScheduleExactAlarms()) {
+
+            } else {
+
+            }
+        }
+
         if (task.getRecurrence().equals("None")) {
             if (task.getDeadline().equals("No deadline") && task.getSchedule().equals("No schedule")) {
                 scheduleNotificationRepeating(context, task, false);
@@ -45,58 +50,45 @@ public class NotificationScheduler {
         intent.putExtra("TASK_NAME", task.getTaskName());
 
         int notificationCode = task.getId().toHexString().hashCode();
-        pendingIntent = PendingIntent.getBroadcast(context, notificationCode, intent, PendingIntent.FLAG_IMMUTABLE);
+        pendingIntent = PendingIntent.getBroadcast(context, notificationCode, intent, PendingIntent.FLAG_UPDATE_CURRENT);
 
         long triggerAtMillis = parseTriggerTime(task);
-
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
-            if (alarmManager.canScheduleExactAlarms()) {
-                if (PermissionUtils.isNotificationPermissionGranted(context)) {
-                    alarmManager.setExactAndAllowWhileIdle(AlarmManager.RTC, triggerAtMillis, pendingIntent);
-                    Toast.makeText(context, "Notification scheduled", Toast.LENGTH_SHORT).show();
-                } else {
-                    PermissionUtils.requestNotificationPermission((FragmentActivity) context);
-                    Toast.makeText(context, "Notification permission denied", Toast.LENGTH_SHORT).show();
-                }
-            } else {
-                PermissionUtils.requestAlarmReminderOn(context);
-            }
-        } else {
-            alarmManager.setExactAndAllowWhileIdle(AlarmManager.RTC, triggerAtMillis, pendingIntent);
-            Toast.makeText(context, "Notification scheduled", Toast.LENGTH_SHORT).show();
-        }
     }
 
 
     private static void scheduleNotificationRepeating(Context context, Task task, boolean isRecurrence) {
         alarmManager = (AlarmManager) context.getSystemService(Context.ALARM_SERVICE);
+        int notificationCode = task.getId().toHexString().hashCode();
+        // Set the interval to 15 seconds
+        long intervalMillis = 10 * 1000; // 15 seconds
+        long triggerAtMillis = System.currentTimeMillis() + intervalMillis;
 
         Intent intent = new Intent(context, NotificationReceiver.class);
-        intent.putExtra("TASK_NAME", task.getTaskName());
+        intent.putExtra("task_name", task.getTaskName());
+        intent.putExtra("is_repeating", true);
+        intent.putExtra("trigger_time", triggerAtMillis);
+        intent.putExtra("notification_code", notificationCode);
 
-        int notificationCode = task.getId().toHexString().hashCode();
-        pendingIntent = PendingIntent.getBroadcast(context, notificationCode, intent, PendingIntent.FLAG_IMMUTABLE);
+        pendingIntent = PendingIntent.getBroadcast(context, notificationCode, intent, PendingIntent.FLAG_UPDATE_CURRENT | PendingIntent.FLAG_IMMUTABLE);
 
-        // Set the time for 9 AM every Saturday
-        Calendar calendar = Calendar.getInstance();
-        calendar.set(Calendar.DAY_OF_WEEK, Calendar.SATURDAY);
-        calendar.set(Calendar.HOUR_OF_DAY, 9);
-        calendar.set(Calendar.MINUTE, 0);
-        calendar.set(Calendar.SECOND, 0);
-        calendar.set(Calendar.MILLISECOND, 0);
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
+            if (alarmManager.canScheduleExactAlarms()) {
+                alarmManager.setExactAndAllowWhileIdle(AlarmManager.RTC_WAKEUP, triggerAtMillis, pendingIntent);
+            } else {
+                alarmManager.setAndAllowWhileIdle(AlarmManager.RTC_WAKEUP, triggerAtMillis, pendingIntent);
+            }
+        } else {
+            alarmManager.setExactAndAllowWhileIdle(AlarmManager.RTC_WAKEUP, triggerAtMillis, pendingIntent);
+        }
 
-        long triggerAtMillis = calendar.getTimeInMillis();
-
-        // Set a repeating alarm
-        alarmManager.setRepeating(AlarmManager.RTC_WAKEUP, triggerAtMillis, AlarmManager.INTERVAL_DAY * 7, pendingIntent);
-        Toast.makeText(context, "Alarm set every Saturday at 9 AM", Toast.LENGTH_SHORT).show();
-
+        Toast.makeText(context, "Repeating notification scheduled", Toast.LENGTH_SHORT).show();
     }
+
 
     public static void cancelNotification(Context context, Task task) {
         Intent intent = new Intent(context, NotificationReceiver.class);
         int notificationCode = task.getId().toHexString().hashCode();
-        pendingIntent = PendingIntent.getBroadcast(context, notificationCode, intent, PendingIntent.FLAG_IMMUTABLE);
+        PendingIntent pendingIntent = PendingIntent.getBroadcast(context, notificationCode, intent, PendingIntent.FLAG_IMMUTABLE);
 
         if (alarmManager == null) {
             alarmManager = (AlarmManager) context.getSystemService(Context.ALARM_SERVICE);

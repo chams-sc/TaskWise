@@ -119,14 +119,14 @@ public class CalendarUtils {
                 if (formattedRecurrence.length() > 0) {
                     formattedRecurrence.append(" | ");
                 }
-                formattedRecurrence.append(getAbbreviation(day));
+                formattedRecurrence.append(getDayAbbreviation(day));
             }
         }
 
         return formattedRecurrence.toString();
     }
 
-    private static String getAbbreviation(String day) {
+    private static String getDayAbbreviation(String day) {
         switch (day) {
             case "Monday":
                 return "M";

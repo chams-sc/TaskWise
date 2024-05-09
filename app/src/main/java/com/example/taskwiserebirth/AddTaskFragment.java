@@ -1,5 +1,8 @@
 package com.example.taskwiserebirth;
 
+import android.app.AlarmManager;
+import android.content.Context;
+import android.os.Build;
 import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -79,7 +82,15 @@ public class AddTaskFragment extends Fragment implements DatabaseChangeListener,
             ((MainActivity) requireActivity()).replaceFragment(allTaskFragment, true);
         });
 
+
         PermissionUtils.requestNotificationPermission(requireActivity());
+
+        AlarmManager alarmManager = (AlarmManager) requireContext().getSystemService(Context.ALARM_SERVICE);
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
+            if (!alarmManager.canScheduleExactAlarms()) {
+                PermissionUtils.requestAlarmReminderOn(requireContext());
+            }
+        }
 
         return rootView;
     }
