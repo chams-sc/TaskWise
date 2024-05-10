@@ -4,6 +4,7 @@ import android.content.Context;
 import android.util.Log;
 import android.widget.Toast;
 
+import com.example.taskwiserebirth.notifications.NotificationScheduler;
 import com.example.taskwiserebirth.task.Task;
 
 import org.bson.Document;
@@ -43,6 +44,9 @@ public class TaskDatabaseManager {
 
             taskCollection.insertOne(taskDocument).getAsync(result -> {
                 if (result.isSuccess()) {
+                    if (task.isReminder()) {
+                        NotificationScheduler.scheduleNotification(context, task);
+                    }
                     Toast.makeText(context, "Task saved", Toast.LENGTH_SHORT).show();
                     MongoDbRealmHelper.notifyDatabaseChangeListeners();
                 } else {
@@ -60,6 +64,11 @@ public class TaskDatabaseManager {
 
         taskCollection.updateOne(filter, updateDocument).getAsync(result -> {
             if (result.isSuccess()) {
+                if (task.isReminder()) {
+                    NotificationScheduler.scheduleNotification(context, task);
+                } else {
+                    NotificationScheduler.cancelNotification(context, task);
+                }
                 Toast.makeText(context, "Task updated", Toast.LENGTH_SHORT).show();
                 MongoDbRealmHelper.notifyDatabaseChangeListeners();
             } else {
@@ -74,6 +83,7 @@ public class TaskDatabaseManager {
 
         taskCollection.deleteOne(queryFilter).getAsync(result -> {
             if (result.isSuccess()) {
+                NotificationScheduler.cancelNotification(context, task);
                 MongoDbRealmHelper.notifyDatabaseChangeListeners();
                 Toast.makeText(context, "Task deleted", Toast.LENGTH_SHORT).show();
             } else {
@@ -93,6 +103,7 @@ public class TaskDatabaseManager {
 
         taskCollection.updateOne(queryFilter, updateDocument).getAsync(result -> {
             if (result.isSuccess()) {
+                NotificationScheduler.cancelNotification(context, task);
                 MongoDbRealmHelper.notifyDatabaseChangeListeners();
                 Toast.makeText(context, "Task status updated", Toast.LENGTH_SHORT).show();
             } else {

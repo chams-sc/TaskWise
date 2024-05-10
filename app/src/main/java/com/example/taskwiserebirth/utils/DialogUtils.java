@@ -18,7 +18,6 @@ import android.widget.Spinner;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import androidx.appcompat.app.AppCompatActivity;
 import androidx.fragment.app.FragmentActivity;
 
 import com.example.taskwiserebirth.CustomSpinnerAdapter;
@@ -55,10 +54,10 @@ public class DialogUtils {
     public void showBottomSheetDialog(Task task) {
         final BottomSheetDialog bottomSheetDialog = new BottomSheetDialog(activity);
         View bottomSheetView = LayoutInflater.from(activity).inflate(R.layout.bottom_add_task, null);
-        bottomSheetDialog.setContentView(bottomSheetView);
 
-        SystemUIHelper.adjustDialog((AppCompatActivity) activity, bottomSheetDialog);
         bottomSheetDialog.getWindow().setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_ADJUST_RESIZE);
+
+        bottomSheetDialog.setContentView(bottomSheetView);
 
         setUpTaskForm(bottomSheetDialog, bottomSheetView, task);
 
@@ -78,6 +77,7 @@ public class DialogUtils {
         EditText editSchedule = bottomSheetView.findViewById(R.id.schedule);
         EditText editNotes = bottomSheetView.findViewById(R.id.notes);
         CheckBox reminder = bottomSheetView.findViewById(R.id.reminder);
+        reminder.setChecked(true);          // automatically turn reminder on
 
         if(task != null) {
             editTaskName.setText(task.getTaskName());

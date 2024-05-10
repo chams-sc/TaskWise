@@ -132,7 +132,6 @@ public class Live2DFragment extends Fragment implements View.OnTouchListener, Sp
             return;
         }
 
-        Log.w("TEST", "Intent: " + intent);
         switch(intent) {
             case "Add Task":
                 taskDatabaseManager.insertTask(setTaskFromSpeech(taskName, "No deadline"));
@@ -319,7 +318,7 @@ public class Live2DFragment extends Fragment implements View.OnTouchListener, Sp
         newTask.setDeadline(deadline);
         newTask.setSchedule("No schedule");
         newTask.setRecurrence("None");
-        newTask.setReminder(false);
+        newTask.setReminder(true);
         newTask.setNotes("");
         newTask.setStatus("Unfinished");
         newTask.setDateFinished(null);

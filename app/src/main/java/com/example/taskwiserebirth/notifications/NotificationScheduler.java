@@ -5,71 +5,67 @@ import android.app.PendingIntent;
 import android.content.Context;
 import android.content.Intent;
 import android.os.Build;
-import android.widget.Toast;
+import android.util.Log;
 
 import com.example.taskwiserebirth.task.Task;
+import com.example.taskwiserebirth.utils.CalendarUtils;
+import com.google.gson.Gson;
 
 public class NotificationScheduler {
 
-    private static AlarmManager alarmManager;
-    private static PendingIntent pendingIntent;
-
+    private static String noDeadline = "No deadline";
+    private static String noSchedule = "No schedule";
+    private static String none = "None";
+    private static int closeToDue = 12;
+    private static String TAG_NOTIF = "NOTIFICATION_SCHEDULER";
     public static void scheduleNotification(Context context, Task task) {
-        AlarmManager alarmManager = (AlarmManager) context.getSystemService(Context.ALARM_SERVICE);
-
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
-            if (alarmManager.canScheduleExactAlarms()) {
-
+        if (task.getRecurrence().equals(none)) {
+            if (task.getDeadline().equals(noDeadline) && task.getSchedule().equals(noSchedule)) {
+                scheduleNotificationOnce(context, task, true);     // no deadline, sched or recurrence but reminder is turned on
             } else {
-
-            }
-        }
-
-        if (task.getRecurrence().equals("None")) {
-            if (task.getDeadline().equals("No deadline") && task.getSchedule().equals("No schedule")) {
-                scheduleNotificationRepeating(context, task, false);
-            } else {
-                scheduleNotificationOnce(context, task);
+                scheduleNotificationOnce(context, task, false);      // no recurrence but a schedule was set by user
             }
         } else {
-            scheduleNotificationRepeating(context, task, true);
+            scheduleNotificationOnce(context, task, true);
         }
     }
 
-    private static long parseTriggerTime(Task task) {
-        if (task.getSchedule().equals("No schedule") && task.getDeadline().equals("No deadline")) {
-
+    private static long parseInterval(Task task) {
+        if (task.getSchedule().equals(noSchedule) && task.getDeadline().equals(noDeadline)) {
+            Log.d("AlarmInterval", "Method: calculateDefaultInterval");
+            return CalendarUtils.calculateDefaultInterval();
+        } else if (task.getRecurrence().equals("Daily")) {
+            Log.d("AlarmInterval", "Method: calculateDailyInterval");
+            return CalendarUtils.calculateDailyInterval(task.getSchedule());
+        } else if (!task.getRecurrence().equals(none) && !task.getRecurrence().equals("Daily")) {
+            Log.d("AlarmInterval", "Method: findNextRecurrence");
+            return CalendarUtils.findNextRecurrence(task);
+        } else if (task.getSchedule().equals(noSchedule) && !task.getDeadline().equals(noDeadline)) {
+            Log.d("AlarmInterval", "Method: calculateCloseToDueInterval");
+            return CalendarUtils.calculateCloseToDueInterval(task.getDeadline(), closeToDue);
+        } else if (!task.getSchedule().equals(noSchedule) && task.getRecurrence().equals(none)) {
+            Log.d("AlarmInterval", "Method: calculateScheduleTime");
+            return CalendarUtils.calculateScheduleTime(task.getSchedule());
         }
-        return 60000;
+        Log.d("AlarmInterval", "Method: None, default to 0");
+        return 0;
     }
 
-    private static void scheduleNotificationOnce(Context context, Task task) {
-        alarmManager = (AlarmManager) context.getSystemService(Context.ALARM_SERVICE);
+    public static void scheduleNotificationOnce(Context context, Task task, boolean isRepeating) {
+        AlarmManager alarmManager = (AlarmManager) context.getSystemService(Context.ALARM_SERVICE);
 
-        Intent intent = new Intent(context, NotificationReceiver.class);
-        intent.putExtra("TASK_NAME", task.getTaskName());
+        Gson gson = new Gson();
+        String taskJson = gson.toJson(task);
 
         int notificationCode = task.getId().toHexString().hashCode();
-        pendingIntent = PendingIntent.getBroadcast(context, notificationCode, intent, PendingIntent.FLAG_UPDATE_CURRENT);
-
-        long triggerAtMillis = parseTriggerTime(task);
-    }
-
-
-    private static void scheduleNotificationRepeating(Context context, Task task, boolean isRecurrence) {
-        alarmManager = (AlarmManager) context.getSystemService(Context.ALARM_SERVICE);
-        int notificationCode = task.getId().toHexString().hashCode();
-        // Set the interval to 15 seconds
-        long intervalMillis = 10 * 1000; // 15 seconds
-        long triggerAtMillis = System.currentTimeMillis() + intervalMillis;
+        long interval = parseInterval(task);
+        long triggerAtMillis = System.currentTimeMillis() + interval;
 
         Intent intent = new Intent(context, NotificationReceiver.class);
-        intent.putExtra("task_name", task.getTaskName());
-        intent.putExtra("is_repeating", true);
-        intent.putExtra("trigger_time", triggerAtMillis);
-        intent.putExtra("notification_code", notificationCode);
+        intent.putExtra("task_json", taskJson);
+        intent.putExtra("is_repeating", isRepeating);
 
-        pendingIntent = PendingIntent.getBroadcast(context, notificationCode, intent, PendingIntent.FLAG_UPDATE_CURRENT | PendingIntent.FLAG_IMMUTABLE);
+        PendingIntent pendingIntent = PendingIntent.getBroadcast(context, notificationCode, intent, PendingIntent.FLAG_UPDATE_CURRENT | PendingIntent.FLAG_IMMUTABLE);
 
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
             if (alarmManager.canScheduleExactAlarms()) {
@@ -80,12 +76,12 @@ public class NotificationScheduler {
         } else {
             alarmManager.setExactAndAllowWhileIdle(AlarmManager.RTC_WAKEUP, triggerAtMillis, pendingIntent);
         }
-
-        Toast.makeText(context, "Repeating notification scheduled", Toast.LENGTH_SHORT).show();
+        Log.d(TAG_NOTIF, "Alarm set");
     }
 
-
     public static void cancelNotification(Context context, Task task) {
+        AlarmManager alarmManager = (AlarmManager) context.getSystemService(Context.ALARM_SERVICE);
+
         Intent intent = new Intent(context, NotificationReceiver.class);
         int notificationCode = task.getId().toHexString().hashCode();
         PendingIntent pendingIntent = PendingIntent.getBroadcast(context, notificationCode, intent, PendingIntent.FLAG_IMMUTABLE);
@@ -95,6 +91,6 @@ public class NotificationScheduler {
         }
 
         alarmManager.cancel(pendingIntent);
-        Toast.makeText(context, "Notification canceled", Toast.LENGTH_SHORT).show();
+        Log.d(TAG_NOTIF, "Alarm canceled");
     }
 }

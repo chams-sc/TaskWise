@@ -34,15 +34,14 @@ public class SystemUIHelper {
         }
     }
 
-    public static void adjustDialog(AppCompatActivity activity, Dialog dialog) {
+    public static void adjustDialog(Dialog dialog) {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
             // For devices running on Android R (API 30) and above
             dialog.getWindow().setDecorFitsSystemWindows(false);
         } else {
             // For devices running on Android KitKat (API 19) to Q (API 29)
-            dialog.getWindow().setFlags(WindowManager.LayoutParams.FLAG_LAYOUT_NO_LIMITS, WindowManager.LayoutParams.FLAG_LAYOUT_NO_LIMITS);
+            dialog.getWindow().addFlags(WindowManager.LayoutParams.FLAG_LAYOUT_NO_LIMITS);
         }
-        setSystemUIVisibility(activity);
     }
 
     public static void setFlagsOnThePeekView() {

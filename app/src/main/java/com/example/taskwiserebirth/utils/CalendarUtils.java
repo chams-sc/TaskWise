@@ -6,7 +6,9 @@ import android.widget.ImageView;
 import android.widget.TextView;
 
 import com.example.taskwiserebirth.R;
+import com.example.taskwiserebirth.task.Task;
 
+import java.text.DateFormat;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
@@ -15,6 +17,7 @@ import java.util.Calendar;
 import java.util.Date;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Locale;
 import java.util.Set;
 import java.util.regex.Pattern;
 
@@ -126,7 +129,201 @@ public class CalendarUtils {
         return formattedRecurrence.toString();
     }
 
-    private static String getDayAbbreviation(String day) {
+    public static long findNextRecurrence(Task task) {
+        // Parse recurrence days and schedule time
+        String[] recurrenceDays = task.getRecurrence().split("\\s*\\|\\s*");
+        String[] scheduleTimeParts = task.getSchedule().split("\\s+");
+
+        // Extract hour, minute, and AM/PM from schedule time
+        String[] timeParts = scheduleTimeParts[0].split(":");
+        int hour = Integer.parseInt(timeParts[0]);
+        int minute = Integer.parseInt(timeParts[1]);
+        String amPm = scheduleTimeParts[1];
+
+        // Adjust hour for 12-hour format
+        if (amPm.equalsIgnoreCase("PM") && hour < 12) {
+            hour += 12;
+        } else if (amPm.equalsIgnoreCase("AM") && hour == 12) {
+            hour = 0;
+        }
+
+        // Create Calendar instance for the next alarm time
+        Calendar nextAlarmTime = Calendar.getInstance();
+        nextAlarmTime.set(Calendar.HOUR_OF_DAY, hour);
+        nextAlarmTime.set(Calendar.MINUTE, minute);
+        nextAlarmTime.set(Calendar.SECOND, 0);
+        nextAlarmTime.set(Calendar.MILLISECOND, 0);
+
+        // Check if the scheduled time for today has already passed
+        if (nextAlarmTime.getTimeInMillis() <= System.currentTimeMillis()) {
+            // Move to the next day
+            nextAlarmTime.add(Calendar.DATE, 1);
+        }
+
+        // Find the next occurring day in the recurrence
+        while (true) {
+            int today = nextAlarmTime.get(Calendar.DAY_OF_WEEK);
+            for (String day : recurrenceDays) {
+                int dayOfWeek = getDayOfWeek(day.trim());
+                if (today == dayOfWeek) {
+                    // Set the time to the next occurrence day at the specified time
+                    return nextAlarmTime.getTimeInMillis() - System.currentTimeMillis();
+                }
+            }
+            // Move to the next day
+            nextAlarmTime.add(Calendar.DATE, 1);
+        }
+    }
+
+    public static long calculateScheduleTime(String schedule) {
+        try {
+            SimpleDateFormat dateFormat = new SimpleDateFormat("MM-dd-yyyy | hh:mm a", Locale.getDefault());
+            Date scheduledDate = dateFormat.parse(schedule);
+
+            if (scheduledDate.getTime() <= System.currentTimeMillis()) {
+                return 0;
+            }
+
+            return scheduledDate.getTime() - System.currentTimeMillis();
+        } catch (ParseException e) {
+            Log.e("ParseDate", String.valueOf(e));
+        }
+        return 0;
+    }
+
+    public static long calculateDefaultInterval() {
+        // Default interval is every Saturday at 9:00 am
+        // Get the current time
+        Calendar now = Calendar.getInstance();
+
+        // Check if today is Saturday and has not yet passed 9 AM
+        if (now.get(Calendar.DAY_OF_WEEK) == Calendar.SATURDAY &&
+                now.get(Calendar.HOUR_OF_DAY) < 9) {
+            // Calculate the interval until 9 AM today
+            Calendar today9AM = (Calendar) now.clone();
+            today9AM.set(Calendar.HOUR_OF_DAY, 9);
+            today9AM.set(Calendar.MINUTE, 0);
+            today9AM.set(Calendar.SECOND, 0);
+            today9AM.set(Calendar.MILLISECOND, 0);
+
+            return today9AM.getTimeInMillis() - now.getTimeInMillis();
+        } else {
+            // Calculate the day difference until next Saturday
+            int daysUntilSaturday = Calendar.SATURDAY - now.get(Calendar.DAY_OF_WEEK);
+            if (daysUntilSaturday <= 0) {
+                daysUntilSaturday += 7; // If today is Saturday, add 7 to go to the next Saturday
+            }
+
+            // Set the time to Saturday 9 AM
+            Calendar nextSaturday = (Calendar) now.clone();
+            nextSaturday.add(Calendar.DAY_OF_YEAR, daysUntilSaturday);
+            nextSaturday.set(Calendar.HOUR_OF_DAY, 9);
+            nextSaturday.set(Calendar.MINUTE, 0);
+            nextSaturday.set(Calendar.SECOND, 0);
+            nextSaturday.set(Calendar.MILLISECOND, 0);
+
+            // Calculate the interval between current time and next Saturday 9 AM
+            return nextSaturday.getTimeInMillis() - now.getTimeInMillis();
+        }
+    }
+
+    public static long calculateDailyInterval(String schedule) {
+        // Parse the schedule time in the format "09:00 PM" or "08:00 AM"
+        SimpleDateFormat dateFormat = new SimpleDateFormat("hh:mm a", Locale.getDefault());
+        try {
+            Date time = dateFormat.parse(schedule);
+            Calendar calendar = Calendar.getInstance();
+            calendar.setTime(time);
+
+            // Get current time
+            Calendar now = Calendar.getInstance();
+
+            // Set alarm time for today
+            calendar.set(Calendar.YEAR, now.get(Calendar.YEAR));
+            calendar.set(Calendar.MONTH, now.get(Calendar.MONTH));
+            calendar.set(Calendar.DAY_OF_MONTH, now.get(Calendar.DAY_OF_MONTH));
+
+            // Check if alarm time is in the past, if so, set it for tomorrow
+            if (calendar.before(now)) {
+                calendar.add(Calendar.DATE, 1);
+            }
+
+            // Calculate interval between current time and alarm time
+            return calendar.getTimeInMillis() - now.getTimeInMillis();
+        } catch (ParseException e) {
+            Log.e("ParseException", e.getMessage());
+            return 0;
+        }
+    }
+
+    public static long calculateCloseToDueInterval(String deadlineString, int hoursBeforeDeadline) {
+        DateFormat dateFormat = new SimpleDateFormat("MM-dd-yyyy | hh:mm a");
+        try {
+            Date deadline = dateFormat.parse(deadlineString);
+
+            // Subtract 12 hours from the deadline
+            Calendar calendar = Calendar.getInstance();
+            if (deadline != null) {
+                calendar.setTime(deadline);
+            }
+            calendar.add(Calendar.HOUR_OF_DAY, -hoursBeforeDeadline);
+
+            // Calculate the difference between the adjusted deadline time and the current time
+            long timeDifferenceMillis = calendar.getTimeInMillis() - System.currentTimeMillis();
+
+            // If the time difference is negative, set the alarm for now
+            if (timeDifferenceMillis < 0) {
+                timeDifferenceMillis = 0;
+            }
+
+            return timeDifferenceMillis;
+        } catch (ParseException e) {
+            Log.e("NotificationScheduler", "Error parsing deadline: " + deadlineString, e);
+        }
+
+        // Default interval (1 minute) if parsing fails or deadline is not provided
+        return 60000;
+    }
+
+    public static String formatDeadline(String deadlineString) {
+        if (!deadlineString.equals("No deadline")) {
+            try {
+                SimpleDateFormat inputFormat = new SimpleDateFormat("MM-dd-yyyy | hh:mm a", Locale.US);
+                Date date = inputFormat.parse(deadlineString);
+
+                SimpleDateFormat outputFormat = new SimpleDateFormat("EEE, MMM d\nhh:mm a", Locale.US);
+                return outputFormat.format(date);
+            } catch (ParseException e) {
+                Log.e("ParseException", e.getMessage());
+                return deadlineString;
+            }
+        } else {
+            return deadlineString;
+        }
+    }
+
+    private static int getDayOfWeek(String day) {
+        switch (day) {
+            case "Su":
+                return Calendar.SUNDAY;
+            case "M":
+                return Calendar.MONDAY;
+            case "T":
+                return Calendar.TUESDAY;
+            case "W":
+                return Calendar.WEDNESDAY;
+            case "Th":
+                return Calendar.THURSDAY;
+            case "F":
+                return Calendar.FRIDAY;
+            case "Sa":
+                return Calendar.SATURDAY;
+            default:
+                throw new IllegalArgumentException("Invalid day of week: " + day);
+        }
+    }
+
+    public static String getDayAbbreviation(String day) {
         switch (day) {
             case "Monday":
                 return "M";

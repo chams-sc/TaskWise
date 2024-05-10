@@ -1,5 +1,6 @@
 package com.example.taskwiserebirth;
 
+import android.graphics.Typeface;
 import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -12,6 +13,7 @@ import androidx.core.widget.NestedScrollView;
 import androidx.fragment.app.Fragment;
 
 import com.example.taskwiserebirth.task.Task;
+import com.example.taskwiserebirth.utils.CalendarUtils;
 
 
 public class TaskDetailFragment extends Fragment {
@@ -52,16 +54,18 @@ public class TaskDetailFragment extends Fragment {
         TextView importance = view.findViewById(R.id.importanceDetail);
         TextView urgency = view.findViewById(R.id.urgencyDetail);
         TextView recurrence = view.findViewById(R.id.recurrenceDetail);
-        TextView notes = view.findViewById(R.id.notesDetail);
+        TextView notes = view.findViewById(R.id.notesDetailText);
         CheckBox reminder = view.findViewById(R.id.remindMeCheckBox);
 
         taskName.setText(task.getTaskName());
-        sched.setText(task.getSchedule());
-        deadline.setText(task.getDeadline());
+        sched.setText(CalendarUtils.formatDeadline(task.getSchedule()));
+        deadline.setText(CalendarUtils.formatDeadline(task.getDeadline()));
         importance.setText(task.getImportanceLevel());
         urgency.setText(task.getUrgencyLevel());
         recurrence.setText(task.getRecurrence());
-        notes.setText(task.getNotes());
         reminder.setChecked(task.isReminder());
+
+        notes.setText(task.getNotes().isEmpty() ? "No notes" : task.getNotes());
+        notes.setTypeface(null, task.getNotes().isEmpty() ? Typeface.BOLD : Typeface.NORMAL);
     }
 }

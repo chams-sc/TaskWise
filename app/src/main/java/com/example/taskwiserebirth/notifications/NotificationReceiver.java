@@ -1,14 +1,11 @@
 package com.example.taskwiserebirth.notifications;
 
 import android.Manifest;
-import android.app.AlarmManager;
 import android.app.PendingIntent;
 import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
 import android.os.Build;
-import android.util.Log;
-import android.widget.Toast;
 
 import androidx.core.app.ActivityCompat;
 import androidx.core.app.NotificationCompat;
@@ -16,19 +13,21 @@ import androidx.core.app.NotificationManagerCompat;
 
 import com.example.taskwiserebirth.MainActivity;
 import com.example.taskwiserebirth.R;
+import com.example.taskwiserebirth.task.Task;
+import com.google.gson.Gson;
 
 public class NotificationReceiver extends BroadcastReceiver {
     @Override
     public void onReceive(Context context, Intent intent) {
-        Log.e("RECEIVED", "TASK RECEIVED");
-        String taskName = intent.getStringExtra("task_name");
+        String taskJson = intent.getStringExtra("task_json");
+        Gson gson = new Gson();
+        Task task = gson.fromJson(taskJson, Task.class);
+
+        String taskName = task.getTaskName();
         boolean isRepeating = intent.getBooleanExtra("is_repeating", false);
-        long triggerTime = intent.getLongExtra("trigger_time",0);
-        int notificationCode = intent.getIntExtra("notification_code", 0);
 
         if (isRepeating) {
-            Log.e("TRY", "TRUE");
-            rescheduleAlarm(context, notificationCode, triggerTime, intent);
+            NotificationScheduler.scheduleNotificationOnce(context, task, true);
         }
 
         // check needed for notificationManagerCompat.notify
@@ -54,23 +53,6 @@ public class NotificationReceiver extends BroadcastReceiver {
 
         int notificationID = 123;
         notificationManagerCompat.notify(notificationID, builder.build());
-    }
-
-    private void rescheduleAlarm(Context context, int notificationCode, long triggerAtMillis, Intent intent) {
-        AlarmManager alarmManager = (AlarmManager) context.getSystemService(Context.ALARM_SERVICE);
-        PendingIntent pendingIntent = PendingIntent.getBroadcast(context, notificationCode, intent, PendingIntent.FLAG_UPDATE_CURRENT | PendingIntent.FLAG_IMMUTABLE);
-
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
-            if (alarmManager.canScheduleExactAlarms()) {
-                alarmManager.setExactAndAllowWhileIdle(AlarmManager.RTC_WAKEUP, triggerAtMillis, pendingIntent);
-            } else {
-                alarmManager.setAndAllowWhileIdle(AlarmManager.RTC_WAKEUP, triggerAtMillis, pendingIntent);
-            }
-        } else {
-            alarmManager.setExactAndAllowWhileIdle(AlarmManager.RTC_WAKEUP, triggerAtMillis, pendingIntent);
-        }
-
-        Toast.makeText(context, "New alarm set", Toast.LENGTH_SHORT).show();
     }
 
 }

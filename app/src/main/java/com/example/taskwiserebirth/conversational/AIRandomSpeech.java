@@ -16,18 +16,15 @@ public class AIRandomSpeech {
             "With task %s added, you're one step closer to your goals. Keep up the fantastic work!",
             "Task %s is locked and loaded. You've got this!",
             "Pat yourself on the back, task %s is officially part of your journey. Keep shining bright!",
-            "Bravo! Task %s is on deck. Stay focused, stay positive, and keep moving forward!",
+            "Task %s is on deck. Stay focused, stay positive, and keep moving forward!",
             "Task %s has been added to your arsenal. You're making progress like a boss!",
-            // Feel free to add even more if you need them
             // Add more messages as needed
     };
 
-    // Method to generate a random speech message with the provided task name
     public static String generateTaskAdded(String taskName) {
-        // Generate a random index to select a random message
         int randomIndex = random.nextInt(taskAddedMessages.length);
         String randomMessage = taskAddedMessages[randomIndex];
-        // Format the message with the task name and return
+
         return String.format(randomMessage, taskName);
     }
 }
