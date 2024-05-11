@@ -16,24 +16,6 @@ public class SMSFragment extends Fragment {
         // Inflate the layout for this fragment
         View view = inflater.inflate(R.layout.fragment_s_m_s, container, false);
 
-        bottomNavigationView = getActivity().findViewById(R.id.bottomNavigationView); // Assuming bottom navigation view is defined in the activity layout
-
-        // Set OnClickListener to the root layout
-        view.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                toggleBottomNavigationViewVisibility();
-            }
-        });
-
         return view;
-    }
-
-    private void toggleBottomNavigationViewVisibility() {
-        if (bottomNavigationView.getVisibility() == View.VISIBLE) {
-            bottomNavigationView.setVisibility(View.GONE);
-        } else {
-            bottomNavigationView.setVisibility(View.VISIBLE);
-        }
     }
 }

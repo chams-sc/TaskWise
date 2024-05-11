@@ -41,7 +41,7 @@ public class NotificationScheduler {
             Log.d("AlarmInterval", "Method: findNextRecurrence");
             return CalendarUtils.findNextRecurrence(task);
         } else if (task.getSchedule().equals(noSchedule) && !task.getDeadline().equals(noDeadline)) {
-            Log.d("AlarmInterval", "Method: calculateCloseToDueInterval");
+            Log.d("AlarmInterval", "Method: calculateCloseToDueInterval");      // TODO: dapat maremind din ng close to deadline kahit may schedule na?
             return CalendarUtils.calculateCloseToDueInterval(task.getDeadline(), closeToDue);
         } else if (!task.getSchedule().equals(noSchedule) && task.getRecurrence().equals(none)) {
             Log.d("AlarmInterval", "Method: calculateScheduleTime");
@@ -67,16 +67,18 @@ public class NotificationScheduler {
 
         PendingIntent pendingIntent = PendingIntent.getBroadcast(context, notificationCode, intent, PendingIntent.FLAG_UPDATE_CURRENT | PendingIntent.FLAG_IMMUTABLE);
 
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
-            if (alarmManager.canScheduleExactAlarms()) {
-                alarmManager.setExactAndAllowWhileIdle(AlarmManager.RTC_WAKEUP, triggerAtMillis, pendingIntent);
+        if (interval != 0) {
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
+                if (alarmManager.canScheduleExactAlarms()) {
+                    alarmManager.setExactAndAllowWhileIdle(AlarmManager.RTC_WAKEUP, triggerAtMillis, pendingIntent);
+                } else {
+                    alarmManager.setAndAllowWhileIdle(AlarmManager.RTC_WAKEUP, triggerAtMillis, pendingIntent);
+                }
             } else {
-                alarmManager.setAndAllowWhileIdle(AlarmManager.RTC_WAKEUP, triggerAtMillis, pendingIntent);
+                alarmManager.setExactAndAllowWhileIdle(AlarmManager.RTC_WAKEUP, triggerAtMillis, pendingIntent);
             }
-        } else {
-            alarmManager.setExactAndAllowWhileIdle(AlarmManager.RTC_WAKEUP, triggerAtMillis, pendingIntent);
+            Log.d(TAG_NOTIF, "Alarm set");
         }
-        Log.d(TAG_NOTIF, "Alarm set");
     }
 
     public static void cancelNotification(Context context, Task task) {
