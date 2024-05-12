@@ -1,10 +1,8 @@
 package com.example.taskwiserebirth.utils;
 
-import android.app.Dialog;
 import android.os.Build;
 import android.view.View;
 import android.view.WindowInsetsController;
-import android.view.WindowManager;
 
 import androidx.appcompat.app.AppCompatActivity;
 
@@ -31,16 +29,6 @@ public class SystemUIHelper {
         } else {
             // For devices running on Android KitKat (API 19) to Q (API 29)
             decorView.setSystemUiVisibility(FLAGS);
-        }
-    }
-
-    public static void adjustDialog(Dialog dialog) {
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
-            // For devices running on Android R (API 30) and above
-            dialog.getWindow().setDecorFitsSystemWindows(false);
-        } else {
-            // For devices running on Android KitKat (API 19) to Q (API 29)
-            dialog.getWindow().addFlags(WindowManager.LayoutParams.FLAG_LAYOUT_NO_LIMITS);
         }
     }
 

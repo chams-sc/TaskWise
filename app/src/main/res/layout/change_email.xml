@@ -15,13 +15,14 @@
         android:textAlignment="center"
         android:text="Change Email"
         android:textColor="@android:color/black"
-        android:layout_marginTop="5dp"
         android:textSize="25sp"
         android:textStyle="bold"
-        android:fontFamily="@font/inter_bold"/>
+        android:fontFamily="@font/inter_semibold"
+        android:layout_marginVertical="10dp"
+        android:layout_marginHorizontal="20dp"/>
 
     <com.google.android.material.textfield.TextInputLayout
-        style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox.Dense"
+        style="@style/CustomTextInputLayout"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_marginVertical="10dp"
@@ -36,7 +37,7 @@
     </com.google.android.material.textfield.TextInputLayout>
 
     <com.google.android.material.textfield.TextInputLayout
-        style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox.Dense"
+        style="@style/CustomTextInputLayout"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_marginVertical="10dp"
@@ -53,25 +54,28 @@
     <Button
         android:id="@+id/button4"
         android:layout_width="match_parent"
-        android:layout_height="48dp"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="8dp"
         android:background="@drawable/login_button_shape"
-        android:fontFamily="@font/inter_bold"
+        android:fontFamily="@font/inter_semibold"
         android:text="Save Changes"
         android:textColor="@color/white"
         android:textSize="18sp"
         android:textStyle="bold"
-        android:layout_margin="20dp"/>
+        android:layout_marginHorizontal="20dp"
+        android:layout_marginVertical="10dp"/>
 
     <Button
         android:id="@+id/button5"
         android:layout_width="match_parent"
-        android:layout_height="48dp"
+        android:layout_height="wrap_content"
         android:background="@drawable/login_button_shape"
-        android:fontFamily="@font/inter_bold"
+        android:fontFamily="@font/inter_semibold"
         android:text="Cancel"
         android:textColor="@color/white"
         android:textSize="18sp"
         android:textStyle="bold"
-        android:layout_margin="20dp"/>
+        android:layout_marginHorizontal="20dp"
+        android:layout_marginVertical="10dp"/>
 
 </LinearLayout>

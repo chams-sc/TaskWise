@@ -15,12 +15,14 @@ import android.widget.PopupMenu;
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.content.ContextCompat;
+import androidx.fragment.app.FragmentActivity;
 import androidx.fragment.app.FragmentTransaction;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.example.taskwiserebirth.R;
 import com.example.taskwiserebirth.TaskDetailFragment;
 import com.example.taskwiserebirth.utils.CalendarUtils;
+import com.example.taskwiserebirth.utils.SystemUIHelper;
 
 import java.util.Date;
 import java.util.List;
@@ -31,6 +33,7 @@ public class TaskAdapter extends RecyclerView.Adapter<TaskViewHolder> {
     private List<Task> tasks;
     private final TaskActionListener actionListener;
     private Date selectedDate;
+    private FragmentActivity activity;
     private final int closeToDueHours = 12;
 
     public interface TaskActionListener {
@@ -39,8 +42,9 @@ public class TaskAdapter extends RecyclerView.Adapter<TaskViewHolder> {
         void onDoneTask(Task task);
     }
 
-    public TaskAdapter(Context context, List<Task> tasks, TaskActionListener listener) {
+    public TaskAdapter(Context context, FragmentActivity activity, List<Task> tasks, TaskActionListener listener) {
         this.context = context;
+        this.activity = activity;
         this.tasks = tasks;
         this.actionListener = listener;
     }
@@ -105,6 +109,9 @@ public class TaskAdapter extends RecyclerView.Adapter<TaskViewHolder> {
         MenuInflater inflater = popupMenu.getMenuInflater();
         inflater.inflate(R.menu.show_menu, popupMenu.getMenu());
 
+        // Adjust layout based on navigation bar visibility
+        SystemUIHelper.setFlagsOnThePeekView();
+
         Menu menu = popupMenu.getMenu();
         for (int i = 0; i < menu.size(); i++) {
             MenuItem menuItem = menu.getItem(i);
@@ -132,7 +139,20 @@ public class TaskAdapter extends RecyclerView.Adapter<TaskViewHolder> {
             return false;
         });
 
+
+        popupMenu.setOnDismissListener(dialogInterface -> {
+            if (activity != null) {
+                SystemUIHelper.setSystemUIVisibility((AppCompatActivity) activity);
+            }
+        });
+
         popupMenu.show();
+    }
+
+    @Override
+    public void onDetachedFromRecyclerView(@NonNull RecyclerView recyclerView) {
+        super.onDetachedFromRecyclerView(recyclerView);
+        activity = null;
     }
 
     @Override

@@ -62,7 +62,7 @@ public class FinishedTaskFragment extends Fragment implements TaskAdapter.TaskAc
         RecyclerView cardRecyclerView = rootView.findViewById(R.id.finishedRecyclerView);
 
         List<Task> tasks = new ArrayList<>();
-        taskAdapter = new TaskAdapter(requireContext(), tasks, this);
+        taskAdapter = new TaskAdapter(requireContext(), requireActivity(), tasks, this);
 
         cardRecyclerView.setLayoutManager(new LinearLayoutManager(requireContext()));
         cardRecyclerView.setAdapter(taskAdapter);

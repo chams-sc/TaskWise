@@ -18,6 +18,7 @@ import android.widget.Spinner;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import androidx.appcompat.app.AppCompatActivity;
 import androidx.fragment.app.FragmentActivity;
 
 import com.example.taskwiserebirth.CustomSpinnerAdapter;
@@ -55,11 +56,14 @@ public class DialogUtils {
         final BottomSheetDialog bottomSheetDialog = new BottomSheetDialog(activity);
         View bottomSheetView = LayoutInflater.from(activity).inflate(R.layout.bottom_add_task, null);
 
-        bottomSheetDialog.getWindow().setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_ADJUST_RESIZE);
+        SystemUIHelper.setFlagsOnThePeekView();
 
         bottomSheetDialog.setContentView(bottomSheetView);
-
         setUpTaskForm(bottomSheetDialog, bottomSheetView, task);
+
+        bottomSheetDialog.setOnDismissListener(dialogInterface -> {
+            SystemUIHelper.setSystemUIVisibility((AppCompatActivity) activity);
+        });
 
         bottomSheetDialog.show();
         dialogs.add(bottomSheetDialog);

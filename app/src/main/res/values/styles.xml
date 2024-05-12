@@ -29,5 +29,10 @@
         <!-- Add other text appearance attributes as needed -->
     </style>
 
+    <style name="CustomTextInputLayout" parent="Widget.MaterialComponents.TextInputLayout.OutlinedBox.Dense">
+        <item name="boxStrokeColor">@color/gray</item>
+        <item name="hintTextColor">@color/gray</item>
+    </style>
+
 </resources>
 

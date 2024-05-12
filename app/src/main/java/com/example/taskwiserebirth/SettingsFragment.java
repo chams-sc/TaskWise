@@ -1,4 +1,5 @@
 package com.example.taskwiserebirth;
+
 import android.app.AlertDialog;
 import android.app.Dialog;
 import android.content.Context;
@@ -14,30 +15,32 @@ import android.view.Window;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import androidx.appcompat.app.AppCompatActivity;
 import androidx.fragment.app.Fragment;
 
-import com.example.taskwiserebirth.R;
+import com.example.taskwiserebirth.utils.SystemUIHelper;
 
 public class SettingsFragment extends Fragment {
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
-        // Inflate the layout for this fragment
         View view = inflater.inflate(R.layout.fragment_settings, container, false);
 
-        // Find the TextView by its id
         TextView changeEmail = view.findViewById(R.id.ChangeEmail);
         TextView changePassword = view.findViewById(R.id.ChangePassword);
         TextView changeAiname = view.findViewById(R.id.AIname);
         TextView clearMemory = view.findViewById(R.id.ClearMemory);
 
-        // Set onClickListener to the TextViews
         changeEmail.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                // Create and show the dialog
-                showCustomDialog(getContext(), R.layout.change_email);
+                showCustomDialog(getContext(), R.layout.change_email, new DialogCallback() {
+                    @Override
+                    public void handleDialog(Dialog dialog) {
+                        handleChangeEmailDialog(dialog);
+                    }
+                });
             }
         });
 
@@ -45,7 +48,12 @@ public class SettingsFragment extends Fragment {
             @Override
             public void onClick(View v) {
                 // Create and show the dialog
-                showCustomDialog(getContext(), R.layout.change_password);
+                showCustomDialog(getContext(), R.layout.change_password, new DialogCallback() {
+                    @Override
+                    public void handleDialog(Dialog dialog) {
+                        handleChangePasswordDialog(dialog);
+                    }
+                });
             }
         });
 
@@ -53,7 +61,12 @@ public class SettingsFragment extends Fragment {
             @Override
             public void onClick(View v) {
                 // Create and show the dialog
-                showCustomDialog(getContext(), R.layout.change_ai_name);
+                showCustomDialog(getContext(), R.layout.change_ai_name, new DialogCallback() {
+                    @Override
+                    public void handleDialog(Dialog dialog) {
+                        handleChangeAINameDialog(dialog);
+                    }
+                });
             }
         });
 
@@ -93,18 +106,44 @@ public class SettingsFragment extends Fragment {
         alertDialog.show();
     }
 
-    private Dialog showCustomDialog(final Context context, final int layoutResId) {
+    private void handleChangeEmailDialog(Dialog dialog) {
+        // Get references to EditText, buttons, etc. from the dialog layout
+        // Set click listeners or handle user input as needed for the Change Email dialog
+    }
+
+    private void handleChangePasswordDialog(Dialog dialog) {
+        // Get references to EditText, buttons, etc. from the dialog layout
+        // Set click listeners or handle user input as needed for the Change Password dialog
+    }
+
+    private void handleChangeAINameDialog(Dialog dialog) {
+        // Get references to EditText, buttons, etc. from the dialog layout
+        // Set click listeners or handle user input as needed for the Change AI Name dialog
+    }
+
+    private void showCustomDialog(final Context context, final int layoutResId, DialogCallback callback) {
         final Dialog dialog = new Dialog(context);
 
         dialog.requestWindowFeature(Window.FEATURE_NO_TITLE);
         dialog.setContentView(layoutResId);
 
-        dialog.show();
+        SystemUIHelper.setFlagsOnThePeekView();
+
         dialog.getWindow().setLayout(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT);
         dialog.getWindow().setBackgroundDrawable(new ColorDrawable(Color.TRANSPARENT));
         dialog.getWindow().getAttributes().windowAnimations = R.style.DialogAnimation;
         dialog.getWindow().setGravity(Gravity.BOTTOM);
 
-        return dialog;
+        dialog.setOnDismissListener(dialogInterface -> {
+            SystemUIHelper.setSystemUIVisibility((AppCompatActivity) requireActivity());
+        });
+
+        callback.handleDialog(dialog);
+        dialog.show();
+    }
+
+
+    interface DialogCallback {
+        void handleDialog(Dialog dialog);
     }
 }

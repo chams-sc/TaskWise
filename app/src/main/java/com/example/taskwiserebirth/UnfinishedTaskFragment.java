@@ -62,7 +62,7 @@ public class UnfinishedTaskFragment extends Fragment implements TaskAdapter.Task
         RecyclerView cardRecyclerView = rootView.findViewById(R.id.unfinishedRecyclerView);
 
         List<Task> tasks = new ArrayList<>();
-        taskAdapter = new TaskAdapter(requireContext(), tasks, this);
+        taskAdapter = new TaskAdapter(requireContext(), requireActivity(), tasks, this);
 
         cardRecyclerView.setLayoutManager(new LinearLayoutManager(requireContext()));
         cardRecyclerView.setAdapter(taskAdapter);

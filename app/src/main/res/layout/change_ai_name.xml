@@ -2,36 +2,37 @@
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
-    android:orientation="vertical"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
     android:background="@drawable/dialogbkg"
-    android:elevation="10dp">
+    android:elevation="10dp"
+    android:orientation="vertical">
 
     <TextView
         android:id="@+id/choosetxt3"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
+        android:layout_marginHorizontal="20dp"
+        android:layout_marginVertical="10dp"
+        android:fontFamily="@font/inter_semibold"
+        android:text="Change AI Name"
         android:textAlignment="center"
-        android:text="Change Ai Name"
         android:textColor="@android:color/black"
-        android:layout_marginTop="5dp"
         android:textSize="25sp"
-        android:textStyle="bold"
-        android:fontFamily="@font/inter_bold"/>
+        android:textStyle="bold" />
 
     <com.google.android.material.textfield.TextInputLayout
-        style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox.Dense"
+        style="@style/CustomTextInputLayout"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_marginVertical="10dp"
-        android:layout_marginHorizontal="20dp">
+        android:layout_marginHorizontal="20dp"
+        android:layout_marginVertical="10dp">
 
         <com.google.android.material.textfield.TextInputEditText
+            android:id="@+id/name2"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:id="@+id/name2"
-            android:hint="New Ai Name"/>
+            android:hint="New Ai Name" />
 
     </com.google.android.material.textfield.TextInputLayout>
 
@@ -39,24 +40,26 @@
         android:id="@+id/button2"
         android:layout_width="match_parent"
         android:layout_height="48dp"
+        android:layout_marginHorizontal="20dp"
+        android:layout_marginVertical="10dp"
         android:background="@drawable/login_button_shape"
-        android:fontFamily="@font/inter_bold"
+        android:fontFamily="@font/inter_semibold"
         android:text="Save Changes"
         android:textColor="@color/white"
         android:textSize="18sp"
-        android:textStyle="bold"
-        android:layout_margin="20dp"/>
+        android:textStyle="bold" />
 
     <Button
         android:id="@+id/button3"
         android:layout_width="match_parent"
         android:layout_height="48dp"
+        android:layout_marginHorizontal="20dp"
+        android:layout_marginVertical="10dp"
         android:background="@drawable/login_button_shape"
-        android:fontFamily="@font/inter_bold"
+        android:fontFamily="@font/inter_semibold"
         android:text="Cancel"
         android:textColor="@color/white"
         android:textSize="18sp"
-        android:textStyle="bold"
-        android:layout_margin="20dp"/>
+        android:textStyle="bold" />
 
 </LinearLayout>
