@@ -119,6 +119,7 @@ public class LoginActivity extends AppCompatActivity {
     private void logInEmail(String email, String password) {
 
         Credentials credentials = Credentials.emailPassword(email, password);
+
         app.loginAsync(credentials, result -> {
             if (result.isSuccess()) {
                 SharedPreferences sharedPreferences = getSharedPreferences(SHARED_PREFS, MODE_PRIVATE);

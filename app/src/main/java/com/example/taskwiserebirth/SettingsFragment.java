@@ -2,7 +2,6 @@ package com.example.taskwiserebirth;
 
 import android.app.AlertDialog;
 import android.app.Dialog;
-import android.content.Context;
 import android.content.DialogInterface;
 import android.graphics.Color;
 import android.graphics.drawable.ColorDrawable;
@@ -18,7 +17,11 @@ import android.widget.Toast;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.fragment.app.Fragment;
 
+import com.example.taskwiserebirth.database.MongoDbRealmHelper;
 import com.example.taskwiserebirth.utils.SystemUIHelper;
+
+import io.realm.mongodb.App;
+import io.realm.mongodb.User;
 
 public class SettingsFragment extends Fragment {
 
@@ -27,61 +30,37 @@ public class SettingsFragment extends Fragment {
                              Bundle savedInstanceState) {
         View view = inflater.inflate(R.layout.fragment_settings, container, false);
 
+        App app = MongoDbRealmHelper.initializeRealmApp();
+        User user = app.currentUser();
+
         TextView changeEmail = view.findViewById(R.id.ChangeEmail);
         TextView changePassword = view.findViewById(R.id.ChangePassword);
         TextView changeAiname = view.findViewById(R.id.AIname);
         TextView clearMemory = view.findViewById(R.id.ClearMemory);
 
-        changeEmail.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                showCustomDialog(getContext(), R.layout.change_email, new DialogCallback() {
-                    @Override
-                    public void handleDialog(Dialog dialog) {
-                        handleChangeEmailDialog(dialog);
-                    }
-                });
-            }
-        });
-
-        changePassword.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                // Create and show the dialog
-                showCustomDialog(getContext(), R.layout.change_password, new DialogCallback() {
-                    @Override
-                    public void handleDialog(Dialog dialog) {
-                        handleChangePasswordDialog(dialog);
-                    }
-                });
-            }
-        });
-
-        changeAiname.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                // Create and show the dialog
-                showCustomDialog(getContext(), R.layout.change_ai_name, new DialogCallback() {
-                    @Override
-                    public void handleDialog(Dialog dialog) {
-                        handleChangeAINameDialog(dialog);
-                    }
-                });
-            }
-        });
-
-        clearMemory.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                // Clear memory
-                ClearMemory();
-            }
-        });
+        changeEmail.setOnClickListener(v -> showChangeEmailDialog());
+        changePassword.setOnClickListener(v -> showChangePasswordDialog());
+        changeAiname.setOnClickListener(v -> showChangeAINameDialog());
+        clearMemory.setOnClickListener(v -> showClearMemoryDialog());
 
         return view;
     }
 
-    private void ClearMemory() {
+    private void showChangeEmailDialog() {
+        Dialog dialog = createCustomDialog(R.layout.change_email);
+        dialog.show();
+    }
+
+    private void showChangePasswordDialog() {
+        Dialog dialog = createCustomDialog(R.layout.change_password);
+        dialog.show();
+    }
+
+    private void showChangeAINameDialog() {
+        Dialog dialog = createCustomDialog(R.layout.change_ai_name);
+        dialog.show();
+    }
+    private void showClearMemoryDialog() {
         AlertDialog.Builder builder = new AlertDialog.Builder(getContext());
         builder.setTitle("Clear Ai Memory");
         builder.setMessage("Are You Sure You want to clear the memory you've made?");
@@ -106,44 +85,21 @@ public class SettingsFragment extends Fragment {
         alertDialog.show();
     }
 
-    private void handleChangeEmailDialog(Dialog dialog) {
-        // Get references to EditText, buttons, etc. from the dialog layout
-        // Set click listeners or handle user input as needed for the Change Email dialog
-    }
-
-    private void handleChangePasswordDialog(Dialog dialog) {
-        // Get references to EditText, buttons, etc. from the dialog layout
-        // Set click listeners or handle user input as needed for the Change Password dialog
-    }
-
-    private void handleChangeAINameDialog(Dialog dialog) {
-        // Get references to EditText, buttons, etc. from the dialog layout
-        // Set click listeners or handle user input as needed for the Change AI Name dialog
-    }
-
-    private void showCustomDialog(final Context context, final int layoutResId, DialogCallback callback) {
-        final Dialog dialog = new Dialog(context);
-
+    private Dialog createCustomDialog(int layoutResId) {
+        Dialog dialog = new Dialog(getContext());
         dialog.requestWindowFeature(Window.FEATURE_NO_TITLE);
         dialog.setContentView(layoutResId);
-
-        SystemUIHelper.setFlagsOnThePeekView();
 
         dialog.getWindow().setLayout(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT);
         dialog.getWindow().setBackgroundDrawable(new ColorDrawable(Color.TRANSPARENT));
         dialog.getWindow().getAttributes().windowAnimations = R.style.DialogAnimation;
         dialog.getWindow().setGravity(Gravity.BOTTOM);
 
-        dialog.setOnDismissListener(dialogInterface -> {
-            SystemUIHelper.setSystemUIVisibility((AppCompatActivity) requireActivity());
-        });
+        SystemUIHelper.setFlagsOnThePeekView();
+        dialog.setOnDismissListener(dialogInterface -> SystemUIHelper.setSystemUIVisibility((AppCompatActivity) requireActivity()));
 
-        callback.handleDialog(dialog);
-        dialog.show();
+        return dialog;
     }
 
 
-    interface DialogCallback {
-        void handleDialog(Dialog dialog);
-    }
 }

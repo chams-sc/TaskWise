@@ -17,4 +17,14 @@ public class UserDatabaseManager {
         this.taskCollection = MongoDbRealmHelper.getMongoCollection("UserAccountData");
         this.context = context;
     }
+
+    public void changeEmail(String newEmail, ChangeEmailCallback callback) {
+        
+    }
+
+    // Callback interface to handle email change success or failure
+    public interface ChangeEmailCallback {
+        void onChangeEmailSuccess();
+        void onChangeEmailFailure(String errorMessage);
+    }
 }
