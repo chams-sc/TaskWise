@@ -17,7 +17,7 @@ public class AIRandomSpeech {
             "Task %s is locked and loaded. You've got this!",
             "Pat yourself on the back, task %s is officially part of your journey. Keep shining bright!",
             "Task %s is on deck. Stay focused, stay positive, and keep moving forward!",
-            "Task %s has been added to your arsenal. You're making progress like a boss!",
+            "Task %s has been added to your arsenal. You're making progress!",
             // Add more messages as needed
     };
 

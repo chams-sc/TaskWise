@@ -22,6 +22,8 @@ import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.content.ContextCompat;
 
 import com.example.taskwiserebirth.database.MongoDbRealmHelper;
+import com.example.taskwiserebirth.database.UserDatabaseManager;
+import com.example.taskwiserebirth.database.UserModel;
 import com.example.taskwiserebirth.utils.SystemUIHelper;
 
 import java.util.regex.Matcher;
@@ -30,15 +32,18 @@ import java.util.regex.Pattern;
 import io.realm.mongodb.App;
 import io.realm.mongodb.AppException;
 import io.realm.mongodb.Credentials;
+import io.realm.mongodb.User;
 
 public class LoginActivity extends AppCompatActivity {
 
-    private final String TAG = "MongoDb";
+    private final String TAG_MONGO = "MongoDb";
     private App app;
     private Dialog loginDialog;
     private Dialog registerDialog;
     public static final String SHARED_PREFS = "sharedPrefs";
     private static final String STATUS_KEY = "status";
+    private UserDatabaseManager userDatabaseManager;
+    private User user;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -82,6 +87,8 @@ public class LoginActivity extends AppCompatActivity {
 
     // Show login dialog
     private void showLoginDialog() {
+        logout();
+
         loginDialog = showCustomDialog(R.layout.bottom_login);
 
         Button loginBtn = loginDialog.findViewById(R.id.login_button);
@@ -96,45 +103,23 @@ public class LoginActivity extends AppCompatActivity {
             String password = inputPassword.getText().toString();
 
 // TODO: for testing, you can create your own account and replace email and pass here; remove later
-            logInEmail("mics@gmail.com", "11111111");
+//            logInEmail("mics@gmail.com", "11111111");
 
             // TODO: comment back for final app
-//            if (email.isEmpty() || !isValidEmail(email)) {
-//                showError(inputEmail, "Invalid email");
-//            }
-//            else if (password.isEmpty()) {
-//                showError(inputPassword, "Password is empty.");
-//            }
-//            else {
-//                logInEmail(email, password);
-//            }
+            if (email.isEmpty() || !isValidEmail(email)) {
+                showError(inputEmail, "Invalid email");
+            }
+            else if (password.isEmpty()) {
+                showError(inputPassword, "Password is empty.");
+            }
+            else {
+                logInEmail(email, password);
+            }
         });
 
         registerBtn.setOnClickListener(v -> {
             loginDialog.dismiss();
             showRegisterDialog();
-        });
-    }
-
-    private void logInEmail(String email, String password) {
-
-        Credentials credentials = Credentials.emailPassword(email, password);
-
-        app.loginAsync(credentials, result -> {
-            if (result.isSuccess()) {
-                SharedPreferences sharedPreferences = getSharedPreferences(SHARED_PREFS, MODE_PRIVATE);
-                SharedPreferences.Editor editor = sharedPreferences.edit();
-
-                editor.putBoolean(STATUS_KEY, true);
-                editor.apply();
-
-                Toast.makeText(getApplicationContext(), "Logged in successfully", Toast.LENGTH_SHORT).show();
-
-                // Start home activity
-                startActivity(new Intent(LoginActivity.this, MainActivity.class));
-            } else {
-                handleMongoError(result.getError());
-            }
         });
     }
 
@@ -191,17 +176,76 @@ public class LoginActivity extends AppCompatActivity {
         });
     }
 
+    private void logInEmail(String email, String password) {
+        Credentials credentials = Credentials.emailPassword(email, password);
+
+        app.loginAsync(credentials, result -> {
+            if (result.isSuccess()) {
+                SharedPreferences sharedPreferences = getSharedPreferences(SHARED_PREFS, MODE_PRIVATE);
+                SharedPreferences.Editor editor = sharedPreferences.edit();
+
+                editor.putBoolean(STATUS_KEY, true);
+                editor.apply();
+
+                Toast.makeText(getApplicationContext(), "Logged in successfully", Toast.LENGTH_SHORT).show();
+
+                // Start home activity
+                startActivity(new Intent(LoginActivity.this, MainActivity.class));
+            } else {
+                handleMongoError(result.getError());
+            }
+        });
+    }
+
     // Register user
     private void registerUser(String email, String password) {
         app.getEmailPassword().registerUserAsync(email, password, result -> {
             if (result.isSuccess()) {
-                Log.d(TAG, "Registered with email successfully");
+                authenticateUser(email, password);
                 Toast.makeText(getApplicationContext(), "Successful registration!", Toast.LENGTH_SHORT).show();
             } else {
-                Log.d(TAG, result.getError().getErrorCode().toString());
+                Log.e(TAG_MONGO, result.getError().getErrorCode().toString());
                 handleMongoError(result.getError());
             }
         });
+    }
+
+    private void authenticateUser(String email, String password) {
+        Credentials credentials = Credentials.emailPassword(email, password);
+        app.loginAsync(credentials, result -> {
+            if (result.isSuccess()) {
+                user = app.currentUser();
+                if (user != null) {
+                    userDatabaseManager = new UserDatabaseManager(getApplicationContext(), user);
+                    UserModel newUserModel = new UserModel(email, password);
+                    userDatabaseManager.insertUserData(newUserModel);
+                } else {
+                    Log.e(TAG_MONGO, "User object is null after authentication.");
+                }
+            } else {
+                Log.e(TAG_MONGO, "Failed to authenticate:" + result.getError());
+            }
+        });
+    }
+
+    private void logout() {
+        SharedPreferences sharedPreferences = getSharedPreferences(SHARED_PREFS, MODE_PRIVATE);
+        SharedPreferences.Editor editor = sharedPreferences.edit();
+        editor.putBoolean(STATUS_KEY, false);
+        editor.apply();
+
+        // Log out the user from the Realm app
+        if (app != null && app.currentUser() != null) {
+            app.currentUser().logOutAsync(result -> {
+                if (result.isSuccess()) {
+                    // Successfully logged out
+                    Log.d(TAG_MONGO, "User logged out successfully");
+                } else {
+                    // Handle logout failure
+                    Log.e(TAG_MONGO, "Failed to log out: " + result.getError());
+                }
+            });
+        }
     }
 
     private void handleMongoError(AppException exception) {
@@ -216,25 +260,25 @@ public class LoginActivity extends AppCompatActivity {
             // TODO: add other error codes if possible
             switch (errorIntValue) {
                 case 4348:
-                    Log.e(TAG, errorMessage);
-                    Toast.makeText(getApplicationContext(), "Account name already exists.", Toast.LENGTH_SHORT).show();
+                    Log.e(TAG_MONGO, errorMessage);
+                    Toast.makeText(getApplicationContext(), "Email already exists.", Toast.LENGTH_SHORT).show();
                     break;
                 case 4349:
-                    Log.e(TAG, errorMessage);
+                    Log.e(TAG_MONGO, errorMessage);
                     Toast.makeText(getApplicationContext(), "Invalid email or password", Toast.LENGTH_SHORT).show();
                     break;
                 case 1000:
-                    Log.e(TAG, errorMessage);
+                    Log.e(TAG_MONGO, errorMessage);
                     Toast.makeText(getApplicationContext(), "Network failed", Toast.LENGTH_SHORT).show();
                     break;
                 default:
-                    Log.e(TAG, errorMessage);
+                    Log.e(TAG_MONGO, errorMessage);
                     Toast.makeText(getApplicationContext(), errorMessage, Toast.LENGTH_SHORT).show();
                     break;
             }
 
         } else {
-            Log.e(TAG, "Unknown error occurred");
+            Log.e(TAG_MONGO, "Unknown error occurred");
             Toast.makeText(getApplicationContext(), "Unknown error occurred", Toast.LENGTH_SHORT).show();
         }
     }
