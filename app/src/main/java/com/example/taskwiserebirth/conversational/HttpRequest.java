@@ -29,9 +29,9 @@ public class HttpRequest {
     // add boolean isTurnBased if true change server address
     public static void sendRequest(String userMessage, String aiName, String userId, boolean inTurnBasedInteraction, final HttpRequestCallback callback) {
         OkHttpClient client = new OkHttpClient.Builder()
-                .connectTimeout(1, TimeUnit.MINUTES) // Set connection timeout
-                .readTimeout(1, TimeUnit.MINUTES) // Set read timeout
-                .writeTimeout(1, TimeUnit.MINUTES) // Set write timeout
+                .connectTimeout(1, TimeUnit.MINUTES)
+                .readTimeout(1, TimeUnit.MINUTES)
+                .writeTimeout(1, TimeUnit.MINUTES)
                 .build();
 
         MediaType JSON = MediaType.parse("application/json; charset=utf-8");

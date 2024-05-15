@@ -41,13 +41,28 @@ public class TaskDatabaseManager {
     public void insertTask(Task task) {
         if (user != null) {
             Document taskDocument = taskToDocument(task);
+            Document queryFilter = new Document("owner_id", user.getId())
+                    .append("task_name", task.getTaskName());
 
             taskCollection.insertOne(taskDocument).getAsync(result -> {
                 if (result.isSuccess()) {
-                    if (task.isReminder()) {
-                        NotificationScheduler.scheduleNotification(context, task);
-                    }
-                    Toast.makeText(context, "Task saved", Toast.LENGTH_SHORT).show();
+                    Document sortQuery = new Document("$natural", -1);
+
+                    // Get latest inserted and schedule it if reminder is on
+                    taskCollection.find(queryFilter).sort(sortQuery).limit(1).iterator().getAsync(taskFetched -> {
+                        if (taskFetched.isSuccess()) {
+                            Document doc = taskFetched.get().next();
+                            Task insertedTask = documentToTask(doc);
+
+                            if (insertedTask.isReminder()) {
+                                NotificationScheduler.scheduleNotification(context, insertedTask);
+                            }
+
+                            Toast.makeText(context, "Task saved: " + insertedTask.getTaskName(), Toast.LENGTH_SHORT).show();
+                        } else {
+                            Log.e(TAG_TASK_DBM, "Failed to fetch inserted task: " + result.getError().getMessage());
+                        }
+                    });
                     MongoDbRealmHelper.notifyDatabaseChangeListeners();
                 } else {
                     Log.e(TAG_TASK_DBM, "Failed to insert task: " + result.getError().getMessage());

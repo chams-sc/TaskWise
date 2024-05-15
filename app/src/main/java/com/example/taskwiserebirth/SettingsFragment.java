@@ -11,6 +11,7 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.Window;
+import android.widget.Button;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -18,42 +19,36 @@ import androidx.appcompat.app.AppCompatActivity;
 import androidx.fragment.app.Fragment;
 
 import com.example.taskwiserebirth.database.MongoDbRealmHelper;
+import com.example.taskwiserebirth.database.UserDatabaseManager;
 import com.example.taskwiserebirth.utils.SystemUIHelper;
+import com.google.android.material.textfield.TextInputEditText;
+import com.google.android.material.textfield.TextInputLayout;
 
 import io.realm.mongodb.App;
 import io.realm.mongodb.User;
 
 public class SettingsFragment extends Fragment {
 
+    private App app;
+    private User user;
+    private UserDatabaseManager userDatabaseManager;
+    private String TAG_DATABASE = "UserDatabaseManager";
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
         View view = inflater.inflate(R.layout.fragment_settings, container, false);
 
-        App app = MongoDbRealmHelper.initializeRealmApp();
-        User user = app.currentUser();
+        app = MongoDbRealmHelper.initializeRealmApp();
+        user = app.currentUser();
+        userDatabaseManager =  new UserDatabaseManager(requireContext(), user);
 
-        TextView changeEmail = view.findViewById(R.id.ChangeEmail);
-        TextView changePassword = view.findViewById(R.id.ChangePassword);
         TextView changeAiname = view.findViewById(R.id.AIname);
         TextView clearMemory = view.findViewById(R.id.ClearMemory);
 
-        changeEmail.setOnClickListener(v -> showChangeEmailDialog());
-        changePassword.setOnClickListener(v -> showChangePasswordDialog());
         changeAiname.setOnClickListener(v -> showChangeAINameDialog());
         clearMemory.setOnClickListener(v -> showClearMemoryDialog());
 
         return view;
-    }
-
-    private void showChangeEmailDialog() {
-        Dialog dialog = createCustomDialog(R.layout.change_email);
-        dialog.show();
-    }
-
-    private void showChangePasswordDialog() {
-        Dialog dialog = createCustomDialog(R.layout.change_password);
-        dialog.show();
     }
 
     private void showChangeAINameDialog() {
@@ -102,4 +97,93 @@ public class SettingsFragment extends Fragment {
     }
 
 
+    private boolean validateFields(String oldPassword, String newPassword, String confirmPassword,
+                                   TextInputLayout oldPwdLayout, TextInputLayout newPwdLayout, TextInputLayout confirmPwdLayout) {
+        if (oldPassword.isEmpty()) {
+            oldPwdLayout.setError("Old password is required");
+            return false;
+        } else {
+            oldPwdLayout.setError(null);
+        }
+
+        if (newPassword.isEmpty()) {
+            newPwdLayout.setError("New password is required");
+            return false;
+        } else {
+            newPwdLayout.setError(null);
+        }
+
+        if (confirmPassword.isEmpty()) {
+            confirmPwdLayout.setError("Confirm password is required");
+            return false;
+        } else {
+            confirmPwdLayout.setError(null);
+        }
+
+        return true;
+    }
+    private void showChangePasswordDialog() {
+        Dialog dialog = createCustomDialog(R.layout.change_password);
+
+        TextInputLayout oldPwdLayout = dialog.findViewById(R.id.oldPasswordLayout);
+        TextInputLayout newPwdLayout = dialog.findViewById(R.id.newPasswordLayout);
+        TextInputLayout confirmPwdLayout = dialog.findViewById(R.id.confirmPasswordLayout);
+
+        TextInputEditText oldPwdEditText = dialog.findViewById(R.id.oldPassword);
+        TextInputEditText newPwdEditText = dialog.findViewById(R.id.newPassword);
+        TextInputEditText confirmPwdEditText = dialog.findViewById(R.id.confirmPassword);
+
+        Button saveButton = dialog.findViewById(R.id.saveButtonCPass);
+        saveButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+
+//                String oldPassword = oldPwdEditText.getText().toString();
+//                String newPassword = newPwdEditText.getText().toString();
+//                String confirmPassword = confirmPwdEditText.getText().toString();
+//
+//                String[] args = {""};
+//
+//                if (validateFields(oldPassword, newPassword, confirmPassword, oldPwdLayout, newPwdLayout, confirmPwdLayout)) {
+//                    userDatabaseManager.getPassword(new UserDatabaseManager.GetPasswordCallback() {
+//                        @Override
+//                        public void onPasswordRetrieved(String password) {
+//                            if (PasswordUtils.verifyPassword(oldPassword, password)) {
+//                                if (newPassword.equals(confirmPassword)) {
+//
+//                                    if (newPassword.equals(oldPassword)) {
+//                                        newPwdLayout.setError("New password cannot be the same to old password");
+//                                        return;
+//                                    }
+//
+//                                    UserProfile userProfile = user.getProfile();
+//                                    String email = userProfile.getEmail();
+//                                    String hashedOldPwd = PasswordUtils.hashPassword(oldPassword);
+//                                    String hashedNewPwd = PasswordUtils.hashPassword(newPassword);
+//
+//                                    Functions functionManager = app.getFunctions(user);
+//                                    List<Object> argsList = Arrays.asList(email, hashedNewPwd, password);
+//
+//                                    functionManager.callFunctionAsync("customChangePassword", argsList, String.class, result -> {
+//                                        if (result.isSuccess()) {
+//                                            Toast.makeText(requireContext(), "Password changed successfully.", Toast.LENGTH_SHORT).show();
+//                                            dialog.dismiss();
+//                                        } else {
+//                                            Log.e(TAG_DATABASE, "Failed to change password: " + result.getError());
+//                                        }
+//                                    });
+//
+//                                } else {
+//                                    confirmPwdLayout.setError("Password do not match");
+//                                }
+//                            } else {
+//                                oldPwdLayout.setError("Incorrect password");
+//                            }
+//                        }
+//                    });
+//                }
+            }
+        });
+        dialog.show();
+    }
 }

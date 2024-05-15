@@ -50,12 +50,13 @@
                 app:layout_constraintTop_toTopOf="parent" />
 
             <TextView
+                android:id="@+id/userEmaiTxtView"
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
                 android:layout_marginHorizontal="8dp"
                 android:fontFamily="@font/inter_bold"
                 android:letterSpacing="0.05"
-                android:text="user@email.com"
+                android:text="userModel@email.com"
                 android:textColor="@color/dark"
                 android:textSize="16sp"
                 app:layout_constraintBottom_toBottomOf="parent"
@@ -97,35 +98,6 @@
                 app:layout_constraintTop_toTopOf="parent" />
 
             <TextView
-                android:id="@+id/ChangeEmail"
-                android:layout_width="0dp"
-                android:layout_height="wrap_content"
-                android:layout_marginTop="8dp"
-                android:background="?android:attr/selectableItemBackground"
-                android:fontFamily="@font/inter"
-                android:padding="8dp"
-                android:text="Change Email"
-                android:textColor="@color/dark"
-                android:textSize="15sp"
-                app:layout_constraintEnd_toEndOf="parent"
-                app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintTop_toBottomOf="@+id/accountSettingsTxt" />
-
-            <TextView
-                android:id="@+id/ChangePassword"
-                android:layout_width="0dp"
-                android:layout_height="wrap_content"
-                android:background="?android:attr/selectableItemBackground"
-                android:fontFamily="@font/inter"
-                android:padding="8dp"
-                android:text="Change Password"
-                android:textColor="@color/dark"
-                android:textSize="15sp"
-                app:layout_constraintEnd_toEndOf="parent"
-                app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintTop_toBottomOf="@+id/ChangeEmail" />
-
-            <TextView
                 android:id="@+id/helpTxt"
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
@@ -137,7 +109,7 @@
                 android:textSize="15sp"
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintTop_toBottomOf="@+id/ChangePassword" />
+                app:layout_constraintTop_toBottomOf="@+id/accountSettingsTxt" />
 
             <TextView
                 android:id="@+id/AIname"
@@ -146,7 +118,7 @@
                 android:background="?android:attr/selectableItemBackground"
                 android:fontFamily="@font/inter"
                 android:padding="8dp"
-                android:text="AI name"
+                android:text="Change AI name"
                 android:textColor="@color/dark"
                 android:textSize="15sp"
                 app:layout_constraintEnd_toEndOf="parent"

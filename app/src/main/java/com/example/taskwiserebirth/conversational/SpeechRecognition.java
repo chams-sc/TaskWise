@@ -27,6 +27,7 @@ public class SpeechRecognition {
 
     public interface SpeechRecognitionListener {
         void onSpeechRecognized(String recognizedSpeech);
+        void onPartialSpeechRecognized(String partialSpeech);
     }
 
     public SpeechRecognition(Context context, FloatingActionButton speakBtn, SpeechRecognitionListener listener) {
@@ -99,7 +100,14 @@ public class SpeechRecognition {
             }
 
             @Override
-            public void onPartialResults(Bundle partialResults) {}
+            public void onPartialResults(Bundle partialResults) {
+                ArrayList<String> data = partialResults.getStringArrayList(SpeechRecognizer.RESULTS_RECOGNITION);
+                if (data != null && !data.isEmpty()) {
+                    String partialSpeech = data.get(0);
+                    // Update UI with partial recognition result
+                    listener.onPartialSpeechRecognized(partialSpeech);
+                }
+            }
 
             @Override
             public void onEvent(int eventType, Bundle params) {}
@@ -108,6 +116,8 @@ public class SpeechRecognition {
         final Intent speechRecognizerIntent = new Intent(RecognizerIntent.ACTION_RECOGNIZE_SPEECH);
         speechRecognizerIntent.putExtra(RecognizerIntent.EXTRA_LANGUAGE_MODEL, RecognizerIntent.LANGUAGE_MODEL_FREE_FORM);
         speechRecognizerIntent.putExtra(RecognizerIntent.EXTRA_LANGUAGE, Locale.getDefault());
+
+        speechRecognizerIntent.putExtra(RecognizerIntent.EXTRA_PARTIAL_RESULTS, true);
         speechRecognizer.startListening(speechRecognizerIntent);
     }
 

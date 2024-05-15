@@ -4,12 +4,14 @@ import android.opengl.GLSurfaceView;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Looper;
+import android.text.TextUtils;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageButton;
+import android.widget.TextView;
 import android.widget.Toast;
 
 import androidx.fragment.app.Fragment;
@@ -19,7 +21,7 @@ import com.bin4rybros.demo.LAppDelegate;
 import com.example.taskwiserebirth.conversational.AIRandomSpeech;
 import com.example.taskwiserebirth.conversational.HttpRequest;
 import com.example.taskwiserebirth.conversational.SpeechRecognition;
-import com.example.taskwiserebirth.conversational.TTSManager;
+import com.example.taskwiserebirth.conversational.SpeechSynthesis;
 import com.example.taskwiserebirth.database.ConversationDbManager;
 import com.example.taskwiserebirth.database.MongoDbRealmHelper;
 import com.example.taskwiserebirth.database.TaskDatabaseManager;
@@ -40,7 +42,7 @@ import io.realm.mongodb.User;
 public class Live2DFragment extends Fragment implements View.OnTouchListener, SpeechRecognition.SpeechRecognitionListener {
     private GLSurfaceView glSurfaceView;
     private SpeechRecognition speechRecognition;
-    private TTSManager ttsManager;
+//    private TTSManager ttsManager;
     private TaskDatabaseManager taskDatabaseManager;
     private ConversationDbManager conversationDbManager;
     private User user;
@@ -48,7 +50,8 @@ public class Live2DFragment extends Fragment implements View.OnTouchListener, Sp
     private boolean inTurnBasedInteraction = false;
     private boolean isUserDone = false;
     private final String TAG_SERVER_RESPONSE = "SERVER_RESPONSE";
-    private final String aiName = "Asa";
+    private final String aiName = "Mio";
+    private TextView realTimeSpeechTextView;
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
@@ -82,24 +85,41 @@ public class Live2DFragment extends Fragment implements View.OnTouchListener, Sp
             }
         });
 
-        setUpTTS();
+        realTimeSpeechTextView = view.findViewById(R.id.realTimeSpeechTextView);
+        realTimeSpeechTextView.setOnClickListener(new View.OnClickListener() {
+            private boolean isExpanded = false;
+
+            @Override
+            public void onClick(View v) {
+                if (isExpanded) {
+                    realTimeSpeechTextView.setMaxLines(7);
+                    realTimeSpeechTextView.setEllipsize(TextUtils.TruncateAt.END);
+                } else {
+                    realTimeSpeechTextView.setMaxLines(Integer.MAX_VALUE);
+                    realTimeSpeechTextView.setEllipsize(null);
+                }
+                isExpanded = !isExpanded;
+            }
+        });
+
+//        setUpTTS();
 
         return view;
     }
 
-    private void setUpTTS() {
-        ttsManager = new TTSManager(requireContext(), new TTSManager.TTSInitListener() {
-            @Override
-            public void onInitSuccess() {
-                ttsManager.setLanguageAndVoice(); // Example: US English with the first available voice
-            }
-
-            @Override
-            public void onInitFailure() {
-                Log.e("ANDROID_TTS", "Failed to initialize TTS engine");
-            }
-        });
-    }
+//    private void setUpTTS() {
+//        ttsManager = new TTSManager(requireContext(), new TTSManager.TTSInitListener() {
+//            @Override
+//            public void onInitSuccess() {
+//                ttsManager.setLanguageAndVoice(); // Example: US English with the first available voice
+//            }
+//
+//            @Override
+//            public void onInitFailure() {
+//                Log.e("ANDROID_TTS", "Failed to initialize TTS engine");
+//            }
+//        });
+//    }
 
     private void performIntent(String intent, String responseText){
         Pattern taskPattern = Pattern.compile("TASK_NAME: (.+?)(?:\\nDEADLINE:|$)");
@@ -135,11 +155,13 @@ public class Live2DFragment extends Fragment implements View.OnTouchListener, Sp
         switch(intent) {
             case "Add Task":
                 taskDatabaseManager.insertTask(setTaskFromSpeech(taskName, "No deadline"));
-                ttsManager.convertTextToSpeech(AIRandomSpeech.generateTaskAdded(taskName));
+//                ttsManager.convertTextToSpeech(AIRandomSpeech.generateTaskAdded(taskName));
+                SpeechSynthesis.synthesizeSpeechAsync(AIRandomSpeech.generateTaskAdded(taskName));
                 return;
             case "Add Task With Deadline":
                 taskDatabaseManager.insertTask(setTaskFromSpeech(taskName, deadline));
-                ttsManager.convertTextToSpeech(AIRandomSpeech.generateTaskAdded(taskName));
+//                ttsManager.convertTextToSpeech(AIRandomSpeech.generateTaskAdded(taskName));
+                SpeechSynthesis.synthesizeSpeechAsync(AIRandomSpeech.generateTaskAdded(taskName));
                 return;
             case "Edit Task":
                 editTaskThroughSpeech(taskName);
@@ -158,7 +180,8 @@ public class Live2DFragment extends Fragment implements View.OnTouchListener, Sp
             Log.d(TAG_SERVER_RESPONSE, "Task found: " + task.getTaskName());
 
             taskDatabaseManager.deleteTask(task);
-            ttsManager.convertTextToSpeech("I have successfully deleted your task");
+//            ttsManager.convertTextToSpeech("I have successfully deleted your task");
+            SpeechSynthesis.synthesizeSpeechAsync("I have successfully deleted your task");
         }, taskName);
     }
 
@@ -177,7 +200,8 @@ public class Live2DFragment extends Fragment implements View.OnTouchListener, Sp
 
     private void askQuestion( String question) {
         Toast.makeText(requireContext(), String.format("%s: %s", aiName, question), Toast.LENGTH_SHORT).show();
-        ttsManager.convertTextToSpeech(question);
+//        ttsManager.convertTextToSpeech(question);
+        SpeechSynthesis.synthesizeSpeechAsync(question);
     }
 
     private void turnBasedInteraction() {
@@ -214,10 +238,12 @@ public class Live2DFragment extends Fragment implements View.OnTouchListener, Sp
                 isUserDone = true;
                 prefilterFinalTask(finalTask);
                 taskDatabaseManager.updateTask(finalTask);
-                ttsManager.convertTextToSpeech("I have updated your task " + finalTask.getTaskName());
+//                ttsManager.convertTextToSpeech("I have updated your task " + finalTask.getTaskName());
+                SpeechSynthesis.synthesizeSpeechAsync("I have updated your task " + finalTask.getTaskName());
                 return;
             } else if (responseText.equals("NOT DONE")) {
-                ttsManager.convertTextToSpeech("Ok! I'm listening.");
+//                ttsManager.convertTextToSpeech("Ok! I'm listening.");
+                SpeechSynthesis.synthesizeSpeechAsync(AIRandomSpeech.generateTaskAdded("Ok! I'm listening."));
                 return;
             } else {
                 inTurnBasedInteraction = false;
@@ -225,7 +251,8 @@ public class Live2DFragment extends Fragment implements View.OnTouchListener, Sp
                 taskDatabaseManager.updateTask(finalTask);
                 Log.e("TEST", finalTask.getRecurrence());
                 Log.e("TEST", finalTask.getId().toString());
-                ttsManager.convertTextToSpeech("Sorry, I didn't get that. If you need anything else, just tell me.");
+//                ttsManager.convertTextToSpeech("Sorry, I didn't get that. If you need anything else, just tell me.");
+                SpeechSynthesis.synthesizeSpeechAsync(AIRandomSpeech.generateTaskAdded("Sorry, I didn't get that. If you need anything else, just tell me."));
                 return;
             }
         }
@@ -328,8 +355,7 @@ public class Live2DFragment extends Fragment implements View.OnTouchListener, Sp
 
     @Override
     public void onSpeechRecognized(String recognizedSpeech) {
-        Toast.makeText(requireContext(), "User: " + recognizedSpeech, Toast.LENGTH_SHORT).show();
-        conversationDbManager.insertDialogue(recognizedSpeech, false);
+        realTimeSpeechTextView.setText(recognizedSpeech);
         HttpRequest.sendRequest(recognizedSpeech, aiName, user.getId(), inTurnBasedInteraction, new HttpRequest.HttpRequestCallback() {
             @Override
             public void onSuccess(String intent, String responseText) {
@@ -341,8 +367,11 @@ public class Live2DFragment extends Fragment implements View.OnTouchListener, Sp
                         if (!intent.equals("null")) {
                             performIntent(intent, responseText);
                         } else {
+                            conversationDbManager.insertDialogue(recognizedSpeech, false);
+
                             Toast.makeText(requireContext(), String.format("%s: %s", aiName, responseText), Toast.LENGTH_LONG).show();
-                            ttsManager.convertTextToSpeech(responseText);
+//                            ttsManager.convertTextToSpeech(responseText);
+                            SpeechSynthesis.synthesizeSpeechAsync(responseText);
                             conversationDbManager.insertDialogue(responseText, true);
                         }
                     }
@@ -357,6 +386,12 @@ public class Live2DFragment extends Fragment implements View.OnTouchListener, Sp
                 });
             }
         });
+    }
+
+    @Override
+    public void onPartialSpeechRecognized(String partialSpeech) {
+        realTimeSpeechTextView.setVisibility(View.VISIBLE);
+        realTimeSpeechTextView.setText(partialSpeech);
     }
 
     @Override
@@ -392,9 +427,9 @@ public class Live2DFragment extends Fragment implements View.OnTouchListener, Sp
             speechRecognition.stopSpeechRecognition();
         }
 
-        if (ttsManager != null) {
-            ttsManager.shutdown();
-        }
+//        if (ttsManager != null) {
+//            ttsManager.shutdown();
+//        }
     }
 
     @Override
