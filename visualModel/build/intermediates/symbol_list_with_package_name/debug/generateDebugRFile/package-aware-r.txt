@@ -1,0 +1,20 @@
+com.bin4rybros.demo
+color black2
+color purple_200
+color purple_500
+color purple_700
+color teal_200
+color teal_700
+color white2
+drawable ic_launcher_background
+drawable ic_launcher_foreground
+id button
+id gl_surface_view
+id textView
+layout activity_main2
+layout activity_main_vm
+layout activity_try_main
+mipmap ic_launcher
+mipmap ic_launcher_round
+string app_name
+style Theme_Demo
