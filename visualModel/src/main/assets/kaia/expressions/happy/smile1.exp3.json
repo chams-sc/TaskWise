@@ -24,11 +24,6 @@
 			"Blend": "Add"
 		},
 		{
-			"Id": "ParamMouthOpenY",
-			"Value": 0.619,
-			"Blend": "Add"
-		},
-		{
 			"Id": "Param2",
 			"Value": 20.476,
 			"Blend": "Add"
