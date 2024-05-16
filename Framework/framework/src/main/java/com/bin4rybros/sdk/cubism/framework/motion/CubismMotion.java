@@ -162,12 +162,15 @@ public final class CubismMotion extends ACubismMotion {
      * @param eyeBlinkParameterIds parameter ID list to which automatic eye blinking is applied
      * @param lipSyncParameterIds parameter ID list to which automatic lip-syncing is applied
      */
-    public void setEffectIds(List<CubismId> eyeBlinkParameterIds, List<CubismId> lipSyncParameterIds) {
+    public void setEffectIds(List<CubismId> eyeBlinkParameterIds, List<CubismId> lipSyncParameterIds, List<CubismId> lipFormParameterIds) {
         this.eyeBlinkParameterIds.clear();
         this.eyeBlinkParameterIds.addAll(eyeBlinkParameterIds);
 
         this.lipSyncParameterIds.clear();
         this.lipSyncParameterIds.addAll(lipSyncParameterIds);
+
+        this.lipFormParameterIds.clear();
+        this.lipFormParameterIds.addAll(lipSyncParameterIds);
     }
 
     @Override
@@ -1023,6 +1026,7 @@ public final class CubismMotion extends ACubismMotion {
      * list of parameter ID handles to which lip-syncing is applied. Corresponds to a model (model setting) and a parameter.
      */
     private final List<CubismId> lipSyncParameterIds = new ArrayList<CubismId>();
+    private final List<CubismId> lipFormParameterIds = new ArrayList<CubismId>();
 
     private final BitSet eyeBlinkFlags = new BitSet(eyeBlinkParameterIds.size());
     private final BitSet lipSyncFlags = new BitSet(lipSyncParameterIds.size());

@@ -69,7 +69,7 @@
 		{
 			"Id": "ParamEyeLOpen",
 			"GroupId": "ParamGroup4",
-			"Name": "EyeL Open"
+			"Name": "EyeLOpen"
 		},
 		{
 			"Id": "ParamEyeLSmile",
@@ -79,7 +79,7 @@
 		{
 			"Id": "ParamEyeROpen",
 			"GroupId": "ParamGroup4",
-			"Name": "EyeR Open"
+			"Name": "EyeROpen"
 		},
 		{
 			"Id": "ParamEyeBallX",
@@ -142,9 +142,14 @@
 			"Name": "BrowR Form"
 		},
 		{
-			"Id": "Param40",
+			"Id": "ParamMouthForm",
 			"GroupId": "ParamGroup6",
-			"Name": "Lip Sync"
+			"Name": "ParamMouthForm"
+		},
+		{
+			"Id": "ParamMouthOpenY",
+			"GroupId": "ParamGroup6",
+			"Name": "ParamMouthOpen"
 		},
 		{
 			"Id": "Param7",
