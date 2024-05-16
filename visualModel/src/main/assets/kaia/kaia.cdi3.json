@@ -142,14 +142,9 @@
 			"Name": "BrowR Form"
 		},
 		{
-			"Id": "ParamMouthForm",
+			"Id": "Param40",
 			"GroupId": "ParamGroup6",
-			"Name": "Mouth Form"
-		},
-		{
-			"Id": "ParamMouthOpenY",
-			"GroupId": "ParamGroup6",
-			"Name": "Mouth Open"
+			"Name": "Lip Sync"
 		},
 		{
 			"Id": "Param7",

@@ -22,7 +22,7 @@ public class SpeechRecognition {
     private SpeechRecognizer speechRecognizer;
     private final Context context;
     private final FloatingActionButton speakBtn;
-    private final SpeechRecognitionListener listener;
+    private SpeechRecognitionListener listener;
     private boolean isListening = false;
 
     public interface SpeechRecognitionListener {
@@ -77,10 +77,13 @@ public class SpeechRecognition {
                         Toast.makeText(context, "Network error occurred. Please check your internet connection and try again.", Toast.LENGTH_SHORT).show();
                         break;
                     case SpeechRecognizer.ERROR_NO_MATCH:
-                        Toast.makeText(context, "I'm sorry, I didn't catch that can you try that again?", Toast.LENGTH_SHORT).show();
+                        SpeechSynthesis.synthesizeSpeechAsync("I'm sorry, I didn't catch that can you try that again?");
                         break;
                     case SpeechRecognizer.ERROR_INSUFFICIENT_PERMISSIONS:
                         Toast.makeText(context, "Insufficient permissions.", Toast.LENGTH_SHORT).show();
+                        break;
+                    default:
+                        Toast.makeText(context, "An error occurred: " + error, Toast.LENGTH_SHORT).show();
                         break;
                 }
                 speakBtn.setImageDrawable(ContextCompat.getDrawable(context, R.drawable.mic_standby));
@@ -130,6 +133,7 @@ public class SpeechRecognition {
             speechRecognizer.cancel();
             speechRecognizer.destroy();
             speechRecognizer = null;
+            listener = null;
         }
     }
 }

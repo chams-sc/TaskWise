@@ -24,10 +24,10 @@ import com.bin4rybros.sdk.cubism.framework.motion.ACubismMotion;
 import com.bin4rybros.sdk.cubism.framework.motion.CubismExpressionMotion;
 import com.bin4rybros.sdk.cubism.framework.motion.CubismMotion;
 import com.bin4rybros.sdk.cubism.framework.motion.IFinishedMotionCallback;
-import com.bin4rybros.sdk.cubism.framework.utils.CubismDebug;
 import com.bin4rybros.sdk.cubism.framework.rendering.CubismRenderer;
 import com.bin4rybros.sdk.cubism.framework.rendering.android.CubismOffscreenSurfaceAndroid;
 import com.bin4rybros.sdk.cubism.framework.rendering.android.CubismRendererAndroid;
+import com.bin4rybros.sdk.cubism.framework.utils.CubismDebug;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -39,6 +39,8 @@ import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
 
 public class LAppModel extends CubismUserModel {
+
+    ScheduledExecutorService schedulerRandomMotion = Executors.newScheduledThreadPool(1);
     public LAppModel() {
         if (LAppDefine.MOC_CONSISTENCY_VALIDATION_ENABLE) {
             mocConsistency = true;
@@ -54,6 +56,7 @@ public class LAppModel extends CubismUserModel {
         idParamAngleY = idManager.getId(CubismDefaultParameterId.ParameterId.ANGLE_Y.getId());
         idParamAngleZ = idManager.getId(CubismDefaultParameterId.ParameterId.ANGLE_Z.getId());
         idParamBodyAngleX = idManager.getId(CubismDefaultParameterId.ParameterId.BODY_ANGLE_X.getId());
+        idParamBodyAngleY = idManager.getId(CubismDefaultParameterId.ParameterId.BODY_ANGLE_Y.getId());
         idParamEyeBallX = idManager.getId(CubismDefaultParameterId.ParameterId.EYE_BALL_X.getId());
         idParamEyeBallY = idManager.getId(CubismDefaultParameterId.ParameterId.EYE_BALL_Y.getId());
     }
@@ -112,7 +115,9 @@ public class LAppModel extends CubismUserModel {
 
         // If there is no motion playback, play randomly from the idle motions.
         if (motionManager.isFinished()) {
-            startRandomMotion(LAppDefine.MotionGroup.IDLE.getId(), LAppDefine.Priority.IDLE.getPriority());
+            schedulerRandomMotion.schedule(() -> {
+                startRandomMotion(LAppDefine.MotionGroup.IDLE.getId(), LAppDefine.Priority.IDLE.getPriority());
+            }, 5, TimeUnit.SECONDS);
         } else {
             // Update the motion.
             isMotionUpdated = motionManager.updateMotion(model, deltaTimeSeconds);
@@ -145,7 +150,8 @@ public class LAppModel extends CubismUserModel {
         model.addParameterValue(idParamAngleZ, dragX * dragY * (-30));
 
         // ドラッグによる体の向きの調整
-        model.addParameterValue(idParamBodyAngleX, dragX * 10); // -10から10の値を加える
+        model.addParameterValue(idParamBodyAngleX, dragX * 20); // -10から10の値を加える
+        model.addParameterValue(idParamBodyAngleY, dragY * 20);
 
         // ドラッグによる目の向きの調整
         model.addParameterValue(idParamEyeBallX, dragX);  // -1から1の値を加える
@@ -171,7 +177,9 @@ public class LAppModel extends CubismUserModel {
 //                model.addParameterValue(lipSyncId, value, 0.8f);
 //            }
 //        }
+
         updateLipSyncValues();
+        updateLipFormValues();
 
         // Pose Setting
         if (pose != null) {
@@ -187,6 +195,7 @@ public class LAppModel extends CubismUserModel {
         int visemeIdInt = (int) visemeId;
 
         lipSyncValue = calculateLipSyncValue(visemeIdInt);
+        lipFormValue =
 
         Log.d("LAppModel", "Viseme ID: " + visemeIdInt + ", Audio Offset: " + delayMilliseconds);
         // Schedule lip sync update task after the calculated delay
@@ -206,9 +215,96 @@ public class LAppModel extends CubismUserModel {
         }
     }
 
+    private static void updateLipFormValues() {
+        if (lipSync) {
+            for (CubismId lipFormId : lipFormIds) {
+                model.addParameterValue(lipFormId, lipFormValue, 0.3f); // Adjust the third parameter as needed
+            }
+        }
+    }
+
 
     // TODO: edit this switch cases to a map
     private static float calculateLipSyncValue(int visemeId) {
+        // Implement your logic to calculate the lip sync value based on the viseme ID
+        // You need to define how different viseme IDs map to lip sync values
+        // This is just a placeholder, you should replace it with your actual logic
+        float value = 0.0f;
+        switch (visemeId) {
+            case 0:
+                value = 0.0f; // Adjust as per your requirement
+                break;
+            case 1:
+                value = 0.8f; // Adjust as per your requirement
+                break;
+            case 2:
+                value = 0.9f; // Adjust as per your requirement
+                break;
+            case 3:
+                value = 1.0f; // Adjust as per your requirement
+                break;
+            case 4:
+                value = 0.3f; // Adjust as per your requirement
+                break;
+            case 5:
+                value = 0.2f; // Adjust as per your requirement
+                break;
+            case 6:
+                value = 0.3f; // Adjust as per your requirement
+                break;
+            case 7:
+                value = 1.0f; // Adjust as per your requirement
+                break;
+            case 8:
+                value = 0.4f; // Adjust as per your requirement
+                break;
+            case 9:
+                value = 0.8f; // Adjust as per your requirement
+                break;
+            case 10:
+                value = 0.9f; // Adjust as per your requirement
+                break;
+            case 11:
+                value = 1.0f; // Adjust as per your requirement
+                break;
+            case 12:
+                value = 0.6f; // Adjust as per your requirement
+                break;
+            case 13:
+                value = 0.8f; // Adjust as per your requirement
+                break;
+            case 14:
+                value = 0.3f; // Adjust as per your requirement
+                break;
+            case 15:
+                value = 0.4f; // Adjust as per your requirement
+                break;
+            case 16:
+                value = 0.8f; // Adjust as per your requirement
+                break;
+            case 17:
+                value = 0.7f; // Adjust as per your requirement
+                break;
+            case 18:
+                value = 0.1f; // Adjust as per your requirement
+                break;
+            case 19:
+                value = 0.2f; // Adjust as per your requirement
+                break;
+            case 20:
+                value = 1.0f; // Adjust as per your requirement
+                break;
+            case 21:
+                value = 0.0f; // Adjust as per your requirement
+                break;
+            default:
+                value = 0.0f;
+                break;
+        }
+        return value;
+    }
+
+    private static float calculateLipFormValue(int visemeId) {
         // Implement your logic to calculate the lip sync value based on the viseme ID
         // You need to define how different viseme IDs map to lip sync values
         // This is just a placeholder, you should replace it with your actual logic
@@ -743,6 +839,10 @@ public class LAppModel extends CubismUserModel {
      */
     private static final List<CubismId> lipSyncIds = new ArrayList<CubismId>();
     /**
+     * モデルに設定されたリップシンク機能用パラメーターID
+     */
+    private static final List<CubismId> lipFormIds = new ArrayList<CubismId>();
+    /**
      * 読み込まれているモーションのマップ
      */
     private final Map<String, ACubismMotion> motions = new HashMap<String, ACubismMotion>();
@@ -768,6 +868,10 @@ public class LAppModel extends CubismUserModel {
      */
     private final CubismId idParamBodyAngleX;
     /**
+     * パラメーターID: ParamBodyAngleY
+     */
+    private final CubismId idParamBodyAngleY;
+    /**
      * パラメーターID: ParamEyeBallX
      */
     private final CubismId idParamEyeBallX;
@@ -782,5 +886,6 @@ public class LAppModel extends CubismUserModel {
     private final CubismOffscreenSurfaceAndroid renderingBuffer = new CubismOffscreenSurfaceAndroid();
     private static ScheduledExecutorService scheduler = Executors.newScheduledThreadPool(1);
     private static float lipSyncValue = 0.0f;
+    private static float lipFormValue = 0.0f;
 }
 

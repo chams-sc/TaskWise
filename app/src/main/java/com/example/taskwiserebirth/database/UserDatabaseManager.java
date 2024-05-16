@@ -2,8 +2,7 @@ package com.example.taskwiserebirth.database;
 
 import android.content.Context;
 import android.util.Log;
-
-import com.example.taskwiserebirth.utils.PasswordUtils;
+import android.widget.Toast;
 
 import org.bson.Document;
 
@@ -15,7 +14,7 @@ public class UserDatabaseManager {
     private final MongoCollection<Document> userDataCollection;
     private final Context context;
     private User user;
-    public UserDatabaseManager (Context context, User user) {
+    public UserDatabaseManager (User user, Context context) {
         this.userDataCollection = MongoDbRealmHelper.getMongoCollection("UserAccountData");
         this.context = context;
         this.user = user;
@@ -23,11 +22,9 @@ public class UserDatabaseManager {
 
     public void insertUserData(UserModel userModel) {
         if (user != null) {
-            String hashedPassword = PasswordUtils.hashPassword(userModel.getPassword());
 
             Document userData = new Document("owner_id", user.getId())
                     .append("email", userModel.getEmail())
-                    .append("password", hashedPassword)
                     .append("ai_name", "Mio");
 
             userDataCollection.insertOne(userData).getAsync(result -> {
@@ -42,10 +39,40 @@ public class UserDatabaseManager {
         }
     }
 
-    public void getUserData () {
+    public void getUserData (GetUserDataCallback callback) {
         if (user != null) {
             Document userFilter = new Document("owner_id", user.getId());
 
+            // TODO: add other user data needed
+            userDataCollection.findOne(userFilter).getAsync(result -> {
+                if (result.isSuccess()) {
+                    Document doc = result.get();
+                    UserModel userModel = new UserModel();
+                    userModel.setEmail(doc.getString("email"));
+                    userModel.setAiName(doc.getString("ai_name"));
+
+                    callback.onUserDataRetrieved(userModel);
+                } else {
+                    Log.e(TAG_USER_DBM, "Error retrieving user data " + result.getError());
+                }
+            });
+        } else {
+            Log.e(TAG_USER_DBM, "User is null");
+        }
+    }
+
+    public void changeAiName(String aiName) {
+        if (user != null) {
+            Document userFilter = new Document("owner_id", user.getId());
+            Document updateAiName = new Document("$set", new Document("ai_name", aiName));
+
+            userDataCollection.updateOne(userFilter, updateAiName).getAsync(result -> {
+                if (result.isSuccess()) {
+                    Toast.makeText(context, "AI name is now changed to " + aiName, Toast.LENGTH_SHORT).show();
+                } else {
+                    Log.e(TAG_USER_DBM, "Error updating ai_name: " + result.getError());
+                }
+            });
         } else {
             Log.e(TAG_USER_DBM, "User is null");
         }
@@ -53,11 +80,6 @@ public class UserDatabaseManager {
 
     public interface GetUserDataCallback {
         void onUserDataRetrieved(UserModel userModel);
-        void onError(Exception e);
     }
 
-    public interface GetPasswordCallback {
-        void onPasswordRetrieved(String password);
-//        void onPasswordFailed(ErrorCode errorCode);
-    }
 }
