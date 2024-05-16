@@ -301,6 +301,29 @@ public class CubismModelSettingJson implements ICubismModelSetting {
     }
 
     @Override
+    public int getLipFormParameterCount() {
+        if (!existsLipFormParameters()) {
+            return 0;
+        }
+
+
+        int lipSyncParameterCount = 0;
+        for (int i = 0; i < jsonFrequencyValue.get(FrequentNode.GROUPS.id).size(); i++) {
+            ACubismJsonValue refI = jsonFrequencyValue.get(FrequentNode.GROUPS.id).get(i);
+
+            if (refI.isNull() || refI.isError()) {
+                continue;
+            }
+
+            if (refI.get(JsonKey.NAME.key).getString().equals(JsonKey.LIP_FORM.key)) {
+                lipSyncParameterCount = refI.get(JsonKey.IDS.key).getList().size();
+                break;
+            }
+        }
+        return lipSyncParameterCount;
+    }
+
+    @Override
     public CubismId getLipSyncParameterId(int index) {
         if (!existsLipSyncParameters()) {
             return null;
@@ -314,6 +337,26 @@ public class CubismModelSettingJson implements ICubismModelSetting {
             }
 
             if (refI.get(JsonKey.NAME.key).getString().equals(JsonKey.LIP_SYNC.key)) {
+                return CubismFramework.getIdManager().getId(refI.get(JsonKey.IDS.key).get(index).getString());
+            }
+        }
+        return null;
+    }
+
+    @Override
+    public CubismId getLipFormParameterId(int index) {
+        if (!existsLipFormParameters()) {
+            return null;
+        }
+
+        for (int i = 0; i < jsonFrequencyValue.get(FrequentNode.GROUPS.id).size(); i++) {
+            ACubismJsonValue refI = jsonFrequencyValue.get(FrequentNode.GROUPS.id).get(i);
+
+            if (refI.isNull() || refI.isError()) {
+                continue;
+            }
+
+            if (refI.get(JsonKey.NAME.key).getString().equals(JsonKey.LIP_FORM.key)) {
                 return CubismFramework.getIdManager().getId(refI.get(JsonKey.IDS.key).get(index).getString());
             }
         }
@@ -385,6 +428,7 @@ public class CubismModelSettingJson implements ICubismModelSetting {
         HEIGHT("Height"),
 
         LIP_SYNC("LipSync"),
+        LIP_FORM("LipForm"),
         EYE_BLINK("EyeBlink"),
 
         INIT_PARAMETER("init_param"),
@@ -485,6 +529,19 @@ public class CubismModelSettingJson implements ICubismModelSetting {
 
         for (int i = 0; i < jsonFrequencyValue.get(FrequentNode.GROUPS.id).size(); i++) {
             if (jsonFrequencyValue.get(FrequentNode.GROUPS.id).get(i).get(JsonKey.NAME.key).getString().equals(JsonKey.LIP_SYNC.key)) {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    private boolean existsLipFormParameters() {
+        if (jsonFrequencyValue.get(FrequentNode.GROUPS.id).isNull() || jsonFrequencyValue.get(FrequentNode.GROUPS.id).isError()) {
+            return false;
+        }
+
+        for (int i = 0; i < jsonFrequencyValue.get(FrequentNode.GROUPS.id).size(); i++) {
+            if (jsonFrequencyValue.get(FrequentNode.GROUPS.id).get(i).get(JsonKey.NAME.key).getString().equals(JsonKey.LIP_FORM.key)) {
                 return true;
             }
         }

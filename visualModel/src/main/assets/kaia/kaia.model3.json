@@ -82,22 +82,28 @@
 						"File": "motions/headtap/headtap2.motion3.json",
 						"FadeInTime": 0.5,
 						"FadeOutTime": 0.5
-					},
-					{
-						"File": "motions/affirmative/affirmative1.motion3.json",
-						"FadeInTime": 0.5,
-						"FadeOutTime": 0.5
-					},
-					{
-						"File": "motions/asking/ask1.motion3.json",
-						"FadeInTime": 0.5,
-						"FadeOutTime": 0.5
-					},
-					{
-						"File": "motions/negative/no1.motion3.json",
-						"FadeInTime": 0.5,
-						"FadeOutTime": 0.5
 					}
+			],
+			"Affirmation": [
+				{
+					"File": "motions/affirmative/affirmative1.motion3.json",
+					"FadeInTime": 0.5,
+					"FadeOutTime": 0.5
+				}
+			],
+			"Asking": [
+				{
+					"File": "motions/asking/ask1.motion3.json",
+					"FadeInTime": 0.5,
+					"FadeOutTime": 0.5
+				}
+			],
+			"Negative": [
+				{
+					"File": "motions/negative/no1.motion3.json",
+					"FadeInTime": 0.5,
+					"FadeOutTime": 0.5
+				}
 			]
 		}
 	},
@@ -106,22 +112,21 @@
 			"Target": "Parameter",
 			"Name": "LipSync",
 			"Ids": [
-				"Mouth Open"
+				"ParamMouthOpen"
 			]
-		},
-		{
+		},{
 			"Target": "Parameter",
 			"Name": "LipForm",
 			"Ids": [
-				"Mouth Form"
+				"ParamMouthForm"
 			]
 		},
 		{
 			"Target": "Parameter",
 			"Name": "EyeBlink",
 			"Ids": [
-				"Eye L Open",
-				"Eye R Open"
+				"EyeLOpen",
+				"EyeROpen"
 			]
 		}
 	],

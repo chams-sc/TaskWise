@@ -209,6 +209,7 @@ public interface ICubismModelSetting {
      * @return the number of parameters associated to lip sync
      */
     int getLipSyncParameterCount();
+    int getLipFormParameterCount();
 
     /**
      * Get the parameter ID associated to lip sync.
@@ -217,4 +218,5 @@ public interface ICubismModelSetting {
      * @return parameter ID
      */
     CubismId getLipSyncParameterId(int index);
+    CubismId getLipFormParameterId(int index);
 }

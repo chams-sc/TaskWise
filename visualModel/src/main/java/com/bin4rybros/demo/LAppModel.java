@@ -117,7 +117,7 @@ public class LAppModel extends CubismUserModel {
         if (motionManager.isFinished()) {
             schedulerRandomMotion.schedule(() -> {
                 startRandomMotion(LAppDefine.MotionGroup.IDLE.getId(), LAppDefine.Priority.IDLE.getPriority());
-            }, 5, TimeUnit.SECONDS);
+            }, 50, TimeUnit.SECONDS);
         } else {
             // Update the motion.
             isMotionUpdated = motionManager.updateMotion(model, deltaTimeSeconds);
@@ -179,7 +179,7 @@ public class LAppModel extends CubismUserModel {
 //        }
 
         updateLipSyncValues();
-        updateLipFormValues();
+//        updateLipFormValues();
 
         // Pose Setting
         if (pose != null) {
@@ -195,7 +195,7 @@ public class LAppModel extends CubismUserModel {
         int visemeIdInt = (int) visemeId;
 
         lipSyncValue = calculateLipSyncValue(visemeIdInt);
-        lipFormValue =
+        lipFormValue = calculateLipFormValue(visemeIdInt);
 
         Log.d("LAppModel", "Viseme ID: " + visemeIdInt + ", Audio Offset: " + delayMilliseconds);
         // Schedule lip sync update task after the calculated delay
@@ -235,64 +235,64 @@ public class LAppModel extends CubismUserModel {
                 value = 0.0f; // Adjust as per your requirement
                 break;
             case 1:
-                value = 0.8f; // Adjust as per your requirement
+                value = 0.7f; // Adjust as per your requirement
                 break;
             case 2:
-                value = 0.9f; // Adjust as per your requirement
+                value = 1.0f; // Adjust as per your requirement
                 break;
             case 3:
                 value = 1.0f; // Adjust as per your requirement
                 break;
             case 4:
-                value = 0.3f; // Adjust as per your requirement
+                value = 0.4f; // Adjust as per your requirement
                 break;
             case 5:
-                value = 0.2f; // Adjust as per your requirement
+                value = 0.5f; // Adjust as per your requirement
                 break;
             case 6:
-                value = 0.3f; // Adjust as per your requirement
+                value = 0.2f; // Adjust as per your requirement
                 break;
             case 7:
                 value = 1.0f; // Adjust as per your requirement
                 break;
             case 8:
-                value = 0.4f; // Adjust as per your requirement
-                break;
-            case 9:
-                value = 0.8f; // Adjust as per your requirement
-                break;
-            case 10:
                 value = 0.9f; // Adjust as per your requirement
                 break;
-            case 11:
+            case 9:
+                value = 0.9f; // Adjust as per your requirement
+                break;
+            case 10:
                 value = 1.0f; // Adjust as per your requirement
                 break;
+            case 11:
+                value = 0.7f; // Adjust as per your requirement
+                break;
             case 12:
-                value = 0.6f; // Adjust as per your requirement
+                value = 0.5f; // Adjust as per your requirement
                 break;
             case 13:
-                value = 0.8f; // Adjust as per your requirement
+                value = 0.5f; // Adjust as per your requirement
                 break;
             case 14:
-                value = 0.3f; // Adjust as per your requirement
+                value = 0.5f; // Adjust as per your requirement
                 break;
             case 15:
-                value = 0.4f; // Adjust as per your requirement
+                value = 0.1f; // Adjust as per your requirement
                 break;
             case 16:
-                value = 0.8f; // Adjust as per your requirement
+                value = 0.3f; // Adjust as per your requirement
                 break;
             case 17:
-                value = 0.7f; // Adjust as per your requirement
+                value = 0.5f; // Adjust as per your requirement
                 break;
             case 18:
                 value = 0.1f; // Adjust as per your requirement
                 break;
             case 19:
-                value = 0.2f; // Adjust as per your requirement
+                value = 0.3f; // Adjust as per your requirement
                 break;
             case 20:
-                value = 1.0f; // Adjust as per your requirement
+                value = 0.6f; // Adjust as per your requirement
                 break;
             case 21:
                 value = 0.0f; // Adjust as per your requirement
@@ -311,73 +311,73 @@ public class LAppModel extends CubismUserModel {
         float value = 0.0f;
         switch (visemeId) {
             case 0:
-                value = 0.0f; // Adjust as per your requirement
+                value = 0.8f; // Adjust as per your requirement
                 break;
             case 1:
                 value = 0.8f; // Adjust as per your requirement
                 break;
             case 2:
-                value = 0.9f; // Adjust as per your requirement
+                value = 0.7f; // Adjust as per your requirement
                 break;
             case 3:
-                value = 1.0f; // Adjust as per your requirement
+                value = -0.5f; // Adjust as per your requirement
                 break;
             case 4:
-                value = 0.3f; // Adjust as per your requirement
-                break;
-            case 5:
-                value = 0.2f; // Adjust as per your requirement
-                break;
-            case 6:
-                value = 0.3f; // Adjust as per your requirement
-                break;
-            case 7:
                 value = 1.0f; // Adjust as per your requirement
                 break;
+            case 5:
+                value = 1.0f; // Adjust as per your requirement
+                break;
+            case 6:
+                value = 1.0f; // Adjust as per your requirement
+                break;
+            case 7:
+                value = -1.0f; // Adjust as per your requirement
+                break;
             case 8:
-                value = 0.4f; // Adjust as per your requirement
+                value = -0.5f; // Adjust as per your requirement
                 break;
             case 9:
                 value = 0.8f; // Adjust as per your requirement
                 break;
             case 10:
-                value = 0.9f; // Adjust as per your requirement
+                value = -0.3f; // Adjust as per your requirement
                 break;
             case 11:
-                value = 1.0f; // Adjust as per your requirement
+                value = 0.8f; // Adjust as per your requirement
                 break;
             case 12:
-                value = 0.6f; // Adjust as per your requirement
-                break;
-            case 13:
-                value = 0.8f; // Adjust as per your requirement
-                break;
-            case 14:
-                value = 0.3f; // Adjust as per your requirement
-                break;
-            case 15:
-                value = 0.4f; // Adjust as per your requirement
-                break;
-            case 16:
-                value = 0.8f; // Adjust as per your requirement
-                break;
-            case 17:
-                value = 0.7f; // Adjust as per your requirement
-                break;
-            case 18:
-                value = 0.1f; // Adjust as per your requirement
-                break;
-            case 19:
-                value = 0.2f; // Adjust as per your requirement
-                break;
-            case 20:
                 value = 1.0f; // Adjust as per your requirement
                 break;
+            case 13:
+                value = -0.8f; // Adjust as per your requirement
+                break;
+            case 14:
+                value = 0.1f; // Adjust as per your requirement
+                break;
+            case 15:
+                value = 0.5f; // Adjust as per your requirement
+                break;
+            case 16:
+                value = -0.9f; // Adjust as per your requirement
+                break;
+            case 17:
+                value = 0.5f; // Adjust as per your requirement
+                break;
+            case 18:
+                value = 0.4f; // Adjust as per your requirement
+                break;
+            case 19:
+                value = -0.3f; // Adjust as per your requirement
+                break;
+            case 20:
+                value = 0.4f; // Adjust as per your requirement
+                break;
             case 21:
-                value = 0.0f; // Adjust as per your requirement
+                value = 0.4f; // Adjust as per your requirement
                 break;
             default:
-                value = 0.0f;
+                value = 0.5f;
                 break;
         }
         return value;
@@ -445,7 +445,7 @@ public class LAppModel extends CubismUserModel {
                         motion.setFadeOutTime(fadeOutTime);
                     }
 
-                    motion.setEffectIds(eyeBlinkIds, lipSyncIds);
+                    motion.setEffectIds(eyeBlinkIds, lipSyncIds, lipFormIds);
                 }
             }
         } else {
@@ -715,6 +715,12 @@ public class LAppModel extends CubismUserModel {
             lipSyncIds.add(modelSetting.getLipSyncParameterId(i));
         }
 
+        // LipFormIds
+        int lipFormIdCount = modelSetting.getLipFormParameterCount();
+        for (int i = 0; i < lipFormIdCount; i++) {
+            lipFormIds.add(modelSetting.getLipFormParameterId(i));
+        }
+
         if (modelSetting == null || modelMatrix == null) {
             LAppPal.printLog("Failed to setupModel().");
             return;
@@ -784,7 +790,7 @@ public class LAppModel extends CubismUserModel {
                     tmp.setFadeOutTime(fadeOutTime);
                 }
 
-                tmp.setEffectIds(eyeBlinkIds, lipSyncIds);
+                tmp.setEffectIds(eyeBlinkIds, lipSyncIds, lipFormIds);
                 motions.put(name, tmp);
             }
         }

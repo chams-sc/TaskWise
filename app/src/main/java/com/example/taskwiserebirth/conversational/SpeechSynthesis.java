@@ -2,12 +2,14 @@ package com.example.taskwiserebirth.conversational;
 
 import android.util.Log;
 
+import com.bin4rybros.demo.LAppModel;
 import com.microsoft.cognitiveservices.speech.CancellationReason;
 import com.microsoft.cognitiveservices.speech.ResultReason;
 import com.microsoft.cognitiveservices.speech.SpeechConfig;
 import com.microsoft.cognitiveservices.speech.SpeechSynthesisCancellationDetails;
 import com.microsoft.cognitiveservices.speech.SpeechSynthesisResult;
 import com.microsoft.cognitiveservices.speech.SpeechSynthesizer;
+import com.microsoft.cognitiveservices.speech.audio.AudioConfig;
 
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.ExecutorService;
@@ -29,11 +31,15 @@ public class SpeechSynthesis {
         String speechRegion = "southeastasia";
 
         SpeechConfig speechConfig = SpeechConfig.fromSubscription(speechKey, speechRegion);
-//        File dir = context.getExternalFilesDir(null);
-//        File logFile = new File(dir, "logfile.txt");
-//        speechConfig.setProperty(PropertyId.Speech_LogFilename, logFile.getAbsolutePath());
 
-        SpeechSynthesizer speechSynthesizer = new SpeechSynthesizer(speechConfig);
+        AudioConfig audioConfig = AudioConfig.fromDefaultSpeakerOutput();
+
+        SpeechSynthesizer speechSynthesizer = new SpeechSynthesizer(speechConfig, audioConfig);
+
+        speechSynthesizer.VisemeReceived.addEventListener((o, e) -> {
+            // Update lip sync values based on the received viseme ID and audio offset
+            LAppModel.updateLipSync(e.getVisemeId(), e.getAudioOffset());
+        });
 
         try {
             String ssmlTemplate = loadSsmlTemplate();
