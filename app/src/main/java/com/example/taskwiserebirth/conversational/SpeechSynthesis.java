@@ -25,10 +25,13 @@ public class SpeechSynthesis {
     }
 
     private static void synthesizeSpeech(String text) {
-        String speechKey = "b36ef4c761bf4554a688e5a0c5cb95e7";
+        String speechKey = "75d247fa36164e01827df12050f000b5";
         String speechRegion = "southeastasia";
 
         SpeechConfig speechConfig = SpeechConfig.fromSubscription(speechKey, speechRegion);
+//        File dir = context.getExternalFilesDir(null);
+//        File logFile = new File(dir, "logfile.txt");
+//        speechConfig.setProperty(PropertyId.Speech_LogFilename, logFile.getAbsolutePath());
 
         SpeechSynthesizer speechSynthesizer = new SpeechSynthesizer(speechConfig);
 

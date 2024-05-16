@@ -93,14 +93,12 @@ public class MainActivity extends AppCompatActivity {
         }
     }
 
-//    @Override
-//    public void onWindowFocusChanged(boolean hasFocus) {
-//        super.onWindowFocusChanged(hasFocus);
-//        if (hasFocus) {
-//            SystemUIHelper.setSystemUIVisibility(this);
-//        } else {
-//            SystemUIHelper.setFlagsOnThePeekView();
-//        }
-//    }
+    @Override
+    public void onWindowFocusChanged(boolean hasFocus) {
+        super.onWindowFocusChanged(hasFocus);
+        if (hasFocus) {
+            SystemUIHelper.setSystemUIVisibility(this);
+        }
+    }
 
 }

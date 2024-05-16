@@ -23,6 +23,7 @@ import java.util.regex.Pattern;
 
 public class CalendarUtils {
 
+    private static String TAG_CALENDAR_UTILS = "CalendarUtils";
     public static void displayTimeOfDay(View rootView) {
         TextView timeOfDayTextView = rootView.findViewById(R.id.tasksText);
         ImageView timeOfDayImageView = rootView.findViewById(R.id.timeOfDayImageView);
@@ -90,7 +91,7 @@ public class CalendarUtils {
         try {
             return format.parse(deadline);
         } catch (ParseException e) {
-            Log.e("ParseDate", String.valueOf(e));
+            Log.e(TAG_CALENDAR_UTILS, String.valueOf(e));
             return null;
         }
     }
@@ -186,7 +187,7 @@ public class CalendarUtils {
 
             return scheduledDate.getTime() - System.currentTimeMillis();
         } catch (ParseException e) {
-            Log.e("ParseDate", String.valueOf(e));
+            Log.e(TAG_CALENDAR_UTILS, String.valueOf(e));
         }
         return 0;
     }
@@ -251,7 +252,7 @@ public class CalendarUtils {
             // Calculate interval between current time and alarm time
             return calendar.getTimeInMillis() - now.getTimeInMillis();
         } catch (ParseException e) {
-            Log.e("ParseException", e.getMessage());
+            Log.e(TAG_CALENDAR_UTILS, e.getMessage());
             return 0;
         }
     }
@@ -278,7 +279,7 @@ public class CalendarUtils {
 
             return timeDifferenceMillis;
         } catch (ParseException e) {
-            Log.e("NotificationScheduler", "Error parsing deadline: " + deadlineString, e);
+            Log.e(TAG_CALENDAR_UTILS, "Error parsing deadline: " + deadlineString, e);
         }
 
         // Default interval (1 minute) if parsing fails or deadline is not provided
@@ -294,7 +295,7 @@ public class CalendarUtils {
                 SimpleDateFormat outputFormat = new SimpleDateFormat("EEE, MMM d\nhh:mm a", Locale.US);
                 return outputFormat.format(date);
             } catch (ParseException e) {
-                Log.e("ParseException", e.getMessage());
+                Log.e(TAG_CALENDAR_UTILS, e.getMessage());
                 return deadlineString;
             }
         } else {

@@ -12,6 +12,7 @@ import org.bson.types.ObjectId;
 
 import java.util.ArrayList;
 import java.util.Calendar;
+import java.util.Collections;
 import java.util.Date;
 import java.util.List;
 
@@ -130,6 +131,7 @@ public class TaskDatabaseManager {
     public void fetchTaskByName(TaskFetchListener listener, String taskName) {
         if (user != null) {
             Document taskNameFilter = new Document("owner_id", user.getId())
+                    .append("status", "Unfinished")
                     .append("task_name", new Document("$regex", taskName).append("$options", "i"));
 
             taskCollection.findOne(taskNameFilter).getAsync(task -> {
@@ -144,7 +146,9 @@ public class TaskDatabaseManager {
                             listener.onTasksFetched(tasks);
                         }
                     } else {
-                        Toast.makeText(context, taskName + " is not found", Toast.LENGTH_SHORT).show();
+                        if (listener != null) {
+                            listener.onTasksFetched(Collections.emptyList());
+                        }
                     }
                 } else {
                     Toast.makeText(context, "Failed to fetch task", Toast.LENGTH_SHORT).show();

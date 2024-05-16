@@ -216,8 +216,8 @@ public class LoginActivity extends AppCompatActivity {
             if (result.isSuccess()) {
                 user = app.currentUser();
                 if (user != null) {
-                    userDatabaseManager = new UserDatabaseManager(getApplicationContext(), user);
-                    UserModel newUserModel = new UserModel(email, password);
+                    userDatabaseManager = new UserDatabaseManager(user, getApplicationContext());
+                    UserModel newUserModel = new UserModel(email);
                     userDatabaseManager.insertUserData(newUserModel);
                 } else {
                     Log.e(TAG_MONGO, "User object is null after authentication.");

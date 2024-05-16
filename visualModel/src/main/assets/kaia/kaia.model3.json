@@ -6,40 +6,145 @@
 			"kaia.2048/texture_00.png"
 		],
 		"Physics": "kaia.physics3.json",
-		"DisplayInfo": "kaia.cdi3.json"
+		"Pose": "kaia.pose3.json",
+		"DisplayInfo": "kaia.cdi3.json",
+		"Expressions": [
+			{
+				"Name": "default1",
+				"File": "expressions/idle/default1.exp3.json"
+			},
+			{
+				"Name": "happy1",
+				"File": "expressions/happy/happy1.exp3.json"
+			},
+			{
+				"Name": "happy2",
+				"File": "expressions/happy/happy2.exp3.json"
+			},
+			{
+				"Name": "smile1",
+				"File": "expressions/happy/smile1.exp3.json"
+			},
+			{
+				"Name": "smile2",
+				"File": "expressions/happy/smile2.exp3.json"
+			},
+			{
+				"Name": "shy1",
+				"File": "expressions/shy/shy1.exp3.json"
+			},
+			{
+				"Name": "shy2",
+				"File": "expressions/shy/shy2.exp3.json"
+			},
+			{
+				"Name": "angry1.exp3.json",
+				"File": "expressions/angry/angry1.exp3.json"
+			},
+			{
+				"Name": "angry2.exp3.json",
+				"File": "expressions/angry/angry2.exp3.json"
+			},
+			{
+				"Name": "listening1.exp3.json",
+				"File": "expressions/listening/listening1.exp3.json"
+			},
+			{
+				"Name": "listening2.exp3.json",
+				"File": "expressions/listening/listening2.exp3.json"
+			}
+		],
+		"Motions": {
+			"Idle": [
+				{
+					"File": "motions/idle/idle1.motion3.json",
+					"FadeInTime": 0.5,
+					"FadeOutTime": 0.5
+				},
+				{
+					"File": "motions/idle/idle2.motion3.json",
+					"FadeInTime": 0.5,
+					"FadeOutTime": 0.5
+				},
+				{
+					"File": "motions/idle/idle3.motion3.json",
+					"FadeInTime": 0.5,
+					"FadeOutTime": 0.5
+				}
+			],
+			"TapBody": [
+					{
+						"File": "motions/headtap/headtap1.motion3.json",
+						"FadeInTime": 0.5,
+						"FadeOutTime": 0.5
+					},
+					{
+						"File": "motions/headtap/headtap2.motion3.json",
+						"FadeInTime": 0.5,
+						"FadeOutTime": 0.5
+					},
+					{
+						"File": "motions/affirmative/affirmative1.motion3.json",
+						"FadeInTime": 0.5,
+						"FadeOutTime": 0.5
+					},
+					{
+						"File": "motions/asking/ask1.motion3.json",
+						"FadeInTime": 0.5,
+						"FadeOutTime": 0.5
+					},
+					{
+						"File": "motions/negative/no1.motion3.json",
+						"FadeInTime": 0.5,
+						"FadeOutTime": 0.5
+					}
+			]
+		}
 	},
 	"Groups": [
 		{
 			"Target": "Parameter",
-			"Name": "EyeBlink",
-			"Ids": []
+			"Name": "LipSync",
+			"Ids": [
+				"Mouth Open"
+			]
 		},
 		{
 			"Target": "Parameter",
-			"Name": "LipSync",
-			"Ids": []
+			"Name": "LipForm",
+			"Ids": [
+				"Mouth Form"
+			]
+		},
+		{
+			"Target": "Parameter",
+			"Name": "EyeBlink",
+			"Ids": [
+				"Eye L Open",
+				"Eye R Open"
+			]
 		}
 	],
 	"HitAreas": [
 		{
 			"Id": "HitArea",
-			"Name": ""
+			"Name": "Head"
 		},
 		{
 			"Id": "HitArea2",
-			"Name": ""
+			"Name": "Drone"
 		},
 		{
 			"Id": "HitArea3",
-			"Name": ""
+			"Name": "Body"
 		},
 		{
 			"Id": "HitArea4",
-			"Name": ""
+			"Name": "Clipboard"
 		},
 		{
 			"Id": "HitArea5",
-			"Name": ""
+			"Name": "Legs"
 		}
 	]
 }

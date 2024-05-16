@@ -115,11 +115,21 @@ public class DialogUtils {
                 if (task != null) {
                     taskDatabaseManager.updateTask(newTask);
                     daysSelected = task.getRecurrence();
+                    bottomSheetDialog.dismiss();
                 } else {
-                    taskDatabaseManager.insertTask(newTask);
-                    daysSelected = null;
+                    taskDatabaseManager.fetchTaskByName(new TaskDatabaseManager.TaskFetchListener() {
+                        @Override
+                        public void onTasksFetched(List<Task> tasks) {
+                            if (tasks.isEmpty()) {
+                                taskDatabaseManager.insertTask(newTask);
+                                daysSelected = null;
+                                bottomSheetDialog.dismiss();
+                            } else {
+                                editTaskName.setError("Task name already exists");
+                            }
+                        }
+                    }, newTask.getTaskName());
                 }
-                bottomSheetDialog.dismiss();
             }
         });
 
@@ -328,6 +338,7 @@ public class DialogUtils {
             taskName.setError("Required field");
             validFields = false;
         }
+
 
         if (!validFields || !validDeadline || !validSchedule) {
             if (!validFields) {

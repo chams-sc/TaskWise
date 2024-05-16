@@ -50,13 +50,12 @@
                 app:layout_constraintTop_toTopOf="parent" />
 
             <TextView
-                android:id="@+id/userEmaiTxtView"
+                android:id="@+id/emailTxtView"
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
                 android:layout_marginHorizontal="8dp"
                 android:fontFamily="@font/inter_bold"
                 android:letterSpacing="0.05"
-                android:text="userModel@email.com"
                 android:textColor="@color/dark"
                 android:textSize="16sp"
                 app:layout_constraintBottom_toBottomOf="parent"

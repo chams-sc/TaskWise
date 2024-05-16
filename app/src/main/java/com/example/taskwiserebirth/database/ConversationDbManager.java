@@ -41,4 +41,24 @@ public class ConversationDbManager {
             });
         }
     }
+
+    public void clearAIMemory(ClearMemoryCallback callback) {
+        if (user != null) {
+            Document userFilter = new Document("owner_id", user.getId());
+
+            conversationCollection.deleteMany(userFilter).getAsync(result -> {
+                if (result.isSuccess()) {
+                    callback.onMemoryCleared("AI memory has been cleared.");
+                } else {
+                    Log.e(TAG_CONVO_DBM, "Failed to clear memory: ", result.getError());
+                }
+            });
+        } else {
+            Log.e(TAG_CONVO_DBM, "User is null");
+        }
+    }
+
+    public interface ClearMemoryCallback {
+        void onMemoryCleared(String successMessage);
+    }
 }
