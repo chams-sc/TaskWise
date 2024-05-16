@@ -179,7 +179,7 @@ public class LAppModel extends CubismUserModel {
 //        }
 
         updateLipSyncValues();
-//        updateLipFormValues();
+        updateLipFormValues();
 
         // Pose Setting
         if (pose != null) {
@@ -198,13 +198,6 @@ public class LAppModel extends CubismUserModel {
         lipFormValue = calculateLipFormValue(visemeIdInt);
 
         Log.d("LAppModel", "Viseme ID: " + visemeIdInt + ", Audio Offset: " + delayMilliseconds);
-        // Schedule lip sync update task after the calculated delay
-//        scheduler.schedule(() -> {
-//            // Update lip sync values based on the received viseme ID
-//            lipSyncValue = calculateLipSyncValue(visemeIdInt);
-//
-//            Log.d("LAppModel", "Viseme ID: " + visemeIdInt + ", Audio Offset: " + delayMilliseconds);
-//        }, delayMilliseconds, TimeUnit.MILLISECONDS);
     }
 
     private static void updateLipSyncValues() {

@@ -59,11 +59,6 @@
 			"Blend": "Add"
 		},
 		{
-			"Id": "ParamMouthOpenY",
-			"Value": 1,
-			"Blend": "Add"
-		},
-		{
 			"Id": "ParamBodyAngleZ",
 			"Value": 0.873,
 			"Blend": "Add"
