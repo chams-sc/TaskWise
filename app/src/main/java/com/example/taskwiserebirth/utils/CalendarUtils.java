@@ -303,7 +303,7 @@ public class CalendarUtils {
         }
     }
 
-    private static int getDayOfWeek(String day) {
+    public static int getDayOfWeek(String day) {
         switch (day) {
             case "Su":
                 return Calendar.SUNDAY;
@@ -322,6 +322,45 @@ public class CalendarUtils {
             default:
                 throw new IllegalArgumentException("Invalid day of week: " + day);
         }
+    }
+
+    public static String getDayName(String dayAbbreviation) {
+        switch (dayAbbreviation) {
+            case "Su":
+                return "Sunday";
+            case "M":
+                return "Monday";
+            case "T":
+                return "Tuesday";
+            case "W":
+                return "Wednesday";
+            case "Th":
+                return "Thursday";
+            case "F":
+                return "Friday";
+            case "Sa":
+                return "Saturday";
+            default:
+                throw new IllegalArgumentException("Invalid day of week: " + dayAbbreviation);
+        }
+    }
+
+    public static String convertRecurrenceToFullDayNames(String recurrence) {
+        if (recurrence == null || recurrence.isEmpty()) {
+            return "";
+        }
+
+        // Split the recurrence string by " | "
+        String[] dayAbbreviations = recurrence.split(" \\| ");
+        List<String> fullDayNames = new ArrayList<>();
+
+        // Convert each abbreviation to the full day name
+        for (String abbreviation : dayAbbreviations) {
+            fullDayNames.add(getDayName(abbreviation));
+        }
+
+        // Join the full day names with " | "
+        return String.join(" | ", fullDayNames);
     }
 
     public static String getDayAbbreviation(String day) {

@@ -5,6 +5,7 @@ import android.util.Log;
 import androidx.annotation.NonNull;
 
 import com.example.taskwiserebirth.task.Task;
+import com.example.taskwiserebirth.utils.CalendarUtils;
 
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -12,6 +13,7 @@ import org.json.JSONObject;
 import java.io.IOException;
 import java.net.SocketTimeoutException;
 import java.net.UnknownHostException;
+import java.text.SimpleDateFormat;
 import java.util.concurrent.TimeUnit;
 
 import okhttp3.Call;
@@ -47,15 +49,29 @@ public class HttpRequest {
     public static void taskDetailResponse(Task task, String userMessage, String aiName, final HttpRequestCallback callback) {
         JSONObject requestBodyJson = new JSONObject();
         try {
+            SimpleDateFormat sdf = new SimpleDateFormat("MM-dd-yyyy | hh:mm a");
+            String formattedCreationDate = sdf.format(task.getCreationDate());
+            String formattedDateFinished = "null";
+            String recurrence = task.getRecurrence();
+
+            if (task.getDateFinished() != null) {
+                formattedDateFinished  = sdf.format(task.getDateFinished());
+            }
+            if (!task.getRecurrence().equals("None") && !task.getRecurrence().equals("Daily")) {
+                recurrence = CalendarUtils.convertRecurrenceToFullDayNames(task.getRecurrence());
+            }
+
             requestBodyJson.put("task_name", task.getTaskName());
             requestBodyJson.put("importance_level", task.getImportanceLevel());
             requestBodyJson.put("urgency_level", task.getUrgencyLevel());
             requestBodyJson.put("deadline", task.getDeadline());
             requestBodyJson.put("schedule", task.getSchedule());
-            requestBodyJson.put("recurrence", task.getRecurrence());
+            requestBodyJson.put("recurrence", recurrence);
             requestBodyJson.put("reminder", task.isReminder());
             requestBodyJson.put("notes", task.getNotes());
             requestBodyJson.put("status", task.getStatus());
+            requestBodyJson.put("date_finished", formattedDateFinished );
+            requestBodyJson.put("creation_date", formattedCreationDate);
 
             requestBodyJson.put("user_prompt", userMessage);
             requestBodyJson.put("ai_name", aiName);

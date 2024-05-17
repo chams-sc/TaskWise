@@ -161,7 +161,7 @@ public class Live2DFragment2 extends Fragment implements View.OnTouchListener, S
     }
 
     private void deleteTaskThroughSpeech(String taskName) {
-        taskDatabaseManager.fetchTaskByName(tasks -> {
+        taskDatabaseManager.fetchUnfinishedTaskByName(tasks -> {
             Task task = tasks.get(0);
             Log.d(TAG_SERVER_RESPONSE, "Task found: " + task.getTaskName());
 
@@ -171,7 +171,7 @@ public class Live2DFragment2 extends Fragment implements View.OnTouchListener, S
     }
 
     private void editTaskThroughSpeech(String taskName) {
-        taskDatabaseManager.fetchTaskByName(tasks -> {
+        taskDatabaseManager.fetchUnfinishedTaskByName(tasks -> {
             Task task = tasks.get(0);
             Log.d(TAG_SERVER_RESPONSE, "Task found: " + task.getTaskName());
 

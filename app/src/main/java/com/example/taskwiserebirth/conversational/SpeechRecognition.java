@@ -95,7 +95,9 @@ public class SpeechRecognition {
                 ArrayList<String> data = results.getStringArrayList(SpeechRecognizer.RESULTS_RECOGNITION);
                 if (data != null && !data.isEmpty()) {
                     String recognizedSpeech = data.get(0);
-                    listener.onSpeechRecognized(recognizedSpeech);
+                    if (listener != null) { // Null check
+                        listener.onSpeechRecognized(recognizedSpeech);
+                    }
                 } else {
                     Toast.makeText(context, "No speech recognized", Toast.LENGTH_SHORT).show();
                 }
@@ -107,8 +109,9 @@ public class SpeechRecognition {
                 ArrayList<String> data = partialResults.getStringArrayList(SpeechRecognizer.RESULTS_RECOGNITION);
                 if (data != null && !data.isEmpty()) {
                     String partialSpeech = data.get(0);
-                    // Update UI with partial recognition result
-                    listener.onPartialSpeechRecognized(partialSpeech);
+                    if (listener != null) { // Null check
+                        listener.onPartialSpeechRecognized(partialSpeech);
+                    }
                 }
             }
 
