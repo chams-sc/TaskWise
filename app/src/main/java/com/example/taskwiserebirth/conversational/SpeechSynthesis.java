@@ -20,10 +20,22 @@ public class SpeechSynthesis {
 
     private static final String voiceName = "en-US-SaraNeural";
     private static final String pitch = "high";
-    private static final ExecutorService executor = Executors.newFixedThreadPool(1);
+    private static ExecutorService executor = Executors.newSingleThreadExecutor();
+    private static volatile boolean isShutdown = false;
+
+    public static synchronized void initialize() {
+        if (isShutdown) {
+            executor = Executors.newSingleThreadExecutor();
+            isShutdown = false;
+        }
+    }
 
     public static void synthesizeSpeechAsync(String text) {
-        executor.submit(() -> synthesizeSpeech(text));
+        if (!isShutdown) {
+            executor.submit(() -> synthesizeSpeech(text));
+        } else {
+            Log.w("SpeechSynthesis", "Attempted to submit task to a shutdown executor");
+        }
     }
 
     private static void synthesizeSpeech(String text) {
@@ -31,9 +43,7 @@ public class SpeechSynthesis {
         String speechRegion = "southeastasia";
 
         SpeechConfig speechConfig = SpeechConfig.fromSubscription(speechKey, speechRegion);
-
         AudioConfig audioConfig = AudioConfig.fromDefaultSpeakerOutput();
-
         SpeechSynthesizer speechSynthesizer = new SpeechSynthesizer(speechConfig, audioConfig);
 
         speechSynthesizer.VisemeReceived.addEventListener((o, e) -> {
@@ -60,6 +70,10 @@ public class SpeechSynthesis {
             }
         } catch (InterruptedException | ExecutionException e) {
             Log.e("SpeechSynthesis", "Error occurred during speech synthesis", e);
+        } finally {
+            speechSynthesizer.close(); // Ensure the SpeechSynthesizer is closed
+            speechConfig.close(); // Ensure the SpeechConfig is closed
+            audioConfig.close(); // Ensure the AudioConfig is closed
         }
     }
 
@@ -75,6 +89,8 @@ public class SpeechSynthesis {
 
     // Shutdown ExecutorService
     public static void shutdown() {
+        isShutdown = true;
         executor.shutdown();
     }
 }
+
