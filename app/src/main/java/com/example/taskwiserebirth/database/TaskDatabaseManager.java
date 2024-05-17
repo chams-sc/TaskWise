@@ -41,7 +41,7 @@ public class TaskDatabaseManager {
 
     public void insertTask(Task task) {
         if (user != null) {
-            Document taskDocument = taskToDocument(task, false);
+            Document taskDocument = taskToDocument(task);
             Document queryFilter = new Document("owner_id", user.getId())
                     .append("task_name", task.getTaskName());
 
@@ -58,6 +58,8 @@ public class TaskDatabaseManager {
                             if (insertedTask.isReminder()) {
                                 NotificationScheduler.scheduleNotification(context, insertedTask);
                             }
+
+                            Toast.makeText(context, "Task saved: " + insertedTask.getTaskName(), Toast.LENGTH_SHORT).show();
                         } else {
                             Log.e(TAG_TASK_DBM, "Failed to fetch inserted task: " + result.getError().getMessage());
                         }
@@ -74,7 +76,7 @@ public class TaskDatabaseManager {
         Document filter = new Document("owner_id", user.getId())
                 .append("_id", task.getId());
 
-        Document updateDocument = new Document("$set", taskToDocument(task, true));
+        Document updateDocument = taskToDocument(task);
 
         taskCollection.updateOne(filter, updateDocument).getAsync(result -> {
             if (result.isSuccess()) {
@@ -83,6 +85,7 @@ public class TaskDatabaseManager {
                 } else {
                     NotificationScheduler.cancelNotification(context, task);
                 }
+                Toast.makeText(context, "Task updated", Toast.LENGTH_SHORT).show();
                 MongoDbRealmHelper.notifyDatabaseChangeListeners();
             } else {
                 Log.e(TAG_TASK_DBM, "Failed to update data: " + result.getError().getMessage());
@@ -286,8 +289,9 @@ public class TaskDatabaseManager {
         return new Task(taskId, taskName, deadlineString, importanceLevel, urgencyLevel, "", schedule, recurrence, reminder, notes, status, dateFinished, creationDate);
     }
 
-    private Document taskToDocument(Task task, boolean isUpdate) {
-        Document taskDocument = new Document()
+    private Document taskToDocument(Task task) {
+
+        Document taskDocument = new Document("owner_id", user.getId())
                 .append("task_name", task.getTaskName())
                 .append("importance_level", task.getImportanceLevel())
                 .append("urgency_level", task.getUrgencyLevel())
@@ -296,22 +300,21 @@ public class TaskDatabaseManager {
                 .append("recurrence", task.getRecurrence())
                 .append("reminder", task.isReminder())
                 .append("notes", task.getNotes())
-                .append("date_finished", task.getDateFinished());
+                .append("status", unfinishedStatus)
+                .append("date_finished", null);
 
-        if (isUpdate) {
-            // For updates, include creation_date if the task is finished
-            if (!task.getStatus().equals(unfinishedStatus)) {
-                taskDocument.append("status", task.getStatus());
-                taskDocument.append("creation_date", task.getCreationDate());
-            } else {
-                taskDocument.append("status", "Unfinished");
+        if (task.getId() != null) {
+            if (task.getStatus().equals(finishedStatus)) {
                 taskDocument.append("creation_date", new Date());
+            } else {
+                taskDocument.append("creation_date", task.getCreationDate());
             }
+            Document updateDocument = new Document("$set", taskDocument);
+            updateDocument.remove("owner_id");
+
+            return updateDocument;
         } else {
-            // For new tasks, include owner_id and creation_date
-            taskDocument.append("owner_id", user.getId())
-                    .append("status", "Unfinished")
-                    .append("creation_date", new Date());
+            taskDocument.append("creation_date", new Date());
         }
 
         return taskDocument;
