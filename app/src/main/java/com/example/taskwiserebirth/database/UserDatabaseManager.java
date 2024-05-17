@@ -25,7 +25,7 @@ public class UserDatabaseManager {
 
             Document userData = new Document("owner_id", user.getId())
                     .append("email", userModel.getEmail())
-                    .append("ai_name", "Mio");
+                    .append("ai_name", "Kaia");
 
             userDataCollection.insertOne(userData).getAsync(result -> {
                 if (result.isSuccess()) {

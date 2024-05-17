@@ -60,6 +60,8 @@ public class Live2DFragment extends Fragment implements View.OnTouchListener, Sp
     private boolean isUserDone = false;
     private final String TAG_SERVER_RESPONSE = "SERVER_RESPONSE";
 
+    private final Handler mainHandler = new Handler(Looper.getMainLooper());
+
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
@@ -167,9 +169,28 @@ public class Live2DFragment extends Fragment implements View.OnTouchListener, Sp
             case "Mark as Finished":
                 markTaskFinished(taskName);
                 return;
+            case "Details of the Task":
+            case "Information of the Task":
+            case "I need the details of the task":
+            case "I need the information of the task":
+                getTaskDetail(taskName);
+                return;
             default:
-                Toast.makeText(requireContext(), "Failed to perform intent", Toast.LENGTH_LONG).show();
+                SpeechSynthesis.synthesizeSpeechAsync("I'm sorry, I didn't quite catch that. Could you please be a bit more specific? It would really help me assist you better.");
         }
+    }
+
+    private void getTaskDetail(String taskName) {
+        taskDatabaseManager.fetchTaskByName(new TaskDatabaseManager.TaskFetchListener() {
+            @Override
+            public void onTasksFetched(List<Task> tasks) {
+                if (tasks.isEmpty()) {
+                    SpeechSynthesis.synthesizeSpeechAsync("I'm sorry but I couldn't find your task " + taskName);
+                } else {
+                    Task task = tasks.get(0);
+                }
+            }
+        }, taskName);
     }
 
     private void addNewTask(String taskName, String deadline) {
@@ -406,7 +427,7 @@ public class Live2DFragment extends Fragment implements View.OnTouchListener, Sp
             public void onSuccess(String intent, String responseText) {
                 Log.v("ResponseText", responseText);
                 Log.v("Intent", intent);
-                new Handler(Looper.getMainLooper()).post(() -> {
+                mainHandler.post(() -> {
                     if (inTurnBasedInteraction) {
                         processResponse(intent, responseText);
                         turnBasedInteraction();
@@ -414,11 +435,11 @@ public class Live2DFragment extends Fragment implements View.OnTouchListener, Sp
                         if (!intent.equals("null")) {
                             performIntent(intent, responseText);
                         } else {
-                            conversationDbManager.insertDialogue(recognizedSpeech, false);
-
                             Toast.makeText(requireContext(), String.format("%s: %s", aiName, responseText), Toast.LENGTH_LONG).show();
+                            insertDialogue(recognizedSpeech, false);
+
                             SpeechSynthesis.synthesizeSpeechAsync(responseText);
-                            conversationDbManager.insertDialogue(responseText, true);
+                            insertDialogue(responseText, true);
                         }
                     }
                 });
@@ -426,12 +447,20 @@ public class Live2DFragment extends Fragment implements View.OnTouchListener, Sp
 
             @Override
             public void onFailure(String errorMessage) {
-                new Handler(Looper.getMainLooper()).post(() -> {
+                mainHandler.post(() -> {
                     Toast.makeText(requireContext(), errorMessage, Toast.LENGTH_LONG).show();
                     Log.d(TAG_SERVER_RESPONSE, errorMessage);
                 });
             }
         });
+    }
+
+    private void insertDialogue(String dialogue, boolean isAssistant) {
+        if (isAssistant) {
+            conversationDbManager.insertDialogue(dialogue, true);
+        } else {
+            conversationDbManager.insertDialogue(dialogue, false);
+        }
     }
 
     private void confirmWithUser(String recognizedSpeech) {
@@ -485,6 +514,9 @@ public class Live2DFragment extends Fragment implements View.OnTouchListener, Sp
             speechRecognition.stopSpeechRecognition();
             speechRecognition = null;
         }
+
+        realTimeSpeechTextView.setOnClickListener(null);
+        realTimeSpeechTextView = null;
     }
 
     @Override

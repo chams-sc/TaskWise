@@ -4,6 +4,8 @@ import android.util.Log;
 
 import androidx.annotation.NonNull;
 
+import com.example.taskwiserebirth.task.Task;
+
 import org.json.JSONException;
 import org.json.JSONObject;
 
@@ -24,17 +26,11 @@ public class HttpRequest {
 
     private static final String SERVER_ADDRESS = "https://taskwise.michacaldaira.com/";
     private static String GET_TASK_DETAIL = "task_detail";
+    private static final String PROCESS_TASK_DETAIL = "process_task_detail";
 
 
     // add boolean isTurnBased if true change server address
     public static void sendRequest(String userMessage, String aiName, String userId, boolean inTurnBasedInteraction, final HttpRequestCallback callback) {
-        OkHttpClient client = new OkHttpClient.Builder()
-                .connectTimeout(1, TimeUnit.MINUTES)
-                .readTimeout(1, TimeUnit.MINUTES)
-                .writeTimeout(1, TimeUnit.MINUTES)
-                .build();
-
-        MediaType JSON = MediaType.parse("application/json; charset=utf-8");
         JSONObject requestBodyJson = new JSONObject();
         try {
             requestBodyJson.put("user_prompt", userMessage);
@@ -44,14 +40,42 @@ public class HttpRequest {
             e.printStackTrace();
         }
 
-        RequestBody requestBody = RequestBody.create(requestBodyJson.toString(), JSON);
+        String url = inTurnBasedInteraction ? SERVER_ADDRESS + GET_TASK_DETAIL : SERVER_ADDRESS;
+        sendHttpRequest(url, requestBodyJson, callback);
+    }
 
-        String url;
-        if (inTurnBasedInteraction) {
-            url = SERVER_ADDRESS + GET_TASK_DETAIL;
-        } else {
-            url = SERVER_ADDRESS;
+    public static void taskDetailResponse(Task task, String userMessage, String aiName, final HttpRequestCallback callback) {
+        JSONObject requestBodyJson = new JSONObject();
+        try {
+            requestBodyJson.put("task_name", task.getTaskName());
+            requestBodyJson.put("importance_level", task.getImportanceLevel());
+            requestBodyJson.put("urgency_level", task.getUrgencyLevel());
+            requestBodyJson.put("deadline", task.getDeadline());
+            requestBodyJson.put("schedule", task.getSchedule());
+            requestBodyJson.put("recurrence", task.getRecurrence());
+            requestBodyJson.put("reminder", task.isReminder());
+            requestBodyJson.put("notes", task.getNotes());
+            requestBodyJson.put("status", task.getStatus());
+
+            requestBodyJson.put("user_prompt", userMessage);
+            requestBodyJson.put("ai_name", aiName);
+        } catch (JSONException e) {
+            e.printStackTrace();
         }
+
+        String url = SERVER_ADDRESS + PROCESS_TASK_DETAIL;
+        sendHttpRequest(url, requestBodyJson, callback);
+    }
+
+    private static void sendHttpRequest(String url, JSONObject requestBodyJson, final HttpRequestCallback callback) {
+        OkHttpClient client = new OkHttpClient.Builder()
+                .connectTimeout(1, TimeUnit.MINUTES)
+                .readTimeout(1, TimeUnit.MINUTES)
+                .writeTimeout(1, TimeUnit.MINUTES)
+                .build();
+
+        MediaType JSON = MediaType.parse("application/json; charset=utf-8");
+        RequestBody requestBody = RequestBody.create(requestBodyJson.toString(), JSON);
 
         Request request = new Request.Builder()
                 .url(url)
@@ -84,6 +108,8 @@ public class HttpRequest {
                             callback.onFailure("Page not found");
                         } else if (response.code() == 502) {
                             callback.onFailure("Sorry, server is not available at the moment");
+                        } else if (response.code() == 500) {
+                            callback.onFailure("We apologize, but something went wrong on our end. Please try again later.");
                         } else {
                             callback.onFailure("Unexpected code: " + response.code());
                         }
@@ -110,7 +136,6 @@ public class HttpRequest {
                 } catch (JSONException e) {
                     Log.e("HttpRequest", "JSON error: ", e);
                     callback.onFailure("JSON error: " + e.getMessage());
-
                 }
             }
         });
