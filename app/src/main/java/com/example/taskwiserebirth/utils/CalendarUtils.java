@@ -109,7 +109,7 @@ public class CalendarUtils {
     }
 
     public static boolean isRecurrenceAccepted(String recurrence) {
-        Pattern RECURRENCE_PATTERN = Pattern.compile("^(Monday|Tuesday|Wednesday|Thursday|Friday|Saturday|Sunday)(,\\s*(Monday|Tuesday|Wednesday|Thursday|Friday|Saturday|Sunday))*$");
+        Pattern RECURRENCE_PATTERN = Pattern.compile("^(Daily|Monday|Tuesday|Wednesday|Thursday|Friday|Saturday|Sunday)(,\\s*(Monday|Tuesday|Wednesday|Thursday|Friday|Saturday|Sunday))*$");
 
         return RECURRENCE_PATTERN.matcher(recurrence).matches();
     }
@@ -131,8 +131,8 @@ public class CalendarUtils {
     }
 
     public static long findNextRecurrence(Task task) {
-        // Parse recurrence days and schedule time
-        String[] recurrenceDays = task.getRecurrence().split("\\s*\\|\\s*");
+        String recurrence = task.getRecurrence();
+
         String[] scheduleTimeParts = task.getSchedule().split("\\s+");
 
         // Extract hour, minute, and AM/PM from schedule time
@@ -161,6 +161,13 @@ public class CalendarUtils {
             nextAlarmTime.add(Calendar.DATE, 1);
         }
 
+        // Handle daily recurrence
+        if (recurrence.equalsIgnoreCase("Daily")) {
+            // Return the time in milliseconds until the next occurrence
+            return nextAlarmTime.getTimeInMillis() - System.currentTimeMillis();
+        }
+
+        String[] recurrenceDays = recurrence.split("\\s*\\|\\s*");
         // Find the next occurring day in the recurrence
         while (true) {
             int today = nextAlarmTime.get(Calendar.DAY_OF_WEEK);
@@ -289,10 +296,10 @@ public class CalendarUtils {
     public static String formatDeadline(String deadlineString) {
         if (!deadlineString.equals("No deadline")) {
             try {
-                SimpleDateFormat inputFormat = new SimpleDateFormat("MM-dd-yyyy | hh:mm a", Locale.US);
+                SimpleDateFormat inputFormat = new SimpleDateFormat("MM-dd-yyyy | hh:mm a", Locale.getDefault());
                 Date date = inputFormat.parse(deadlineString);
 
-                SimpleDateFormat outputFormat = new SimpleDateFormat("EEE, MMM d\nhh:mm a", Locale.US);
+                SimpleDateFormat outputFormat = new SimpleDateFormat("EEE, MMM d\nhh:mm a", Locale.getDefault());
                 return outputFormat.format(date);
             } catch (ParseException e) {
                 Log.e(TAG_CALENDAR_UTILS, e.getMessage());

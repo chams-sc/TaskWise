@@ -73,6 +73,12 @@ public class Live2DFragment extends Fragment implements View.OnTouchListener, Sp
 
 
     @Override
+    public void onCreate(Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+        SpeechSynthesis.initialize(); // Reinitialize the SpeechSynthesis executor
+    }
+
+    @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         View view = inflater.inflate(R.layout.fragment_live2d, container, false);
 
@@ -436,7 +442,7 @@ public class Live2DFragment extends Fragment implements View.OnTouchListener, Sp
             if (responseText.equals("DONE")) {
                 inEditTaskInteraction = false;
                 isUserDone = true;
-                prefilterFinalTask(finalTask);
+//                prefilterFinalTask(finalTask);
                 taskDatabaseManager.updateTask(finalTask);
                 SpeechSynthesis.synthesizeSpeechAsync("I have updated your task " + finalTask.getTaskName());
                 return;
@@ -448,7 +454,7 @@ public class Live2DFragment extends Fragment implements View.OnTouchListener, Sp
             } else {        // the responseText is UNRECOGNIZED
                 inEditTaskInteraction = false;
                 isUserDone = true;
-                prefilterFinalTask(finalTask);
+//                prefilterFinalTask(finalTask);
                 taskDatabaseManager.updateTask(finalTask);
                 Log.e("TEST", finalTask.getRecurrence());
                 Log.e("TEST", finalTask.getId().toString());
@@ -480,8 +486,6 @@ public class Live2DFragment extends Fragment implements View.OnTouchListener, Sp
                 finalTask.setSchedule(filteredSched);
             }
         }
-
-        taskDatabaseManager.updateTask(finalTask);
     }
 
     private void applyTaskDetail(String detail, String value) {
@@ -519,7 +523,7 @@ public class Live2DFragment extends Fragment implements View.OnTouchListener, Sp
                     finalTask.setRecurrence("None");
                 }
                 break;
-            case "Schedule":
+            case "Schedule":    // TODO: conflict sa findNextRecurrence need niya format 09:00 am pwede prefilter task o dito na mismo gawin
                 if (CalendarUtils.isDateAccepted(value)) {
                     finalTask.setSchedule(value);
                 } else {
@@ -701,6 +705,7 @@ public class Live2DFragment extends Fragment implements View.OnTouchListener, Sp
             speechRecognition.release(); // Release resources
             speechRecognition = null; // Nullify the SpeechRecognition reference
         }
+        SpeechSynthesis.shutdown();
     }
 
     @Override

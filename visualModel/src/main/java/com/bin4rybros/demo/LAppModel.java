@@ -197,7 +197,7 @@ public class LAppModel extends CubismUserModel {
         lipSyncValue = calculateLipSyncValue(visemeIdInt);
         lipFormValue = calculateLipFormValue(visemeIdInt);
 
-        Log.d("LAppModel", "Viseme ID: " + visemeIdInt + ", Audio Offset: " + delayMilliseconds);
+//        Log.d("LAppModel", "Viseme ID: " + visemeIdInt + ", Audio Offset: " + delayMilliseconds);
     }
 
     private static void updateLipSyncValues() {
