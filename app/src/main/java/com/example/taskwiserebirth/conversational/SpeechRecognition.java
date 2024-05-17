@@ -140,4 +140,16 @@ public class SpeechRecognition {
             }
         }
     }
+
+    public void release() {
+        if (speechRecognizer != null) {
+            if (isListening) {
+                speechRecognizer.stopListening();
+            }
+            speechRecognizer.setRecognitionListener(null);
+            speechRecognizer.destroy();
+            speechRecognizer = null;
+        }
+        listener = null;
+    }
 }

@@ -257,9 +257,11 @@ public class DialogUtils {
         // if updating task
         Task newTask = new Task();
         String status = "Unfinished";
+        Date creationDate = new Date();
         if (task != null) {
             newTask.setId(task.getId());
             status = task.getStatus();
+            creationDate = task.getCreationDate();
         }
 
         newTask.setTaskName(editTaskName.getText().toString().trim());
@@ -271,7 +273,7 @@ public class DialogUtils {
         newTask.setReminder(reminderCheckbox.isChecked());
         newTask.setNotes(notes);
         newTask.setStatus(status);
-        newTask.setCreationDate(task.getCreationDate());
+        newTask.setCreationDate(creationDate);
 
         return newTask;
     }
