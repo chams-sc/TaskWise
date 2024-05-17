@@ -309,7 +309,7 @@ public class CalendarUtils {
                 return Calendar.SUNDAY;
             case "M":
                 return Calendar.MONDAY;
-            case "T":
+            case "Tu":
                 return Calendar.TUESDAY;
             case "W":
                 return Calendar.WEDNESDAY;
@@ -330,7 +330,7 @@ public class CalendarUtils {
                 return "Sunday";
             case "M":
                 return "Monday";
-            case "T":
+            case "Tu":
                 return "Tuesday";
             case "W":
                 return "Wednesday";
@@ -368,7 +368,7 @@ public class CalendarUtils {
             case "Monday":
                 return "M";
             case "Tuesday":
-                return "T";
+                return "Tu";
             case "Wednesday":
                 return "W";
             case "Thursday":

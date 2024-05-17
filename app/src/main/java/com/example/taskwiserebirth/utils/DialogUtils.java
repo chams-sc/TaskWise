@@ -87,8 +87,16 @@ public class DialogUtils {
             editSchedule.setText(task.getSchedule());
             editNotes.setText(task.getNotes());
             reminder.setChecked(task.isReminder());
+            daysSelected = task.getRecurrence();
 
             if(!task.getRecurrence().isEmpty()) {
+                // if specific days hindi niya maset automatically sa spinner since iba ang name
+                if (task.getRecurrence().equals("None")) {
+                    isRecurrenceNone = true;
+                } else {
+                    isRecurrenceNone = false;
+                }
+
                 if (task.getRecurrence().equals("None") || task.getRecurrence().equals("Daily")) {
                     recurrenceSpinner.setSelection(getIndex(recurrenceSpinner, task.getRecurrence()));
                 } else {
@@ -112,20 +120,19 @@ public class DialogUtils {
             if (newTask != null) {
                 if (task != null) {
                     taskDatabaseManager.updateTask(newTask);
-                    Toast.makeText(activity.getApplicationContext(), "Task updated: " + newTask.getTaskName(), Toast.LENGTH_SHORT).show();
-
-                    daysSelected = task.getRecurrence();
+                    daysSelected = null;
                     bottomSheetDialog.dismiss();
                 } else {
-                    taskDatabaseManager.fetchUnfinishedTaskByName(tasks -> {
-                        if (tasks.isEmpty()) {
-                            taskDatabaseManager.insertTask(newTask);
-                            Toast.makeText(activity.getApplicationContext(), "Task saved: " + newTask.getTaskName(), Toast.LENGTH_SHORT).show();
-
-                            daysSelected = null;
-                            bottomSheetDialog.dismiss();
-                        } else {
-                            editTaskName.setError("Task name already exists");
+                    taskDatabaseManager.fetchTaskByName(new TaskDatabaseManager.TaskFetchListener() {
+                        @Override
+                        public void onTasksFetched(List<Task> tasks) {
+                            if (tasks.isEmpty()) {
+                                taskDatabaseManager.insertTask(newTask);
+                                daysSelected = null;
+                                bottomSheetDialog.dismiss();
+                            } else {
+                                editTaskName.setError("Task name already exists");
+                            }
                         }
                     }, newTask.getTaskName());
                 }
@@ -243,14 +250,16 @@ public class DialogUtils {
             recurrence = daysSelected;
         }
 
-        if (!validateFields(editTaskName, deadline, schedule, currentDate, recurrence)) {
+        if (!validateFields(editTaskName, deadline, schedule, currentDate)) {
             return null;
         }
 
         // if updating task
         Task newTask = new Task();
+        String status = "Unfinished";
         if (task != null) {
             newTask.setId(task.getId());
+            status = task.getStatus();
         }
 
         newTask.setTaskName(editTaskName.getText().toString().trim());
@@ -261,6 +270,8 @@ public class DialogUtils {
         newTask.setRecurrence(recurrence);
         newTask.setReminder(reminderCheckbox.isChecked());
         newTask.setNotes(notes);
+        newTask.setStatus(status);
+        newTask.setCreationDate(task.getCreationDate());
 
         return newTask;
     }
@@ -287,7 +298,7 @@ public class DialogUtils {
         }
     }
 
-    private boolean validateFields(EditText taskName, String deadline, String schedule, Date currentDate, String recurrence) {
+    private boolean validateFields(EditText taskName, String deadline, String schedule, Date currentDate) {
         boolean validDeadline = true;
         boolean validSchedule = true;
 
@@ -296,11 +307,11 @@ public class DialogUtils {
         }
 
         // Check if deadline is not empty and not earlier than current date
-        if (!"No deadline".equals(deadline)) {
+        if (!deadline.equals("No deadline")) {
             DateFormat dateFormat = new SimpleDateFormat("MM-dd-yyyy | hh:mm a", Locale.getDefault());
             try {
                 Date deadlineDate = dateFormat.parse(deadline);
-                if (deadlineDate != null && deadlineDate.before(currentDate)) {
+                if (deadlineDate.before(currentDate)) {
                     validDeadline = false;
                 }
             } catch (ParseException e) {
@@ -310,17 +321,16 @@ public class DialogUtils {
         }
 
         // Check if schedule is not empty and not earlier than current date
-        if (!"No schedule".equals(schedule)) {
+        if (!schedule.equals("No schedule")) {
             DateFormat dateFormat = new SimpleDateFormat("MM-dd-yyyy | hh:mm a", Locale.getDefault());
             try {
                 Date scheduleDate = dateFormat.parse(schedule);
-                if (scheduleDate != null && scheduleDate.before(currentDate)) {
+                if (scheduleDate.before(currentDate)) {
                     validSchedule = false;
-                }
-                if (!"No deadline".equals(deadline)) {
+                } if (!deadline.equals("No deadline")) {
                     // Check if schedule is later than deadline
                     Date deadlineDate = dateFormat.parse(deadline);
-                    if (scheduleDate != null && scheduleDate.after(deadlineDate)) {
+                    if (scheduleDate.after(deadlineDate)) {
                         validSchedule = false;
                     }
                 }
@@ -337,9 +347,6 @@ public class DialogUtils {
             validFields = false;
         }
 
-        if (!"None".equals(recurrence)){
-            validSchedule = true;
-        }
 
         if (!validFields || !validDeadline || !validSchedule) {
             if (!validFields) {
