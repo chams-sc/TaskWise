@@ -303,6 +303,11 @@ public class CalendarUtils {
         }
     }
 
+    public static String formatCustomDeadline(Date date) {
+        SimpleDateFormat outputFormat = new SimpleDateFormat("MMM dd, yyyy, 'at' hh:mm a", Locale.US);
+        return outputFormat.format(date);
+    }
+
     public static int getDayOfWeek(String day) {
         switch (day) {
             case "Su":

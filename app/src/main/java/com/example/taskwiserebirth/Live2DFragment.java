@@ -33,7 +33,10 @@ import com.example.taskwiserebirth.utils.DialogUtils;
 import com.example.taskwiserebirth.utils.ValidValues;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
 
+import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collections;
+import java.util.Comparator;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -203,79 +206,108 @@ public class Live2DFragment extends Fragment implements View.OnTouchListener, Sp
     }
 
     private void getNearestDeadline() {
+        taskDatabaseManager.fetchAllTasks(tasks -> {
+            if (tasks.isEmpty()) {
+                SpeechSynthesis.synthesizeSpeechAsync("You currently have no tasks");
+            } else {
+                List<Task> tasksWithDeadlines = new ArrayList<>();
+                Map<Task, Date> taskDeadlineMap = new HashMap<>();
+
+                for (Task task : tasks) {
+                    Date deadlineDate = CalendarUtils.parseDeadline(task.getDeadline());
+                    if (deadlineDate != null) {
+                        tasksWithDeadlines.add(task);
+                        taskDeadlineMap.put(task, deadlineDate);
+                    }
+                }
+
+                if (tasksWithDeadlines.isEmpty()) {
+                    SpeechSynthesis.synthesizeSpeechAsync("Currently, all your tasks have no deadlines.");
+                    return;
+                }
+
+                // Sort tasks by their parsed deadline date using Collections.sort
+                Collections.sort(tasksWithDeadlines, new Comparator<Task>() {
+                    @Override
+                    public int compare(Task t1, Task t2) {
+                        return taskDeadlineMap.get(t1).compareTo(taskDeadlineMap.get(t2));
+                    }
+                });
+
+                // Get the task with the nearest deadline
+                Task nearestDeadlineTask = tasksWithDeadlines.get(0);
+                Date nearestDeadlineDate = taskDeadlineMap.get(nearestDeadlineTask);
+                String formattedDeadline = CalendarUtils.formatCustomDeadline(nearestDeadlineDate);
+
+                String response = "Your task with the nearest deadline is " + nearestDeadlineTask.getTaskName() +
+                        " due on " + formattedDeadline + ".";
+                SpeechSynthesis.synthesizeSpeechAsync(response);
+            }
+        }, false);
     }
 
     private void getFinishedTasks() {
-        taskDatabaseManager.fetchAllTasks(new TaskDatabaseManager.TaskFetchListener() {
-            @Override
-            public void onTasksFetched(List<Task> tasks) {
-                if (tasks.isEmpty()) {
-                    SpeechSynthesis.synthesizeSpeechAsync("Hmmm, you were not able to finish any task today. But keep going!");
-                } else {
-                    int finishedTaskCount = tasks.size();
+        taskDatabaseManager.fetchAllTasks(tasks -> {
+            if (tasks.isEmpty()) {
+                SpeechSynthesis.synthesizeSpeechAsync("Hmmm, you were not able to finish any task today. But keep going!");
+            } else {
+                int finishedTaskCount = tasks.size();
 
-                    String response = "You were able to finish a total of " + finishedTaskCount + " today. Great job!";
+                String response = "You were able to finish a total of " + finishedTaskCount + " today. Great job!";
 
-                    SpeechSynthesis.synthesizeSpeechAsync(response);
-                }
+                SpeechSynthesis.synthesizeSpeechAsync(response);
             }
         }, true);
     }
 
     private void getUnfinishedTasks() {
-        taskDatabaseManager.fetchAllTasks(new TaskDatabaseManager.TaskFetchListener() {
-            @Override
-            public void onTasksFetched(List<Task> tasks) {
-                if (tasks.isEmpty()) {
-                    SpeechSynthesis.synthesizeSpeechAsync("You currently have no tasks at the moment. Good for you.");
-                } else {
-                    int unfinishedTaskCount = tasks.size();
+        taskDatabaseManager.fetchAllTasks(tasks -> {
+            if (tasks.isEmpty()) {
+                SpeechSynthesis.synthesizeSpeechAsync("You currently have no tasks at the moment. Good for you.");
+            } else {
+                int unfinishedTaskCount = tasks.size();
 
-                    List<Task> sortedTasks = TaskPriorityCalculator.sortTasksByPriority(tasks, new Date());
-                    Task mostImportantTask = sortedTasks.get(0);
+                List<Task> sortedTasks = TaskPriorityCalculator.sortTasksByPriority(tasks, new Date());
+                Task mostImportantTask = sortedTasks.get(0);
 
-                    String response = "You have " + unfinishedTaskCount + " unfinished tasks. "
-                            + "With " + mostImportantTask.getTaskName() + "as your most important task.";
+                String response = "You have " + unfinishedTaskCount + " unfinished tasks. "
+                        + "With " + mostImportantTask.getTaskName() + "as your most important task.";
 
-                    SpeechSynthesis.synthesizeSpeechAsync(response);
-                }
+                SpeechSynthesis.synthesizeSpeechAsync(response);
             }
         }, false);
     }
 
     private void getMostImportantTasks() {
-        taskDatabaseManager.fetchAllTasks(new TaskDatabaseManager.TaskFetchListener() {
-            @Override
-            public void onTasksFetched(List<Task> tasks) {
-                List<Task> sortedTasks = TaskPriorityCalculator.sortTasksByPriority(tasks, new Date());
+        taskDatabaseManager.fetchAllTasks(tasks -> {
+            List<Task> sortedTasks = TaskPriorityCalculator.sortTasksByPriority(tasks, new Date());
 
-                // Get the top 3 tasks
-                int topTaskCount = Math.min(3, sortedTasks.size());
-                StringBuilder topTasksStringBuilder = new StringBuilder();
+            // Get the top 3 tasks
+            int topTaskCount = Math.min(3, sortedTasks.size());
+            StringBuilder topTasksStringBuilder = new StringBuilder();
 
-                for (int i = 0; i < topTaskCount; i++) {
-                    Task task = sortedTasks.get(i);
-                    if (i > 0) {
-                        if (i == topTaskCount - 1) {
-                            topTasksStringBuilder.append(" and ");
-                        } else {
-                            topTasksStringBuilder.append(", ");
-                        }
+            for (int i = 0; i < topTaskCount; i++) {
+                Task task = sortedTasks.get(i);
+                if (i > 0) {
+                    if (i == topTaskCount - 1) {
+                        topTasksStringBuilder.append(" and ");
+                    } else {
+                        topTasksStringBuilder.append(", ");
                     }
-                    topTasksStringBuilder.append(task.getTaskName());
                 }
-
-                String topTasksString = topTasksStringBuilder.toString();
-
-                String response;
-                if (topTaskCount == 1) {
-                    response = "Your current most important task is: " + topTasksString;
-                } else {
-                    response = "Your current top " + topTaskCount + " most important tasks are: " + topTasksString;
-                }
-
-                SpeechSynthesis.synthesizeSpeechAsync(response);
+                topTasksStringBuilder.append(task.getTaskName());
             }
+
+            String topTasksString = topTasksStringBuilder.toString();
+
+            String response;
+            if (topTaskCount == 1) {
+                response = "Your current most important task is: " + topTasksString;
+            } else {
+                response = "Your current top " + topTaskCount + " most important tasks are: " + topTasksString;
+            }
+
+            SpeechSynthesis.synthesizeSpeechAsync(response);
         }, false);
     }
 
