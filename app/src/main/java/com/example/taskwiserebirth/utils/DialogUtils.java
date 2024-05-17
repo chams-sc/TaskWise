@@ -61,9 +61,7 @@ public class DialogUtils {
         bottomSheetDialog.setContentView(bottomSheetView);
         setUpTaskForm(bottomSheetDialog, bottomSheetView, task);
 
-        bottomSheetDialog.setOnDismissListener(dialogInterface -> {
-            SystemUIHelper.setSystemUIVisibility((AppCompatActivity) activity);
-        });
+        bottomSheetDialog.setOnDismissListener(dialogInterface -> SystemUIHelper.setSystemUIVisibility((AppCompatActivity) activity));
 
         bottomSheetDialog.show();
         dialogs.add(bottomSheetDialog);
@@ -119,18 +117,15 @@ public class DialogUtils {
                     daysSelected = task.getRecurrence();
                     bottomSheetDialog.dismiss();
                 } else {
-                    taskDatabaseManager.fetchUnfinishedTaskByName(new TaskDatabaseManager.TaskFetchListener() {
-                        @Override
-                        public void onTasksFetched(List<Task> tasks) {
-                            if (tasks.isEmpty()) {
-                                taskDatabaseManager.insertTask(newTask);
-                                Toast.makeText(activity.getApplicationContext(), "Task saved: " + newTask.getTaskName(), Toast.LENGTH_SHORT).show();
+                    taskDatabaseManager.fetchUnfinishedTaskByName(tasks -> {
+                        if (tasks.isEmpty()) {
+                            taskDatabaseManager.insertTask(newTask);
+                            Toast.makeText(activity.getApplicationContext(), "Task saved: " + newTask.getTaskName(), Toast.LENGTH_SHORT).show();
 
-                                daysSelected = null;
-                                bottomSheetDialog.dismiss();
-                            } else {
-                                editTaskName.setError("Task name already exists");
-                            }
+                            daysSelected = null;
+                            bottomSheetDialog.dismiss();
+                        } else {
+                            editTaskName.setError("Task name already exists");
                         }
                     }, newTask.getTaskName());
                 }
@@ -266,7 +261,6 @@ public class DialogUtils {
         newTask.setRecurrence(recurrence);
         newTask.setReminder(reminderCheckbox.isChecked());
         newTask.setNotes(notes);
-        newTask.setStatus("Unfinished");
 
         return newTask;
     }
@@ -302,11 +296,11 @@ public class DialogUtils {
         }
 
         // Check if deadline is not empty and not earlier than current date
-        if (!deadline.equals("No deadline")) {
+        if (!"No deadline".equals(deadline)) {
             DateFormat dateFormat = new SimpleDateFormat("MM-dd-yyyy | hh:mm a", Locale.getDefault());
             try {
                 Date deadlineDate = dateFormat.parse(deadline);
-                if (deadlineDate.before(currentDate)) {
+                if (deadlineDate != null && deadlineDate.before(currentDate)) {
                     validDeadline = false;
                 }
             } catch (ParseException e) {
@@ -316,17 +310,17 @@ public class DialogUtils {
         }
 
         // Check if schedule is not empty and not earlier than current date
-        if (!schedule.equals("No schedule")) {
+        if (!"No schedule".equals(schedule)) {
             DateFormat dateFormat = new SimpleDateFormat("MM-dd-yyyy | hh:mm a", Locale.getDefault());
             try {
                 Date scheduleDate = dateFormat.parse(schedule);
-                if (scheduleDate.before(currentDate)) {
+                if (scheduleDate != null && scheduleDate.before(currentDate)) {
                     validSchedule = false;
                 }
-                if (!deadline.equals("No deadline")) {
+                if (!"No deadline".equals(deadline)) {
                     // Check if schedule is later than deadline
                     Date deadlineDate = dateFormat.parse(deadline);
-                    if (scheduleDate.after(deadlineDate)) {
+                    if (scheduleDate != null && scheduleDate.after(deadlineDate)) {
                         validSchedule = false;
                     }
                 }
@@ -343,7 +337,7 @@ public class DialogUtils {
             validFields = false;
         }
 
-        if (!recurrence.equals("None")){
+        if (!"None".equals(recurrence)){
             validSchedule = true;
         }
 

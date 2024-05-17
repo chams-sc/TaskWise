@@ -27,15 +27,19 @@ import com.example.taskwiserebirth.database.MongoDbRealmHelper;
 import com.example.taskwiserebirth.database.TaskDatabaseManager;
 import com.example.taskwiserebirth.database.UserDatabaseManager;
 import com.example.taskwiserebirth.task.Task;
+import com.example.taskwiserebirth.task.TaskPriorityCalculator;
 import com.example.taskwiserebirth.utils.CalendarUtils;
 import com.example.taskwiserebirth.utils.DialogUtils;
 import com.example.taskwiserebirth.utils.ValidValues;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
 
 import java.util.Arrays;
+import java.util.Date;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -145,7 +149,15 @@ public class Live2DFragment extends Fragment implements View.OnTouchListener, Sp
             }
         }
 
-        if (taskName.isEmpty()) {
+        // Define a set of intents that do not require a task name check
+        Set<String> noTaskNameRequiredIntents = new HashSet<>(Arrays.asList(
+                "most important tasks",
+                "unfinished tasks",
+                "intent2"
+        ));
+
+        // Check if taskName is required for the given intent
+        if (!noTaskNameRequiredIntents.contains(intent) && taskName.isEmpty()) {
             SpeechSynthesis.synthesizeSpeechAsync("I am unable to determine the task name");
             return;
         }
@@ -175,13 +187,50 @@ public class Live2DFragment extends Fragment implements View.OnTouchListener, Sp
             case "most important tasks":
                 getMostImportantTasks();
                 return;
+            case "unfinished tasks":
+                getUnfinishedTasks();
+                return;
             default:
                 SpeechSynthesis.synthesizeSpeechAsync("I'm sorry, I didn't quite catch that. Could you please be a bit more specific? It would really help me assist you better.");
         }
     }
 
-    private void getMostImportantTasks() {
+    private void getUnfinishedTasks() {
+        taskDatabaseManager.fetchAllTasks(new TaskDatabaseManager.TaskFetchListener() {
+            @Override
+            public void onTasksFetched(List<Task> tasks) {
 
+            }
+        }, false);
+    }
+
+    private void getMostImportantTasks() {
+        taskDatabaseManager.fetchAllTasks(new TaskDatabaseManager.TaskFetchListener() {
+            @Override
+            public void onTasksFetched(List<Task> tasks) {
+                List<Task> sortedTasks = TaskPriorityCalculator.sortTasksByPriority(tasks, new Date());
+
+                // Get the top 3 tasks
+                int topTaskCount = Math.min(3, sortedTasks.size());
+                StringBuilder topTasksStringBuilder = new StringBuilder();
+
+                for (int i = 0; i < topTaskCount; i++) {
+                    Task task = sortedTasks.get(i);
+                    if (i > 0) {
+                        if (i == topTaskCount - 1) {
+                            topTasksStringBuilder.append(" and ");
+                        } else {
+                            topTasksStringBuilder.append(", ");
+                        }
+                    }
+                    topTasksStringBuilder.append(task.getTaskName());
+                }
+
+                String topTasksString = topTasksStringBuilder.toString();
+
+                SpeechSynthesis.synthesizeSpeechAsync("Your current top 3 most important tasks are: " + topTasksString);
+            }
+        }, false);
     }
 
     private void getTaskDetail(String taskName) {
@@ -225,6 +274,11 @@ public class Live2DFragment extends Fragment implements View.OnTouchListener, Sp
 
     private void markTaskFinished(String taskName) {
         taskDatabaseManager.fetchUnfinishedTaskByName(tasks -> {
+            if (tasks.isEmpty()) {
+                SpeechSynthesis.synthesizeSpeechAsync("I'm sorry but there's no such task as " + taskName);
+                return;
+            }
+
             Task task = tasks.get(0);
             Log.d(TAG_SERVER_RESPONSE, "Task found: " + task.getTaskName());
 
@@ -235,6 +289,11 @@ public class Live2DFragment extends Fragment implements View.OnTouchListener, Sp
 
     private void deleteTaskThroughSpeech(String taskName) {
         taskDatabaseManager.fetchUnfinishedTaskByName(tasks -> {
+            if (tasks.isEmpty()) {
+                SpeechSynthesis.synthesizeSpeechAsync("I'm sorry but there's no such task as " + taskName);
+                return;
+            }
+
             Task task = tasks.get(0);
             Log.d(TAG_SERVER_RESPONSE, "Task found: " + task.getTaskName());
 
@@ -244,7 +303,12 @@ public class Live2DFragment extends Fragment implements View.OnTouchListener, Sp
     }
 
     private void editTaskThroughSpeech(String taskName) {
-        taskDatabaseManager.fetchUnfinishedTaskByName(tasks -> {
+        taskDatabaseManager.fetchTaskByName(tasks -> {
+            if (tasks.isEmpty()) {
+                SpeechSynthesis.synthesizeSpeechAsync("I'm sorry but I couldn't find your task " + taskName);
+                return;
+            }
+
             Task task = tasks.get(0);
             Log.d(TAG_SERVER_RESPONSE, "Task found: " + task.getTaskName());
 

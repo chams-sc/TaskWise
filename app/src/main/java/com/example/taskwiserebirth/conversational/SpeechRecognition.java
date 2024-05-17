@@ -129,14 +129,15 @@ public class SpeechRecognition {
 
 
     public void stopSpeechRecognition() {
-        isListening = false;
-        speakBtn.setImageDrawable(ContextCompat.getDrawable(context, R.drawable.mic_standby));
-        if (speechRecognizer != null) {
-            speechRecognizer.stopListening();
-            speechRecognizer.cancel();
-            speechRecognizer.destroy();
-            speechRecognizer = null;
-            listener = null;
+        if (isListening) {
+            isListening = false;
+            speakBtn.setImageDrawable(ContextCompat.getDrawable(context, R.drawable.mic_standby));
+            if (speechRecognizer != null) {
+                speechRecognizer.stopListening();
+                speechRecognizer.cancel();
+                speechRecognizer.destroy();
+                speechRecognizer = null;
+            }
         }
     }
 }
