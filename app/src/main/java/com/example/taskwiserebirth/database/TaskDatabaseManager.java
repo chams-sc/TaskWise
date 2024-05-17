@@ -296,19 +296,21 @@ public class TaskDatabaseManager {
                 .append("recurrence", task.getRecurrence())
                 .append("reminder", task.isReminder())
                 .append("notes", task.getNotes())
-                .append("status", task.getStatus())
                 .append("date_finished", task.getDateFinished());
 
         if (isUpdate) {
             // For updates, include creation_date if the task is finished
             if (!task.getStatus().equals(unfinishedStatus)) {
+                taskDocument.append("status", task.getStatus());
                 taskDocument.append("creation_date", task.getCreationDate());
             } else {
+                taskDocument.append("status", "Unfinished");
                 taskDocument.append("creation_date", new Date());
             }
         } else {
             // For new tasks, include owner_id and creation_date
             taskDocument.append("owner_id", user.getId())
+                    .append("status", "Unfinished")
                     .append("creation_date", new Date());
         }
 
