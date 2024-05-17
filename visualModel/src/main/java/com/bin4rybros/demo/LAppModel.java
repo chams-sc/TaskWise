@@ -36,7 +36,6 @@ import java.util.Map;
 import java.util.Random;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
-import java.util.concurrent.TimeUnit;
 
 public class LAppModel extends CubismUserModel {
 
@@ -115,9 +114,10 @@ public class LAppModel extends CubismUserModel {
 
         // If there is no motion playback, play randomly from the idle motions.
         if (motionManager.isFinished()) {
-            schedulerRandomMotion.schedule(() -> {
-                startRandomMotion(LAppDefine.MotionGroup.IDLE.getId(), LAppDefine.Priority.IDLE.getPriority());
-            }, 50, TimeUnit.SECONDS);
+            startRandomMotion(LAppDefine.MotionGroup.IDLE.getId(), LAppDefine.Priority.IDLE.getPriority());
+//            schedulerRandomMotion.schedule(() -> {
+//                startRandomMotion(LAppDefine.MotionGroup.IDLE.getId(), LAppDefine.Priority.IDLE.getPriority());
+//            }, 50, TimeUnit.SECONDS);
         } else {
             // Update the motion.
             isMotionUpdated = motionManager.updateMotion(model, deltaTimeSeconds);

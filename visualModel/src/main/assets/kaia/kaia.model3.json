@@ -120,8 +120,8 @@
 			"Target": "Parameter",
 			"Name": "EyeBlink",
 			"Ids": [
-				"EyeLOpen",
-				"EyeROpen"
+				"ParamEyeLOpen",
+				"ParamEyeROpen"
 			]
 		}
 	],
