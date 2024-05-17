@@ -153,7 +153,8 @@ public class Live2DFragment extends Fragment implements View.OnTouchListener, Sp
         Set<String> noTaskNameRequiredIntents = new HashSet<>(Arrays.asList(
                 "most important tasks",
                 "unfinished tasks",
-                "intent2"
+                "finished tasks",
+                "nearest deadline"
         ));
 
         // Check if taskName is required for the given intent
@@ -190,16 +191,54 @@ public class Live2DFragment extends Fragment implements View.OnTouchListener, Sp
             case "unfinished tasks":
                 getUnfinishedTasks();
                 return;
+            case "finished tasks":
+                getFinishedTasks();
+                return;
+            case "nearest deadline":
+                getNearestDeadline();
+                return;
             default:
                 SpeechSynthesis.synthesizeSpeechAsync("I'm sorry, I didn't quite catch that. Could you please be a bit more specific? It would really help me assist you better.");
         }
+    }
+
+    private void getNearestDeadline() {
+    }
+
+    private void getFinishedTasks() {
+        taskDatabaseManager.fetchAllTasks(new TaskDatabaseManager.TaskFetchListener() {
+            @Override
+            public void onTasksFetched(List<Task> tasks) {
+                if (tasks.isEmpty()) {
+                    SpeechSynthesis.synthesizeSpeechAsync("Hmmm, you were not able to finish any task today. But keep going!");
+                } else {
+                    int finishedTaskCount = tasks.size();
+
+                    String response = "You were able to finish a total of " + finishedTaskCount + " today. Great job!";
+
+                    SpeechSynthesis.synthesizeSpeechAsync(response);
+                }
+            }
+        }, true);
     }
 
     private void getUnfinishedTasks() {
         taskDatabaseManager.fetchAllTasks(new TaskDatabaseManager.TaskFetchListener() {
             @Override
             public void onTasksFetched(List<Task> tasks) {
+                if (tasks.isEmpty()) {
+                    SpeechSynthesis.synthesizeSpeechAsync("You currently have no tasks at the moment. Good for you.");
+                } else {
+                    int unfinishedTaskCount = tasks.size();
 
+                    List<Task> sortedTasks = TaskPriorityCalculator.sortTasksByPriority(tasks, new Date());
+                    Task mostImportantTask = sortedTasks.get(0);
+
+                    String response = "You have " + unfinishedTaskCount + " unfinished tasks. "
+                            + "With " + mostImportantTask.getTaskName() + "as your most important task.";
+
+                    SpeechSynthesis.synthesizeSpeechAsync(response);
+                }
             }
         }, false);
     }
@@ -228,7 +267,14 @@ public class Live2DFragment extends Fragment implements View.OnTouchListener, Sp
 
                 String topTasksString = topTasksStringBuilder.toString();
 
-                SpeechSynthesis.synthesizeSpeechAsync("Your current top 3 most important tasks are: " + topTasksString);
+                String response;
+                if (topTaskCount == 1) {
+                    response = "Your current most important task is: " + topTasksString;
+                } else {
+                    response = "Your current top " + topTaskCount + " most important tasks are: " + topTasksString;
+                }
+
+                SpeechSynthesis.synthesizeSpeechAsync(response);
             }
         }, false);
     }
@@ -618,9 +664,10 @@ public class Live2DFragment extends Fragment implements View.OnTouchListener, Sp
     public void onDestroy() {
         super.onDestroy();
         LAppDelegate.getInstance().onDestroy();
+
         if (speechRecognition != null) {
-            speechRecognition.stopSpeechRecognition();
-            speechRecognition = null;
+            speechRecognition.release(); // Release resources
+            speechRecognition = null; // Nullify the SpeechRecognition reference
         }
     }
 
