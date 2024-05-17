@@ -58,8 +58,6 @@ public class TaskDatabaseManager {
                             if (insertedTask.isReminder()) {
                                 NotificationScheduler.scheduleNotification(context, insertedTask);
                             }
-
-                            Toast.makeText(context, "Task saved: " + insertedTask.getTaskName(), Toast.LENGTH_SHORT).show();
                         } else {
                             Log.e(TAG_TASK_DBM, "Failed to fetch inserted task: " + result.getError().getMessage());
                         }
@@ -85,7 +83,6 @@ public class TaskDatabaseManager {
                 } else {
                     NotificationScheduler.cancelNotification(context, task);
                 }
-                Toast.makeText(context, "Task updated", Toast.LENGTH_SHORT).show();
                 MongoDbRealmHelper.notifyDatabaseChangeListeners();
             } else {
                 Log.e(TAG_TASK_DBM, "Failed to update data: " + result.getError().getMessage());
@@ -191,6 +188,7 @@ public class TaskDatabaseManager {
         }
     }
 
+    // gets unfinished tasks and finished tasks of the day
     public void fetchSelectedDayTasks(TaskFetchListener listener, Date selectedDate) {
         if (user != null) {
             Document unfinishedFilter = new Document("owner_id", user.getId())

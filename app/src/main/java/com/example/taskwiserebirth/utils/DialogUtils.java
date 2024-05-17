@@ -114,6 +114,8 @@ public class DialogUtils {
             if (newTask != null) {
                 if (task != null) {
                     taskDatabaseManager.updateTask(newTask);
+                    Toast.makeText(activity.getApplicationContext(), "Task updated: " + newTask.getTaskName(), Toast.LENGTH_SHORT).show();
+
                     daysSelected = task.getRecurrence();
                     bottomSheetDialog.dismiss();
                 } else {
@@ -122,6 +124,8 @@ public class DialogUtils {
                         public void onTasksFetched(List<Task> tasks) {
                             if (tasks.isEmpty()) {
                                 taskDatabaseManager.insertTask(newTask);
+                                Toast.makeText(activity.getApplicationContext(), "Task saved: " + newTask.getTaskName(), Toast.LENGTH_SHORT).show();
+
                                 daysSelected = null;
                                 bottomSheetDialog.dismiss();
                             } else {
