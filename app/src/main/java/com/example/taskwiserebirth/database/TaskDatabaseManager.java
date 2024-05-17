@@ -41,7 +41,7 @@ public class TaskDatabaseManager {
 
     public void insertTask(Task task) {
         if (user != null) {
-            Document taskDocument = taskToDocument(task);
+            Document taskDocument = taskToDocument(task, false);
             Document queryFilter = new Document("owner_id", user.getId())
                     .append("task_name", task.getTaskName());
 
@@ -76,7 +76,7 @@ public class TaskDatabaseManager {
         Document filter = new Document("owner_id", user.getId())
                 .append("_id", task.getId());
 
-        Document updateDocument = taskToDocument(task);
+        Document updateDocument = new Document("$set", taskToDocument(task, true));
 
         taskCollection.updateOne(filter, updateDocument).getAsync(result -> {
             if (result.isSuccess()) {
@@ -109,6 +109,12 @@ public class TaskDatabaseManager {
     }
 
     public void markTaskAsFinished(Task task) {
+
+        if (task.getStatus().equals(finishedStatus)) {
+            Toast.makeText(context, "Task is already finished", Toast.LENGTH_SHORT).show();
+            return;
+        }
+
         Document queryFilter = new Document("owner_id", user.getId())
                 .append("_id", task.getId());
 
@@ -128,10 +134,38 @@ public class TaskDatabaseManager {
         });
     }
 
-    public void fetchTaskByName(TaskFetchListener listener, String taskName) {
+    public void fetchUnfinishedTaskByName(TaskFetchListener listener, String taskName) {
         if (user != null) {
             Document taskNameFilter = new Document("owner_id", user.getId())
                     .append("status", "Unfinished")
+                    .append("task_name", new Document("$regex", taskName).append("$options", "i"));
+
+            taskCollection.findOne(taskNameFilter).getAsync(task -> {
+                if (task.isSuccess()) {
+                    Document document = task.get();
+                    if (document != null) {
+                        Task taskFetched = documentToTask(document);
+                        List<Task> tasks = new ArrayList<>();
+                        tasks.add(taskFetched);
+
+                        if (listener != null) {
+                            listener.onTasksFetched(tasks);
+                        }
+                    } else {
+                        if (listener != null) {
+                            listener.onTasksFetched(Collections.emptyList());
+                        }
+                    }
+                } else {
+                    Toast.makeText(context, "Failed to fetch task", Toast.LENGTH_SHORT).show();
+                }
+            });
+        }
+    }
+
+    public void fetchTaskByName(TaskFetchListener listener, String taskName) {
+        if (user != null) {
+            Document taskNameFilter = new Document("owner_id", user.getId())
                     .append("task_name", new Document("$regex", taskName).append("$options", "i"));
 
             taskCollection.findOne(taskNameFilter).getAsync(task -> {
@@ -249,12 +283,13 @@ public class TaskDatabaseManager {
         String notes = document.getString("notes");
         String status = document.getString("status");
         Date dateFinished = document.getDate("date_finished");
+        Date creationDate = document.getDate("creation_date");
 
-        return new Task(taskId, taskName, deadlineString, importanceLevel, urgencyLevel, "", schedule, recurrence, reminder, notes, status, dateFinished);
+        return new Task(taskId, taskName, deadlineString, importanceLevel, urgencyLevel, "", schedule, recurrence, reminder, notes, status, dateFinished, creationDate);
     }
 
-    private Document taskToDocument(Task task) {
-        Document taskDocument = new Document("owner_id", user.getId())
+    private Document taskToDocument(Task task, boolean isUpdate) {
+        Document taskDocument = new Document()
                 .append("task_name", task.getTaskName())
                 .append("importance_level", task.getImportanceLevel())
                 .append("urgency_level", task.getUrgencyLevel())
@@ -266,11 +301,17 @@ public class TaskDatabaseManager {
                 .append("status", task.getStatus())
                 .append("date_finished", task.getDateFinished());
 
-        if (task.getId() != null) {
-            Document updateDocument = new Document("$set", taskDocument);
-            updateDocument.remove("owner_id");
-
-            return updateDocument;
+        if (isUpdate) {
+            // For updates, include creation_date if the task is finished
+            if (!task.getStatus().equals(unfinishedStatus)) {
+                taskDocument.append("creation_date", task.getCreationDate());
+            } else {
+                taskDocument.append("creation_date", new Date());
+            }
+        } else {
+            // For new tasks, include owner_id and creation_date
+            taskDocument.append("owner_id", user.getId())
+                    .append("creation_date", new Date());
         }
 
         return taskDocument;

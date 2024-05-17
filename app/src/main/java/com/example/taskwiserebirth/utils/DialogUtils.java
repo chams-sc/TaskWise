@@ -117,7 +117,7 @@ public class DialogUtils {
                     daysSelected = task.getRecurrence();
                     bottomSheetDialog.dismiss();
                 } else {
-                    taskDatabaseManager.fetchTaskByName(new TaskDatabaseManager.TaskFetchListener() {
+                    taskDatabaseManager.fetchUnfinishedTaskByName(new TaskDatabaseManager.TaskFetchListener() {
                         @Override
                         public void onTasksFetched(List<Task> tasks) {
                             if (tasks.isEmpty()) {
@@ -244,7 +244,7 @@ public class DialogUtils {
             recurrence = daysSelected;
         }
 
-        if (!validateFields(editTaskName, deadline, schedule, currentDate)) {
+        if (!validateFields(editTaskName, deadline, schedule, currentDate, recurrence)) {
             return null;
         }
 
@@ -263,7 +263,6 @@ public class DialogUtils {
         newTask.setReminder(reminderCheckbox.isChecked());
         newTask.setNotes(notes);
         newTask.setStatus("Unfinished");
-        newTask.setDateFinished(null);
 
         return newTask;
     }
@@ -290,7 +289,7 @@ public class DialogUtils {
         }
     }
 
-    private boolean validateFields(EditText taskName, String deadline, String schedule, Date currentDate) {
+    private boolean validateFields(EditText taskName, String deadline, String schedule, Date currentDate, String recurrence) {
         boolean validDeadline = true;
         boolean validSchedule = true;
 
@@ -319,7 +318,8 @@ public class DialogUtils {
                 Date scheduleDate = dateFormat.parse(schedule);
                 if (scheduleDate.before(currentDate)) {
                     validSchedule = false;
-                } if (!deadline.equals("No deadline")) {
+                }
+                if (!deadline.equals("No deadline")) {
                     // Check if schedule is later than deadline
                     Date deadlineDate = dateFormat.parse(deadline);
                     if (scheduleDate.after(deadlineDate)) {
@@ -339,6 +339,9 @@ public class DialogUtils {
             validFields = false;
         }
 
+        if (!recurrence.equals("None")){
+            validSchedule = true;
+        }
 
         if (!validFields || !validDeadline || !validSchedule) {
             if (!validFields) {

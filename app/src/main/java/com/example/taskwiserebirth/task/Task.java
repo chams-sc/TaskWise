@@ -18,11 +18,13 @@ public class Task {
     private Date dateFinished;
     private boolean reminder;
 
+    private Date creationDate;
+
     public Task () {
 
     }
 
-    public Task(ObjectId id, String taskName, String deadlineString, String importanceLevel, String urgencyLevel, String priorityCategory, String schedule, String recurrence, boolean reminder, String notes, String status, Date dateFinished) {
+    public Task(ObjectId id, String taskName, String deadlineString, String importanceLevel, String urgencyLevel, String priorityCategory, String schedule, String recurrence, boolean reminder, String notes, String status, Date dateFinished, Date creationDate) {
         this.id = id;
         this.taskName = taskName;
         this.deadline = deadlineString;
@@ -35,6 +37,7 @@ public class Task {
         this.notes = notes;
         this.status = status;
         this.dateFinished = dateFinished;
+        this.creationDate = creationDate;
     }
 
     public ObjectId getId() {
@@ -131,5 +134,13 @@ public class Task {
 
     public void setReminder(boolean reminder) {
         this.reminder = reminder;
+    }
+
+    public Date getCreationDate() {
+        return creationDate;
+    }
+
+    public void setCreationDate(Date creationDate) {
+        this.creationDate = creationDate;
     }
 }
