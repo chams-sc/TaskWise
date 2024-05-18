@@ -106,14 +106,14 @@
 			"Target": "Parameter",
 			"Name": "LipSync",
 			"Ids": [
-				"MouthOpen"
+				"ParamMouthOpenY"
 			]
 		},
 		{
 			"Target": "Parameter",
 			"Name": "LipForm",
 			"Ids": [
-				"MouthForm"
+				"ParamMouthForm"
 			]
 		},
 		{

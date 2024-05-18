@@ -99,9 +99,18 @@ public class LAppView {
         // Load the gear image
         LAppTextureManager.TextureInfo gearTexture = textureManager.createTextureFromPngFile(LAppDefine.ResourcePath.ROOT.getPath() + LAppDefine.ResourcePath.GEAR_IMAGE.getPath());
 
+        // original code
+//        float x = windowWidth - gearTexture.width * 0.5f - 96.f;
+//        float y = windowHeight - gearTexture.height * 0.5f;
+//        float fWidth = (float) gearTexture.width;
+//        float fHeight = (float) gearTexture.height;
 
-        float x = windowWidth - gearTexture.width * 0.5f - 96.f;
-        float y = windowHeight - gearTexture.height * 0.5f;
+        float xOffset = 96.0f; // Adjust this value as needed for the x position
+        float yOffset = 50.0f; // Adjust this value as needed for the y position
+
+        // Calculate the position for the gear image
+        float x = gearTexture.width * 0.5f + xOffset;
+        float y = windowHeight - gearTexture.height * 0.5f - yOffset;
         float fWidth = (float) gearTexture.width;
         float fHeight = (float) gearTexture.height;
 
