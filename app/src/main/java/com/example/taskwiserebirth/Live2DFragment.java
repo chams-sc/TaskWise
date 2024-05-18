@@ -163,12 +163,13 @@ public class Live2DFragment extends Fragment implements View.OnTouchListener, Sp
                 "most important tasks",
                 "unfinished tasks",
                 "finished tasks",
-                "nearest deadline"
+                "nearest deadline",
+                "how many task have I created today"
         ));
 
         // Check if taskName is required for the given intent
         if (!noTaskNameRequiredIntents.contains(intent) && taskName.isEmpty()) {
-            SpeechSynthesis.synthesizeSpeechAsync("I am unable to determine the task name");
+            SpeechSynthesis.synthesizeSpeechAsync("Hmmm, I am unable to determine the task name");
             return;
         }
 
@@ -206,13 +207,50 @@ public class Live2DFragment extends Fragment implements View.OnTouchListener, Sp
             case "nearest deadline":
                 getNearestDeadline();
                 return;
+            case "how many task have I created today":
+                countCreatedTasksToday();
+                return;
             default:
                 SpeechSynthesis.synthesizeSpeechAsync("I'm sorry, I didn't quite catch that. Could you please be a bit more specific? It would really help me assist you better.");
         }
     }
 
+    private void countCreatedTasksToday() {
+        taskDatabaseManager.fetchAllTasks(new TaskDatabaseManager.TaskFetchListener() {
+            @Override
+            public void onTasksFetched(List<Task> tasks) {
+                if (!tasks.isEmpty()) {
+                    int tasksCreatedToday = 0;
+                    String latestTaskName = "";
+                    Date latestCreationDate = null;
+                    Date today = new Date();
+
+                    for (Task task : tasks) {
+                        if (CalendarUtils.isSameDay(task.getCreationDate(), today)) {
+                            tasksCreatedToday++;
+
+                            // Update latest task if its creation date is more recent
+                            if (latestCreationDate == null || task.getCreationDate().after(latestCreationDate)) {
+                                latestCreationDate = task.getCreationDate();
+                                latestTaskName = task.getTaskName();
+                            }
+                        }
+                    }
+
+                    String speechResponse = "You created " + tasksCreatedToday + " tasks today";
+                    if (tasksCreatedToday > 0) {
+                        speechResponse += " with " + latestTaskName + " as the latest.";
+                    }
+                    SpeechSynthesis.synthesizeSpeechAsync(speechResponse);
+                } else {
+                    SpeechSynthesis.synthesizeSpeechAsync("You currently have no tasks");
+                }
+            }
+        });
+    }
+
     private void getNearestDeadline() {
-        taskDatabaseManager.fetchAllTasks(tasks -> {
+        taskDatabaseManager.fetchTasksWithStatus(tasks -> {
             if (tasks.isEmpty()) {
                 SpeechSynthesis.synthesizeSpeechAsync("You currently have no tasks");
             } else {
@@ -253,7 +291,7 @@ public class Live2DFragment extends Fragment implements View.OnTouchListener, Sp
     }
 
     private void getFinishedTasks() {
-        taskDatabaseManager.fetchAllTasks(tasks -> {
+        taskDatabaseManager.fetchTasksWithStatus(tasks -> {
             if (tasks.isEmpty()) {
                 SpeechSynthesis.synthesizeSpeechAsync("Hmmm, you were not able to finish any task today. But keep going!");
             } else {
@@ -267,7 +305,7 @@ public class Live2DFragment extends Fragment implements View.OnTouchListener, Sp
     }
 
     private void getUnfinishedTasks() {
-        taskDatabaseManager.fetchAllTasks(tasks -> {
+        taskDatabaseManager.fetchTasksWithStatus(tasks -> {
             if (tasks.isEmpty()) {
                 SpeechSynthesis.synthesizeSpeechAsync("You currently have no tasks at the moment. Good for you.");
             } else {
@@ -285,7 +323,7 @@ public class Live2DFragment extends Fragment implements View.OnTouchListener, Sp
     }
 
     private void getMostImportantTasks() {
-        taskDatabaseManager.fetchAllTasks(tasks -> {
+        taskDatabaseManager.fetchTasksWithStatus(tasks -> {
             List<Task> sortedTasks = TaskPriorityCalculator.sortTasksByPriority(tasks, new Date());
 
             // Get the top 3 tasks
@@ -330,7 +368,7 @@ public class Live2DFragment extends Fragment implements View.OnTouchListener, Sp
     }
 
     private void addNewTask(String taskName, String deadline) {
-        taskDatabaseManager.fetchAllTasks(tasks -> {
+        taskDatabaseManager.fetchTasksWithStatus(tasks -> {
             if (tasks.size() >= 10) {
                 SpeechSynthesis.synthesizeSpeechAsync(String.format("You already have %d unfinished tasks, are you sure you want to add more?", tasks.size()));
 
@@ -580,74 +618,9 @@ public class Live2DFragment extends Fragment implements View.OnTouchListener, Sp
         if (confirmAddTaskWithUser) {
             confirmWithUser(recognizedSpeech);
         } else if (inTaskDetailInteraction) {
-            final List<String> doneIntents = Arrays.asList("done", "finished", "all set", "i'm good", "thank you");
-            HttpRequest.taskDetailResponse(tempTask, recognizedSpeech, aiName, new HttpRequest.HttpRequestCallback() {
-                @Override
-                public void onSuccess(String intent, String responseText) {
-                    mainHandler.post(() -> {
-                        Log.v("ResponseText", responseText);
-                        Log.v("Intent", intent);
-
-                        if(intent.equalsIgnoreCase("null")) {
-                            SpeechSynthesis.synthesizeSpeechAsync("I'm sorry I didn't understand, if you need details of your task just tell me what you want to know. If you are done, you can say \"I'm done\".");
-                        } else if (isDoneIntent(intent)) {
-                            inTaskDetailInteraction = false;
-                            SpeechSynthesis.synthesizeSpeechAsync("If you need anything else, don't hesitate to tell me!");
-                        } else {
-                            SpeechSynthesis.synthesizeSpeechAsync(responseText);
-                        }
-                    });
-                }
-
-                private boolean isDoneIntent(String intent) {
-                    for (String doneIntent : doneIntents) {
-                        if (doneIntent.equalsIgnoreCase(intent)) {
-                            return true;
-                        }
-                    }
-                    return false;
-                }
-
-                @Override
-                public void onFailure(String errorMessage) {
-                    mainHandler.post(() -> {
-                        Toast.makeText(requireContext(), errorMessage, Toast.LENGTH_LONG).show();
-                        Log.d(TAG_SERVER_RESPONSE, errorMessage);
-                    });
-                }
-            });
+            handleTaskDetailInteraction(recognizedSpeech);
         } else {
-            HttpRequest.sendRequest(recognizedSpeech, aiName, user.getId(), inEditTaskInteraction, new HttpRequest.HttpRequestCallback() {
-                @Override
-                public void onSuccess(String intent, String responseText) {
-                    Log.v("ResponseText", responseText);
-                    Log.v("Intent", intent);
-                    mainHandler.post(() -> {
-                        if (inEditTaskInteraction) {
-                            processResponse(intent, responseText);
-                            turnBasedInteraction();
-                        } else {
-                            if (!intent.equals("null")) {
-                                performIntent(intent, responseText);
-                            } else {
-                                Toast.makeText(requireContext(), String.format("%s: %s", aiName, responseText), Toast.LENGTH_LONG).show();
-                                insertDialogue(recognizedSpeech, false);
-
-                                SpeechSynthesis.synthesizeSpeechAsync(responseText);
-                                insertDialogue(responseText, true);
-                            }
-                        }
-                    });
-                }
-
-                @Override
-                public void onFailure(String errorMessage) {
-                    mainHandler.post(() -> {
-                        Toast.makeText(requireContext(), errorMessage, Toast.LENGTH_LONG).show();
-                        Log.d(TAG_SERVER_RESPONSE, errorMessage);
-                    });
-                }
-            });
+            handleRegularInteraction(recognizedSpeech);
         }
     }
 
@@ -663,9 +636,76 @@ public class Live2DFragment extends Fragment implements View.OnTouchListener, Sp
             SpeechSynthesis.synthesizeSpeechAsync("Oki");
             confirmAddTaskWithUser = false;
         } else {
-            Log.d("confirmWithUser", "not recognized");
             SpeechSynthesis.synthesizeSpeechAsync("I'm sorry, I didn't understand that. Are you sure you want to add task?");
         }
+    }
+
+    private void handleTaskDetailInteraction(String recognizedSpeech) {
+        final List<String> doneIntents = Arrays.asList("done", "finished", "all set", "i'm good", "thank you");
+        HttpRequest.taskDetailResponse(tempTask, recognizedSpeech, aiName, new HttpRequest.HttpRequestCallback() {
+            @Override
+            public void onSuccess(String intent, String responseText) {
+                mainHandler.post(() -> {
+                    if (intent.equalsIgnoreCase("null")) {
+                        SpeechSynthesis.synthesizeSpeechAsync("I'm sorry I didn't understand, if you need details of your task just tell me what you want to know. If you are done, you can say \"I'm done\".");
+                    } else if (isDoneIntent(intent)) {
+                        inTaskDetailInteraction = false;
+                        SpeechSynthesis.synthesizeSpeechAsync("If you need anything else, don't hesitate to tell me!");
+                    } else {
+                        SpeechSynthesis.synthesizeSpeechAsync(responseText);
+                    }
+                });
+            }
+
+            private boolean isDoneIntent(String intent) {
+                for (String doneIntent : doneIntents) {
+                    if (doneIntent.equalsIgnoreCase(intent)) {
+                        return true;
+                    }
+                }
+                return false;
+            }
+
+            @Override
+            public void onFailure(String errorMessage) {
+                mainHandler.post(() -> {
+                    Toast.makeText(requireContext(), errorMessage, Toast.LENGTH_LONG).show();
+                    Log.d(TAG_SERVER_RESPONSE, errorMessage);
+                });
+            }
+        });
+    }
+
+    private void handleRegularInteraction(String recognizedSpeech) {
+        HttpRequest.sendRequest(recognizedSpeech, aiName, user.getId(), inEditTaskInteraction, new HttpRequest.HttpRequestCallback() {
+            @Override
+            public void onSuccess(String intent, String responseText) {
+                mainHandler.post(() -> {
+                    if (inEditTaskInteraction) {
+                        processResponse(intent, responseText);
+                        turnBasedInteraction();
+                    } else {
+                        if (!intent.equals("null")) {
+                            performIntent(intent, responseText);
+                        } else {
+                            Toast.makeText(requireContext(), String.format("%s: %s", aiName, responseText), Toast.LENGTH_LONG).show();
+                            insertDialogue(recognizedSpeech, false);
+
+                            SpeechSynthesis.synthesizeSpeechAsync(responseText);
+                            insertDialogue(responseText, true);
+                        }
+                    }
+                });
+            }
+
+            @Override
+            public void onFailure(String errorMessage) {
+                mainHandler.post(() -> {
+                    Toast.makeText(requireContext(), errorMessage, Toast.LENGTH_LONG).show();
+                    Log.d(TAG_SERVER_RESPONSE, errorMessage);
+                });
+            }
+        });
     }
 
     private void openTaskDetailFragment(Task task) {
