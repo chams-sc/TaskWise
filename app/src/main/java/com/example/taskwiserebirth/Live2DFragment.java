@@ -1,5 +1,7 @@
 package com.example.taskwiserebirth;
 
+import android.content.Context;
+import android.content.SharedPreferences;
 import android.opengl.GLSurfaceView;
 import android.os.Bundle;
 import android.os.Handler;
@@ -68,6 +70,8 @@ public class Live2DFragment extends Fragment implements View.OnTouchListener, Sp
     private boolean inTaskDetailInteraction = false;
     private boolean isUserDone = false;
     private final String TAG_SERVER_RESPONSE = "SERVER_RESPONSE";
+    private static final String SHARED_PREFS = "sharedPrefs";
+    private static final String STATUS_KEY = "focus_mode";
 
     private final Handler mainHandler = new Handler(Looper.getMainLooper());
 
@@ -132,7 +136,14 @@ public class Live2DFragment extends Fragment implements View.OnTouchListener, Sp
         return view;
     }
 
+    private boolean isFocusModeEnabled() {
+        SharedPreferences sharedPreferences = requireActivity().getSharedPreferences(SHARED_PREFS, Context.MODE_PRIVATE);
+        return sharedPreferences.getBoolean(STATUS_KEY, false);
+    }
+
     private void performIntent(String intent, String responseText){
+
+        Log.v("TestIntentResponse", "Intent: " + intent + " response text: "+ responseText);
         Pattern taskPattern = Pattern.compile("TASK_NAME: (.+?)(?:\\nDEADLINE:|$)");
         Pattern deadlinePattern = Pattern.compile("DEADLINE: (.+)");
 
@@ -164,12 +175,12 @@ public class Live2DFragment extends Fragment implements View.OnTouchListener, Sp
                 "unfinished tasks",
                 "finished tasks",
                 "nearest deadline",
-                "how many task have I created today"
+                "created tasks"
         ));
 
         // Check if taskName is required for the given intent
         if (!noTaskNameRequiredIntents.contains(intent) && taskName.isEmpty()) {
-            SpeechSynthesis.synthesizeSpeechAsync("Hmmm, I am unable to determine the task name");
+            synthesizeAssistantSpeech("Hmmm, I am unable to determine the task name");
             return;
         }
 
@@ -207,44 +218,41 @@ public class Live2DFragment extends Fragment implements View.OnTouchListener, Sp
             case "nearest deadline":
                 getNearestDeadline();
                 return;
-            case "how many task have I created today":
+            case "created tasks":
                 countCreatedTasksToday();
                 return;
             default:
-                SpeechSynthesis.synthesizeSpeechAsync("I'm sorry, I didn't quite catch that. Could you please be a bit more specific? It would really help me assist you better.");
+                synthesizeAssistantSpeech("I'm sorry, I didn't quite catch that. Could you please be a bit more specific? It would really help me assist you better.");
         }
     }
 
     private void countCreatedTasksToday() {
-        taskDatabaseManager.fetchAllTasks(new TaskDatabaseManager.TaskFetchListener() {
-            @Override
-            public void onTasksFetched(List<Task> tasks) {
-                if (!tasks.isEmpty()) {
-                    int tasksCreatedToday = 0;
-                    String latestTaskName = "";
-                    Date latestCreationDate = null;
-                    Date today = new Date();
+        taskDatabaseManager.fetchAllTasks(tasks -> {
+            if (!tasks.isEmpty()) {
+                int tasksCreatedToday = 0;
+                String latestTaskName = "";
+                Date latestCreationDate = null;
+                Date today = new Date();
 
-                    for (Task task : tasks) {
-                        if (CalendarUtils.isSameDay(task.getCreationDate(), today)) {
-                            tasksCreatedToday++;
+                for (Task task : tasks) {
+                    if (CalendarUtils.isSameDay(task.getCreationDate(), today)) {
+                        tasksCreatedToday++;
 
-                            // Update latest task if its creation date is more recent
-                            if (latestCreationDate == null || task.getCreationDate().after(latestCreationDate)) {
-                                latestCreationDate = task.getCreationDate();
-                                latestTaskName = task.getTaskName();
-                            }
+                        // Update latest task if its creation date is more recent
+                        if (latestCreationDate == null || task.getCreationDate().after(latestCreationDate)) {
+                            latestCreationDate = task.getCreationDate();
+                            latestTaskName = task.getTaskName();
                         }
                     }
-
-                    String speechResponse = "You created " + tasksCreatedToday + " tasks today";
-                    if (tasksCreatedToday > 0) {
-                        speechResponse += " with " + latestTaskName + " as the latest.";
-                    }
-                    SpeechSynthesis.synthesizeSpeechAsync(speechResponse);
-                } else {
-                    SpeechSynthesis.synthesizeSpeechAsync("You currently have no tasks");
                 }
+
+                String speechResponse = "You created " + tasksCreatedToday + " tasks today";
+                if (tasksCreatedToday > 0) {
+                    speechResponse += " with " + latestTaskName + " as the latest.";
+                }
+                synthesizeAssistantSpeech(speechResponse);
+            } else {
+                synthesizeAssistantSpeech(AIRandomSpeech.generateNoTasksMessages());
             }
         });
     }
@@ -252,7 +260,7 @@ public class Live2DFragment extends Fragment implements View.OnTouchListener, Sp
     private void getNearestDeadline() {
         taskDatabaseManager.fetchTasksWithStatus(tasks -> {
             if (tasks.isEmpty()) {
-                SpeechSynthesis.synthesizeSpeechAsync("You currently have no tasks");
+                synthesizeAssistantSpeech(AIRandomSpeech.generateNoTasksMessages());
             } else {
                 List<Task> tasksWithDeadlines = new ArrayList<>();
                 Map<Task, Date> taskDeadlineMap = new HashMap<>();
@@ -266,7 +274,7 @@ public class Live2DFragment extends Fragment implements View.OnTouchListener, Sp
                 }
 
                 if (tasksWithDeadlines.isEmpty()) {
-                    SpeechSynthesis.synthesizeSpeechAsync("Currently, all your tasks have no deadlines.");
+                    synthesizeAssistantSpeech("Currently, all your tasks have no deadlines.");
                     return;
                 }
 
@@ -285,7 +293,7 @@ public class Live2DFragment extends Fragment implements View.OnTouchListener, Sp
 
                 String response = "Your task with the nearest deadline is " + nearestDeadlineTask.getTaskName() +
                         " due on " + formattedDeadline + ".";
-                SpeechSynthesis.synthesizeSpeechAsync(response);
+                synthesizeAssistantSpeech(response);
             }
         }, false);
     }
@@ -293,13 +301,16 @@ public class Live2DFragment extends Fragment implements View.OnTouchListener, Sp
     private void getFinishedTasks() {
         taskDatabaseManager.fetchTasksWithStatus(tasks -> {
             if (tasks.isEmpty()) {
-                SpeechSynthesis.synthesizeSpeechAsync("Hmmm, you were not able to finish any task today. But keep going!");
+                synthesizeAssistantSpeech(AIRandomSpeech.generateNoTasksCompleted());
             } else {
                 int finishedTaskCount = tasks.size();
-
-                String response = "You were able to finish a total of " + finishedTaskCount + " today. Great job!";
-
-                SpeechSynthesis.synthesizeSpeechAsync(response);
+                String response;
+                if (finishedTaskCount == 1) {
+                    response = "You were able to finish a total of " + finishedTaskCount + " task today. Great job!";
+                } else {
+                    response = AIRandomSpeech.generateFinishedTaskCountMessage(finishedTaskCount);
+                }
+                synthesizeAssistantSpeech(response);
             }
         }, true);
     }
@@ -307,17 +318,22 @@ public class Live2DFragment extends Fragment implements View.OnTouchListener, Sp
     private void getUnfinishedTasks() {
         taskDatabaseManager.fetchTasksWithStatus(tasks -> {
             if (tasks.isEmpty()) {
-                SpeechSynthesis.synthesizeSpeechAsync("You currently have no tasks at the moment. Good for you.");
+                synthesizeAssistantSpeech(AIRandomSpeech.generateNoTasksMessages());
             } else {
                 int unfinishedTaskCount = tasks.size();
 
                 List<Task> sortedTasks = TaskPriorityCalculator.sortTasksByPriority(tasks, new Date());
                 Task mostImportantTask = sortedTasks.get(0);
 
-                String response = "You have " + unfinishedTaskCount + " unfinished tasks. "
-                        + "With " + mostImportantTask.getTaskName() + "as your most important task.";
+                String task = "task";
+                if (unfinishedTaskCount > 1) {
+                    task = "tasks";
+                }
 
-                SpeechSynthesis.synthesizeSpeechAsync(response);
+                String response = "You have " + unfinishedTaskCount + " unfinished " + task
+                        + ". With " + mostImportantTask.getTaskName() + "as your most important task.";
+
+                synthesizeAssistantSpeech(response);
             }
         }, false);
     }
@@ -351,18 +367,18 @@ public class Live2DFragment extends Fragment implements View.OnTouchListener, Sp
                 response = "Your current top " + topTaskCount + " most important tasks are: " + topTasksString;
             }
 
-            SpeechSynthesis.synthesizeSpeechAsync(response);
+            synthesizeAssistantSpeech(response);
         }, false);
     }
 
     private void getTaskDetail(String taskName) {
         taskDatabaseManager.fetchTaskByName(tasks -> {
             if (tasks.isEmpty()) {
-                SpeechSynthesis.synthesizeSpeechAsync("I'm sorry but I couldn't find your task " + taskName);
+                synthesizeAssistantSpeech("I'm sorry but I couldn't find your task " + taskName);
             } else {
                tempTask = tasks.get(0);
                inTaskDetailInteraction = true;
-               SpeechSynthesis.synthesizeSpeechAsync("Sure, what do you need to know about your task " + taskName + "?");
+               synthesizeAssistantSpeech("Sure, what do you need to know about your task " + taskName + "?");
             }
         }, taskName);
     }
@@ -370,7 +386,7 @@ public class Live2DFragment extends Fragment implements View.OnTouchListener, Sp
     private void addNewTask(String taskName, String deadline) {
         taskDatabaseManager.fetchTasksWithStatus(tasks -> {
             if (tasks.size() >= 10) {
-                SpeechSynthesis.synthesizeSpeechAsync(String.format("You already have %d unfinished tasks, are you sure you want to add more?", tasks.size()));
+                synthesizeAssistantSpeech(AIRandomSpeech.generateUnfinishedTasksMessage(tasks.size()));
 
                 tempTaskName = taskName;
                 tempDeadline = deadline;
@@ -380,7 +396,7 @@ public class Live2DFragment extends Fragment implements View.OnTouchListener, Sp
                     if (tasks1.isEmpty()) {
                         insertTaskAllowed(taskName, deadline);
                     } else {
-                        SpeechSynthesis.synthesizeSpeechAsync(String.format("%s is already in your list of tasks", taskName));
+                        synthesizeAssistantSpeech(String.format("%s is already in your list of tasks", taskName));
                     }
                 }, taskName);
             }
@@ -391,13 +407,13 @@ public class Live2DFragment extends Fragment implements View.OnTouchListener, Sp
         Task task = setTaskFromSpeech(taskName, deadline);
         taskDatabaseManager.insertTask(task);
         openTaskDetailFragment(task);
-        SpeechSynthesis.synthesizeSpeechAsync(AIRandomSpeech.generateTaskAdded(taskName));
+        synthesizeAssistantSpeech(AIRandomSpeech.generateTaskAdded(taskName));
     }
 
     private void markTaskFinished(String taskName) {
         taskDatabaseManager.fetchUnfinishedTaskByName(tasks -> {
             if (tasks.isEmpty()) {
-                SpeechSynthesis.synthesizeSpeechAsync("I'm sorry but there's no such task as " + taskName);
+                synthesizeAssistantSpeech(AIRandomSpeech.generateTaskNotFound(taskName));
                 return;
             }
 
@@ -405,14 +421,14 @@ public class Live2DFragment extends Fragment implements View.OnTouchListener, Sp
             Log.d(TAG_SERVER_RESPONSE, "Task found: " + task.getTaskName());
 
             taskDatabaseManager.markTaskAsFinished(task);
-            SpeechSynthesis.synthesizeSpeechAsync(AIRandomSpeech.generateTaskFinished(taskName));
+            synthesizeAssistantSpeech(AIRandomSpeech.generateTaskFinished(taskName));
         }, taskName);
     }
 
     private void deleteTaskThroughSpeech(String taskName) {
         taskDatabaseManager.fetchUnfinishedTaskByName(tasks -> {
             if (tasks.isEmpty()) {
-                SpeechSynthesis.synthesizeSpeechAsync("I'm sorry but there's no such task as " + taskName);
+                synthesizeAssistantSpeech(AIRandomSpeech.generateTaskNotFound(taskName));
                 return;
             }
 
@@ -420,14 +436,14 @@ public class Live2DFragment extends Fragment implements View.OnTouchListener, Sp
             Log.d(TAG_SERVER_RESPONSE, "Task found: " + task.getTaskName());
 
             taskDatabaseManager.deleteTask(task);
-            SpeechSynthesis.synthesizeSpeechAsync("I have successfully deleted your task " + taskName);
+            synthesizeAssistantSpeech("I have successfully deleted your task " + taskName);
         }, taskName);
     }
 
     private void editTaskThroughSpeech(String taskName) {
         taskDatabaseManager.fetchTaskByName(tasks -> {
             if (tasks.isEmpty()) {
-                SpeechSynthesis.synthesizeSpeechAsync("I'm sorry but I couldn't find your task " + taskName);
+                synthesizeAssistantSpeech(AIRandomSpeech.generateTaskNotFound(taskName));
                 return;
             }
 
@@ -444,7 +460,7 @@ public class Live2DFragment extends Fragment implements View.OnTouchListener, Sp
 
     private void askQuestion( String question) {
         Toast.makeText(requireContext(), String.format("%s: %s", aiName, question), Toast.LENGTH_SHORT).show();
-        SpeechSynthesis.synthesizeSpeechAsync(question);
+        synthesizeAssistantSpeech(question);
     }
 
     private void turnBasedInteraction() {
@@ -452,8 +468,8 @@ public class Live2DFragment extends Fragment implements View.OnTouchListener, Sp
             return;
         }
 
-        final String initialQuestion = "Sure, what do you want to edit?";
-        final String followUpQuestion = "Got it. Is there anything else?";
+        String initialQuestion = AIRandomSpeech.generateEditPromptMessage();
+        String followUpQuestion = AIRandomSpeech.generateFollowUpChangeMessage();
 
         if (!inEditTaskInteraction) {
             askQuestion(initialQuestion);
@@ -483,7 +499,7 @@ public class Live2DFragment extends Fragment implements View.OnTouchListener, Sp
                 return;
                 // TODO: Can cause to run turnBasedInteraction also when no intent is caught.
             } else if (responseText.equals("NOT DONE")) {
-                SpeechSynthesis.synthesizeSpeechAsync("Ok! I'm listening");
+                synthesizeAssistantSpeech("Ok! I'm listening");
                 return;
             } else {        // the responseText is UNRECOGNIZED
                 updateTaskThroughSpeech(true);
@@ -506,9 +522,9 @@ public class Live2DFragment extends Fragment implements View.OnTouchListener, Sp
         taskDatabaseManager.updateTask(finalTask);
 
         if (withError) {
-            SpeechSynthesis.synthesizeSpeechAsync("Sorry, I didn't get that but I have recorded your task. If you need anything else, just tell me.");
+            synthesizeAssistantSpeech("Sorry, I didn't get that but I have recorded your task. If you need anything else, just tell me.");
         } else {
-            SpeechSynthesis.synthesizeSpeechAsync(AIRandomSpeech.generateTaskUpdated(finalTask.getTaskName()));
+            synthesizeAssistantSpeech(AIRandomSpeech.generateTaskUpdated(finalTask.getTaskName()));
         }
 
         openTaskDetailFragment(finalTask);
@@ -625,7 +641,17 @@ public class Live2DFragment extends Fragment implements View.OnTouchListener, Sp
     }
 
     private void insertDialogue(String dialogue, boolean isAssistant) {
-        conversationDbManager.insertDialogue(dialogue, isAssistant);
+        // Ensure this code runs on a thread with a Looper
+        if (Looper.myLooper() == Looper.getMainLooper()) {
+            conversationDbManager.insertDialogue(dialogue, isAssistant);
+        } else {
+            mainHandler.post(() -> conversationDbManager.insertDialogue(dialogue, isAssistant));
+        }
+    }
+
+    private void synthesizeAssistantSpeech (String dialogue) {
+        SpeechSynthesis.synthesizeSpeechAsync(dialogue);
+        insertDialogue(dialogue, true);
     }
 
     private void confirmWithUser(String recognizedSpeech) {
@@ -633,10 +659,10 @@ public class Live2DFragment extends Fragment implements View.OnTouchListener, Sp
             confirmAddTaskWithUser = false;
             insertTaskAllowed(tempTaskName, tempDeadline);
         } else if (recognizedSpeech.equalsIgnoreCase("no")) {
-            SpeechSynthesis.synthesizeSpeechAsync("Oki");
+            synthesizeAssistantSpeech("Oki");
             confirmAddTaskWithUser = false;
         } else {
-            SpeechSynthesis.synthesizeSpeechAsync("I'm sorry, I didn't understand that. Are you sure you want to add task?");
+            synthesizeAssistantSpeech("I'm sorry, I didn't understand that. Are you sure you want to add task?");
         }
     }
 
@@ -645,14 +671,15 @@ public class Live2DFragment extends Fragment implements View.OnTouchListener, Sp
         HttpRequest.taskDetailResponse(tempTask, recognizedSpeech, aiName, new HttpRequest.HttpRequestCallback() {
             @Override
             public void onSuccess(String intent, String responseText) {
+                insertDialogue(recognizedSpeech, false);
                 mainHandler.post(() -> {
                     if (intent.equalsIgnoreCase("null")) {
-                        SpeechSynthesis.synthesizeSpeechAsync("I'm sorry I didn't understand, if you need details of your task just tell me what you want to know. If you are done, you can say \"I'm done\".");
+                        synthesizeAssistantSpeech("I'm sorry I didn't understand, if you need details of your task just tell me what you want to know. If you are done, you can say \"I'm done\".");
                     } else if (isDoneIntent(intent)) {
                         inTaskDetailInteraction = false;
-                        SpeechSynthesis.synthesizeSpeechAsync("If you need anything else, don't hesitate to tell me!");
+                        synthesizeAssistantSpeech("If you need anything else, don't hesitate to tell me!");
                     } else {
-                        SpeechSynthesis.synthesizeSpeechAsync(responseText);
+                        synthesizeAssistantSpeech(responseText);
                     }
                 });
             }
@@ -680,6 +707,7 @@ public class Live2DFragment extends Fragment implements View.OnTouchListener, Sp
         HttpRequest.sendRequest(recognizedSpeech, aiName, user.getId(), inEditTaskInteraction, new HttpRequest.HttpRequestCallback() {
             @Override
             public void onSuccess(String intent, String responseText) {
+                insertDialogue(recognizedSpeech, false);
                 mainHandler.post(() -> {
                     if (inEditTaskInteraction) {
                         processResponse(intent, responseText);
@@ -688,11 +716,14 @@ public class Live2DFragment extends Fragment implements View.OnTouchListener, Sp
                         if (!intent.equals("null")) {
                             performIntent(intent, responseText);
                         } else {
-                            Toast.makeText(requireContext(), String.format("%s: %s", aiName, responseText), Toast.LENGTH_LONG).show();
-                            insertDialogue(recognizedSpeech, false);
-
-                            SpeechSynthesis.synthesizeSpeechAsync(responseText);
-                            insertDialogue(responseText, true);
+                            if (isFocusModeEnabled()) {
+                                String focusResponse = AIRandomSpeech.generateFocusModeMessage();
+                                Toast.makeText(requireContext(), String.format("%s: %s", aiName, focusResponse), Toast.LENGTH_LONG).show();
+                                synthesizeAssistantSpeech(focusResponse);
+                            } else {
+                                Toast.makeText(requireContext(), String.format("%s: %s", aiName, responseText), Toast.LENGTH_LONG).show();
+                                synthesizeAssistantSpeech(responseText);
+                            }
                         }
                     }
                 });
@@ -723,6 +754,7 @@ public class Live2DFragment extends Fragment implements View.OnTouchListener, Sp
     public void onStart() {
         super.onStart();
         LAppDelegate.getInstance().onStart(getActivity());
+        SpeechSynthesis.initialize(); // Ensure the SpeechSynthesis executor is initialized when the fragment starts
     }
 
     @Override
@@ -742,6 +774,7 @@ public class Live2DFragment extends Fragment implements View.OnTouchListener, Sp
     public void onStop() {
         super.onStop();
         LAppDelegate.getInstance().onStop();
+        SpeechSynthesis.shutdown(); // Shutdown the SpeechSynthesis executor when the fragment stops
     }
 
     @Override

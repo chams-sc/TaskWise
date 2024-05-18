@@ -26,6 +26,6 @@ public class SplashActivity extends AppCompatActivity {
 
             // Close the splash activity to prevent going back to it
             finish();
-        }, 2000); // 2 seconds
+        }, 1000); // 1 second
     }
 }

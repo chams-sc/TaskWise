@@ -4,6 +4,7 @@
     <color name="dark">#2C2C2C</color>
     <color name="white">#FFFFFFFF</color>
     <color name="gray">#383F51</color>
+    <color name="gray_subtle">#B3383F51</color>
     <color name="orange">#FF7840</color>
     <color name="gray2">#3B3B60</color>
     <color name="white_2">#D9D9D9</color>

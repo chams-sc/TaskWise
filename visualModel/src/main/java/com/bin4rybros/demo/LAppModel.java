@@ -7,8 +7,6 @@
 
 package com.bin4rybros.demo;
 
-import android.util.Log;
-
 import com.bin4rybros.sdk.cubism.framework.CubismDefaultParameterId;
 import com.bin4rybros.sdk.cubism.framework.CubismFramework;
 import com.bin4rybros.sdk.cubism.framework.CubismModelSettingJson;
@@ -40,6 +38,59 @@ import java.util.concurrent.ScheduledExecutorService;
 public class LAppModel extends CubismUserModel {
 
     ScheduledExecutorService schedulerRandomMotion = Executors.newScheduledThreadPool(1);
+    private static final Map<Integer, Float> LIP_SYNC_VALUES = new HashMap<>();
+    private static final Map<Integer, Float> LIP_FORM_VALUES = new HashMap<>();
+
+    static {
+        // Initialize lip sync values
+        LIP_SYNC_VALUES.put(0, 0.0f);
+        LIP_SYNC_VALUES.put(1, 0.6f);
+        LIP_SYNC_VALUES.put(2, 0.7f);
+        LIP_SYNC_VALUES.put(3, 1.0f);
+        LIP_SYNC_VALUES.put(4, 0.4f);
+        LIP_SYNC_VALUES.put(5, 0.5f);
+        LIP_SYNC_VALUES.put(6, 0.2f);
+        LIP_SYNC_VALUES.put(7, 1.0f);
+        LIP_SYNC_VALUES.put(8, 0.9f);
+        LIP_SYNC_VALUES.put(9, 0.9f);
+        LIP_SYNC_VALUES.put(10, 1.0f);
+        LIP_SYNC_VALUES.put(11, 0.5f);
+        LIP_SYNC_VALUES.put(12, 0.5f);
+        LIP_SYNC_VALUES.put(13, 0.5f);
+        LIP_SYNC_VALUES.put(14, 0.5f);
+        LIP_SYNC_VALUES.put(15, 0.1f);
+        LIP_SYNC_VALUES.put(16, 0.3f);
+        LIP_SYNC_VALUES.put(17, 0.5f);
+        LIP_SYNC_VALUES.put(18, 0.1f);
+        LIP_SYNC_VALUES.put(19, 0.3f);
+        LIP_SYNC_VALUES.put(20, 0.6f);
+        LIP_SYNC_VALUES.put(21, 0.0f);
+
+        // Initialize lip form values
+        LIP_FORM_VALUES.put(0, 0.8f);
+        LIP_FORM_VALUES.put(1, 0.8f);
+        LIP_FORM_VALUES.put(2, 0.5f);
+        LIP_FORM_VALUES.put(3, -0.5f);
+        LIP_FORM_VALUES.put(4, 1.0f);
+        LIP_FORM_VALUES.put(5, 1.0f);
+        LIP_FORM_VALUES.put(6, 1.0f);
+        LIP_FORM_VALUES.put(7, -1.0f);
+        LIP_FORM_VALUES.put(8, -0.5f);
+        LIP_FORM_VALUES.put(9, -0.1f);
+        LIP_FORM_VALUES.put(10, -0.3f);
+        LIP_FORM_VALUES.put(11, 0.8f);
+        LIP_FORM_VALUES.put(12, 1.0f);
+        LIP_FORM_VALUES.put(13, -0.8f);
+        LIP_FORM_VALUES.put(14, 0.1f);
+        LIP_FORM_VALUES.put(15, 0.5f);
+        LIP_FORM_VALUES.put(16, -0.9f);
+        LIP_FORM_VALUES.put(17, 0.5f);
+        LIP_FORM_VALUES.put(18, 0.4f);
+        LIP_FORM_VALUES.put(19, -0.3f);
+        LIP_FORM_VALUES.put(20, 0.4f);
+        LIP_FORM_VALUES.put(21, 0.5f);
+    }
+
     public LAppModel() {
         if (LAppDefine.MOC_CONSISTENCY_VALIDATION_ENABLE) {
             mocConsistency = true;
@@ -131,11 +182,11 @@ public class LAppModel extends CubismUserModel {
 
         // eye blink
         // Blink only when there is no update for the main motion.
-        if (!isMotionUpdated) {
+//        if (!isMotionUpdated) {
             if (eyeBlink != null) {
                 eyeBlink.updateParameters(model, deltaTimeSeconds);
             }
-        }
+//        }
 
         // expression
         if (expressionManager != null) {
@@ -203,7 +254,7 @@ public class LAppModel extends CubismUserModel {
     private static void updateLipSyncValues() {
         if (lipSync) {
             for (CubismId lipSyncId : lipSyncIds) {
-                model.addParameterValue(lipSyncId, lipSyncValue, 0.3f); // Adjust the third parameter as needed
+                model.addParameterValue(lipSyncId, lipSyncValue, 1f); // Adjust the third parameter as needed
             }
         }
     }
@@ -211,169 +262,24 @@ public class LAppModel extends CubismUserModel {
     private static void updateLipFormValues() {
         if (lipSync) {
             for (CubismId lipFormId : lipFormIds) {
-                model.addParameterValue(lipFormId, lipFormValue, 0.3f); // Adjust the third parameter as needed
+                model.addParameterValue(lipFormId, lipFormValue, 1f); // Adjust the third parameter as needed
             }
         }
     }
 
 
-    // TODO: edit this switch cases to a map
     private static float calculateLipSyncValue(int visemeId) {
-        // Implement your logic to calculate the lip sync value based on the viseme ID
-        // You need to define how different viseme IDs map to lip sync values
-        // This is just a placeholder, you should replace it with your actual logic
-        float value = 0.0f;
-        switch (visemeId) {
-            case 0:
-                value = 0.0f; // Adjust as per your requirement
-                break;
-            case 1:
-                value = 0.7f; // Adjust as per your requirement
-                break;
-            case 2:
-                value = 1.0f; // Adjust as per your requirement
-                break;
-            case 3:
-                value = 1.0f; // Adjust as per your requirement
-                break;
-            case 4:
-                value = 0.4f; // Adjust as per your requirement
-                break;
-            case 5:
-                value = 0.5f; // Adjust as per your requirement
-                break;
-            case 6:
-                value = 0.2f; // Adjust as per your requirement
-                break;
-            case 7:
-                value = 1.0f; // Adjust as per your requirement
-                break;
-            case 8:
-                value = 0.9f; // Adjust as per your requirement
-                break;
-            case 9:
-                value = 0.9f; // Adjust as per your requirement
-                break;
-            case 10:
-                value = 1.0f; // Adjust as per your requirement
-                break;
-            case 11:
-                value = 0.7f; // Adjust as per your requirement
-                break;
-            case 12:
-                value = 0.5f; // Adjust as per your requirement
-                break;
-            case 13:
-                value = 0.5f; // Adjust as per your requirement
-                break;
-            case 14:
-                value = 0.5f; // Adjust as per your requirement
-                break;
-            case 15:
-                value = 0.1f; // Adjust as per your requirement
-                break;
-            case 16:
-                value = 0.3f; // Adjust as per your requirement
-                break;
-            case 17:
-                value = 0.5f; // Adjust as per your requirement
-                break;
-            case 18:
-                value = 0.1f; // Adjust as per your requirement
-                break;
-            case 19:
-                value = 0.3f; // Adjust as per your requirement
-                break;
-            case 20:
-                value = 0.6f; // Adjust as per your requirement
-                break;
-            case 21:
-                value = 0.0f; // Adjust as per your requirement
-                break;
-            default:
-                value = 0.0f;
-                break;
+        if (LIP_SYNC_VALUES.containsKey(visemeId)) {
+            return LIP_SYNC_VALUES.get(visemeId);
         }
-        return value;
+        return 0.0f; // Default value if key is not found
     }
 
     private static float calculateLipFormValue(int visemeId) {
-        // Implement your logic to calculate the lip sync value based on the viseme ID
-        // You need to define how different viseme IDs map to lip sync values
-        // This is just a placeholder, you should replace it with your actual logic
-        float value = 0.0f;
-        switch (visemeId) {
-            case 0:
-                value = 0.8f; // Adjust as per your requirement
-                break;
-            case 1:
-                value = 0.8f; // Adjust as per your requirement
-                break;
-            case 2:
-                value = 0.7f; // Adjust as per your requirement
-                break;
-            case 3:
-                value = -0.5f; // Adjust as per your requirement
-                break;
-            case 4:
-                value = 1.0f; // Adjust as per your requirement
-                break;
-            case 5:
-                value = 1.0f; // Adjust as per your requirement
-                break;
-            case 6:
-                value = 1.0f; // Adjust as per your requirement
-                break;
-            case 7:
-                value = -1.0f; // Adjust as per your requirement
-                break;
-            case 8:
-                value = -0.5f; // Adjust as per your requirement
-                break;
-            case 9:
-                value = 0.8f; // Adjust as per your requirement
-                break;
-            case 10:
-                value = -0.3f; // Adjust as per your requirement
-                break;
-            case 11:
-                value = 0.8f; // Adjust as per your requirement
-                break;
-            case 12:
-                value = 1.0f; // Adjust as per your requirement
-                break;
-            case 13:
-                value = -0.8f; // Adjust as per your requirement
-                break;
-            case 14:
-                value = 0.1f; // Adjust as per your requirement
-                break;
-            case 15:
-                value = 0.5f; // Adjust as per your requirement
-                break;
-            case 16:
-                value = -0.9f; // Adjust as per your requirement
-                break;
-            case 17:
-                value = 0.5f; // Adjust as per your requirement
-                break;
-            case 18:
-                value = 0.4f; // Adjust as per your requirement
-                break;
-            case 19:
-                value = -0.3f; // Adjust as per your requirement
-                break;
-            case 20:
-                value = 0.4f; // Adjust as per your requirement
-                break;
-            case 21:
-                value = 0.4f; // Adjust as per your requirement
-                break;
-            default:
-                value = 0.5f;
-                break;
+        if (LIP_FORM_VALUES.containsKey(visemeId)) {
+            return LIP_FORM_VALUES.get(visemeId);
         }
-        return value;
+        return 0.0f; // Default value if key is not found
     }
 
     /**
