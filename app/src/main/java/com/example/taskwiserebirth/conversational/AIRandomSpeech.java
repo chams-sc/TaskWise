@@ -34,15 +34,36 @@ public class AIRandomSpeech {
             "You've done it! Task %s is finished. Keep up the fantastic work!",
             "Task %s is completed. Keep striving for excellence!",
             "Task %s is done and dusted. Keep the momentum going!",
-            "With task %s completed, you're one step closer to your dreams. Keep pushing forward!",
             "Another task bites the dust! Task %s is now completed.",
             "Task %s is finished. Take a moment to celebrate your progress!",
-            "Well done! Task %s is now in the rearview mirror.",
             "With task %s completed, you're one step closer to success. Keep up the great work!",
             "Task %s is officially checked off. Keep the momentum going!",
             "Task %s is done! Keep moving forward with confidence.",
             "Task %s has been successfully completed. Keep aiming high!",
             // Add more messages as needed
+    };
+
+    private static final String[] taskUpdatedMessages = {
+            "Hey, I've updated your task %s!",
+            "Good news! Your task %s has been updated.",
+            "Guess what? Task %s has been successfully updated.",
+            "Just wanted to let you know, I've successfully updated the task: %s.",
+            "Hey there! The task named %s has been updated.",
+            "All set! The update for your task %s is complete.",
+            "Your wish is my command! Task %s has been updated as requested.",
+            "Done and done! The task update for %s is now complete.",
+            "Ta-da! I've made the changes to your task %s.",
+            "Mission accomplished! Your task update is complete for: %s.",
+            "Bingo! I've updated the task %s for you.",
+            "Voilà! Your task %s has been updated.",
+            "Hooray! Task %s has been successfully updated.",
+            "Great news! I've successfully updated the task: %s.",
+            "Hi there! The task named %s has been updated and ready to roll.",
+            "Done deal! The update for your task %s is complete.",
+            "Consider it done! Task %s has been updated as requested.",
+            "Success! The task update for %s is now complete.",
+            "Tada! I've made the changes you requested to your task %s.",
+            "Pat yourself on the back! Your task update is complete for: %s."
     };
 
     public static String generateTaskAdded(String taskName) {
@@ -55,6 +76,12 @@ public class AIRandomSpeech {
     public static String generateTaskFinished(String taskName) {
         int randomIndex = random.nextInt(taskFinishedMessages.length);
         String randomMessage = taskFinishedMessages[randomIndex];
+        return String.format(randomMessage, taskName);
+    }
+
+    public static String generateTaskUpdated(String taskName) {
+        int randomIndex = random.nextInt(taskUpdatedMessages.length);
+        String randomMessage = taskUpdatedMessages[randomIndex];
         return String.format(randomMessage, taskName);
     }
 }

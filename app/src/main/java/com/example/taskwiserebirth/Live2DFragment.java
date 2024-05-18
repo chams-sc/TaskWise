@@ -440,25 +440,15 @@ public class Live2DFragment extends Fragment implements View.OnTouchListener, Sp
         Pattern pattern = patternMap.get(detail);
         if (pattern == null) {
             if (responseText.equals("DONE")) {
-                inEditTaskInteraction = false;
-                isUserDone = true;
-                taskDatabaseManager.updateTask(finalTask);
 
-                SpeechSynthesis.synthesizeSpeechAsync("I have updated your task " + finalTask.getTaskName());
+                updateTaskThroughSpeech(false);
                 return;
-
                 // TODO: Can cause to run turnBasedInteraction also when no intent is caught.
             } else if (responseText.equals("NOT DONE")) {
                 SpeechSynthesis.synthesizeSpeechAsync("Ok! I'm listening");
                 return;
             } else {        // the responseText is UNRECOGNIZED
-                inEditTaskInteraction = false;
-                isUserDone = true;
-                taskDatabaseManager.updateTask(finalTask);
-
-                Log.v("TEST", "Recurrence: " + finalTask.getRecurrence());
-                Log.v("TEST", "Schedule: " + finalTask.getSchedule());
-                SpeechSynthesis.synthesizeSpeechAsync("Sorry, I didn't get that but I have recorded your task. If you need anything else, just tell me.");
+                updateTaskThroughSpeech(true);
                 return;
             }
         }
@@ -472,7 +462,20 @@ public class Live2DFragment extends Fragment implements View.OnTouchListener, Sp
         }
     }
 
-    //TODO: if user edited the recurrence, tell user deadline and sched were set to default
+    private void updateTaskThroughSpeech (boolean withError) {
+        inEditTaskInteraction = false;
+        isUserDone = true;
+        taskDatabaseManager.updateTask(finalTask);
+
+        if (withError) {
+            SpeechSynthesis.synthesizeSpeechAsync("Sorry, I didn't get that but I have recorded your task. If you need anything else, just tell me.");
+        } else {
+            SpeechSynthesis.synthesizeSpeechAsync(AIRandomSpeech.generateTaskUpdated(finalTask.getTaskName()));
+        }
+
+        openTaskDetailFragment(finalTask);
+    }
+
     private void prefilterFinalTask() {
         if(!finalTask.getRecurrence().equals("None")) {
             finalTask.setDeadline("No deadline");   // Recurrent tasks have no deadlines
