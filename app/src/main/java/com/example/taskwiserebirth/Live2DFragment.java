@@ -442,7 +442,6 @@ public class Live2DFragment extends Fragment implements View.OnTouchListener, Sp
             if (responseText.equals("DONE")) {
                 inEditTaskInteraction = false;
                 isUserDone = true;
-                prefilterFinalTask();
                 taskDatabaseManager.updateTask(finalTask);
 
                 SpeechSynthesis.synthesizeSpeechAsync("I have updated your task " + finalTask.getTaskName());
@@ -455,11 +454,11 @@ public class Live2DFragment extends Fragment implements View.OnTouchListener, Sp
             } else {        // the responseText is UNRECOGNIZED
                 inEditTaskInteraction = false;
                 isUserDone = true;
-                prefilterFinalTask();
+                taskDatabaseManager.updateTask(finalTask);
 
                 Log.v("TEST", "Recurrence: " + finalTask.getRecurrence());
                 Log.v("TEST", "Schedule: " + finalTask.getSchedule());
-                SpeechSynthesis.synthesizeSpeechAsync("Sorry, I didn't get that. If you need anything else, just tell me.");
+                SpeechSynthesis.synthesizeSpeechAsync("Sorry, I didn't get that but I have recorded your task. If you need anything else, just tell me.");
                 return;
             }
         }
@@ -526,7 +525,9 @@ public class Live2DFragment extends Fragment implements View.OnTouchListener, Sp
             case "Set Recurrence":
             case "Edit Recurrence":
             case "Repeat Task":
-                if (CalendarUtils.isRecurrenceAccepted(value)) {
+                if ("Daily".equals(value)) {
+                    finalTask.setRecurrence(value);
+                } else if (CalendarUtils.isRecurrenceAccepted(value)) {
                     finalTask.setRecurrence(CalendarUtils.formatRecurrence(value));
                 } else {
                     finalTask.setRecurrence("None");

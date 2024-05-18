@@ -109,7 +109,7 @@ public class CalendarUtils {
     }
 
     public static boolean isRecurrenceAccepted(String recurrence) {
-        Pattern RECURRENCE_PATTERN = Pattern.compile("^(Daily|Monday|Tuesday|Wednesday|Thursday|Friday|Saturday|Sunday)(,\\s*(Monday|Tuesday|Wednesday|Thursday|Friday|Saturday|Sunday))*$");
+        Pattern RECURRENCE_PATTERN = Pattern.compile("^(Monday|Tuesday|Wednesday|Thursday|Friday|Saturday|Sunday)(,\\s*(Monday|Tuesday|Wednesday|Thursday|Friday|Saturday|Sunday))*$");
 
         return RECURRENCE_PATTERN.matcher(recurrence).matches();
     }
@@ -162,7 +162,7 @@ public class CalendarUtils {
         }
 
         // Handle daily recurrence
-        if (recurrence.equalsIgnoreCase("Daily")) {
+        if (recurrence.equalsIgnoreCase("daily")) {
             // Return the time in milliseconds until the next occurrence
             return nextAlarmTime.getTimeInMillis() - System.currentTimeMillis();
         }

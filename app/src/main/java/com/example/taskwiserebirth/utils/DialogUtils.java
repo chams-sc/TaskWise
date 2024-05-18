@@ -112,7 +112,7 @@ public class DialogUtils {
             urgencySpinner.setSelection(getIndex(urgencySpinner, task.getUrgencyLevel()));
         }
 
-        getRecurrenceSpinnerValue(recurrenceSpinner, editDeadline, editSchedule);
+        getRecurrenceSpinnerValue(recurrenceSpinner, editDeadline, editSchedule, task);
 
         Button saveBtn = bottomSheetView.findViewById(R.id.saveButton);
         saveBtn.setOnClickListener(v -> {
@@ -141,7 +141,19 @@ public class DialogUtils {
 
         ((View) bottomSheetView.getParent()).setBackgroundColor(Color.TRANSPARENT);
 
-        editDeadline.setOnClickListener(v -> showDatePicker(editDeadline));
+        editDeadline.setOnClickListener(v -> {
+            if (!recurrenceSpinner.getSelectedItem().toString().equals("None")) {
+                recurrenceSpinner.setSelection(getIndex(recurrenceSpinner, "None"));
+                String regex = "^\\d{2}:\\d{2} (AM|PM)$";
+                if (editSchedule.getText().toString().matches(regex)) {
+                    editSchedule.setText("No schedule");
+                }
+                daysSelected = null;
+                Toast.makeText(activity.getApplicationContext(), "Recurrent tasks cannot have deadlines, recurrence now set to default", Toast.LENGTH_SHORT).show();
+            }
+            showDatePicker(editDeadline);
+        });
+
         editSchedule.setOnClickListener(v -> {
             if (!isRecurrenceNone) {
                 showTimePicker(editSchedule, null, true );
@@ -373,7 +385,7 @@ public class DialogUtils {
         return 0;
     }
 
-    private void getRecurrenceSpinnerValue(Spinner recurrenceSpinner, EditText deadline, EditText schedule) {
+    private void getRecurrenceSpinnerValue(Spinner recurrenceSpinner, EditText deadline, EditText schedule, Task task) {
         recurrenceSpinner.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
             @Override
             public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
@@ -383,13 +395,14 @@ public class DialogUtils {
                 }
 
                 if (!selectedItem.equals("None")) {
-                    deadline.setEnabled(false);
                     deadline.setText("No deadline");
                     schedule.setText("09:00 AM");     // set default time for recurrence
                     isRecurrenceNone = false;       // condition to set schedule to time only
                 } else {
-                    deadline.setEnabled(true);
-//                    schedule.setText("No schedule");
+                    String regex = "^\\d{2}:\\d{2} (AM|PM)$";
+                    if (schedule.getText().toString().matches(regex)) {
+                        schedule.setText("No schedule");
+                    }
                     isRecurrenceNone = true;
                 }
             }
