@@ -389,7 +389,7 @@ public class DialogUtils {
                     isRecurrenceNone = false;       // condition to set schedule to time only
                 } else {
                     deadline.setEnabled(true);
-                    schedule.setText("No schedule");
+//                    schedule.setText("No schedule");
                     isRecurrenceNone = true;
                 }
             }

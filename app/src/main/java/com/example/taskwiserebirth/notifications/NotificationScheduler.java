@@ -36,10 +36,10 @@ public class NotificationScheduler {
             return CalendarUtils.calculateDefaultInterval();
         } else if (task.getRecurrence().equals("Daily")) {
             Log.d("AlarmInterval", "Method: calculateDailyInterval");
-            return CalendarUtils.calculateDailyInterval(task.getSchedule());
+            return CalendarUtils.calculateDailyInterval(task.getSchedule()); //TODO: possibly change this kapag iaallow ang deadline
         } else if (!task.getRecurrence().equals(none) && !task.getRecurrence().equals("Daily")) {
             Log.d("AlarmInterval", "Method: findNextRecurrence");
-            return CalendarUtils.findNextRecurrence(task);
+            return CalendarUtils.findNextRecurrence(task);      //TODO: possibly change this kapag iaallow ang deadline
         } else if (task.getSchedule().equals(noSchedule) && !task.getDeadline().equals(noDeadline)) {
             Log.d("AlarmInterval", "Method: calculateCloseToDueInterval");      // TODO: dapat maremind din ng close to deadline kahit may schedule na?
             return CalendarUtils.calculateCloseToDueInterval(task.getDeadline(), closeToDue);

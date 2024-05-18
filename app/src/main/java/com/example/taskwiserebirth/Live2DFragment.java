@@ -442,8 +442,9 @@ public class Live2DFragment extends Fragment implements View.OnTouchListener, Sp
             if (responseText.equals("DONE")) {
                 inEditTaskInteraction = false;
                 isUserDone = true;
-//                prefilterFinalTask(finalTask);
+                prefilterFinalTask();
                 taskDatabaseManager.updateTask(finalTask);
+
                 SpeechSynthesis.synthesizeSpeechAsync("I have updated your task " + finalTask.getTaskName());
                 return;
 
@@ -454,10 +455,10 @@ public class Live2DFragment extends Fragment implements View.OnTouchListener, Sp
             } else {        // the responseText is UNRECOGNIZED
                 inEditTaskInteraction = false;
                 isUserDone = true;
-//                prefilterFinalTask(finalTask);
-                taskDatabaseManager.updateTask(finalTask);
-                Log.e("TEST", finalTask.getRecurrence());
-                Log.e("TEST", finalTask.getId().toString());
+                prefilterFinalTask();
+
+                Log.v("TEST", "Recurrence: " + finalTask.getRecurrence());
+                Log.v("TEST", "Schedule: " + finalTask.getSchedule());
                 SpeechSynthesis.synthesizeSpeechAsync("Sorry, I didn't get that. If you need anything else, just tell me.");
                 return;
             }
@@ -473,18 +474,25 @@ public class Live2DFragment extends Fragment implements View.OnTouchListener, Sp
     }
 
     //TODO: if user edited the recurrence, tell user deadline and sched were set to default
-    private void prefilterFinalTask(Task finalTask) {
+    private void prefilterFinalTask() {
         if(!finalTask.getRecurrence().equals("None")) {
             finalTask.setDeadline("No deadline");   // Recurrent tasks have no deadlines
 
-            if(finalTask.getSchedule().equals("No schedule")) {
-                finalTask.setSchedule("09:00 AM");      // default sched time
-            } else {
+            if(!finalTask.getSchedule().equals("No schedule")) {
                 String schedule = finalTask.getSchedule();
                 // Extracting the time part from the schedule string
                 String filteredSched = schedule.substring(schedule.lastIndexOf("|") + 1).trim();
                 finalTask.setSchedule(filteredSched);
+            } else {
+                finalTask.setSchedule("09:00 AM");
             }
+        }
+    }
+
+    private void prefilterWhenDeadline()  {
+        if (!finalTask.getRecurrence().equals("None")){
+            finalTask.setRecurrence("None");
+            finalTask.setSchedule("No schedule");
         }
     }
 
@@ -513,6 +521,7 @@ public class Live2DFragment extends Fragment implements View.OnTouchListener, Sp
                 } else {
                     finalTask.setDeadline("No deadline");
                 }
+                prefilterWhenDeadline();
                 break;
             case "Set Recurrence":
             case "Edit Recurrence":
@@ -522,13 +531,17 @@ public class Live2DFragment extends Fragment implements View.OnTouchListener, Sp
                 } else {
                     finalTask.setRecurrence("None");
                 }
+                prefilterFinalTask();
+                Log.v("TEST", "Recurrence: " + finalTask.getRecurrence());
                 break;
-            case "Schedule":    // TODO: conflict sa findNextRecurrence need niya format 09:00 am pwede prefilter task o dito na mismo gawin
+            case "Schedule":
                 if (CalendarUtils.isDateAccepted(value)) {
                     finalTask.setSchedule(value);
                 } else {
                     finalTask.setSchedule("No schedule");
                 }
+                prefilterFinalTask();
+                Log.v("TEST", "Schedule: " + finalTask.getSchedule());
                 break;
             case "Reminder":
                 finalTask.setReminder(value.equals("True"));
