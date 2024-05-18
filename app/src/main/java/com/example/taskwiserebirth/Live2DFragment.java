@@ -20,6 +20,8 @@ import androidx.fragment.app.Fragment;
 
 import com.bin4rybros.demo.GLRenderer;
 import com.bin4rybros.demo.LAppDelegate;
+import com.bin4rybros.demo.LAppLive2DManager;
+import com.bin4rybros.demo.LAppModel;
 import com.example.taskwiserebirth.conversational.AIRandomSpeech;
 import com.example.taskwiserebirth.conversational.HttpRequest;
 import com.example.taskwiserebirth.conversational.SpeechRecognition;
@@ -138,6 +140,7 @@ public class Live2DFragment extends Fragment implements View.OnTouchListener, Sp
     @Override
     public void onSpeechRecognized(String recognizedSpeech) {
         realTimeSpeechTextView.setText(recognizedSpeech);
+        startModelMotion("TapBody", 1);
 
         if (confirmAddTaskWithUser) {
             confirmWithUser(recognizedSpeech);
@@ -145,6 +148,14 @@ public class Live2DFragment extends Fragment implements View.OnTouchListener, Sp
             handleTaskDetailInteraction(recognizedSpeech);
         } else {
             handleRegularInteraction(recognizedSpeech);
+        }
+    }
+
+    private void startModelMotion(String motionGroup, int motionNumber) {
+        LAppLive2DManager manager = LAppLive2DManager.getInstance();
+        LAppModel model = manager.getModel(0); // Assuming you want the first model, change index if needed
+        if (model != null) {
+            model.startSpecificMotion(motionGroup, motionNumber);
         }
     }
 
