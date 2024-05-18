@@ -75,7 +75,6 @@ public class Live2DFragment extends Fragment implements View.OnTouchListener, Sp
 
     private final Handler mainHandler = new Handler(Looper.getMainLooper());
 
-
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -134,6 +133,19 @@ public class Live2DFragment extends Fragment implements View.OnTouchListener, Sp
         });
 
         return view;
+    }
+
+    @Override
+    public void onSpeechRecognized(String recognizedSpeech) {
+        realTimeSpeechTextView.setText(recognizedSpeech);
+
+        if (confirmAddTaskWithUser) {
+            confirmWithUser(recognizedSpeech);
+        } else if (inTaskDetailInteraction) {
+            handleTaskDetailInteraction(recognizedSpeech);
+        } else {
+            handleRegularInteraction(recognizedSpeech);
+        }
     }
 
     private boolean isFocusModeEnabled() {
@@ -627,18 +639,6 @@ public class Live2DFragment extends Fragment implements View.OnTouchListener, Sp
         return newTask;
     }
 
-    @Override
-    public void onSpeechRecognized(String recognizedSpeech) {
-        realTimeSpeechTextView.setText(recognizedSpeech);
-
-        if (confirmAddTaskWithUser) {
-            confirmWithUser(recognizedSpeech);
-        } else if (inTaskDetailInteraction) {
-            handleTaskDetailInteraction(recognizedSpeech);
-        } else {
-            handleRegularInteraction(recognizedSpeech);
-        }
-    }
 
     private void insertDialogue(String dialogue, boolean isAssistant) {
         // Ensure this code runs on a thread with a Looper

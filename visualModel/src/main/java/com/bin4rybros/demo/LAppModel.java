@@ -109,6 +109,7 @@ public class LAppModel extends CubismUserModel {
         idParamBodyAngleY = idManager.getId(CubismDefaultParameterId.ParameterId.BODY_ANGLE_Y.getId());
         idParamEyeBallX = idManager.getId(CubismDefaultParameterId.ParameterId.EYE_BALL_X.getId());
         idParamEyeBallY = idManager.getId(CubismDefaultParameterId.ParameterId.EYE_BALL_Y.getId());
+        idParamBreath = idManager.getId(CubismDefaultParameterId.ParameterId.BREATH.getId());
     }
 
     public void loadAssets(final String dir, final String fileName) {
@@ -147,7 +148,7 @@ public class LAppModel extends CubismUserModel {
     }
 
     /**
-     * モデルの更新処理。モデルのパラメーターから描画状態を決定する
+     * Updating the model. Determining the rendering state from the model parameters.
      */
     public void update() {
         final float deltaTimeSeconds = LAppPal.getDeltaTime();
@@ -280,6 +281,10 @@ public class LAppModel extends CubismUserModel {
             return LIP_FORM_VALUES.get(visemeId);
         }
         return 0.0f; // Default value if key is not found
+    }
+
+    public void startSpecificMotion(String motionGroup, int motionNumber) {
+        startMotion(motionGroup, motionNumber, LAppDefine.Priority.FORCE.getPriority());
     }
 
     /**
@@ -587,6 +592,7 @@ public class LAppModel extends CubismUserModel {
         breathParameters.add(new CubismBreath.BreathParameterData(idParamAngleY, 0.0f, 8.0f, 3.5345f, 0.5f));
         breathParameters.add(new CubismBreath.BreathParameterData(idParamAngleZ, 0.0f, 10.0f, 5.5345f, 0.5f));
         breathParameters.add(new CubismBreath.BreathParameterData(idParamBodyAngleX, 0.0f, 4.0f, 15.5345f, 0.5f));
+        breathParameters.add(new CubismBreath.BreathParameterData(idParamBreath, 0.0f, 1.0f, 1.0f, 0.0f));
         breathParameters.add(new CubismBreath.BreathParameterData(CubismFramework.getIdManager().getId(CubismDefaultParameterId.ParameterId.BREATH.getId()), 0.5f, 0.5f, 3.2345f, 0.5f));
 
         breath.setParameters(breathParameters);
@@ -784,6 +790,7 @@ public class LAppModel extends CubismUserModel {
      * パラメーターID: ParamEyeBallY
      */
     private final CubismId idParamEyeBallY;
+    private final CubismId idParamBreath;
 
     /**
      * フレームバッファ以外の描画先
