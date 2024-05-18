@@ -291,6 +291,11 @@ public class DialogUtils {
     }
 
     public static String setAutomaticUrgency(String deadline) {
+        // Check if the deadline format is "09:00 AM"
+        if (deadline.matches("\\d{2}:\\d{2}\\s+[AP]M")) {
+            return "Not Urgent";
+        }
+
         Date taskDeadline = CalendarUtils.parseDeadline(deadline);
         Date currentDate = new Date();
 

@@ -235,7 +235,7 @@ public class TaskDatabaseManager {
         }
     }
 
-    public void fetchAllTasks(TaskFetchListener listener, boolean statusFinished) {
+    public void fetchTasksWithStatus(TaskFetchListener listener, boolean statusFinished) {
         if (user != null) {
             Document unfinishedFilter = new Document("owner_id", user.getId())
                     .append("status", unfinishedStatus);
@@ -250,6 +250,31 @@ public class TaskDatabaseManager {
             } else {
                 queryFilter = unfinishedFilter;
             }
+
+            taskCollection.find(queryFilter).iterator().getAsync(task -> {
+                if (task.isSuccess()) {
+                    MongoCursor<Document> results = task.get();
+                    List<Task> tasks = new ArrayList<>();
+
+                    while (results.hasNext()) {
+                        Document document = results.next();
+                        Task newTask = documentToTask(document);
+                        tasks.add(newTask);
+                    }
+
+                    if (listener != null) {
+                        listener.onTasksFetched(tasks);
+                    }
+                } else {
+                    Log.e(TAG_TASK_DBM, "Failed to fetch tasks: " + task.getError().getMessage());
+                }
+            });
+        }
+    }
+
+    public void fetchAllTasks(TaskFetchListener listener) {
+        if (user != null) {
+            Document queryFilter = new Document("owner_id", user.getId());
 
             taskCollection.find(queryFilter).iterator().getAsync(task -> {
                 if (task.isSuccess()) {

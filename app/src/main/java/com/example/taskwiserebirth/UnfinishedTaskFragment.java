@@ -71,7 +71,7 @@ public class UnfinishedTaskFragment extends Fragment implements TaskAdapter.Task
     }
 
     private void updateUnfinishedRecyclerView() {
-        taskDatabaseManager.fetchAllTasks(tasks -> {
+        taskDatabaseManager.fetchTasksWithStatus(tasks -> {
             List<Task> sortedTasks = TaskPriorityCalculator.sortTasksByPriority(tasks, new Date());
 
             if (isAdded()) {
