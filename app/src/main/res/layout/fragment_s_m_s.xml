@@ -26,8 +26,8 @@
         android:layout_marginTop="@dimen/_16ssp"
         android:padding="@dimen/_5ssp"
         android:src="@drawable/arrow_back"
-        app:layout_constraintStart_toStartof="parent"
-        app:layout_constraintTop_toTopOf="parent"/>
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintStart_toStartOf="parent"/>
 
     <androidx.appcompat.widget.AppCompatImageView
         android:id="@+id/imageInfo"

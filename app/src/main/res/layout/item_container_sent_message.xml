@@ -9,7 +9,7 @@
         android:id="@+id/textMessage"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
-        android:background="@drawable/background_sent_message"
+        android:background="@drawable/bg_message_user"
         android:padding="@dimen/_12ssp"
         android:textColor="@color/white"
         android:textSize="@dimen/_13ssp"

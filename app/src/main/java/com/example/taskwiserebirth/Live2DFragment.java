@@ -153,6 +153,7 @@ public class Live2DFragment extends Fragment implements View.OnTouchListener, Sp
             return;
         }
 
+        insertDialogue(recognizedSpeech, false);
         if (confirmAddTaskWithUser) {
             confirmWithUser(recognizedSpeech);
         } else if (inTaskDetailInteraction) {
@@ -708,7 +709,6 @@ public class Live2DFragment extends Fragment implements View.OnTouchListener, Sp
         HttpRequest.taskDetailResponse(tempTask, recognizedSpeech, aiName, new HttpRequest.HttpRequestCallback() {
             @Override
             public void onSuccess(String intent, String responseText) {
-                insertDialogue(recognizedSpeech, false);
                 mainHandler.post(() -> {
                     if (intent.equalsIgnoreCase("null")) {
                         synthesizeAssistantSpeech("I'm sorry I didn't understand, if you need details of your task just tell me what you want to know. If you are done, you can say \"I'm done\".");
@@ -744,7 +744,6 @@ public class Live2DFragment extends Fragment implements View.OnTouchListener, Sp
         HttpRequest.sendRequest(recognizedSpeech, aiName, user.getId(), inEditTaskInteraction, new HttpRequest.HttpRequestCallback() {
             @Override
             public void onSuccess(String intent, String responseText) {
-                insertDialogue(recognizedSpeech, false);
                 mainHandler.post(() -> {
                     if (inEditTaskInteraction) {
                         processResponse(intent, responseText);

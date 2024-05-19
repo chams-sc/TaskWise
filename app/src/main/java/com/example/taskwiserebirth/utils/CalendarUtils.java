@@ -396,7 +396,6 @@ public class CalendarUtils {
         }
     }
 
-
     public static boolean isSameDay(Date date1, Date date2) {
         Calendar cal1 = Calendar.getInstance();
         cal1.setTime(date1);
@@ -404,5 +403,45 @@ public class CalendarUtils {
         cal2.setTime(date2);
         return cal1.get(Calendar.YEAR) == cal2.get(Calendar.YEAR) &&
                 cal1.get(Calendar.DAY_OF_YEAR) == cal2.get(Calendar.DAY_OF_YEAR);
+    }
+
+    public static String formatTimestamp(Date date) {
+        SimpleDateFormat timeFormat = new SimpleDateFormat("hh:mm a", Locale.getDefault());
+        SimpleDateFormat sameWeekFormat = new SimpleDateFormat("EEEE 'at' hh:mm a", Locale.getDefault());
+        SimpleDateFormat sameYearFormat = new SimpleDateFormat("MMM dd 'at' hh:mm a", Locale.getDefault());
+        SimpleDateFormat differentYearFormat = new SimpleDateFormat("MMM dd, yyyy 'at' hh:mm a", Locale.getDefault());
+
+        Calendar current = Calendar.getInstance();
+        Calendar messageDate = Calendar.getInstance();
+        messageDate.setTime(date);
+
+        // Check if the message is from today
+        if (isSameDay(current, messageDate)) {
+            return "Today at " + timeFormat.format(date);
+        }
+
+        // Check if the message is from the same week
+        if (isSameWeek(current, messageDate)) {
+            return sameWeekFormat.format(date);
+        }
+
+        // Check if the message is from the same year
+        if (current.get(Calendar.YEAR) == messageDate.get(Calendar.YEAR)) {
+            return sameYearFormat.format(date);
+        }
+
+        // Default case: different year
+        return differentYearFormat.format(date);
+    }
+
+    private static boolean isSameDay(Calendar current, Calendar messageDate) {
+        return current.get(Calendar.YEAR) == messageDate.get(Calendar.YEAR) &&
+                current.get(Calendar.DAY_OF_YEAR) == messageDate.get(Calendar.DAY_OF_YEAR);
+    }
+
+    private static boolean isSameWeek(Calendar current, Calendar messageDate) {
+        // Check if the message is from the same week
+        return current.get(Calendar.YEAR) == messageDate.get(Calendar.YEAR) &&
+                current.get(Calendar.WEEK_OF_YEAR) == messageDate.get(Calendar.WEEK_OF_YEAR);
     }
 }

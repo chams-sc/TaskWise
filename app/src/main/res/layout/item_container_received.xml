@@ -20,7 +20,7 @@
         android:layout_height="wrap_content"
         android:layout_marginStart="@dimen/_4ssp"
         android:layout_marginLeft="@dimen/_4ssp"
-        android:background="@drawable/background_received_message"
+        android:background="@drawable/bg_message_ai"
         android:padding="@dimen/_12ssp"
         android:textColor="@color/white"
         android:textSize="@dimen/_13ssp"
