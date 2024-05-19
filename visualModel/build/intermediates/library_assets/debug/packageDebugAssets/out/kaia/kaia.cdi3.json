@@ -1,0 +1,491 @@
+{
+	"Version": 3,
+	"Parameters": [
+		{
+			"Id": "ParamBodyAngleX",
+			"GroupId": "ParamGroup",
+			"Name": "Body X"
+		},
+		{
+			"Id": "ParamBodyAngleY",
+			"GroupId": "ParamGroup",
+			"Name": "Body Y"
+		},
+		{
+			"Id": "ParamBodyAngleZ",
+			"GroupId": "ParamGroup",
+			"Name": "Body Z"
+		},
+		{
+			"Id": "ParamBreath",
+			"GroupId": "ParamGroup",
+			"Name": "Breath"
+		},
+		{
+			"Id": "ParamAngleX",
+			"GroupId": "ParamGroup2",
+			"Name": "Angle X"
+		},
+		{
+			"Id": "ParamAngleY",
+			"GroupId": "ParamGroup2",
+			"Name": "Angle Y"
+		},
+		{
+			"Id": "ParamAngleZ",
+			"GroupId": "ParamGroup2",
+			"Name": "Angle Z"
+		},
+		{
+			"Id": "Param",
+			"GroupId": "ParamGroup2",
+			"Name": "Antenna Open"
+		},
+		{
+			"Id": "Param4",
+			"GroupId": "ParamGroup3",
+			"Name": "Drone Eye"
+		},
+		{
+			"Id": "Param2",
+			"GroupId": "ParamGroup3",
+			"Name": "Drone Open"
+		},
+		{
+			"Id": "Param5",
+			"GroupId": "ParamGroup3",
+			"Name": "Drone Eye 2"
+		},
+		{
+			"Id": "Param6",
+			"GroupId": "ParamGroup3",
+			"Name": "Drone Eye 2 Rotate"
+		},
+		{
+			"Id": "Param3",
+			"GroupId": "ParamGroup3",
+			"Name": "Drone Rotate"
+		},
+		{
+			"Id": "ParamEyeLOpen",
+			"GroupId": "ParamGroup4",
+			"Name": "EyeL Open"
+		},
+		{
+			"Id": "ParamEyeLSmile",
+			"GroupId": "ParamGroup4",
+			"Name": "Eye Smile"
+		},
+		{
+			"Id": "ParamEyeROpen",
+			"GroupId": "ParamGroup4",
+			"Name": "EyeR Open"
+		},
+		{
+			"Id": "ParamEyeBallX",
+			"GroupId": "ParamGroup4",
+			"Name": "Eyeball X"
+		},
+		{
+			"Id": "ParamEyeBallY",
+			"GroupId": "ParamGroup4",
+			"Name": "Eyeball Y"
+		},
+		{
+			"Id": "Param28",
+			"GroupId": "ParamGroup4",
+			"Name": "EyeR Bounce"
+		},
+		{
+			"Id": "Param29",
+			"GroupId": "ParamGroup4",
+			"Name": "EyeL Bounce"
+		},
+		{
+			"Id": "Param30",
+			"GroupId": "ParamGroup4",
+			"Name": "Eye Forms"
+		},
+		{
+			"Id": "Param31",
+			"GroupId": "ParamGroup4",
+			"Name": "Eyeball Shrink"
+		},
+		{
+			"Id": "ParamBrowLY",
+			"GroupId": "ParamGroup5",
+			"Name": "BrowL Y"
+		},
+		{
+			"Id": "ParamBrowRY",
+			"GroupId": "ParamGroup5",
+			"Name": "BrowR Y"
+		},
+		{
+			"Id": "ParamBrowLAngle",
+			"GroupId": "ParamGroup5",
+			"Name": "BrowL Angle"
+		},
+		{
+			"Id": "ParamBrowRAngle",
+			"GroupId": "ParamGroup5",
+			"Name": "BrowR Angle"
+		},
+		{
+			"Id": "ParamBrowLForm",
+			"GroupId": "ParamGroup5",
+			"Name": "BrowL Form"
+		},
+		{
+			"Id": "ParamBrowRForm",
+			"GroupId": "ParamGroup5",
+			"Name": "BrowR Form"
+		},
+		{
+			"Id": "ParamMouthForm",
+			"GroupId": "ParamGroup6",
+			"Name": "Mouth Form"
+		},
+		{
+			"Id": "ParamMouthOpenY",
+			"GroupId": "ParamGroup6",
+			"Name": "Mouth Open"
+		},
+		{
+			"Id": "Param7",
+			"GroupId": "ParamGroup7",
+			"Name": "Skirt Bounce"
+		},
+		{
+			"Id": "Param10",
+			"GroupId": "ParamGroup7",
+			"Name": "Skirt Bounce Wave"
+		},
+		{
+			"Id": "Param11",
+			"GroupId": "ParamGroup7",
+			"Name": "Skirt Sway"
+		},
+		{
+			"Id": "Param12",
+			"GroupId": "ParamGroup7",
+			"Name": "Skirt Sway Wave"
+		},
+		{
+			"Id": "Param21",
+			"GroupId": "ParamGroup7",
+			"Name": "Tie 1 Sway"
+		},
+		{
+			"Id": "Param22",
+			"GroupId": "ParamGroup7",
+			"Name": "Tie Wave"
+		},
+		{
+			"Id": "Param23",
+			"GroupId": "ParamGroup7",
+			"Name": "Tie 2 Wave"
+		},
+		{
+			"Id": "Param24",
+			"GroupId": "ParamGroup7",
+			"Name": "shirt sway"
+		},
+		{
+			"Id": "Param25",
+			"GroupId": "ParamGroup7",
+			"Name": "shirt bounce"
+		},
+		{
+			"Id": "Param32",
+			"GroupId": "ParamGroup7",
+			"Name": "glasses bounce"
+		},
+		{
+			"Id": "Param33",
+			"GroupId": "ParamGroup7",
+			"Name": "breast bounce"
+		},
+		{
+			"Id": "Param34",
+			"GroupId": "ParamGroup7",
+			"Name": "breast sway"
+		},
+		{
+			"Id": "Param8",
+			"GroupId": "ParamGroup8",
+			"Name": "Arm Open"
+		},
+		{
+			"Id": "Param9",
+			"GroupId": "ParamGroup8",
+			"Name": "Arm Sway"
+		},
+		{
+			"Id": "Param13",
+			"GroupId": "ParamGroup8",
+			"Name": "Hand R Open"
+		},
+		{
+			"Id": "Param17",
+			"GroupId": "ParamGroup8",
+			"Name": "Hand L Open"
+		},
+		{
+			"Id": "Param16",
+			"GroupId": "ParamGroup8",
+			"Name": "Hand L Rotate"
+		},
+		{
+			"Id": "Param14",
+			"GroupId": "ParamGroup8",
+			"Name": "Hand R Rotate"
+		},
+		{
+			"Id": "Param15",
+			"GroupId": "ParamGroup8",
+			"Name": "Bangle R Shake"
+		},
+		{
+			"Id": "Param18",
+			"GroupId": "ParamGroup8",
+			"Name": "Bangle L Shake"
+		},
+		{
+			"Id": "Param19",
+			"GroupId": "ParamGroup8",
+			"Name": "Bangle R Bounce"
+		},
+		{
+			"Id": "Param20",
+			"GroupId": "ParamGroup8",
+			"Name": "Bangle L Bounce"
+		},
+		{
+			"Id": "Param26",
+			"GroupId": "ParamGroup8",
+			"Name": "sleeve bounce"
+		},
+		{
+			"Id": "Param27",
+			"GroupId": "ParamGroup8",
+			"Name": "sleeve sway"
+		},
+		{
+			"Id": "Param35",
+			"GroupId": "ParamGroup9",
+			"Name": "Hair Sway 1"
+		},
+		{
+			"Id": "Param36",
+			"GroupId": "ParamGroup9",
+			"Name": "Hair Bounce 1"
+		},
+		{
+			"Id": "Param37",
+			"GroupId": "ParamGroup9",
+			"Name": "Hair Sway 2"
+		},
+		{
+			"Id": "Param38",
+			"GroupId": "ParamGroup9",
+			"Name": "Hair Bounce 2"
+		},
+		{
+			"Id": "Param39",
+			"GroupId": "ParamGroup9",
+			"Name": "Back Hair Sway"
+		}
+	],
+	"ParameterGroups": [
+		{
+			"Id": "ParamGroup",
+			"GroupId": "",
+			"Name": "Body"
+		},
+		{
+			"Id": "ParamGroup2",
+			"GroupId": "",
+			"Name": "Head"
+		},
+		{
+			"Id": "ParamGroup3",
+			"GroupId": "",
+			"Name": "Drone"
+		},
+		{
+			"Id": "ParamGroup4",
+			"GroupId": "",
+			"Name": "Eyes"
+		},
+		{
+			"Id": "ParamGroup5",
+			"GroupId": "",
+			"Name": "Brow"
+		},
+		{
+			"Id": "ParamGroup6",
+			"GroupId": "",
+			"Name": "Mouth"
+		},
+		{
+			"Id": "ParamGroup7",
+			"GroupId": "",
+			"Name": "Physics"
+		},
+		{
+			"Id": "ParamGroup8",
+			"GroupId": "",
+			"Name": "Arms"
+		},
+		{
+			"Id": "ParamGroup9",
+			"GroupId": "",
+			"Name": "Hair Physics"
+		}
+	],
+	"Parts": [
+		{
+			"Id": "Part20",
+			"Name": "drone eye 2.png"
+		},
+		{
+			"Id": "Part19",
+			"Name": "drone body.png"
+		},
+		{
+			"Id": "Part",
+			"Name": "Folder 4"
+		},
+		{
+			"Id": "PartSketch0",
+			"Name": "[ Guide Image]"
+		},
+		{
+			"Id": "Part2",
+			"Name": "Drone boi"
+		},
+		{
+			"Id": "head",
+			"Name": "head"
+		},
+		{
+			"Id": "collar",
+			"Name": "collar"
+		},
+		{
+			"Id": "Body",
+			"Name": "Body"
+		},
+		{
+			"Id": "Skirt",
+			"Name": "Skirt"
+		},
+		{
+			"Id": "Legs",
+			"Name": "Legs"
+		},
+		{
+			"Id": "Arms",
+			"Name": "Arms"
+		},
+		{
+			"Id": "Part18",
+			"Name": "Hair (back)"
+		},
+		{
+			"Id": "glasses",
+			"Name": "glasses"
+		},
+		{
+			"Id": "earpiece",
+			"Name": "earpiece"
+		},
+		{
+			"Id": "Part3",
+			"Name": "Hair (Front)"
+		},
+		{
+			"Id": "Face",
+			"Name": "Face"
+		},
+		{
+			"Id": "Part8",
+			"Name": "tie"
+		},
+		{
+			"Id": "Part9",
+			"Name": "Left Arm"
+		},
+		{
+			"Id": "Part14",
+			"Name": "Right Arm"
+		},
+		{
+			"Id": "eyebrows",
+			"Name": "eyebrows"
+		},
+		{
+			"Id": "nose",
+			"Name": "nose"
+		},
+		{
+			"Id": "mouth",
+			"Name": "mouth"
+		},
+		{
+			"Id": "Part4",
+			"Name": "eye right"
+		},
+		{
+			"Id": "Part6",
+			"Name": "eye left"
+		},
+		{
+			"Id": "ears",
+			"Name": "ears"
+		},
+		{
+			"Id": "Part10",
+			"Name": "Folder 3"
+		},
+		{
+			"Id": "Part11",
+			"Name": "Long Sleeve"
+		},
+		{
+			"Id": "Part12",
+			"Name": "Short Sleeve"
+		},
+		{
+			"Id": "Part13",
+			"Name": "Folder 2"
+		},
+		{
+			"Id": "Part15",
+			"Name": "Long Sleeve"
+		},
+		{
+			"Id": "Part16",
+			"Name": "Short Sleeve"
+		},
+		{
+			"Id": "Part17",
+			"Name": "Folder 1"
+		},
+		{
+			"Id": "Part5",
+			"Name": "eyeball right"
+		},
+		{
+			"Id": "Part7",
+			"Name": "eyeball left"
+		}
+	],
+	"CombinedParameters": [
+		[
+			"ParamEyeBallX",
+			"ParamEyeBallY"
+		]
+	]
+}
