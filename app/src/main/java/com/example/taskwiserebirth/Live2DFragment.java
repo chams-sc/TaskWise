@@ -542,8 +542,12 @@ public class Live2DFragment extends Fragment implements View.OnTouchListener, Sp
     private void insertTaskAllowed(String taskName, String deadline) {
         Task task = setTaskFromSpeech(taskName, deadline);
         taskDatabaseManager.insertTask(task);
-        openTaskDetailFragment(task);
-        synthesizeAssistantSpeech(AIRandomSpeech.generateTaskAdded(taskName));
+        synthesizeAssistantSpeech(AIRandomSpeech.generateTaskAdded(taskName), new Runnable() {
+            @Override
+            public void run() {
+                openTaskDetailFragment(task);
+            }
+        });
     }
 
     private void markTaskFinished(String taskName) {
@@ -660,7 +664,6 @@ public class Live2DFragment extends Fragment implements View.OnTouchListener, Sp
         if (withError) {
             synthesizeAssistantSpeech("Sorry, I didn't get that but I have recorded your task. If you need anything else, just tell me.");
         } else {
-            startSpecificModelMotion(LAppDefine.MotionGroup.AFFIRMATION.getId(), 0);
             synthesizeAssistantSpeech(AIRandomSpeech.generateTaskUpdated(finalTask.getTaskName()));
         }
 
@@ -788,6 +791,30 @@ public class Live2DFragment extends Fragment implements View.OnTouchListener, Sp
                 if (SpeechSynthesis.isSpeaking()) {
                     startRandomMotionFromGroup(LAppDefine.MotionGroup.SPEAKING.getId());
                     handler.postDelayed(this, 2000); // Check every 2 seconds, adjust as needed
+                }
+            }
+        };
+        handler.postDelayed(checkSpeechAndAnimate, 2000);
+    }
+
+    private void synthesizeAssistantSpeech(String dialogue, Runnable onFinish) {
+        SpeechSynthesis.synthesizeSpeechAsync(dialogue);
+        insertDialogue(dialogue, true);
+        setModelExpression("default1");
+        startRandomMotionFromGroup(LAppDefine.MotionGroup.SPEAKING.getId());
+
+        // Periodically check if the speech synthesis is still ongoing and start random motion
+        Handler handler = new Handler(Looper.getMainLooper());
+        Runnable checkSpeechAndAnimate = new Runnable() {
+            @Override
+            public void run() {
+                if (SpeechSynthesis.isSpeaking()) {
+                    startRandomMotionFromGroup(LAppDefine.MotionGroup.SPEAKING.getId());
+                    handler.postDelayed(this, 2000); // Check every 2 seconds, adjust as needed
+                } else {
+                    if (onFinish != null) {
+                        onFinish.run();
+                    }
                 }
             }
         };
