@@ -141,13 +141,13 @@ public class LAppDefine {
      * Model directory name.
      */
     public enum ModelDir {
-        KAIA(0, "kaia"),
-        HARU(1, "Haru"),
-        HIYORI(2, "Hiyori"),
-        MARK(3, "Mark"),
-        NATORI(4, "Natori"),
-        RICE(5, "Rice"),
-        MAO(6, "Mao");
+        KAIA(0, "kaia");
+//        HARU(1, "Haru"),
+//        HIYORI(2, "Hiyori"),
+//        MARK(3, "Mark"),
+//        NATORI(4, "Natori"),
+//        RICE(5, "Rice"),
+//        MAO(6, "Mao");
 
         private final int order;
         private final String dirName;
