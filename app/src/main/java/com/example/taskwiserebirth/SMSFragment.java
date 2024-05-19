@@ -7,6 +7,7 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.TextView;
 
+import androidx.annotation.NonNull;
 import androidx.fragment.app.Fragment;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
@@ -44,9 +45,19 @@ public class SMSFragment extends Fragment {
 
         recyclerView.setLayoutManager(new LinearLayoutManager(requireContext()));
         recyclerView.setAdapter(chatAdapter);
-        recyclerView.setOnScrollChangeListener((v, scrollX, scrollY, oldScrollX, oldScrollY) -> {
-            boolean scrollingUp = scrollY < oldScrollY;
-            ((MainActivity) requireActivity()).toggleNavBarVisibility(scrollingUp, true);
+
+        recyclerView.addOnScrollListener(new RecyclerView.OnScrollListener() {
+            @Override
+            public void onScrolled(@NonNull RecyclerView recyclerView, int dx, int dy) {
+                super.onScrolled(recyclerView, dx, dy);
+                if (dy > 0) {
+                    // Scrolling down
+                    ((MainActivity) requireActivity()).toggleNavBarVisibility(false, true);
+                } else if (dy < 0) {
+                    // Scrolling up
+                    ((MainActivity) requireActivity()).toggleNavBarVisibility(true, true);
+                }
+            }
         });
 
         App app = MongoDbRealmHelper.initializeRealmApp();
