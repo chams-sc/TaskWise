@@ -75,6 +75,8 @@ public class Live2DFragment extends Fragment implements View.OnTouchListener, Sp
     private boolean confirmAddTaskWithUser = false;
     private boolean inTaskDetailInteraction = false;
     private boolean isUserDone = false;
+    private boolean isExpanded = false;
+
     private final String TAG_SERVER_RESPONSE = "SERVER_RESPONSE";
     private static final String SHARED_PREFS = "sharedPrefs";
     private static final String STATUS_KEY = "focus_mode";
@@ -91,6 +93,16 @@ public class Live2DFragment extends Fragment implements View.OnTouchListener, Sp
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         View view = inflater.inflate(R.layout.fragment_live2d, container, false);
 
+        initializeGLSurfaceView(view);
+        initializeManagersAndUser();
+        initializeUIComponents(view);
+        initializeSpeechRecognition(view);
+        setupExpressions();
+
+        return view;
+    }
+
+    private void initializeGLSurfaceView(View view) {
         glSurfaceView = view.findViewById(R.id.gl_surface_view);
         glSurfaceView.setEGLContextClientVersion(2); // Using OpenGL ES 2.0
 
@@ -98,29 +110,25 @@ public class Live2DFragment extends Fragment implements View.OnTouchListener, Sp
         glSurfaceView.setRenderer(glRenderer);
         glSurfaceView.setRenderMode(GLSurfaceView.RENDERMODE_CONTINUOUSLY);
         glSurfaceView.setOnTouchListener(this);
+    }
 
+    private void initializeManagersAndUser() {
         App app = MongoDbRealmHelper.initializeRealmApp();
         user = app.currentUser();
 
         taskDatabaseManager = new TaskDatabaseManager(user, requireContext());
         conversationDbManager = new ConversationDbManager(user);
         userDatabaseManager = new UserDatabaseManager(user, requireContext());
+
         userDatabaseManager.getUserData(userModel -> aiName = userModel.getAiName());
+    }
 
+    private void initializeUIComponents(View view) {
         ImageButton collapseBtn = view.findViewById(R.id.fullscreen_button);
-        FloatingActionButton speakBtn = view.findViewById(R.id.speakBtn);
-
         collapseBtn.setOnClickListener(v -> ((MainActivity) requireActivity()).toggleNavBarVisibility(false, false));
 
-        speechRecognition = new SpeechRecognition(requireContext(), speakBtn, this);
-        speakBtn.setOnClickListener(v -> {
-            if (speechRecognition.isListening()) {
-                speechRecognition.stopSpeechRecognition();
-            } else {
-                speechRecognition.startSpeechRecognition();
-                changeExpression("listening");
-            }
-        });
+        FloatingActionButton speakBtn = view.findViewById(R.id.speakBtn);
+        speakBtn.setOnClickListener(v -> handleSpeakButtonClick());
 
         realTimeSpeechTextView = view.findViewById(R.id.realTimeSpeechTextView);
         realTimeSpeechTextView.setOnClickListener(new View.OnClickListener() {
@@ -128,19 +136,93 @@ public class Live2DFragment extends Fragment implements View.OnTouchListener, Sp
 
             @Override
             public void onClick(View v) {
-                if (isExpanded) {
-                    realTimeSpeechTextView.setMaxLines(7);
-                    realTimeSpeechTextView.setEllipsize(TextUtils.TruncateAt.END);
-                } else {
-                    realTimeSpeechTextView.setMaxLines(Integer.MAX_VALUE);
-                    realTimeSpeechTextView.setEllipsize(null);
-                }
-                isExpanded = !isExpanded;
+                toggleRealTimeSpeechTextViewExpansion();
             }
         });
-        setupExpressions();
+    }
 
-        return view;
+    private void handleSpeakButtonClick() {
+        if (speechRecognition.isListening()) {
+            speechRecognition.stopSpeechRecognition();
+        } else {
+            speechRecognition.startSpeechRecognition();
+            changeExpression("listening");
+        }
+    }
+
+    private void toggleRealTimeSpeechTextViewExpansion() {
+        if (isExpanded) {
+            realTimeSpeechTextView.setMaxLines(7);
+            realTimeSpeechTextView.setEllipsize(TextUtils.TruncateAt.END);
+        } else {
+            realTimeSpeechTextView.setMaxLines(Integer.MAX_VALUE);
+            realTimeSpeechTextView.setEllipsize(null);
+        }
+        isExpanded = !isExpanded;
+    }
+
+    private void initializeSpeechRecognition(View view) {
+        FloatingActionButton speakBtn = view.findViewById(R.id.speakBtn);
+        speechRecognition = new SpeechRecognition(requireContext(), speakBtn, this);
+    }
+
+    @Override
+    public void onSpeechRecognized(String recognizedSpeech) {
+        realTimeSpeechTextView.setText(recognizedSpeech);
+        setModelExpression("default1");
+//        startModelMotion(LAppDefine.MotionGroup.TAP_BODY.getId(), 1);
+//        setModelExpression("happy1");
+        Handler handler = new Handler(Looper.getMainLooper());
+
+        if (recognizedSpeech.equalsIgnoreCase("focus mode on")) {
+            if (isFocusModeEnabled()) {
+                synthesizeAssistantSpeech("Focus mode is already activated");
+                return;
+            }
+            setFocusMode(true);
+            startSpecificModelMotion(LAppDefine.MotionGroup.SWITCH.getId(), 0);
+
+            handler.postDelayed(() -> {
+                synthesizeAssistantSpeech(AIRandomSpeech.generateFocusModeOn());
+            }, 2000);
+            return;
+        } else if (recognizedSpeech.equalsIgnoreCase("focus mode off")) {
+            if (!isFocusModeEnabled()) {
+                synthesizeAssistantSpeech("Focus mode is already off");
+                return;
+            }
+            setFocusMode(false);
+            startSpecificModelMotion(LAppDefine.MotionGroup.SWITCH.getId(), 0);
+            handler.postDelayed(() -> {
+                synthesizeAssistantSpeech(AIRandomSpeech.generateFocusModeOff());
+            }, 2000);
+            return;
+        }
+
+        insertDialogue(recognizedSpeech, false);
+        if (confirmAddTaskWithUser) {
+            confirmWithUser(recognizedSpeech);
+        } else if (inTaskDetailInteraction) {
+            handleTaskDetailInteraction(recognizedSpeech);
+        } else {
+            handleRegularInteraction(recognizedSpeech);
+        }
+    }
+
+    private void startSpecificModelMotion(String motionGroup, int motionNumber) {
+        LAppLive2DManager manager = LAppLive2DManager.getInstance();
+        LAppModel model = manager.getModel(0); // Assuming you want the first model, change index if needed
+        if (model != null) {
+            model.startSpecificMotion(motionGroup, motionNumber);
+        }
+    }
+
+    private void startRandomMotionFromGroup(String motionGroup) {
+        LAppLive2DManager manager = LAppLive2DManager.getInstance();
+        LAppModel model = manager.getModel(0); // Assuming you want the first model, change index if needed
+        if (model != null) {
+            model.startRandomMotionFromGroup(motionGroup, LAppDefine.Priority.NORMAL.getPriority());
+        }
     }
 
     private void setupExpressions() {
@@ -172,57 +254,6 @@ public class Live2DFragment extends Fragment implements View.OnTouchListener, Sp
     public void changeExpression(String state) {
         chooseRandomExpression(state);
         setModelExpression(chosenExpression);
-    }
-
-    @Override
-    public void onSpeechRecognized(String recognizedSpeech) {
-        realTimeSpeechTextView.setText(recognizedSpeech);
-        setModelExpression("default1");
-//        startModelMotion(LAppDefine.MotionGroup.TAP_BODY.getId(), 1);
-//        setModelExpression("happy1");
-        Handler handler = new Handler(Looper.getMainLooper());
-
-        if (recognizedSpeech.equalsIgnoreCase("focus mode on")) {
-            if (isFocusModeEnabled()) {
-                SpeechSynthesis.synthesizeSpeechAsync("Focus mode is already activated");
-                return;
-            }
-            setFocusMode(true);
-            startModelMotion(LAppDefine.MotionGroup.SWITCH.getId(), 0);
-
-            handler.postDelayed(() -> {
-                SpeechSynthesis.synthesizeSpeechAsync(AIRandomSpeech.generateFocusModeOn());
-            }, 2000);
-            return;
-        } else if (recognizedSpeech.equalsIgnoreCase("focus mode off")) {
-            if (!isFocusModeEnabled()) {
-                SpeechSynthesis.synthesizeSpeechAsync("Focus mode is already off");
-                return;
-            }
-            setFocusMode(false);
-            startModelMotion(LAppDefine.MotionGroup.SWITCH.getId(), 0);
-            handler.postDelayed(() -> {
-                SpeechSynthesis.synthesizeSpeechAsync(AIRandomSpeech.generateFocusModeOff());
-            }, 2000);
-            return;
-        }
-
-        insertDialogue(recognizedSpeech, false);
-        if (confirmAddTaskWithUser) {
-            confirmWithUser(recognizedSpeech);
-        } else if (inTaskDetailInteraction) {
-            handleTaskDetailInteraction(recognizedSpeech);
-        } else {
-            handleRegularInteraction(recognizedSpeech);
-        }
-    }
-
-    private void startModelMotion(String motionGroup, int motionNumber) {
-        LAppLive2DManager manager = LAppLive2DManager.getInstance();
-        LAppModel model = manager.getModel(0); // Assuming you want the first model, change index if needed
-        if (model != null) {
-            model.startSpecificMotion(motionGroup, motionNumber);
-        }
     }
 
     private void setModelExpression(String expressionID) {
@@ -628,11 +659,11 @@ public class Live2DFragment extends Fragment implements View.OnTouchListener, Sp
         if (withError) {
             synthesizeAssistantSpeech("Sorry, I didn't get that but I have recorded your task. If you need anything else, just tell me.");
         } else {
-            startModelMotion(LAppDefine.MotionGroup.AFFIRMATION.getId(), 0);
+            startSpecificModelMotion(LAppDefine.MotionGroup.AFFIRMATION.getId(), 0);
             synthesizeAssistantSpeech(AIRandomSpeech.generateTaskUpdated(finalTask.getTaskName()));
         }
 
-        openTaskDetailFragment(finalTask);
+        new Handler(Looper.getMainLooper()).postDelayed(() -> openTaskDetailFragment(finalTask), 2000);
     }
 
     private void prefilterFinalTask() {
@@ -746,6 +777,7 @@ public class Live2DFragment extends Fragment implements View.OnTouchListener, Sp
         SpeechSynthesis.synthesizeSpeechAsync(dialogue);
         insertDialogue(dialogue, true);
         setModelExpression("default1");
+        startRandomMotionFromGroup(LAppDefine.MotionGroup.SPEAKING.getId());
     }
 
     private void confirmWithUser(String recognizedSpeech) {
