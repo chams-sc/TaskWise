@@ -454,10 +454,22 @@ public class LAppModel extends CubismUserModel {
         }
 
         if (motion != null) {
-            expressionManager.startMotionPriority(motion, LAppDefine.Priority.FORCE.getPriority());
+            expressionManager.startMotionPriority(motion, LAppDefine.Priority.IDLE.getPriority());
         } else {
             if (debugMode) {
                 LAppPal.printLog("expression " + expressionID + "is null");
+            }
+        }
+    }
+
+    public void setSpecificExpression(String expressionID) {
+        ACubismMotion motion = expressions.get(expressionID);
+
+        if (motion != null) {
+            expressionManager.startMotionPriority(motion, LAppDefine.Priority.FORCE.getPriority());
+        } else {
+            if (debugMode) {
+                LAppPal.printLog("expression " + expressionID + " is null");
             }
         }
     }

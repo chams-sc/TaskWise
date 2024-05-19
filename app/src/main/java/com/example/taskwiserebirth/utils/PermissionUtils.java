@@ -35,7 +35,7 @@ public class PermissionUtils {
     public static boolean checkRecordAudioPermission(Context context) {
         if (ContextCompat.checkSelfPermission(context, Manifest.permission.RECORD_AUDIO) != PackageManager.PERMISSION_GRANTED) {
             AlertDialog.Builder builder = new AlertDialog.Builder(context);
-            builder.setMessage("This app requires RECORD_AUDIO permission for speech recognition to feature to work as expected.")
+            builder.setMessage("This app requires RECORD_AUDIO permission for speech recognition to feature to work as expected. Please enable the Microphone permission in the app settings.")
                     .setTitle("Permission Required")
                     .setCancelable(false)
                     .setNegativeButton("Cancel", ((dialog, which) -> dialog.dismiss()))

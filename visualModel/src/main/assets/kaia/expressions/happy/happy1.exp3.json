@@ -87,6 +87,11 @@
 			"Id": "ParamMouthForm",
 			"Value": 0,
 			"Blend": "Add"
+		},
+		{
+			"Id": "ParamMouthOpenY",
+			"Value": 0.842,
+			"Blend": "Add"
 		}
 	]
 }

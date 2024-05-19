@@ -47,6 +47,11 @@
 			"Id": "ParamBodyAngleY",
 			"Value": 3.73,
 			"Blend": "Add"
+		},
+		{
+			"Id": "ParamMouthOpenY",
+			"Value": 0,
+			"Blend": "Add"
 		}
 	]
 }

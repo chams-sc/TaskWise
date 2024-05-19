@@ -189,6 +189,29 @@ public class AIRandomSpeech {
             "Sorry, but I can't respond to that request while I'm in focus mode."
     };
 
+    private static final String[] focusModeOn = {
+            "Focus mode is now enabled. Let's get things done!",
+            "Focus mode activated. Ready to tackle your tasks!",
+            "You've entered focus mode. Time to concentrate!",
+            "Focus mode on. What can I help you with?",
+            "Focus mode initiated. Let's work efficiently!",
+            "Focus mode is live. What's next on your list?",
+            "Focus mode enabled. Let's make some progress!",
+            "Focus mode started. How can I assist you?",
+            "Focus mode engaged. Let's get to work!"
+    };
+
+    private static final String[] focusModeOff = {
+            "Focus mode is now disabled. Take a break!",
+            "Focus mode deactivated. You can relax now.",
+            "Focus mode off. Time to unwind!",
+            "Focus mode disabled. What would you like to do next?",
+            "Focus mode ended. Feel free to switch tasks!",
+            "Focus mode is off. Let's take it easy!",
+            "Focus mode is now off. How can I assist you further?",
+            "Focus mode is disabled. Ready for something different?",
+            "Focus mode disengaged. What's next on your agenda?"
+    };
 
     public static String generateTaskAdded(String taskName) {
         int randomIndex = random.nextInt(taskAddedMessages.length);
@@ -254,5 +277,15 @@ public class AIRandomSpeech {
     public static String generateFocusModeMessage() {
         int randomIndex = random.nextInt(focusModeMessages.length);
         return focusModeMessages[randomIndex];
+    }
+
+    public static String generateFocusModeOn() {
+        int randomIndex = random.nextInt(focusModeOn.length);
+        return focusModeOn[randomIndex];
+    }
+
+    public static String generateFocusModeOff() {
+        int randomIndex = random.nextInt(focusModeOff.length);
+        return focusModeOff[randomIndex];
     }
 }

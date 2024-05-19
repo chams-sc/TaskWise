@@ -140,7 +140,18 @@ public class Live2DFragment extends Fragment implements View.OnTouchListener, Sp
     @Override
     public void onSpeechRecognized(String recognizedSpeech) {
         realTimeSpeechTextView.setText(recognizedSpeech);
-        startModelMotion("TapBody", 1);
+//        startModelMotion(LAppDefine.MotionGroup.TAP_BODY.getId(), 1);
+//        setModelExpression("happy1");
+
+        if (recognizedSpeech.equalsIgnoreCase("focus mode on")) {
+            setFocusMode(true);
+            SpeechSynthesis.synthesizeSpeechAsync(AIRandomSpeech.generateFocusModeOn());
+            return;
+        } else if (recognizedSpeech.equalsIgnoreCase("focus mode off")) {
+            setFocusMode(false);
+            SpeechSynthesis.synthesizeSpeechAsync(AIRandomSpeech.generateFocusModeOff());
+            return;
+        }
 
         if (confirmAddTaskWithUser) {
             confirmWithUser(recognizedSpeech);
@@ -159,9 +170,24 @@ public class Live2DFragment extends Fragment implements View.OnTouchListener, Sp
         }
     }
 
+    private void setModelExpression(String expressionID) {
+        LAppLive2DManager manager = LAppLive2DManager.getInstance();
+        LAppModel model = manager.getModel(0); // Assuming you want the first model, change index if needed
+        if (model != null) {
+            model.setSpecificExpression(expressionID);
+        }
+    }
+
     private boolean isFocusModeEnabled() {
         SharedPreferences sharedPreferences = requireActivity().getSharedPreferences(SHARED_PREFS, Context.MODE_PRIVATE);
         return sharedPreferences.getBoolean(STATUS_KEY, false);
+    }
+
+    private void setFocusMode(boolean enabled) {
+        SharedPreferences sharedPreferences = requireActivity().getSharedPreferences(SHARED_PREFS, Context.MODE_PRIVATE);
+        SharedPreferences.Editor editor = sharedPreferences.edit();
+        editor.putBoolean(STATUS_KEY, enabled);
+        editor.apply();
     }
 
     private void performIntent(String intent, String responseText){
