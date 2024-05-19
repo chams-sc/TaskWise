@@ -178,7 +178,13 @@ public class LAppDefine {
         /**
          * ID of the motion to be played at tapping body.
          */
-        TAP_BODY("TapBody");
+        TAP_BODY("TapBody"),
+        TAP_HEAD("TapHead"),
+        AFFIRMATION("Affirmation"),
+        ASKING("Asking"),
+        NEGATIVE("Negative"),
+        SWITCH("Switch"),
+        SPEAKING("Speaking");
 
         private final String id;
 

@@ -74,6 +74,13 @@
 			],
 			"TapBody": [
 				{
+					"File": "motions/headtap/bamboozled1.motion3.json",
+					"FadeInTime": 0.5,
+					"FadeOutTime": 0.5
+				}
+			],
+			"TapHead": [
+				{
 					"File": "motions/headtap/headtap1.motion3.json",
 					"FadeInTime": 0.5,
 					"FadeOutTime": 0.5
@@ -82,19 +89,49 @@
 					"File": "motions/headtap/headtap2.motion3.json",
 					"FadeInTime": 0.5,
 					"FadeOutTime": 0.5
-				},
+				}
+			],
+			"Affirmation": [
 				{
 					"File": "motions/affirmative/affirmative1.motion3.json",
 					"FadeInTime": 0.5,
 					"FadeOutTime": 0.5
 				},
 				{
+					"File": "motions/affirmative/affirmative2.motion3.json",
+					"FadeInTime": 0.5,
+					"FadeOutTime": 0.5
+				}
+			],
+			"Asking": [
+				{
 					"File": "motions/asking/ask1.motion3.json",
+					"FadeInTime": 0.5,
+					"FadeOutTime": 0.5
+				}
+			],
+			"Negative": [
+				{
+					"File": "motions/negative/no1.motion3.json",
+					"FadeInTime": 0.5,
+					"FadeOutTime": 0.5
+				}
+			],
+			"Switch": [
+				{
+					"File": "motions/switch/switch.motion3.json",
+					"FadeInTime": 0.5,
+					"FadeOutTime": 0.5
+				}
+			],
+			"Speaking": [
+				{
+					"File": "motions/speaking/speaking1.motion3.json",
 					"FadeInTime": 0.5,
 					"FadeOutTime": 0.5
 				},
 				{
-					"File": "motions/negative/no1.motion3.json",
+					"File": "motions/speaking/speaking2.motion3.json",
 					"FadeInTime": 0.5,
 					"FadeOutTime": 0.5
 				}

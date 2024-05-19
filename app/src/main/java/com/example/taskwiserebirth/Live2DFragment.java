@@ -19,6 +19,7 @@ import android.widget.Toast;
 import androidx.fragment.app.Fragment;
 
 import com.bin4rybros.demo.GLRenderer;
+import com.bin4rybros.demo.LAppDefine;
 import com.bin4rybros.demo.LAppDelegate;
 import com.bin4rybros.demo.LAppLive2DManager;
 import com.bin4rybros.demo.LAppModel;
@@ -142,14 +143,30 @@ public class Live2DFragment extends Fragment implements View.OnTouchListener, Sp
         realTimeSpeechTextView.setText(recognizedSpeech);
 //        startModelMotion(LAppDefine.MotionGroup.TAP_BODY.getId(), 1);
 //        setModelExpression("happy1");
+        Handler handler = new Handler(Looper.getMainLooper());
 
         if (recognizedSpeech.equalsIgnoreCase("focus mode on")) {
+            if (isFocusModeEnabled()) {
+                SpeechSynthesis.synthesizeSpeechAsync("Focus mode is already activated");
+                return;
+            }
             setFocusMode(true);
-            SpeechSynthesis.synthesizeSpeechAsync(AIRandomSpeech.generateFocusModeOn());
+            startModelMotion(LAppDefine.MotionGroup.SWITCH.getId(), 0);
+
+            handler.postDelayed(() -> {
+                SpeechSynthesis.synthesizeSpeechAsync(AIRandomSpeech.generateFocusModeOn());
+            }, 2000);
             return;
         } else if (recognizedSpeech.equalsIgnoreCase("focus mode off")) {
+            if (!isFocusModeEnabled()) {
+                SpeechSynthesis.synthesizeSpeechAsync("Focus mode is already off");
+                return;
+            }
             setFocusMode(false);
-            SpeechSynthesis.synthesizeSpeechAsync(AIRandomSpeech.generateFocusModeOff());
+            startModelMotion(LAppDefine.MotionGroup.SWITCH.getId(), 0);
+            handler.postDelayed(() -> {
+                SpeechSynthesis.synthesizeSpeechAsync(AIRandomSpeech.generateFocusModeOff());
+            }, 2000);
             return;
         }
 
