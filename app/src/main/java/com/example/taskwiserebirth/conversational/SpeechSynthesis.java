@@ -24,7 +24,6 @@ public class SpeechSynthesis {
     private static volatile boolean isShutdown = false;
     private static volatile boolean speaking = false;
 
-
     public static synchronized void initialize() {
         if (isShutdown) {
             executor = Executors.newSingleThreadExecutor();
@@ -42,6 +41,7 @@ public class SpeechSynthesis {
 
     private static void synthesizeSpeech(String text) {
         speaking = true;
+        Log.v("SpeechSynthesis", "speaking is now true");
 
         String speechKey = "75d247fa36164e01827df12050f000b5";
         String speechRegion = "southeastasia";
@@ -75,6 +75,8 @@ public class SpeechSynthesis {
         } catch (InterruptedException | ExecutionException e) {
             Log.e("SpeechSynthesis", "Error occurred during speech synthesis", e);
         } finally {
+            speaking = false;
+            Log.v("SpeechSynthesis", "speaking is now false");
             speechSynthesizer.close(); // Ensure the SpeechSynthesizer is closed
             speechConfig.close(); // Ensure the SpeechConfig is closed
             audioConfig.close(); // Ensure the AudioConfig is closed
@@ -101,4 +103,5 @@ public class SpeechSynthesis {
         executor.shutdown();
     }
 }
+
 

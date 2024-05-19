@@ -223,6 +223,8 @@ public class Live2DFragment extends Fragment implements View.OnTouchListener, Sp
         if (model != null) {
             model.startRandomMotionFromGroup(motionGroup, LAppDefine.Priority.NORMAL.getPriority());
         }
+
+        Log.v("STARTRANDOMMOTION", "starting random montion: " + motionGroup);
     }
 
     private void setupExpressions() {
@@ -765,6 +767,7 @@ public class Live2DFragment extends Fragment implements View.OnTouchListener, Sp
 
 
     private void insertDialogue(String dialogue, boolean isAssistant) {
+        // Ensure this code runs on a thread with a Looper
         if (Looper.myLooper() == Looper.getMainLooper()) {
             conversationDbManager.insertDialogue(dialogue, isAssistant);
         } else {

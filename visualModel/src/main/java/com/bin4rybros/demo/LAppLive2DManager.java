@@ -129,13 +129,13 @@ public class LAppLive2DManager {
                     LAppPal.printLog("hit area: " + HitAreaName.BODY.getId());
                 }
 
-                model.startRandomMotionFromGroup(MotionGroup.TAP_HEAD.getId(), Priority.NORMAL.getPriority());
+                model.startRandomMotionFromGroup(MotionGroup.TAP_HEAD.getId(), Priority.FORCE.getPriority());
 //                model.startRandomMotion(MotionGroup.TAP_BODY.getId(), Priority.NORMAL.getPriority(), finishedMotion);
             } else if (model.hitTest(HitAreaName.LEGS.getId(), x, y)) {
                 if (DEBUG_LOG_ENABLE) {
                     LAppPal.printLog("hit area: " + HitAreaName.LEGS.getId());
                 }
-                model.startRandomMotionFromGroup(MotionGroup.TAP_BODY.getId(), Priority.NORMAL.getPriority());
+                model.startRandomMotionFromGroup(MotionGroup.TAP_BODY.getId(), Priority.FORCE.getPriority());
             }
         }
     }
