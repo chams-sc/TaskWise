@@ -47,6 +47,7 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Random;
 import java.util.Set;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -67,6 +68,8 @@ public class Live2DFragment extends Fragment implements View.OnTouchListener, Sp
     private String tempTaskName;
     private String tempDeadline;
     private Task tempTask;
+    private String chosenExpression;
+    private Map<String, String[]> expressionMap;
 
     private boolean inEditTaskInteraction = false;
     private boolean confirmAddTaskWithUser = false;
@@ -115,6 +118,7 @@ public class Live2DFragment extends Fragment implements View.OnTouchListener, Sp
                 speechRecognition.stopSpeechRecognition();
             } else {
                 speechRecognition.startSpeechRecognition();
+                changeExpression("listening");
             }
         });
 
@@ -134,13 +138,46 @@ public class Live2DFragment extends Fragment implements View.OnTouchListener, Sp
                 isExpanded = !isExpanded;
             }
         });
+        setupExpressions();
 
         return view;
+    }
+
+    private void setupExpressions() {
+        // Initialize the expression map
+        expressionMap = new HashMap<>();
+
+        // Add expressions for different states
+        expressionMap.put("listening", new String[]{"listening1.exp3.json", "listening2.exp3.json"});
+        expressionMap.put("smile", new String[]{"smile1", "smile2"});
+        expressionMap.put("happy", new String[]{"happy1", "happy2"});
+        expressionMap.put("shy", new String[]{"shy1", "shy2"});
+        expressionMap.put("angry", new String[]{"angry1.exp3.json", "angry2.exp3.json"});
+    }
+
+    private void chooseRandomExpression(String state) {
+        // Get the array of expressions for the given state
+        String[] expressions = expressionMap.get(state);
+        if (expressions != null) {
+            // Randomly choose an expression
+            Random random = new Random();
+            int index = random.nextInt(expressions.length);
+            chosenExpression = expressions[index];
+        } else {
+            // Handle the case where the state does not exist
+            chosenExpression = "default.exp3.json"; // Default expression
+        }
+    }
+
+    public void changeExpression(String state) {
+        chooseRandomExpression(state);
+        setModelExpression(chosenExpression);
     }
 
     @Override
     public void onSpeechRecognized(String recognizedSpeech) {
         realTimeSpeechTextView.setText(recognizedSpeech);
+        setModelExpression("default1");
 //        startModelMotion(LAppDefine.MotionGroup.TAP_BODY.getId(), 1);
 //        setModelExpression("happy1");
         Handler handler = new Handler(Looper.getMainLooper());
@@ -591,6 +628,7 @@ public class Live2DFragment extends Fragment implements View.OnTouchListener, Sp
         if (withError) {
             synthesizeAssistantSpeech("Sorry, I didn't get that but I have recorded your task. If you need anything else, just tell me.");
         } else {
+            startModelMotion(LAppDefine.MotionGroup.AFFIRMATION.getId(), 0);
             synthesizeAssistantSpeech(AIRandomSpeech.generateTaskUpdated(finalTask.getTaskName()));
         }
 
@@ -707,6 +745,7 @@ public class Live2DFragment extends Fragment implements View.OnTouchListener, Sp
     private void synthesizeAssistantSpeech (String dialogue) {
         SpeechSynthesis.synthesizeSpeechAsync(dialogue);
         insertDialogue(dialogue, true);
+        setModelExpression("default1");
     }
 
     private void confirmWithUser(String recognizedSpeech) {
