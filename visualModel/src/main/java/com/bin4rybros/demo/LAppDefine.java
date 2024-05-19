@@ -184,7 +184,8 @@ public class LAppDefine {
         ASKING("Asking"),
         NEGATIVE("Negative"),
         SWITCH("Switch"),
-        SPEAKING("Speaking");
+        SPEAKING("Speaking"),
+        SLEEP("Sleep");
 
         private final String id;
 

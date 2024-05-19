@@ -170,8 +170,7 @@ public class Live2DFragment extends Fragment implements View.OnTouchListener, Sp
     public void onSpeechRecognized(String recognizedSpeech) {
         realTimeSpeechTextView.setText(recognizedSpeech);
         setModelExpression("default1");
-//        startModelMotion(LAppDefine.MotionGroup.TAP_BODY.getId(), 1);
-//        setModelExpression("happy1");
+
         Handler handler = new Handler(Looper.getMainLooper());
 
         if (recognizedSpeech.equalsIgnoreCase("focus mode on")) {

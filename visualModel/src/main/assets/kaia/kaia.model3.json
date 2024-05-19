@@ -135,6 +135,13 @@
 					"FadeInTime": 0.5,
 					"FadeOutTime": 0.5
 				}
+			],
+			"Sleep": [
+				{
+					"File": "motions/sleep/sleep.motion3.json",
+					"FadeInTime": 0.5,
+					"FadeOutTime": 0.5
+				}
 			]
 		}
 	},
