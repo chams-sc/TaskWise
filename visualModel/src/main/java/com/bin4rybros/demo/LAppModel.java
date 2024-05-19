@@ -373,6 +373,23 @@ public class LAppModel extends CubismUserModel {
     }
 
     /**
+     * Starts a random motion from a specified motion group with a given priority.
+     *
+     * @param motionGroup The name of the motion group from which to select a random motion.
+     * @param priority The priority level for the motion. Higher priority motions will interrupt lower priority ones.
+     * @return The identifier of the started motion. Returns -1 if the motion cannot be started.
+     */
+    public int startRandomMotionFromGroup(final String motionGroup, int priority) {
+        if (modelSetting.getMotionCount(motionGroup) == 0) {
+            return -1;
+        }
+
+        Random random = new Random();
+        int motionNumber = random.nextInt(modelSetting.getMotionCount(motionGroup));
+        return startMotion(motionGroup, motionNumber, priority);
+    }
+
+    /**
      * ランダムに選ばれたモーションの再生を開始する。
      *
      * @param group モーショングループ名

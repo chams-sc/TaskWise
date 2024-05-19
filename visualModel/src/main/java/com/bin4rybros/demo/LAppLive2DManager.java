@@ -7,14 +7,21 @@
 
 package com.bin4rybros.demo;
 
+import static com.bin4rybros.demo.LAppDefine.DEBUG_LOG_ENABLE;
+import static com.bin4rybros.demo.LAppDefine.HitAreaName;
+import static com.bin4rybros.demo.LAppDefine.ModelDir;
+import static com.bin4rybros.demo.LAppDefine.MotionGroup;
+import static com.bin4rybros.demo.LAppDefine.Priority;
+import static com.bin4rybros.demo.LAppDefine.ResourcePath;
+import static com.bin4rybros.demo.LAppDefine.USE_MODEL_RENDER_TARGET;
+import static com.bin4rybros.demo.LAppDefine.USE_RENDER_TARGET;
+
 import com.bin4rybros.sdk.cubism.framework.math.CubismMatrix44;
 import com.bin4rybros.sdk.cubism.framework.motion.ACubismMotion;
 import com.bin4rybros.sdk.cubism.framework.motion.IFinishedMotionCallback;
 
 import java.util.ArrayList;
 import java.util.List;
-
-import static com.bin4rybros.demo.LAppDefine.*;
 
 /**
  * A class that manages CubismModel in the sample application.
@@ -119,10 +126,16 @@ public class LAppLive2DManager {
             // If the body is tapped, start a random motion
             else if (model.hitTest(HitAreaName.BODY.getId(), x, y)) {
                 if (DEBUG_LOG_ENABLE) {
-                    LAppPal.printLog("hit area: " + HitAreaName.HEAD.getId());
+                    LAppPal.printLog("hit area: " + HitAreaName.BODY.getId());
                 }
 
-                model.startRandomMotion(MotionGroup.TAP_BODY.getId(), Priority.NORMAL.getPriority(), finishedMotion);
+                model.startRandomMotionFromGroup(MotionGroup.TAP_HEAD.getId(), Priority.NORMAL.getPriority());
+//                model.startRandomMotion(MotionGroup.TAP_BODY.getId(), Priority.NORMAL.getPriority(), finishedMotion);
+            } else if (model.hitTest(HitAreaName.LEGS.getId(), x, y)) {
+                if (DEBUG_LOG_ENABLE) {
+                    LAppPal.printLog("hit area: " + HitAreaName.LEGS.getId());
+                }
+                model.startRandomMotionFromGroup(MotionGroup.TAP_BODY.getId(), Priority.NORMAL.getPriority());
             }
         }
     }

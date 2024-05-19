@@ -203,7 +203,10 @@ public class LAppDefine {
      */
     public enum HitAreaName {
         HEAD("Head"),
-        BODY("Body");
+        BODY("Body"),
+        DRONE("Drone"),
+        CLIPBOARD("Clipboard"),
+        LEGS("Legs");
 
         private final String id;
 
