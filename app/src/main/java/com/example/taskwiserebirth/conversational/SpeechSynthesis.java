@@ -22,6 +22,8 @@ public class SpeechSynthesis {
     private static final String pitch = "high";
     private static ExecutorService executor = Executors.newSingleThreadExecutor();
     private static volatile boolean isShutdown = false;
+    private static volatile boolean speaking = false;
+
 
     public static synchronized void initialize() {
         if (isShutdown) {
@@ -39,6 +41,8 @@ public class SpeechSynthesis {
     }
 
     private static void synthesizeSpeech(String text) {
+        speaking = true;
+
         String speechKey = "75d247fa36164e01827df12050f000b5";
         String speechRegion = "southeastasia";
 
@@ -85,6 +89,10 @@ public class SpeechSynthesis {
                 "        </prosody>\n" +
                 "    </voice>\n" +
                 "</speak>";
+    }
+
+    public static boolean isSpeaking() {
+        return speaking;
     }
 
     // Shutdown ExecutorService

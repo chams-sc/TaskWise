@@ -765,7 +765,6 @@ public class Live2DFragment extends Fragment implements View.OnTouchListener, Sp
 
 
     private void insertDialogue(String dialogue, boolean isAssistant) {
-        // Ensure this code runs on a thread with a Looper
         if (Looper.myLooper() == Looper.getMainLooper()) {
             conversationDbManager.insertDialogue(dialogue, isAssistant);
         } else {
@@ -778,6 +777,19 @@ public class Live2DFragment extends Fragment implements View.OnTouchListener, Sp
         insertDialogue(dialogue, true);
         setModelExpression("default1");
         startRandomMotionFromGroup(LAppDefine.MotionGroup.SPEAKING.getId());
+
+        // Periodically check if the speech synthesis is still ongoing and start random motion
+        Handler handler = new Handler(Looper.getMainLooper());
+        Runnable checkSpeechAndAnimate = new Runnable() {
+            @Override
+            public void run() {
+                if (SpeechSynthesis.isSpeaking()) {
+                    startRandomMotionFromGroup(LAppDefine.MotionGroup.SPEAKING.getId());
+                    handler.postDelayed(this, 2000); // Check every 2 seconds, adjust as needed
+                }
+            }
+        };
+        handler.postDelayed(checkSpeechAndAnimate, 2000);
     }
 
     private void confirmWithUser(String recognizedSpeech) {
