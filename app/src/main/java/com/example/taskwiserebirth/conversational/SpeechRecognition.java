@@ -20,7 +20,7 @@ import java.util.Locale;
 public class SpeechRecognition {
 
     private SpeechRecognizer speechRecognizer;
-    private final Context context;
+    private Context context;
     private final FloatingActionButton speakBtn;
     private SpeechRecognitionListener listener;
     private boolean isListening = false;
@@ -151,5 +151,6 @@ public class SpeechRecognition {
             speechRecognizer = null;
         }
         listener = null;
+        context = null;
     }
 }
