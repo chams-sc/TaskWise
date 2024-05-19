@@ -1,10 +1,3 @@
-/*
- * Copyright(c) Live2D Inc. All rights reserved.
- *
- * Use of this source code is governed by the Live2D Open Software license
- * that can be found at http://live2d.com/eula/live2d-open-software-license-agreement_en.html.
- */
-
 package com.bin4rybros.demo;
 
 import com.bin4rybros.sdk.cubism.framework.math.CubismMatrix44;
@@ -80,7 +73,7 @@ public class LAppView {
 
         LAppTextureManager textureManager = LAppDelegate.getInstance().getTextureManager();
 
-//        // Load the background image
+        // Load the background image
 //        LAppTextureManager.TextureInfo backgroundTexture = textureManager.createTextureFromPngFile(LAppDefine.ResourcePath.ROOT.getPath() + LAppDefine.ResourcePath.BACK_IMAGE.getPath());
 //
 //
@@ -97,30 +90,24 @@ public class LAppView {
 //        }
 
         // Load the gear image
-        LAppTextureManager.TextureInfo gearTexture = textureManager.createTextureFromPngFile(LAppDefine.ResourcePath.ROOT.getPath() + LAppDefine.ResourcePath.GEAR_IMAGE.getPath());
-
-        // original code
-//        float x = windowWidth - gearTexture.width * 0.5f - 96.f;
-//        float y = windowHeight - gearTexture.height * 0.5f;
+//        LAppTextureManager.TextureInfo gearTexture = textureManager.createTextureFromPngFile(LAppDefine.ResourcePath.ROOT.getPath() + LAppDefine.ResourcePath.GEAR_IMAGE.getPath());
+//
+//        float xOffset = 96.0f; // Adjust this value as needed for the x position
+//        float yOffset = 50.0f; // Adjust this value as needed for the y position
+//
+//        // Calculate the position for the gear image
+//        float x = gearTexture.width * 0.5f + xOffset;
+//        float y = windowHeight - gearTexture.height * 0.5f - yOffset;
 //        float fWidth = (float) gearTexture.width;
 //        float fHeight = (float) gearTexture.height;
+//
+//        if (gearSprite == null) {
+//            gearSprite = new LAppSprite(x, y, fWidth, fHeight, gearTexture.id, programId);
+//        } else {
+//            gearSprite.resize(x, y, fWidth, fHeight);
+//        }
 
-        float xOffset = 96.0f; // Adjust this value as needed for the x position
-        float yOffset = 50.0f; // Adjust this value as needed for the y position
-
-        // Calculate the position for the gear image
-        float x = gearTexture.width * 0.5f + xOffset;
-        float y = windowHeight - gearTexture.height * 0.5f - yOffset;
-        float fWidth = (float) gearTexture.width;
-        float fHeight = (float) gearTexture.height;
-
-        if (gearSprite == null) {
-            gearSprite = new LAppSprite(x, y, fWidth, fHeight, gearTexture.id, programId);
-        } else {
-            gearSprite.resize(x, y, fWidth, fHeight);
-        }
-
-//        // Load the power image
+        // Load the power image
 //        LAppTextureManager.TextureInfo powerTexture = textureManager.createTextureFromPngFile(LAppDefine.ResourcePath.ROOT.getPath() + LAppDefine.ResourcePath.POWER_IMAGE.getPath());
 //
 //
@@ -136,8 +123,8 @@ public class LAppView {
 //        }
 
         // Size covering the entire screen
-        x = windowWidth * 0.5f;
-        y = windowHeight * 0.5f;
+        float x = windowWidth * 0.5f;
+        float y = windowHeight * 0.5f;
 
         if (renderingSprite == null) {
             renderingSprite = new LAppSprite(x, y, windowWidth, windowHeight, 0, programId);
@@ -150,7 +137,7 @@ public class LAppView {
     public void render() {
         // Render UI and background
 //        backSprite.render();
-        gearSprite.render();
+//        gearSprite.render();
 //        powerSprite.render();
 
         if (isChangedModel) {
@@ -305,11 +292,11 @@ public class LAppView {
         live2DManager.onTap(x, y);
 
         // Check if touched gear button
-        if (gearSprite.isHit(pointX, pointY)) {
-            isChangedModel = true;
-        }
+//        if (gearSprite.isHit(pointX, pointY)) {
+//            isChangedModel = true;
+//        }
 
-//        // Check if touched power button
+        // Check if touched power button
 //        if (powerSprite.isHit(pointX, pointY)) {
 //            // Terminate the application
 //            LAppDelegate.getInstance().deactivateApp();
@@ -423,7 +410,7 @@ public class LAppView {
     private CubismOffscreenSurfaceAndroid renderingBuffer = new CubismOffscreenSurfaceAndroid();
 
     private LAppSprite backSprite;
-    private LAppSprite gearSprite;
+    //    private LAppSprite gearSprite;
 //    private LAppSprite powerSprite;
     private LAppSprite renderingSprite;
 
