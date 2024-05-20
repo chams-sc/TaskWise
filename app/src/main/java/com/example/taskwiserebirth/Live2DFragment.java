@@ -404,6 +404,7 @@ public class Live2DFragment extends Fragment implements View.OnTouchListener, Sp
             applyTaskDetail("Deadline", deadline);
             applyTaskDetail("Set Recurrence", recurrence);
             applyTaskDetail("Schedule", schedule);
+            applyTaskDetail("Reminder", "true");
             if ("unspecified".equalsIgnoreCase(notes)) {
                 notes = "";
                 applyTaskDetail("Notes", notes);
@@ -460,7 +461,7 @@ public class Live2DFragment extends Fragment implements View.OnTouchListener, Sp
 
         String taskName = "", deadline = "";
 
-        if ("add task".equalsIgnoreCase(intent)) {
+        if ("add task".equalsIgnoreCase(intent) || "add task with deadline".equalsIgnoreCase(intent)) {
             prefilterAddCompleteTask(responseText);
             return;
         } else {
@@ -489,7 +490,7 @@ public class Live2DFragment extends Fragment implements View.OnTouchListener, Sp
                     "most important tasks",
                     "unfinished tasks",
                     "finished tasks",
-                    "nearest deadline",
+                    "task with nearest deadline",
                     "created tasks"
             ));
 
@@ -525,7 +526,7 @@ public class Live2DFragment extends Fragment implements View.OnTouchListener, Sp
             case "finished tasks":
                 getFinishedTasks();
                 return;
-            case "nearest deadline":
+            case "task with nearest deadline":
                 getNearestDeadline();
                 return;
             case "created tasks":
