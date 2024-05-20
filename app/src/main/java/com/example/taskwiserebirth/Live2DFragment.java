@@ -77,6 +77,7 @@ public class Live2DFragment extends Fragment implements View.OnTouchListener, Sp
     private boolean inTaskDetailInteraction = false;
     private boolean isUserDone = false;
     private boolean isExpanded = false;
+    private boolean isAskingForTaskName = false;
 
     private final String TAG_SERVER_RESPONSE = "SERVER_RESPONSE";
     private static final String SHARED_PREFS = "sharedPrefs";
@@ -204,10 +205,13 @@ public class Live2DFragment extends Fragment implements View.OnTouchListener, Sp
             confirmWithUser(recognizedSpeech);
         } else if (inTaskDetailInteraction) {
             handleTaskDetailInteraction(recognizedSpeech);
-        } else {
+        } else if (isAskingForTaskName) {
+            getTaskName(recognizedSpeech);
+        }else {
             handleRegularInteraction(recognizedSpeech);
         }
     }
+
 
     private void startSpecificModelMotion(String motionGroup, int motionNumber) {
         LAppLive2DManager manager = LAppLive2DManager.getInstance();
@@ -414,7 +418,6 @@ public class Live2DFragment extends Fragment implements View.OnTouchListener, Sp
         }
 
         finalTask = new Task(taskName, importance, urgency, deadline, schedule, recurrence, true, notes);
-        if (!"Unspecified".equalsIgnoreCase(taskName)) {
             applyTaskDetail("Importance", importance);
             applyTaskDetail("Urgency", urgency);
             applyTaskDetail("Deadline", deadline);
@@ -424,16 +427,20 @@ public class Live2DFragment extends Fragment implements View.OnTouchListener, Sp
                 notes = "";
                 applyTaskDetail("Notes", notes);
             }
-            addCompleteTask(finalTask);
-        }
 
-        Log.v("TaskDetails", "Task Name: " + finalTask.getTaskName());
-        Log.v("TaskDetails", "Importance: " + finalTask.getImportanceLevel());
-        Log.v("TaskDetails", "Urgency: " + finalTask.getUrgencyLevel());
-        Log.v("TaskDetails", "Deadline: " + finalTask.getDeadline());
-        Log.v("TaskDetails", "Recurrence: " + finalTask.getRecurrence());
-        Log.v("TaskDetails", "Schedule: " + finalTask.getSchedule());
-        Log.v("TaskDetails", "Notes: " + finalTask.getNotes());
+        if (!"Unspecified".equalsIgnoreCase(taskName)) {
+            addCompleteTask(finalTask);
+        } else {
+            synthesizeAssistantSpeech("You forgot to mention the name of the task, what should we call it?");
+            isAskingForTaskName = true;
+        }
+//        Log.v("TaskDetails", "Task Name: " + finalTask.getTaskName());
+//        Log.v("TaskDetails", "Importance: " + finalTask.getImportanceLevel());
+//        Log.v("TaskDetails", "Urgency: " + finalTask.getUrgencyLevel());
+//        Log.v("TaskDetails", "Deadline: " + finalTask.getDeadline());
+//        Log.v("TaskDetails", "Recurrence: " + finalTask.getRecurrence());
+//        Log.v("TaskDetails", "Schedule: " + finalTask.getSchedule());
+//        Log.v("TaskDetails", "Notes: " + finalTask.getNotes());
     }
 
     private void addCompleteTask(Task finalTask) {
@@ -460,18 +467,6 @@ public class Live2DFragment extends Fragment implements View.OnTouchListener, Sp
         insertDialogue(dialogue, true);
 
         openTaskDetailFragment(completeTask);
-    }
-
-    private void confirmWithUser(String recognizedSpeech) {
-        if (recognizedSpeech.equalsIgnoreCase("yes")) {
-            confirmAddTaskWithUser = false;
-            insertCompleteTask(finalTask);
-        } else if (recognizedSpeech.equalsIgnoreCase("no")) {
-            synthesizeAssistantSpeech("Okiiiiiiii");
-            confirmAddTaskWithUser = false;
-        } else {
-            synthesizeAssistantSpeech("I'm sorry, I didn't understand that. Are you sure you want to add task?");
-        }
     }
 
     private void performIntent(String intent, String responseText){
@@ -875,30 +870,23 @@ public class Live2DFragment extends Fragment implements View.OnTouchListener, Sp
         setModelExpression("default1");
     }
 
-    private void synthesizeAssistantSpeech(String dialogue, Runnable onFinish) {
-        SpeechSynthesis.synthesizeSpeechAsync(dialogue);
-        insertDialogue(dialogue, true);
-        setModelExpression("default1");
-        startRandomMotionFromGroup(LAppDefine.MotionGroup.SPEAKING.getId());
-
-        // Periodically check if the speech synthesis is still ongoing and start random motion
-        Handler handler = new Handler(Looper.getMainLooper());
-        Runnable checkSpeechAndAnimate = new Runnable() {
-            @Override
-            public void run() {
-                if (SpeechSynthesis.isSpeaking()) {
-                    startRandomMotionFromGroup(LAppDefine.MotionGroup.SPEAKING.getId());
-                    handler.postDelayed(this, 2000); // Check every 2 seconds, adjust as needed
-                } else {
-                    if (onFinish != null) {
-                        onFinish.run();
-                    }
-                }
-            }
-        };
-        handler.postDelayed(checkSpeechAndAnimate, 2000);
+    private void confirmWithUser(String recognizedSpeech) {
+        if (recognizedSpeech.equalsIgnoreCase("yes")) {
+            confirmAddTaskWithUser = false;
+            insertCompleteTask(finalTask);
+        } else if (recognizedSpeech.equalsIgnoreCase("no")) {
+            synthesizeAssistantSpeech("Okiiiiiiii");
+            confirmAddTaskWithUser = false;
+        } else {
+            synthesizeAssistantSpeech("I'm sorry, I didn't understand that. Are you sure you want to add task?");
+        }
     }
 
+    private void getTaskName(String recognizedSpeech) {
+        finalTask.setTaskName(recognizedSpeech);
+        addCompleteTask(finalTask);
+        isAskingForTaskName = false;
+    }
 
     private void handleTaskDetailInteraction(String recognizedSpeech) {
         final List<String> doneIntents = Arrays.asList("done", "finished", "all set", "i'm good", "thank you");

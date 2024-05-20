@@ -70,6 +70,16 @@
 					"File": "motions/idle/idle3.motion3.json",
 					"FadeInTime": 0.5,
 					"FadeOutTime": 0.5
+				},
+				{
+					"File": "motions/speaking/speaking1.motion3.json",
+					"FadeInTime": 0.5,
+					"FadeOutTime": 0.5
+				},
+				{
+					"File": "motions/speaking/speaking2.motion3.json",
+					"FadeInTime": 0.5,
+					"FadeOutTime": 0.5
 				}
 			],
 			"TapBody": [
@@ -124,18 +134,6 @@
 					"FadeOutTime": 0.5
 				}
 			],
-			"Speaking": [
-				{
-					"File": "motions/speaking/speaking1.motion3.json",
-					"FadeInTime": 0.5,
-					"FadeOutTime": 0.5
-				},
-				{
-					"File": "motions/speaking/speaking2.motion3.json",
-					"FadeInTime": 0.5,
-					"FadeOutTime": 0.5
-				}
-			],
 			"Sleep": [
 				{
 					"File": "motions/sleep/sleep.motion3.json",
@@ -164,8 +162,8 @@
 			"Target": "Parameter",
 			"Name": "EyeBlink",
 			"Ids": [
-				"ParamEyeLOpen",
-				"ParamEyeROpen"
+				"EyeLOpen",
+				"EyeROpen"
 			]
 		}
 	],
