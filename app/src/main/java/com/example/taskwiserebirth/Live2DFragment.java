@@ -462,6 +462,7 @@ public class Live2DFragment extends Fragment implements View.OnTouchListener, Sp
                 applyTaskDetail("Notes", notes);
             }
 
+
         if (!"Unspecified".equalsIgnoreCase(taskName)) {
             addCompleteTask(finalTask);
         } else {
@@ -496,6 +497,11 @@ public class Live2DFragment extends Fragment implements View.OnTouchListener, Sp
 
     private void insertCompleteTask(Task completeTask) {
         taskDatabaseManager.insertTask(completeTask);
+        if (hasRecurrence) {
+            synthesizeAssistantSpeech("Since repeating tasks can't have deadlines, I have set it to No deadline.");
+        }
+        hasRecurrence = false;
+
         String dialogue = AIRandomSpeech.generateTaskAdded(completeTask.getTaskName());
         SpeechSynthesis.synthesizeSpeechAsync(dialogue);
         insertDialogue(dialogue, true);
