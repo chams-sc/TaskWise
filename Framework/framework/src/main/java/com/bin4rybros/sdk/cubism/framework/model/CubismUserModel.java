@@ -388,7 +388,7 @@ public abstract class CubismUserModel {
     /**
      * A motion manager
      */
-    protected CubismMotionManager motionManager = new CubismMotionManager();
+    public CubismMotionManager motionManager = new CubismMotionManager();
     /**
      * A expression manager
      */

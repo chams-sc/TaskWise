@@ -214,6 +214,14 @@ public class Live2DFragment extends Fragment implements View.OnTouchListener, Sp
         }
     }
 
+    private void stopCurrentMotion() {
+        LAppLive2DManager manager = LAppLive2DManager.getInstance();
+        LAppModel model = manager.getModel(0); // Assuming you want the first model, change index if needed
+        if (model != null) {
+            model.motionManager.stopAllMotions();
+        }
+    }
+
 
     private void startSpecificModelMotion(String motionGroup, int motionNumber) {
         LAppLive2DManager manager = LAppLive2DManager.getInstance();
