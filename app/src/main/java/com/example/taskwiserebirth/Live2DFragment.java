@@ -63,6 +63,7 @@ public class Live2DFragment extends Fragment implements View.OnTouchListener, Sp
     private UserDatabaseManager userDatabaseManager;
     private User user;
     private Task finalTask;
+    private Task addTaskTemp;
     private String aiName;
     private TextView realTimeSpeechTextView;
     private String tempTaskName;
@@ -173,6 +174,7 @@ public class Live2DFragment extends Fragment implements View.OnTouchListener, Sp
 
         Handler handler = new Handler(Looper.getMainLooper());
 
+        insertDialogue(recognizedSpeech, false);
         if (recognizedSpeech.equalsIgnoreCase("focus mode on")) {
             if (isFocusModeEnabled()) {
                 synthesizeAssistantSpeech("Focus mode is already activated");
@@ -198,7 +200,6 @@ public class Live2DFragment extends Fragment implements View.OnTouchListener, Sp
             return;
         }
 
-        insertDialogue(recognizedSpeech, false);
         if (confirmAddTaskWithUser) {
             confirmWithUser(recognizedSpeech);
         } else if (inTaskDetailInteraction) {
@@ -277,56 +278,229 @@ public class Live2DFragment extends Fragment implements View.OnTouchListener, Sp
         editor.apply();
     }
 
-    private void performIntent(String intent, String responseText){
+    private void applyTaskDetail(String detail, String value) {
+        if (finalTask == null) {
+            finalTask = new Task();
+        }
 
-        Log.v("TestIntentResponse", "Intent: " + intent + " response text: "+ responseText);
-        Pattern taskPattern = Pattern.compile("TASK_NAME: (.+?)(?:\\nDEADLINE:|$)");
-        Pattern deadlinePattern = Pattern.compile("DEADLINE: (.+)");
+        switch (detail) {
+            case "Task Name":
+                finalTask.setTaskName(value);
+                break;
+            case "Urgency":
+                if (ValidValues.VALID_URGENCY_LEVELS.contains(value)) {
+                    finalTask.setUrgencyLevel(value);
+                } else {
+                    finalTask.setUrgencyLevel("None");
+                }
+                break;
+            case "Importance":
+                if (ValidValues.VALID_IMPORTANCE_LEVELS.contains(value)) {
+                    finalTask.setImportanceLevel(value);
+                } else {
+                    finalTask.setImportanceLevel("None");
+                }
+                break;
+            case "Deadline":
+                if (!"Unspecified".equalsIgnoreCase(value) && CalendarUtils.isDateAccepted(value)) {
+                    finalTask.setDeadline(value);
+                } else {
+                    finalTask.setDeadline("No deadline");
+                }
+                prefilterWhenDeadline();
+                break;
+            case "Set Recurrence":
+            case "Edit Recurrence":
+            case "Repeat Task":
+                if ("Daily".equalsIgnoreCase(value)) {
+                    finalTask.setRecurrence(value);
+                } else if (CalendarUtils.isRecurrenceAccepted(value)) {
+                    finalTask.setRecurrence(CalendarUtils.formatRecurrence(value));
+                } else {
+                    finalTask.setRecurrence("None");
+                }
+                prefilterFinalTask();
+                Log.v("TEST", "Recurrence: " + finalTask.getRecurrence());
+                break;
+            case "Schedule":
+                if (!"Unspecified".equalsIgnoreCase(value) && CalendarUtils.isDateAccepted(value)) {
+                    finalTask.setSchedule(value);
+                } else {
+                    finalTask.setSchedule("No schedule");
+                }
+                prefilterFinalTask();
+                Log.v("TEST", "Schedule: " + finalTask.getSchedule());
+                break;
+            case "Reminder":
+                finalTask.setReminder(value.equals("True"));
+                break;
+            case "Notes":
+                finalTask.setNotes(value);
+                break;
+        }
+    }
 
-        String taskName = "", deadline = "";
 
-        Matcher taskMatcher = taskPattern.matcher(responseText);
-        if (taskMatcher.find()) {
-            taskName = taskMatcher.group(1);
+    private void prefilterAddCompleteTask(String responseText) {
+        // Define patterns to extract each detail
+        Pattern taskNamePattern = Pattern.compile("TASK_NAME: (.+?)(?=\\n|$)");
+        Pattern importancePattern = Pattern.compile("IMPORTANCE: (.+?)(?=\\n|$)");
+        Pattern urgencyPattern = Pattern.compile("URGENCY: (.+?)(?=\\n|$)");
+        Pattern deadlinePattern = Pattern.compile("DEADLINE: (.+?)(?=\\n|$)");
+        Pattern recurrencePattern = Pattern.compile("RECURRENCE: (.+?)(?=\\n|$)");
+        Pattern schedulePattern = Pattern.compile("SCHEDULE: (.+?)(?=\\n|$)");
+        Pattern notesPattern = Pattern.compile("NOTES: (.+?)(?=\\n|$)");
+
+        String taskName = "Unspecified";
+        String importance = "Unspecified";
+        String urgency = "Unspecified";
+        String deadline = "Unspecified";
+        String recurrence = "Unspecified";
+        String schedule = "Unspecified";
+        String notes = "Unspecified";
+
+        Matcher taskNameMatcher = taskNamePattern.matcher(responseText);
+        if (taskNameMatcher.find()) {
+            taskName = taskNameMatcher.group(1);
+        }
+
+        Matcher importanceMatcher = importancePattern.matcher(responseText);
+        if (importanceMatcher.find()) {
+            importance = importanceMatcher.group(1);
+        }
+
+        Matcher urgencyMatcher = urgencyPattern.matcher(responseText);
+        if (urgencyMatcher.find()) {
+            urgency = urgencyMatcher.group(1);
         }
 
         Matcher deadlineMatcher = deadlinePattern.matcher(responseText);
         if (deadlineMatcher.find()) {
             deadline = deadlineMatcher.group(1);
-            // check if the deadline matches the required pattern "MM-dd-yyyy | hh:mm a"
-            if (!deadline.matches("\\d{2}-\\d{2}-\\d{4} \\| \\d{2}:\\d{2} [AP]M")) {
-                deadline = "No deadline";
+        }
+
+        Matcher recurrenceMatcher = recurrencePattern.matcher(responseText);
+        if (recurrenceMatcher.find()) {
+            recurrence = recurrenceMatcher.group(1);
+        }
+
+        Log.v("RECURRENCE", recurrence);
+
+        Matcher scheduleMatcher = schedulePattern.matcher(responseText);
+        if (scheduleMatcher.find()) {
+            schedule = scheduleMatcher.group(1);
+        }
+
+        Matcher notesMatcher = notesPattern.matcher(responseText);
+        if (notesMatcher.find()) {
+            notes = notesMatcher.group(1);
+        }
+
+        finalTask = new Task();
+        if (!"Unspecified".equalsIgnoreCase(taskName)) {
+            applyTaskDetail("Task Name", taskName);
+            applyTaskDetail("Importance", importance);
+            applyTaskDetail("Urgency", urgency);
+            applyTaskDetail("Deadline", deadline);
+            applyTaskDetail("Set Recurrence", recurrence);
+            applyTaskDetail("Schedule", schedule);
+            if ("unspecified".equalsIgnoreCase(notes)) {
+                notes = "";
+                applyTaskDetail("Notes", notes);
+            }
+
+            addCompleteTask(finalTask);
+        }
+    }
+
+    private void addCompleteTask(Task finalTask) {
+        taskDatabaseManager.fetchTasksWithStatus(tasks -> {
+            if (tasks.size() >= 10) {
+                synthesizeAssistantSpeech(AIRandomSpeech.generateUnfinishedTasksMessage(tasks.size()));
+                confirmAddTaskWithUser = true;
             } else {
-                // check if deadline is set to the past, if true set to default "No Deadline"
-                if (!CalendarUtils.isDateAccepted(deadline)) {
-                    Toast.makeText(requireContext(), "Deadline cannot be in the past so it is set to default", Toast.LENGTH_SHORT).show();
+                taskDatabaseManager.fetchUnfinishedTaskByName(tasks1 -> {
+                    if (tasks1.isEmpty()) {
+                        insertCompleteTask(finalTask);
+                    } else {
+                        synthesizeAssistantSpeech(String.format("%s is already in your list of tasks", finalTask.getTaskName()));
+                    }
+                }, finalTask.getTaskName());
+            }
+        }, false);
+    }
+
+    private void insertCompleteTask(Task completeTask) {
+        taskDatabaseManager.insertTask(completeTask);
+        String dialogue = AIRandomSpeech.generateTaskAdded(completeTask.getTaskName());
+        SpeechSynthesis.synthesizeSpeechAsync(dialogue);
+        insertDialogue(dialogue, true);
+
+        openTaskDetailFragment(completeTask);
+    }
+
+    private void confirmWithUser(String recognizedSpeech) {
+        if (recognizedSpeech.equalsIgnoreCase("yes")) {
+            confirmAddTaskWithUser = false;
+            insertCompleteTask(finalTask);
+        } else if (recognizedSpeech.equalsIgnoreCase("no")) {
+            synthesizeAssistantSpeech("Okiiiiiiii");
+            confirmAddTaskWithUser = false;
+        } else {
+            synthesizeAssistantSpeech("I'm sorry, I didn't understand that. Are you sure you want to add task?");
+        }
+    }
+
+    private void performIntent(String intent, String responseText){
+
+        Log.v("TestIntentResponse", "Intent: " + intent + " response text: "+ responseText);
+
+        Pattern taskPattern = Pattern.compile("TASK_NAME: (.+?)(?:\\nDEADLINE:|$)");
+        Pattern deadlinePattern = Pattern.compile("DEADLINE: (.+)");
+
+        String taskName = "", deadline = "";
+
+        if ("add task".equalsIgnoreCase(intent)) {
+            prefilterAddCompleteTask(responseText);
+            return;
+        } else {
+            Matcher taskMatcher = taskPattern.matcher(responseText);
+            if (taskMatcher.find()) {
+                taskName = taskMatcher.group(1);
+            }
+
+            Matcher deadlineMatcher = deadlinePattern.matcher(responseText);
+            if (deadlineMatcher.find()) {
+                deadline = deadlineMatcher.group(1);
+                // check if the deadline matches the required pattern "MM-dd-yyyy | hh:mm a"
+                if (!deadline.matches("\\d{2}-\\d{2}-\\d{4} \\| \\d{2}:\\d{2} [AP]M")) {
                     deadline = "No deadline";
+                } else {
+                    // check if deadline is set to the past, if true set to default "No Deadline"
+                    if (!CalendarUtils.isDateAccepted(deadline)) {
+                        synthesizeAssistantSpeech("Deadline cannot be in the past so it is set to default");
+                        deadline = "No deadline";
+                    }
                 }
+            }
+
+            // Define a set of intents that do not require a task name check
+            Set<String> noTaskNameRequiredIntents = new HashSet<>(Arrays.asList(
+                    "most important tasks",
+                    "unfinished tasks",
+                    "finished tasks",
+                    "nearest deadline",
+                    "created tasks"
+            ));
+
+            // Check if taskName is required for the given intent
+            if (!noTaskNameRequiredIntents.contains(intent) && taskName.equalsIgnoreCase("unspecified")) {
+                synthesizeAssistantSpeech("Hmmm, I am unable to determine the task name."); // TODO: ask user the task name
+                return;
             }
         }
 
-        // Define a set of intents that do not require a task name check
-        Set<String> noTaskNameRequiredIntents = new HashSet<>(Arrays.asList(
-                "most important tasks",
-                "unfinished tasks",
-                "finished tasks",
-                "nearest deadline",
-                "created tasks"
-        ));
-
-        // Check if taskName is required for the given intent
-        if (!noTaskNameRequiredIntents.contains(intent) && taskName.isEmpty()) {
-            synthesizeAssistantSpeech("Hmmm, I am unable to determine the task name");
-            return;
-        }
-
         switch(intent) {
-            case "Add Task":
-                addNewTask(taskName, "No deadline");
-                return;
-            case "Add Task With Deadline":
-                addNewTask(taskName, deadline);
-                return;
             case "Edit Task":
                 editTaskThroughSpeech(taskName);
                 return;
@@ -361,6 +535,7 @@ public class Live2DFragment extends Fragment implements View.OnTouchListener, Sp
                 synthesizeAssistantSpeech("I'm sorry, I didn't quite catch that. Could you please be a bit more specific? It would really help me assist you better.");
         }
     }
+
 
     private void countCreatedTasksToday() {
         taskDatabaseManager.fetchAllTasks(tasks -> {
@@ -519,36 +694,27 @@ public class Live2DFragment extends Fragment implements View.OnTouchListener, Sp
         }, taskName);
     }
 
-    private void addNewTask(String taskName, String deadline) {
-        taskDatabaseManager.fetchTasksWithStatus(tasks -> {
-            if (tasks.size() >= 10) {
-                synthesizeAssistantSpeech(AIRandomSpeech.generateUnfinishedTasksMessage(tasks.size()));
+//    private void addNewTask(String taskName, String deadline) {
+//        taskDatabaseManager.fetchTasksWithStatus(tasks -> {
+//            if (tasks.size() >= 10) {
+//                synthesizeAssistantSpeech(AIRandomSpeech.generateUnfinishedTasksMessage(tasks.size()));
+//
+//                tempTaskName = taskName;
+//                tempDeadline = deadline;
+//                confirmAddTaskWithUser = true;
+//            } else {
+//                taskDatabaseManager.fetchUnfinishedTaskByName(tasks1 -> {
+//                    if (tasks1.isEmpty()) {
+//                        insertTaskAllowed(taskName, deadline);
+//                    } else {
+//                        synthesizeAssistantSpeech(String.format("%s is already in your list of tasks", taskName));
+//                    }
+//                }, taskName);
+//            }
+//        }, false);
+//    }
 
-                tempTaskName = taskName;
-                tempDeadline = deadline;
-                confirmAddTaskWithUser = true;
-            } else {
-                taskDatabaseManager.fetchUnfinishedTaskByName(tasks1 -> {
-                    if (tasks1.isEmpty()) {
-                        insertTaskAllowed(taskName, deadline);
-                    } else {
-                        synthesizeAssistantSpeech(String.format("%s is already in your list of tasks", taskName));
-                    }
-                }, taskName);
-            }
-        }, false);
-    }
 
-    private void insertTaskAllowed(String taskName, String deadline) {
-        Task task = setTaskFromSpeech(taskName, deadline);
-        taskDatabaseManager.insertTask(task);
-        synthesizeAssistantSpeech(AIRandomSpeech.generateTaskAdded(taskName), new Runnable() {
-            @Override
-            public void run() {
-                openTaskDetailFragment(task);
-            }
-        });
-    }
 
     private void markTaskFinished(String taskName) {
         taskDatabaseManager.fetchUnfinishedTaskByName(tasks -> {
@@ -662,20 +828,30 @@ public class Live2DFragment extends Fragment implements View.OnTouchListener, Sp
         taskDatabaseManager.updateTask(finalTask);
 
         if (withError) {
-            synthesizeAssistantSpeech("Sorry, I didn't get that but I have recorded your task. If you need anything else, just tell me.");
+            SpeechSynthesis.synthesizeSpeechAsync("Sorry, I didn't get that but I have recorded your task. If you need anything else, just tell me.");
         } else {
-            synthesizeAssistantSpeech(AIRandomSpeech.generateTaskUpdated(finalTask.getTaskName()));
+            String dialogue = AIRandomSpeech.generateTaskUpdated(finalTask.getTaskName());
+            SpeechSynthesis.synthesizeSpeechAsync(dialogue);
+            insertDialogue(dialogue, true);
         }
 
-        new Handler(Looper.getMainLooper()).postDelayed(() -> openTaskDetailFragment(finalTask), 2000);
+        openTaskDetailFragment(finalTask);
+//        new Handler(Looper.getMainLooper()).postDelayed(() -> openTaskDetailFragment(finalTask), 2000);
     }
 
     private void prefilterFinalTask() {
-        if(!finalTask.getRecurrence().equals("None")) {
+        if (finalTask == null) {
+            Log.e("TaskError", "finalTask is null in prefilterFinalTask");
+            return;
+        }
+
+        String recurrence = finalTask.getRecurrence();
+        String schedule = finalTask.getSchedule();
+
+        if (recurrence != null && !recurrence.equals("None")) {
             finalTask.setDeadline("No deadline");   // Recurrent tasks have no deadlines
 
-            if(!finalTask.getSchedule().equals("No schedule")) {
-                String schedule = finalTask.getSchedule();
+            if (schedule != null && !schedule.equals("No schedule")) {
                 // Extracting the time part from the schedule string
                 String filteredSched = schedule.substring(schedule.lastIndexOf("|") + 1).trim();
                 finalTask.setSchedule(filteredSched);
@@ -685,68 +861,10 @@ public class Live2DFragment extends Fragment implements View.OnTouchListener, Sp
         }
     }
 
-    private void prefilterWhenDeadline()  {
-        if (!finalTask.getRecurrence().equals("None")){
+    private void prefilterWhenDeadline() {
+        if (finalTask != null && finalTask.getRecurrence() != null && !finalTask.getRecurrence().equals("None")) {
             finalTask.setRecurrence("None");
             finalTask.setSchedule("No schedule");
-        }
-    }
-
-    private void applyTaskDetail(String detail, String value) {
-        switch (detail) {
-            case "Task Name":
-                finalTask.setTaskName(value);
-                break;
-            case "Urgency":
-                if (ValidValues.VALID_URGENCY_LEVELS.contains(value)) {
-                    finalTask.setUrgencyLevel(value);
-                } else {
-                    finalTask.setUrgencyLevel("None");
-                }
-                break;
-            case "Importance":
-                if (ValidValues.VALID_IMPORTANCE_LEVELS.contains(value)) {
-                    finalTask.setImportanceLevel(value);
-                } else {
-                    finalTask.setImportanceLevel("None");
-                }
-                break;
-            case "Deadline":
-                if (CalendarUtils.isDateAccepted(value)) {
-                    finalTask.setDeadline(value);
-                } else {
-                    finalTask.setDeadline("No deadline");
-                }
-                prefilterWhenDeadline();
-                break;
-            case "Set Recurrence":
-            case "Edit Recurrence":
-            case "Repeat Task":
-                if ("Daily".equals(value)) {
-                    finalTask.setRecurrence(value);
-                } else if (CalendarUtils.isRecurrenceAccepted(value)) {
-                    finalTask.setRecurrence(CalendarUtils.formatRecurrence(value));
-                } else {
-                    finalTask.setRecurrence("None");
-                }
-                prefilterFinalTask();
-                Log.v("TEST", "Recurrence: " + finalTask.getRecurrence());
-                break;
-            case "Schedule":
-                if (CalendarUtils.isDateAccepted(value)) {
-                    finalTask.setSchedule(value);
-                } else {
-                    finalTask.setSchedule("No schedule");
-                }
-                prefilterFinalTask();
-                Log.v("TEST", "Schedule: " + finalTask.getSchedule());
-                break;
-            case "Reminder":
-                finalTask.setReminder(value.equals("True"));
-                break;
-            case "Notes":
-                finalTask.setNotes(value);
-                break;
         }
     }
 
@@ -781,20 +899,6 @@ public class Live2DFragment extends Fragment implements View.OnTouchListener, Sp
         SpeechSynthesis.synthesizeSpeechAsync(dialogue);
         insertDialogue(dialogue, true);
         setModelExpression("default1");
-        startRandomMotionFromGroup(LAppDefine.MotionGroup.SPEAKING.getId());
-
-        // Periodically check if the speech synthesis is still ongoing and start random motion
-        Handler handler = new Handler(Looper.getMainLooper());
-        Runnable checkSpeechAndAnimate = new Runnable() {
-            @Override
-            public void run() {
-                if (SpeechSynthesis.isSpeaking()) {
-                    startRandomMotionFromGroup(LAppDefine.MotionGroup.SPEAKING.getId());
-                    handler.postDelayed(this, 2000); // Check every 2 seconds, adjust as needed
-                }
-            }
-        };
-        handler.postDelayed(checkSpeechAndAnimate, 2000);
     }
 
     private void synthesizeAssistantSpeech(String dialogue, Runnable onFinish) {
@@ -821,17 +925,6 @@ public class Live2DFragment extends Fragment implements View.OnTouchListener, Sp
         handler.postDelayed(checkSpeechAndAnimate, 2000);
     }
 
-    private void confirmWithUser(String recognizedSpeech) {
-        if (recognizedSpeech.equalsIgnoreCase("yes")) {
-            confirmAddTaskWithUser = false;
-            insertTaskAllowed(tempTaskName, tempDeadline);
-        } else if (recognizedSpeech.equalsIgnoreCase("no")) {
-            synthesizeAssistantSpeech("Oki");
-            confirmAddTaskWithUser = false;
-        } else {
-            synthesizeAssistantSpeech("I'm sorry, I didn't understand that. Are you sure you want to add task?");
-        }
-    }
 
     private void handleTaskDetailInteraction(String recognizedSpeech) {
         final List<String> doneIntents = Arrays.asList("done", "finished", "all set", "i'm good", "thank you");

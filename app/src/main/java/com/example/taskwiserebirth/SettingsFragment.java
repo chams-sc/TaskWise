@@ -64,8 +64,10 @@ public class SettingsFragment extends Fragment {
         TextView emailTxtView = view.findViewById(R.id.emailTxtView);
 
         userDatabaseManager.getUserData(userModel -> {
-            aiName = userModel.getAiName();
-            emailTxtView.setText(userModel.getEmail());
+            if (isAdded()) {
+                aiName = userModel.getAiName();
+                emailTxtView.setText(userModel.getEmail());
+            }
         });
 
         boolean currentFocusModeValue = sharedPreferences.getBoolean(STATUS_KEY, false);
@@ -102,20 +104,32 @@ public class SettingsFragment extends Fragment {
                 aiNameLayout.setError("Please put your new AI name");
             } else {
                 aiNameLayout.setError(null);
-                userDatabaseManager.changeAiName(newAiName);
-                aiName = newAiName;
-                dialog.dismiss();
+                if (isAdded()) {
+                    userDatabaseManager.changeAiName(newAiName);
+                    aiName = newAiName;
+                    dialog.dismiss();
+                }
             }
         });
         dialog.show();
     }
 
     private void showClearMemoryDialog() {
+        if (!isAdded()) return;
+
         AlertDialog.Builder builder = new AlertDialog.Builder(getContext());
         builder.setTitle("Clear Ai Memory");
         builder.setMessage("Are you sure you want to clear your memories with " + aiName + "?");
 
-        builder.setPositiveButton("Yes", (dialogInterface, i) -> conversationDbManager.clearAIMemory(successMessage -> Toast.makeText(requireContext(), "AI memory has been cleared.", Toast.LENGTH_SHORT).show()));
+        builder.setPositiveButton("Yes", (dialogInterface, i) -> {
+            if (isAdded()) {
+                conversationDbManager.clearAIMemory(successMessage -> {
+                    if (isAdded()) {
+                        Toast.makeText(requireContext(), "AI memory has been cleared.", Toast.LENGTH_SHORT).show();
+                    }
+                });
+            }
+        });
 
         builder.setNegativeButton("No", (dialogInterface, i) -> dialogInterface.dismiss());
 
