@@ -78,6 +78,8 @@ public class Live2DFragment extends Fragment implements View.OnTouchListener, Sp
     private boolean isUserDone = false;
     private boolean isExpanded = false;
     private boolean isAskingForTaskName = false;
+    private boolean hasRecurrence = false;
+    private boolean hasDeadline = false;
 
     private final String TAG_SERVER_RESPONSE = "SERVER_RESPONSE";
     private static final String SHARED_PREFS = "sharedPrefs";
@@ -320,7 +322,6 @@ public class Live2DFragment extends Fragment implements View.OnTouchListener, Sp
                     finalTask.setRecurrence("None");
                 }
                 prefilterWhenRecurrence();
-                Log.v("TEST", "Recurrence: " + finalTask.getRecurrence());
                 break;
             case "Schedule":
                 if (CalendarUtils.isDateAccepted(value)) {
@@ -329,7 +330,6 @@ public class Live2DFragment extends Fragment implements View.OnTouchListener, Sp
                     finalTask.setSchedule("No schedule");
                 }
                 prefilterWhenRecurrence();
-                Log.v("TEST", "Schedule: " + finalTask.getSchedule());
                 break;
             case "Reminder":
                 finalTask.setReminder(value.equals("True"));
@@ -340,9 +340,36 @@ public class Live2DFragment extends Fragment implements View.OnTouchListener, Sp
         }
     }
 
+    private void turnBasedInteraction() {
+        if (isUserDone) {
+            return;
+        }
+
+        String initialQuestion = AIRandomSpeech.generateEditPromptMessage();
+        String followUpQuestion = AIRandomSpeech.generateFollowUpChangeMessage();
+
+        Log.v("Recurrence", "Recurrence: " + hasRecurrence);
+        if (!inEditTaskInteraction) {
+            askQuestion(initialQuestion);
+        } else {
+            if (hasRecurrence) {
+                synthesizeAssistantSpeech("Repeating tasks can't have deadlines, setting to No deadline. Is there anything else?");
+            } else if (hasDeadline) {
+                synthesizeAssistantSpeech("Repeating tasks can't have deadlines, setting recurrence to None. Is there anything else?");
+            } else {
+                askQuestion(followUpQuestion);
+            }
+            hasRecurrence = false;
+            hasDeadline = false;
+        }
+    }
+
+    // if may recurrence dapat walang deadline and yung schedule automatically maseset to 9:00 am or extract time part from sched
     private void prefilterWhenRecurrence() {
         if(!finalTask.getRecurrence().equals("None") && !finalTask.getRecurrence().equalsIgnoreCase("unspecified")) {
             finalTask.setDeadline("No deadline");   // Recurrent tasks have no deadlines
+
+            hasRecurrence = true;
 
             if(!finalTask.getSchedule().equals("No schedule")) {
                 String schedule = finalTask.getSchedule();
@@ -352,13 +379,20 @@ public class Live2DFragment extends Fragment implements View.OnTouchListener, Sp
             } else {
                 finalTask.setSchedule("09:00 AM");
             }
+        } else {
+            hasRecurrence = false;
         }
     }
 
+    // if deadline ang ineedit dapat recurrence ay none and schedule maseset to no schedule -> 05-24-24 | 09:00 AM
     private void prefilterWhenDeadline()  {
         if (!finalTask.getRecurrence().equals("None") && !finalTask.getRecurrence().equalsIgnoreCase("unspecified")) {
             finalTask.setRecurrence("None");
             finalTask.setSchedule("No schedule");
+
+            hasDeadline = true;
+        } else {
+            hasDeadline = false;
         }
     }
 
@@ -713,7 +747,6 @@ public class Live2DFragment extends Fragment implements View.OnTouchListener, Sp
     }
 
 
-
     private void markTaskFinished(String taskName) {
         taskDatabaseManager.fetchUnfinishedTaskByName(tasks -> {
             if (tasks.isEmpty()) {
@@ -765,21 +798,6 @@ public class Live2DFragment extends Fragment implements View.OnTouchListener, Sp
     private void askQuestion( String question) {
         Toast.makeText(requireContext(), String.format("%s: %s", aiName, question), Toast.LENGTH_SHORT).show();
         synthesizeAssistantSpeech(question);
-    }
-
-    private void turnBasedInteraction() {
-        if (isUserDone) {
-            return;
-        }
-
-        String initialQuestion = AIRandomSpeech.generateEditPromptMessage();
-        String followUpQuestion = AIRandomSpeech.generateFollowUpChangeMessage();
-
-        if (!inEditTaskInteraction) {
-            askQuestion(initialQuestion);
-        } else {
-            askQuestion(followUpQuestion);
-        }
     }
 
     private void processResponse(String detail, String responseText) {
