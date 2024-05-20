@@ -40,6 +40,18 @@ public class Task {
         this.creationDate = creationDate;
     }
 
+    // for prefilter complete add task with details
+    public Task(String taskName, String importanceLevel,  String urgencyLevel, String deadlineString, String schedule, String recurrence, boolean reminder, String notes) {
+        this.taskName = taskName;
+        this.deadline = deadlineString;
+        this.importanceLevel = importanceLevel;
+        this.urgencyLevel = urgencyLevel;
+        this.schedule = schedule;
+        this.recurrence = recurrence;
+        this.reminder = reminder;
+        this.notes = notes;
+    }
+
     public ObjectId getId() {
         return id;
     }

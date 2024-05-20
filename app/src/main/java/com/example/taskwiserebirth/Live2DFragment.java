@@ -279,10 +279,6 @@ public class Live2DFragment extends Fragment implements View.OnTouchListener, Sp
     }
 
     private void applyTaskDetail(String detail, String value) {
-        if (finalTask == null) {
-            finalTask = new Task();
-        }
-
         switch (detail) {
             case "Task Name":
                 finalTask.setTaskName(value);
@@ -302,7 +298,7 @@ public class Live2DFragment extends Fragment implements View.OnTouchListener, Sp
                 }
                 break;
             case "Deadline":
-                if (!"Unspecified".equalsIgnoreCase(value) && CalendarUtils.isDateAccepted(value)) {
+                if (CalendarUtils.isDateAccepted(value)) {
                     finalTask.setDeadline(value);
                 } else {
                     finalTask.setDeadline("No deadline");
@@ -319,16 +315,16 @@ public class Live2DFragment extends Fragment implements View.OnTouchListener, Sp
                 } else {
                     finalTask.setRecurrence("None");
                 }
-                prefilterFinalTask();
+                prefilterWhenRecurrence();
                 Log.v("TEST", "Recurrence: " + finalTask.getRecurrence());
                 break;
             case "Schedule":
-                if (!"Unspecified".equalsIgnoreCase(value) && CalendarUtils.isDateAccepted(value)) {
+                if (CalendarUtils.isDateAccepted(value)) {
                     finalTask.setSchedule(value);
                 } else {
                     finalTask.setSchedule("No schedule");
                 }
-                prefilterFinalTask();
+                prefilterWhenRecurrence();
                 Log.v("TEST", "Schedule: " + finalTask.getSchedule());
                 break;
             case "Reminder":
@@ -340,6 +336,27 @@ public class Live2DFragment extends Fragment implements View.OnTouchListener, Sp
         }
     }
 
+    private void prefilterWhenRecurrence() {
+        if(!finalTask.getRecurrence().equals("None") && !finalTask.getRecurrence().equalsIgnoreCase("unspecified")) {
+            finalTask.setDeadline("No deadline");   // Recurrent tasks have no deadlines
+
+            if(!finalTask.getSchedule().equals("No schedule")) {
+                String schedule = finalTask.getSchedule();
+                // Extracting the time part from the schedule string
+                String filteredSched = schedule.substring(schedule.lastIndexOf("|") + 1).trim();
+                finalTask.setSchedule(filteredSched);
+            } else {
+                finalTask.setSchedule("09:00 AM");
+            }
+        }
+    }
+
+    private void prefilterWhenDeadline()  {
+        if (!finalTask.getRecurrence().equals("None") && !finalTask.getRecurrence().equalsIgnoreCase("unspecified")) {
+            finalTask.setRecurrence("None");
+            finalTask.setSchedule("No schedule");
+        }
+    }
 
     private void prefilterAddCompleteTask(String responseText) {
         // Define patterns to extract each detail
@@ -396,22 +413,27 @@ public class Live2DFragment extends Fragment implements View.OnTouchListener, Sp
             notes = notesMatcher.group(1);
         }
 
-        finalTask = new Task();
+        finalTask = new Task(taskName, importance, urgency, deadline, schedule, recurrence, true, notes);
         if (!"Unspecified".equalsIgnoreCase(taskName)) {
-            applyTaskDetail("Task Name", taskName);
             applyTaskDetail("Importance", importance);
             applyTaskDetail("Urgency", urgency);
             applyTaskDetail("Deadline", deadline);
             applyTaskDetail("Set Recurrence", recurrence);
             applyTaskDetail("Schedule", schedule);
-            applyTaskDetail("Reminder", "true");
             if ("unspecified".equalsIgnoreCase(notes)) {
                 notes = "";
                 applyTaskDetail("Notes", notes);
             }
-
             addCompleteTask(finalTask);
         }
+
+        Log.v("TaskDetails", "Task Name: " + finalTask.getTaskName());
+        Log.v("TaskDetails", "Importance: " + finalTask.getImportanceLevel());
+        Log.v("TaskDetails", "Urgency: " + finalTask.getUrgencyLevel());
+        Log.v("TaskDetails", "Deadline: " + finalTask.getDeadline());
+        Log.v("TaskDetails", "Recurrence: " + finalTask.getRecurrence());
+        Log.v("TaskDetails", "Schedule: " + finalTask.getSchedule());
+        Log.v("TaskDetails", "Notes: " + finalTask.getNotes());
     }
 
     private void addCompleteTask(Task finalTask) {
@@ -695,26 +717,6 @@ public class Live2DFragment extends Fragment implements View.OnTouchListener, Sp
         }, taskName);
     }
 
-//    private void addNewTask(String taskName, String deadline) {
-//        taskDatabaseManager.fetchTasksWithStatus(tasks -> {
-//            if (tasks.size() >= 10) {
-//                synthesizeAssistantSpeech(AIRandomSpeech.generateUnfinishedTasksMessage(tasks.size()));
-//
-//                tempTaskName = taskName;
-//                tempDeadline = deadline;
-//                confirmAddTaskWithUser = true;
-//            } else {
-//                taskDatabaseManager.fetchUnfinishedTaskByName(tasks1 -> {
-//                    if (tasks1.isEmpty()) {
-//                        insertTaskAllowed(taskName, deadline);
-//                    } else {
-//                        synthesizeAssistantSpeech(String.format("%s is already in your list of tasks", taskName));
-//                    }
-//                }, taskName);
-//            }
-//        }, false);
-//    }
-
 
 
     private void markTaskFinished(String taskName) {
@@ -838,35 +840,6 @@ public class Live2DFragment extends Fragment implements View.OnTouchListener, Sp
 
         openTaskDetailFragment(finalTask);
 //        new Handler(Looper.getMainLooper()).postDelayed(() -> openTaskDetailFragment(finalTask), 2000);
-    }
-
-    private void prefilterFinalTask() {
-        if (finalTask == null) {
-            Log.e("TaskError", "finalTask is null in prefilterFinalTask");
-            return;
-        }
-
-        String recurrence = finalTask.getRecurrence();
-        String schedule = finalTask.getSchedule();
-
-        if (recurrence != null && !recurrence.equals("None")) {
-            finalTask.setDeadline("No deadline");   // Recurrent tasks have no deadlines
-
-            if (schedule != null && !schedule.equals("No schedule")) {
-                // Extracting the time part from the schedule string
-                String filteredSched = schedule.substring(schedule.lastIndexOf("|") + 1).trim();
-                finalTask.setSchedule(filteredSched);
-            } else {
-                finalTask.setSchedule("09:00 AM");
-            }
-        }
-    }
-
-    private void prefilterWhenDeadline() {
-        if (finalTask != null && finalTask.getRecurrence() != null && !finalTask.getRecurrence().equals("None")) {
-            finalTask.setRecurrence("None");
-            finalTask.setSchedule("No schedule");
-        }
     }
 
     private Task setTaskFromSpeech(String taskName, String deadline) {
