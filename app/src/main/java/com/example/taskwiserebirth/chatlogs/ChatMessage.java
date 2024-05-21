@@ -19,7 +19,6 @@ public class ChatMessage {
     }
 
     public ObjectId getId() { return id; }
-    public String getOwnerId() { return ownerId; }
     public String getDialogue() { return dialogue; }
     public String getTimestamp() { return timestamp; }
     public String getRole() { return role; }

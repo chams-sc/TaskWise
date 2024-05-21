@@ -121,7 +121,7 @@ public class Live2DFragment extends Fragment implements View.OnTouchListener, Sp
         user = app.currentUser();
 
         taskDatabaseManager = new TaskDatabaseManager(user, requireContext());
-        conversationDbManager = new ConversationDbManager(user);
+        conversationDbManager = ((MainActivity) requireActivity()).getConversationDbManager();
         userDatabaseManager = new UserDatabaseManager(user, requireContext());
 
         userDatabaseManager.getUserData(userModel -> aiName = userModel.getAiName());

@@ -85,9 +85,9 @@ public class HttpRequest {
 
     private static void sendHttpRequest(String url, JSONObject requestBodyJson, final HttpRequestCallback callback) {
         OkHttpClient client = new OkHttpClient.Builder()
-                .connectTimeout(1, TimeUnit.MINUTES)
-                .readTimeout(1, TimeUnit.MINUTES)
-                .writeTimeout(1, TimeUnit.MINUTES)
+                .connectTimeout(45, TimeUnit.SECONDS)
+                .readTimeout(45, TimeUnit.SECONDS)
+                .writeTimeout(45, TimeUnit.SECONDS)
                 .build();
 
         MediaType JSON = MediaType.parse("application/json; charset=utf-8");
@@ -122,7 +122,7 @@ public class HttpRequest {
                     if (!response.isSuccessful()) {
                         if (response.code() == 404) {
                             callback.onFailure("Page not found");
-                        } else if (response.code() == 502) {
+                        } else if (response.code() == 503) {
                             callback.onFailure("Sorry, server is not available at the moment");
                         } else if (response.code() == 500) {
                             callback.onFailure("We apologize, server is still loading. Please try again later.");

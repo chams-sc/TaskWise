@@ -55,7 +55,7 @@ public class SettingsFragment extends Fragment {
         App app = MongoDbRealmHelper.initializeRealmApp();
         User user = app.currentUser();
         userDatabaseManager = new UserDatabaseManager(user, requireContext());
-        conversationDbManager = new ConversationDbManager(user);
+        conversationDbManager = ((MainActivity) requireActivity()).getConversationDbManager();
         sharedPreferences = requireActivity().getSharedPreferences(SHARED_PREFS, Context.MODE_PRIVATE);
     }
 
@@ -115,8 +115,6 @@ public class SettingsFragment extends Fragment {
     }
 
     private void showClearMemoryDialog() {
-        if (!isAdded()) return;
-
         AlertDialog.Builder builder = new AlertDialog.Builder(getContext());
         builder.setTitle("Clear Ai Memory");
         builder.setMessage("Are you sure you want to clear your memories with " + aiName + "?");
@@ -124,8 +122,13 @@ public class SettingsFragment extends Fragment {
         builder.setPositiveButton("Yes", (dialogInterface, i) -> {
             if (isAdded()) {
                 conversationDbManager.clearAIMemory(successMessage -> {
-                    if (isAdded()) {
-                        Toast.makeText(requireContext(), "AI memory has been cleared.", Toast.LENGTH_SHORT).show();
+                    Toast.makeText(requireContext(), "AI memory has been cleared.", Toast.LENGTH_SHORT).show();
+                    // Notify SMSFragment about the memory clearing
+                    if (getActivity() instanceof MainActivity) {
+                        SMSFragment smsFragment = (SMSFragment) ((MainActivity) getActivity()).getSupportFragmentManager().findFragmentByTag("SMS_FRAGMENT");
+                        if (smsFragment != null) {
+                            smsFragment.onMemoryCleared();
+                        }
                     }
                 });
             }

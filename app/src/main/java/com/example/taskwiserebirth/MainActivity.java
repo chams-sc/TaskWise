@@ -10,9 +10,14 @@ import androidx.fragment.app.Fragment;
 import androidx.fragment.app.FragmentManager;
 import androidx.fragment.app.FragmentTransaction;
 
+import com.example.taskwiserebirth.database.ConversationDbManager;
+import com.example.taskwiserebirth.database.MongoDbRealmHelper;
 import com.example.taskwiserebirth.task.Task;
 import com.example.taskwiserebirth.utils.SystemUIHelper;
 import com.google.android.material.bottomnavigation.BottomNavigationView;
+
+import io.realm.mongodb.App;
+import io.realm.mongodb.User;
 
 public class MainActivity extends AppCompatActivity {
 
@@ -23,6 +28,7 @@ public class MainActivity extends AppCompatActivity {
     private AddTaskFragment addTaskFragment;
     private SMSFragment smsFragment;
     private SettingsFragment settingsFragment;
+    private ConversationDbManager conversationDbManager;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -32,6 +38,10 @@ public class MainActivity extends AppCompatActivity {
         SystemUIHelper.setSystemUIVisibility(this);
 
         bottomNavigationView = findViewById(R.id.bottomNavigationView);
+
+        App app = MongoDbRealmHelper.initializeRealmApp();
+        User user = app.currentUser();
+        conversationDbManager = new ConversationDbManager(user);
 
         // Initialize fragments
         live2DFragment = new Live2DFragment();
@@ -52,6 +62,10 @@ public class MainActivity extends AppCompatActivity {
         activeFragment = live2DFragment;
 
         setupBottomNavigationListener();
+    }
+
+    public ConversationDbManager getConversationDbManager() {
+        return conversationDbManager;
     }
 
     private void setupBottomNavigationListener() {
@@ -106,12 +120,6 @@ public class MainActivity extends AppCompatActivity {
         fragmentTransaction.commit();
     }
 
-    /**
-     * Toggles the visibility of the navigation bar.
-     *
-     * @param visible        true to make the navigation bar visible when scrolling up, false to hide it
-     * @param isScrollToggle true if the toggle action involves scrolling, false otherwise
-     */
     public void toggleNavBarVisibility(boolean visible, boolean isScrollToggle) {
         long duration = 100;
         if (isScrollToggle) {

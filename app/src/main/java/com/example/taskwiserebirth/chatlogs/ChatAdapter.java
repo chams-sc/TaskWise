@@ -51,4 +51,9 @@ public class ChatAdapter extends RecyclerView.Adapter<ChatViewHolder> {
     public int getItemCount() {
         return chatMessages.size();
     }
+
+    public void addMessage(ChatMessage message) {
+        chatMessages.add(message);
+        notifyItemInserted(chatMessages.size() - 1);
+    }
 }

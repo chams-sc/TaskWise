@@ -62,13 +62,19 @@ public class SMSFragment extends Fragment {
 
         App app = MongoDbRealmHelper.initializeRealmApp();
         User user = app.currentUser();
-        conversationDbManager = new ConversationDbManager(user);
+        conversationDbManager = ((MainActivity) requireActivity()).getConversationDbManager();
         userDatabaseManager = new UserDatabaseManager(user, requireContext());
         chatAiDisplay = view.findViewById(R.id.chatAiName);
 
         userDatabaseManager.getUserData(userModel -> {
             aiName = userModel.getAiName();
             chatAiDisplay.setText(aiName);
+        });
+
+        conversationDbManager.setNewMessageCallback(newMessage -> {
+            chatMessages.add(newMessage);
+            chatAdapter.notifyItemInserted(chatMessages.size() - 1);
+            recyclerView.scrollToPosition(chatMessages.size() - 1);
         });
 
         loadChatMessages();
@@ -94,5 +100,10 @@ public class SMSFragment extends Fragment {
                 Log.e("ChatActivity", "Failed to load conversations", e);
             }
         });
+    }
+
+    public void onMemoryCleared() {
+        chatMessages.clear();
+        chatAdapter.notifyDataSetChanged();
     }
 }

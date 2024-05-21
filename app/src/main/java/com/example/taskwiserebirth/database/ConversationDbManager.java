@@ -18,10 +18,20 @@ public class ConversationDbManager {
     private static final String TAG_CONVO_DBM = "CONVO_DBM";
     private final User user;
     private final MongoCollection<Document> conversationCollection;
+    private NewMessageCallback newMessageCallback;
+    private ClearMemoryCallback clearMemoryCallback;
 
     public ConversationDbManager(User user) {
         this.user = user;
         this.conversationCollection = MongoDbRealmHelper.getMongoCollection("UserAIConversation");
+    }
+
+    public void setNewMessageCallback(NewMessageCallback callback) {
+        this.newMessageCallback = callback;
+    }
+
+    public void setClearMemoryCallback(ClearMemoryCallback callback) {
+        this.clearMemoryCallback = callback;
     }
 
     public void insertDialogue(String dialogue, boolean isAssistant) {
@@ -38,6 +48,16 @@ public class ConversationDbManager {
 
             conversationCollection.insertOne(document).getAsync(result -> {
                 if (result.isSuccess()) {
+                    if (newMessageCallback != null) {
+                        ChatMessage newMessage = new ChatMessage(
+                                document.getObjectId("_id"),
+                                document.getString("owner_id"),
+                                document.getString("dialogue"),
+                                document.getDate("timestamp").toString(),
+                                document.getString("role")
+                        );
+                        newMessageCallback.onNewMessage(newMessage);
+                    }
                     Log.d(TAG_CONVO_DBM, "Dialogue inserted: " + dialogue);
                 } else {
                     Log.e(TAG_CONVO_DBM, "Failed to insert dialogue: " + result.getError().getErrorMessage());
@@ -52,6 +72,9 @@ public class ConversationDbManager {
 
             conversationCollection.deleteMany(userFilter).getAsync(result -> {
                 if (result.isSuccess()) {
+                    if (clearMemoryCallback != null) {
+                        clearMemoryCallback.onMemoryCleared("AI memory has been cleared.");
+                    }
                     callback.onMemoryCleared("AI memory has been cleared.");
                 } else {
                     Log.e(TAG_CONVO_DBM, "Failed to clear memory: ", result.getError());
@@ -97,5 +120,9 @@ public class ConversationDbManager {
     public interface GetAllConversationsCallback {
         void onSuccess(List<ChatMessage> chatMessages);
         void onError(Exception e);
+    }
+
+    public interface NewMessageCallback {
+        void onNewMessage(ChatMessage newMessage);
     }
 }
