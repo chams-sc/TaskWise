@@ -2,8 +2,6 @@ package com.example.taskwiserebirth;
 
 import android.app.AlertDialog;
 import android.app.Dialog;
-import android.content.Context;
-import android.content.SharedPreferences;
 import android.graphics.Color;
 import android.graphics.drawable.ColorDrawable;
 import android.os.Bundle;
@@ -19,10 +17,13 @@ import android.widget.Toast;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.SwitchCompat;
 import androidx.fragment.app.Fragment;
+import androidx.lifecycle.ViewModelProvider;
 
 import com.example.taskwiserebirth.database.ConversationDbManager;
 import com.example.taskwiserebirth.database.MongoDbRealmHelper;
 import com.example.taskwiserebirth.database.UserDatabaseManager;
+import com.example.taskwiserebirth.utils.FocusModeHelper;
+import com.example.taskwiserebirth.utils.SharedViewModel;
 import com.example.taskwiserebirth.utils.SystemUIHelper;
 import com.google.android.material.textfield.TextInputEditText;
 import com.google.android.material.textfield.TextInputLayout;
@@ -35,14 +36,20 @@ public class SettingsFragment extends Fragment {
     private UserDatabaseManager userDatabaseManager;
     private ConversationDbManager conversationDbManager;
     private String aiName;
-    private SharedPreferences sharedPreferences;
-    public static final String SHARED_PREFS = "sharedPrefs";
-    private static final String STATUS_KEY = "focus_mode";
-    private final String TAG_USER_DATABASE = "UserDatabaseManager";
+
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
         View view = inflater.inflate(R.layout.fragment_settings, container, false);
+
+        // Initialize ViewModel
+        SharedViewModel sharedViewModel = new ViewModelProvider(requireActivity()).get(SharedViewModel.class);
+
+        // Observe focus mode changes
+        sharedViewModel.getFocusModeLiveData().observe(getViewLifecycleOwner(), isEnabled -> {
+            SwitchCompat focusModeSwitch = view.findViewById(R.id.switchBtn);
+            focusModeSwitch.setChecked(isEnabled);
+        });
 
         initializeVariables();
         setUpUIComponents(view);
@@ -56,11 +63,9 @@ public class SettingsFragment extends Fragment {
         User user = app.currentUser();
         userDatabaseManager = new UserDatabaseManager(user, requireContext());
         conversationDbManager = ((MainActivity) requireActivity()).getConversationDbManager();
-        sharedPreferences = requireActivity().getSharedPreferences(SHARED_PREFS, Context.MODE_PRIVATE);
     }
 
     private void setUpUIComponents(View view) {
-        SwitchCompat focusModeSwitch = view.findViewById(R.id.switchBtn);
         TextView emailTxtView = view.findViewById(R.id.emailTxtView);
 
         userDatabaseManager.getUserData(userModel -> {
@@ -70,8 +75,7 @@ public class SettingsFragment extends Fragment {
             }
         });
 
-        boolean currentFocusModeValue = sharedPreferences.getBoolean(STATUS_KEY, false);
-        focusModeSwitch.setChecked(currentFocusModeValue);
+        updateFocusModeUI(view);
     }
 
     private void setUpListeners(View view) {
@@ -83,12 +87,6 @@ public class SettingsFragment extends Fragment {
         clearMemory.setOnClickListener(v -> showClearMemoryDialog());
 
         focusModeSwitch.setOnCheckedChangeListener((buttonView, isChecked) -> updateFocusModePreference(isChecked));
-    }
-
-    private void updateFocusModePreference(boolean isChecked) {
-        SharedPreferences.Editor editor = sharedPreferences.edit();
-        editor.putBoolean(STATUS_KEY, isChecked);
-        editor.apply();
     }
 
     private void showChangeAINameDialog() {
@@ -125,7 +123,7 @@ public class SettingsFragment extends Fragment {
                     Toast.makeText(requireContext(), "AI memory has been cleared.", Toast.LENGTH_SHORT).show();
                     // Notify SMSFragment about the memory clearing
                     if (getActivity() instanceof MainActivity) {
-                        SMSFragment smsFragment = (SMSFragment) ((MainActivity) getActivity()).getSupportFragmentManager().findFragmentByTag("SMS_FRAGMENT");
+                        SMSFragment smsFragment = (SMSFragment) getActivity().getSupportFragmentManager().findFragmentByTag("SMS_FRAGMENT");
                         if (smsFragment != null) {
                             smsFragment.onMemoryCleared();
                         }
@@ -156,30 +154,20 @@ public class SettingsFragment extends Fragment {
         return dialog;
     }
 
+    private void updateFocusModePreference(boolean isChecked) {
+        FocusModeHelper.setFocusMode(requireContext(), isChecked);
+    }
 
-    private boolean validateFields(String oldPassword, String newPassword, String confirmPassword,
-                                   TextInputLayout oldPwdLayout, TextInputLayout newPwdLayout, TextInputLayout confirmPwdLayout) {
-        if (oldPassword.isEmpty()) {
-            oldPwdLayout.setError("Old password is required");
-            return false;
-        } else {
-            oldPwdLayout.setError(null);
+    private void updateFocusModeUI(View view) {
+        SwitchCompat focusModeSwitch = view.findViewById(R.id.switchBtn);
+        focusModeSwitch.setChecked(FocusModeHelper.isFocusModeEnabled(requireContext()));
+    }
+
+    @Override
+    public void onResume() {
+        super.onResume();
+        if (getView() != null) {
+            updateFocusModeUI(getView());
         }
-
-        if (newPassword.isEmpty()) {
-            newPwdLayout.setError("New password is required");
-            return false;
-        } else {
-            newPwdLayout.setError(null);
-        }
-
-        if (confirmPassword.isEmpty()) {
-            confirmPwdLayout.setError("Confirm password is required");
-            return false;
-        } else {
-            confirmPwdLayout.setError(null);
-        }
-
-        return true;
     }
 }

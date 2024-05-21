@@ -1,7 +1,5 @@
 package com.example.taskwiserebirth;
 
-import android.content.Context;
-import android.content.SharedPreferences;
 import android.opengl.GLSurfaceView;
 import android.os.Bundle;
 import android.os.Handler;
@@ -17,6 +15,7 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import androidx.fragment.app.Fragment;
+import androidx.lifecycle.ViewModelProvider;
 
 import com.bin4rybros.demo.GLRenderer;
 import com.bin4rybros.demo.LAppDefine;
@@ -34,6 +33,8 @@ import com.example.taskwiserebirth.database.UserDatabaseManager;
 import com.example.taskwiserebirth.task.Task;
 import com.example.taskwiserebirth.task.TaskPriorityCalculator;
 import com.example.taskwiserebirth.utils.CalendarUtils;
+import com.example.taskwiserebirth.utils.FocusModeHelper;
+import com.example.taskwiserebirth.utils.SharedViewModel;
 import com.example.taskwiserebirth.utils.ValidValues;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
 
@@ -85,11 +86,14 @@ public class Live2DFragment extends Fragment implements View.OnTouchListener, Sp
     private static final String STATUS_KEY = "focus_mode";
 
     private final Handler mainHandler = new Handler(Looper.getMainLooper());
+    private SharedViewModel sharedViewModel;
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         SpeechSynthesis.initialize(); // Reinitialize the SpeechSynthesis executor
+        sharedViewModel = new ViewModelProvider(requireActivity()).get(SharedViewModel.class);
+
     }
 
     @Override
@@ -103,6 +107,11 @@ public class Live2DFragment extends Fragment implements View.OnTouchListener, Sp
         setupExpressions();
 
         return view;
+    }
+
+    private void onFocusModeChanged(boolean isEnabled) {
+        FocusModeHelper.setFocusMode(requireContext(), isEnabled);
+        sharedViewModel.setFocusMode(isEnabled);
     }
 
     private void initializeGLSurfaceView(View view) {
@@ -232,19 +241,6 @@ public class Live2DFragment extends Fragment implements View.OnTouchListener, Sp
             model.setSpecificExpression(expressionID);
         }
     }
-
-    private boolean isFocusModeEnabled() {
-        SharedPreferences sharedPreferences = requireActivity().getSharedPreferences(SHARED_PREFS, Context.MODE_PRIVATE);
-        return sharedPreferences.getBoolean(STATUS_KEY, false);
-    }
-
-    private void setFocusMode(boolean enabled) {
-        SharedPreferences sharedPreferences = requireActivity().getSharedPreferences(SHARED_PREFS, Context.MODE_PRIVATE);
-        SharedPreferences.Editor editor = sharedPreferences.edit();
-        editor.putBoolean(STATUS_KEY, enabled);
-        editor.apply();
-    }
-
 
     // if may recurrence dapat walang deadline and yung schedule automatically maseset to 9:00 am or extract time part from sched
     private void prefilterWhenRecurrence() {
@@ -840,7 +836,7 @@ public class Live2DFragment extends Fragment implements View.OnTouchListener, Sp
                         if (!intent.equals("null")) {
                             performIntent(intent, responseText);
                         } else {
-                            if (isFocusModeEnabled()) {
+                            if (FocusModeHelper.isFocusModeEnabled(requireContext())) {
                                 String focusResponse = AIRandomSpeech.generateFocusModeMessage();
                                 Toast.makeText(requireContext(), String.format("%s: %s", aiName, focusResponse), Toast.LENGTH_LONG).show();
                                 synthesizeAssistantSpeech(focusResponse);
@@ -886,11 +882,11 @@ public class Live2DFragment extends Fragment implements View.OnTouchListener, Sp
 
         insertDialogue(recognizedSpeech, false);
         if (recognizedSpeech.equalsIgnoreCase("focus mode on")) {
-            if (isFocusModeEnabled()) {
+            if (FocusModeHelper.isFocusModeEnabled(requireContext())) {
                 synthesizeAssistantSpeech("Focus mode is already activated");
                 return;
             }
-            setFocusMode(true);
+            onFocusModeChanged(true);
             startSpecificModelMotion(LAppDefine.MotionGroup.SWITCH.getId(), 0);
 
             handler.postDelayed(() -> {
@@ -898,11 +894,11 @@ public class Live2DFragment extends Fragment implements View.OnTouchListener, Sp
             }, 2000);
             return;
         } else if (recognizedSpeech.equalsIgnoreCase("focus mode off")) {
-            if (!isFocusModeEnabled()) {
+            if (!FocusModeHelper.isFocusModeEnabled(requireContext())) {
                 synthesizeAssistantSpeech("Focus mode is already off");
                 return;
             }
-            setFocusMode(false);
+            onFocusModeChanged(false);
             startSpecificModelMotion(LAppDefine.MotionGroup.SWITCH.getId(), 0);
             handler.postDelayed(() -> {
                 synthesizeAssistantSpeech(AIRandomSpeech.generateFocusModeOff());

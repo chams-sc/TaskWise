@@ -9,10 +9,12 @@ import androidx.appcompat.app.AppCompatActivity;
 import androidx.fragment.app.Fragment;
 import androidx.fragment.app.FragmentManager;
 import androidx.fragment.app.FragmentTransaction;
+import androidx.lifecycle.ViewModelProvider;
 
 import com.example.taskwiserebirth.database.ConversationDbManager;
 import com.example.taskwiserebirth.database.MongoDbRealmHelper;
 import com.example.taskwiserebirth.task.Task;
+import com.example.taskwiserebirth.utils.SharedViewModel;
 import com.example.taskwiserebirth.utils.SystemUIHelper;
 import com.google.android.material.bottomnavigation.BottomNavigationView;
 
@@ -29,6 +31,7 @@ public class MainActivity extends AppCompatActivity {
     private SMSFragment smsFragment;
     private SettingsFragment settingsFragment;
     private ConversationDbManager conversationDbManager;
+    private SharedViewModel sharedViewModel;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -36,6 +39,8 @@ public class MainActivity extends AppCompatActivity {
         setContentView(R.layout.activity_main);
 
         SystemUIHelper.setSystemUIVisibility(this);
+
+        sharedViewModel = new ViewModelProvider(this).get(SharedViewModel.class);
 
         bottomNavigationView = findViewById(R.id.bottomNavigationView);
 
@@ -66,6 +71,10 @@ public class MainActivity extends AppCompatActivity {
 
     public ConversationDbManager getConversationDbManager() {
         return conversationDbManager;
+    }
+
+    public SharedViewModel getSharedViewModel() {
+        return sharedViewModel;
     }
 
     private void setupBottomNavigationListener() {
