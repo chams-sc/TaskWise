@@ -72,6 +72,9 @@ public class MainActivity extends AppCompatActivity {
         bottomNavigationView.setOnItemSelectedListener(menuItem -> {
             int itemId = menuItem.getItemId();
 
+            // Clear back stack to ensure main fragment can be shown properly
+            fragmentManager.popBackStackImmediate(null, FragmentManager.POP_BACK_STACK_INCLUSIVE);
+
             if (itemId == R.id.bottom_home) {
                 showFragment(live2DFragment);
             } else if (itemId == R.id.bottom_clip) {

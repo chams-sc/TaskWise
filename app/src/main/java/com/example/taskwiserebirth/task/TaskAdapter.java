@@ -74,10 +74,12 @@ public class TaskAdapter extends RecyclerView.Adapter<TaskViewHolder> {
 
         holder.itemView.setOnClickListener(v -> {
             TaskDetailFragment fragmentViewerCard = new TaskDetailFragment(currentTask);
-            FragmentTransaction transaction = ((AppCompatActivity) context).getSupportFragmentManager().beginTransaction();
-            transaction.replace(R.id.frame_layout, fragmentViewerCard);
-            transaction.addToBackStack(null);
-            transaction.commit();
+            FragmentTransaction transaction = activity.getSupportFragmentManager().beginTransaction();
+
+            // Add and show TaskDetailFragment without replacing the current fragment
+            transaction.add(R.id.frame_layout, fragmentViewerCard, "TASK_DETAIL_FRAGMENT")
+                    .addToBackStack(null) // Add the transaction to the back stack
+                    .commit();
         });
     }
 
