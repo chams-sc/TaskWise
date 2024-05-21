@@ -671,11 +671,13 @@ public class Live2DFragment extends Fragment implements View.OnTouchListener, Sp
         Matcher taskNameMatcher = taskNamePattern.matcher(responseText);
         if (taskNameMatcher.find()) {
             taskName = taskNameMatcher.group(1);
+            Log.d("DEBUG_TASK_NAME", "Extracted task name: " + taskName);
         }
 
         Matcher newTaskNameMatcher = newTaskNamePattern.matcher(responseText);
         if (newTaskNameMatcher.find()) {
-            taskName = newTaskNameMatcher.group(1);
+            newTaskName = newTaskNameMatcher.group(1);
+            Log.d("DEBUG_NEW_TASK_NAME", "Extracted new task name: " + newTaskName);
         }
 
         Matcher importanceMatcher = importancePattern.matcher(responseText);
@@ -734,12 +736,13 @@ public class Live2DFragment extends Fragment implements View.OnTouchListener, Sp
                 isAskingForTaskName = true;
             }
         } else {
-            String taskNameEdit = tempTaskForAddEdit.getTaskName();
+            tempTaskForAddEdit = new Task(taskName, importance, urgency, deadline, schedule, recurrence, true, notes);
+
+            String taskNameEdit = taskName;
 
             if (inEditTaskInteraction) {
                 taskNameEdit = tempEditTaskName;
             }
-            tempTaskForAddEdit = new Task(taskName, importance, urgency, deadline, schedule, recurrence, true, notes);
             editTaskThroughSpeech(taskNameEdit, newTaskName, reminder);
         }
     }
@@ -812,19 +815,26 @@ public class Live2DFragment extends Fragment implements View.OnTouchListener, Sp
         askQuestion(followUpQuestion);
     }
 
+    private void performIntentEdit(String responseText) {
+        prefilterAddEditTask(responseText, false);
+    }
+
     private void handleRegularInteraction(String recognizedSpeech) {
         HttpRequest.sendRequest(recognizedSpeech, aiName, user.getId(), inEditTaskInteraction, new HttpRequest.HttpRequestCallback() {
             @Override
             public void onSuccess(String intent, String responseText) {
+                Log.v("Edit test", "intent: " + intent + " response: " + responseText);
                 mainHandler.post(() -> {
                     if (inEditTaskInteraction) {
                         if (intent.equalsIgnoreCase("edit task")) {
-                            performIntent(intent, responseText);
-                        } else if (intent.equalsIgnoreCase("done")) {
-                            inEditTaskInteraction = false;
-                            synthesizeAssistantSpeech("Oki, let me know if there's anything else.");
-                        } else {
-                            synthesizeAssistantSpeech("I'm sorry I couldn't understand.");
+                            performIntentEdit(responseText);
+                        } else if (intent.equalsIgnoreCase("null")) {
+                            if  (responseText.equalsIgnoreCase("done")) {
+                                inEditTaskInteraction = false;
+                                synthesizeAssistantSpeech("Ok you're done");
+                            } else {
+                                sendToGrok(recognizedSpeech);
+                            }
                         }
                     } else {
                         if (!intent.equals("null")) {
@@ -849,6 +859,20 @@ public class Live2DFragment extends Fragment implements View.OnTouchListener, Sp
                     Toast.makeText(requireContext(), errorMessage, Toast.LENGTH_LONG).show();
                     Log.d(TAG_SERVER_RESPONSE, errorMessage);
                 });
+            }
+        });
+    }
+
+    private void sendToGrok(String recognizedSpeech) {
+        HttpRequest.sendRequest(recognizedSpeech, aiName, user.getId(), inEditTaskInteraction, new HttpRequest.HttpRequestCallback() {
+            @Override
+            public void onSuccess(String intent, String responseText) {
+
+            }
+
+            @Override
+            public void onFailure(String errorMessage) {
+
             }
         });
     }
