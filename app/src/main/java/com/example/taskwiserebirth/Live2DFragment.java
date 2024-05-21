@@ -34,7 +34,6 @@ import com.example.taskwiserebirth.database.UserDatabaseManager;
 import com.example.taskwiserebirth.task.Task;
 import com.example.taskwiserebirth.task.TaskPriorityCalculator;
 import com.example.taskwiserebirth.utils.CalendarUtils;
-import com.example.taskwiserebirth.utils.DialogUtils;
 import com.example.taskwiserebirth.utils.ValidValues;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
 
@@ -62,12 +61,12 @@ public class Live2DFragment extends Fragment implements View.OnTouchListener, Sp
     private ConversationDbManager conversationDbManager;
     private UserDatabaseManager userDatabaseManager;
     private User user;
-    private Task finalTask;
-    private Task addTaskTemp;
+    private Task tempTaskForAddEdit;
+    private Task taskToEdit;
+    private String tempEditTaskName;
     private String aiName;
     private TextView realTimeSpeechTextView;
-    private String tempTaskName;
-    private String tempDeadline;
+
     private Task tempTask;
     private String chosenExpression;
     private Map<String, String[]> expressionMap;
@@ -136,8 +135,6 @@ public class Live2DFragment extends Fragment implements View.OnTouchListener, Sp
 
         realTimeSpeechTextView = view.findViewById(R.id.realTimeSpeechTextView);
         realTimeSpeechTextView.setOnClickListener(new View.OnClickListener() {
-            private boolean isExpanded = false;
-
             @Override
             public void onClick(View v) {
                 toggleRealTimeSpeechTextViewExpansion();
@@ -168,50 +165,6 @@ public class Live2DFragment extends Fragment implements View.OnTouchListener, Sp
     private void initializeSpeechRecognition(View view) {
         FloatingActionButton speakBtn = view.findViewById(R.id.speakBtn);
         speechRecognition = new SpeechRecognition(requireContext(), speakBtn, this);
-    }
-
-    @Override
-    public void onSpeechRecognized(String recognizedSpeech) {
-        realTimeSpeechTextView.setText(recognizedSpeech);
-        setModelExpression("default1");
-
-        Handler handler = new Handler(Looper.getMainLooper());
-
-        insertDialogue(recognizedSpeech, false);
-        if (recognizedSpeech.equalsIgnoreCase("focus mode on")) {
-            if (isFocusModeEnabled()) {
-                synthesizeAssistantSpeech("Focus mode is already activated");
-                return;
-            }
-            setFocusMode(true);
-            startSpecificModelMotion(LAppDefine.MotionGroup.SWITCH.getId(), 0);
-
-            handler.postDelayed(() -> {
-                synthesizeAssistantSpeech(AIRandomSpeech.generateFocusModeOn());
-            }, 2000);
-            return;
-        } else if (recognizedSpeech.equalsIgnoreCase("focus mode off")) {
-            if (!isFocusModeEnabled()) {
-                synthesizeAssistantSpeech("Focus mode is already off");
-                return;
-            }
-            setFocusMode(false);
-            startSpecificModelMotion(LAppDefine.MotionGroup.SWITCH.getId(), 0);
-            handler.postDelayed(() -> {
-                synthesizeAssistantSpeech(AIRandomSpeech.generateFocusModeOff());
-            }, 2000);
-            return;
-        }
-
-        if (confirmAddTaskWithUser) {
-            confirmWithUser(recognizedSpeech);
-        } else if (inTaskDetailInteraction) {
-            handleTaskDetailInteraction(recognizedSpeech);
-        } else if (isAskingForTaskName) {
-            getTaskName(recognizedSpeech);
-        }else {
-            handleRegularInteraction(recognizedSpeech);
-        }
     }
 
     private void stopCurrentMotion() {
@@ -292,100 +245,21 @@ public class Live2DFragment extends Fragment implements View.OnTouchListener, Sp
         editor.apply();
     }
 
-    private void applyTaskDetail(String detail, String value) {
-        switch (detail) {
-            case "Task Name":
-                finalTask.setTaskName(value);
-                break;
-            case "Urgency":
-                if (ValidValues.VALID_URGENCY_LEVELS.contains(value)) {
-                    finalTask.setUrgencyLevel(value);
-                } else {
-                    finalTask.setUrgencyLevel("None");
-                }
-                break;
-            case "Importance":
-                if (ValidValues.VALID_IMPORTANCE_LEVELS.contains(value)) {
-                    finalTask.setImportanceLevel(value);
-                } else {
-                    finalTask.setImportanceLevel("None");
-                }
-                break;
-            case "Deadline":
-                if (CalendarUtils.isDateAccepted(value)) {
-                    finalTask.setDeadline(value);
-                } else {
-                    finalTask.setDeadline("No deadline");
-                }
-                prefilterWhenDeadline();
-                break;
-            case "Set Recurrence":
-            case "Edit Recurrence":
-            case "Repeat Task":
-                if ("Daily".equalsIgnoreCase(value)) {
-                    finalTask.setRecurrence(value);
-                } else if (CalendarUtils.isRecurrenceAccepted(value)) {
-                    finalTask.setRecurrence(CalendarUtils.formatRecurrence(value));
-                } else {
-                    finalTask.setRecurrence("None");
-                }
-                prefilterWhenRecurrence();
-                break;
-            case "Schedule":
-                if (CalendarUtils.isDateAccepted(value)) {
-                    finalTask.setSchedule(value);
-                } else {
-                    finalTask.setSchedule("No schedule");
-                }
-                prefilterWhenRecurrence();
-                break;
-            case "Reminder":
-                finalTask.setReminder(value.equals("True"));
-                break;
-            case "Notes":
-                finalTask.setNotes(value);
-                break;
-        }
-    }
-
-    private void turnBasedInteraction() {
-        if (isUserDone) {
-            return;
-        }
-
-        String initialQuestion = AIRandomSpeech.generateEditPromptMessage();
-        String followUpQuestion = AIRandomSpeech.generateFollowUpChangeMessage();
-
-        Log.v("Recurrence", "Recurrence: " + hasRecurrence);
-        if (!inEditTaskInteraction) {
-            askQuestion(initialQuestion);
-        } else {
-            if (hasRecurrence) {
-                synthesizeAssistantSpeech("Repeating tasks can't have deadlines, setting to No deadline. Is there anything else?");
-            } else if (hasDeadline) {
-                synthesizeAssistantSpeech("Repeating tasks can't have deadlines, setting recurrence to None. Is there anything else?");
-            } else {
-                askQuestion(followUpQuestion);
-            }
-            hasRecurrence = false;
-            hasDeadline = false;
-        }
-    }
 
     // if may recurrence dapat walang deadline and yung schedule automatically maseset to 9:00 am or extract time part from sched
     private void prefilterWhenRecurrence() {
-        if(!finalTask.getRecurrence().equals("None") && !finalTask.getRecurrence().equalsIgnoreCase("unspecified")) {
-            finalTask.setDeadline("No deadline");   // Recurrent tasks have no deadlines
+        if(!tempTaskForAddEdit.getRecurrence().equals("None") && !tempTaskForAddEdit.getRecurrence().equalsIgnoreCase("unspecified")) {
+            tempTaskForAddEdit.setDeadline("No deadline");   // Recurrent tasks have no deadlines
 
             hasRecurrence = true;
 
-            if(!finalTask.getSchedule().equals("No schedule")) {
-                String schedule = finalTask.getSchedule();
+            if(!tempTaskForAddEdit.getSchedule().equals("No schedule")) {
+                String schedule = tempTaskForAddEdit.getSchedule();
                 // Extracting the time part from the schedule string
                 String filteredSched = schedule.substring(schedule.lastIndexOf("|") + 1).trim();
-                finalTask.setSchedule(filteredSched);
+                tempTaskForAddEdit.setSchedule(filteredSched);
             } else {
-                finalTask.setSchedule("09:00 AM");
+                tempTaskForAddEdit.setSchedule("09:00 AM");
             }
         } else {
             hasRecurrence = false;
@@ -394,9 +268,9 @@ public class Live2DFragment extends Fragment implements View.OnTouchListener, Sp
 
     // if deadline ang ineedit dapat recurrence ay none and schedule maseset to no schedule -> 05-24-24 | 09:00 AM
     private void prefilterWhenDeadline()  {
-        if (!finalTask.getRecurrence().equals("None") && !finalTask.getRecurrence().equalsIgnoreCase("unspecified")) {
-            finalTask.setRecurrence("None");
-            finalTask.setSchedule("No schedule");
+        if (!tempTaskForAddEdit.getRecurrence().equals("None") && !tempTaskForAddEdit.getRecurrence().equalsIgnoreCase("unspecified")) {
+            tempTaskForAddEdit.setRecurrence("None");
+            tempTaskForAddEdit.setSchedule("No schedule");
 
             hasDeadline = true;
         } else {
@@ -404,87 +278,62 @@ public class Live2DFragment extends Fragment implements View.OnTouchListener, Sp
         }
     }
 
-    private void prefilterAddCompleteTask(String responseText) {
-        // Define patterns to extract each detail
-        Pattern taskNamePattern = Pattern.compile("TASK_NAME: (.+?)(?=\\n|$)");
-        Pattern importancePattern = Pattern.compile("IMPORTANCE: (.+?)(?=\\n|$)");
-        Pattern urgencyPattern = Pattern.compile("URGENCY: (.+?)(?=\\n|$)");
-        Pattern deadlinePattern = Pattern.compile("DEADLINE: (.+?)(?=\\n|$)");
-        Pattern recurrencePattern = Pattern.compile("RECURRENCE: (.+?)(?=\\n|$)");
-        Pattern schedulePattern = Pattern.compile("SCHEDULE: (.+?)(?=\\n|$)");
-        Pattern notesPattern = Pattern.compile("NOTES: (.+?)(?=\\n|$)");
-
-        String taskName = "Unspecified";
-        String importance = "Unspecified";
-        String urgency = "Unspecified";
-        String deadline = "Unspecified";
-        String recurrence = "Unspecified";
-        String schedule = "Unspecified";
-        String notes = "Unspecified";
-
-        Matcher taskNameMatcher = taskNamePattern.matcher(responseText);
-        if (taskNameMatcher.find()) {
-            taskName = taskNameMatcher.group(1);
+    private void applyTaskDetail(String detail, String value) {
+        switch (detail) {
+            case "Task Name":
+                tempTaskForAddEdit.setTaskName(value);
+                break;
+            case "Urgency":
+                if (ValidValues.VALID_URGENCY_LEVELS.contains(value)) {
+                    tempTaskForAddEdit.setUrgencyLevel(value);
+                } else {
+                    tempTaskForAddEdit.setUrgencyLevel("None");
+                }
+                break;
+            case "Importance":
+                if (ValidValues.VALID_IMPORTANCE_LEVELS.contains(value)) {
+                    tempTaskForAddEdit.setImportanceLevel(value);
+                } else {
+                    tempTaskForAddEdit.setImportanceLevel("None");
+                }
+                break;
+            case "Deadline":
+                if (CalendarUtils.isDateAccepted(value)) {
+                    tempTaskForAddEdit.setDeadline(value);
+                } else {
+                    tempTaskForAddEdit.setDeadline("No deadline");
+                }
+                prefilterWhenDeadline();
+                break;
+            case "Set Recurrence":
+            case "Edit Recurrence":
+            case "Repeat Task":
+                if ("Daily".equalsIgnoreCase(value)) {
+                    tempTaskForAddEdit.setRecurrence(value);
+                } else if (CalendarUtils.isRecurrenceAccepted(value)) {
+                    tempTaskForAddEdit.setRecurrence(CalendarUtils.formatRecurrence(value));
+                } else {
+                    tempTaskForAddEdit.setRecurrence("None");
+                }
+                prefilterWhenRecurrence();
+                break;
+            case "Schedule":
+                if (CalendarUtils.isDateAccepted(value)) {
+                    tempTaskForAddEdit.setSchedule(value);
+                } else {
+                    tempTaskForAddEdit.setSchedule("No schedule");
+                }
+                prefilterWhenRecurrence();
+                break;
+            case "Reminder":
+                tempTaskForAddEdit.setReminder(value.equals("True"));
+                break;
+            case "Notes":
+                tempTaskForAddEdit.setNotes(value);
+                break;
         }
-
-        Matcher importanceMatcher = importancePattern.matcher(responseText);
-        if (importanceMatcher.find()) {
-            importance = importanceMatcher.group(1);
-        }
-
-        Matcher urgencyMatcher = urgencyPattern.matcher(responseText);
-        if (urgencyMatcher.find()) {
-            urgency = urgencyMatcher.group(1);
-        }
-
-        Matcher deadlineMatcher = deadlinePattern.matcher(responseText);
-        if (deadlineMatcher.find()) {
-            deadline = deadlineMatcher.group(1);
-        }
-
-        Matcher recurrenceMatcher = recurrencePattern.matcher(responseText);
-        if (recurrenceMatcher.find()) {
-            recurrence = recurrenceMatcher.group(1);
-        }
-
-        Log.v("RECURRENCE", recurrence);
-
-        Matcher scheduleMatcher = schedulePattern.matcher(responseText);
-        if (scheduleMatcher.find()) {
-            schedule = scheduleMatcher.group(1);
-        }
-
-        Matcher notesMatcher = notesPattern.matcher(responseText);
-        if (notesMatcher.find()) {
-            notes = notesMatcher.group(1);
-        }
-
-        finalTask = new Task(taskName, importance, urgency, deadline, schedule, recurrence, true, notes);
-            applyTaskDetail("Importance", importance);
-            applyTaskDetail("Urgency", urgency);
-            applyTaskDetail("Deadline", deadline);
-            applyTaskDetail("Set Recurrence", recurrence);
-            applyTaskDetail("Schedule", schedule);
-            if ("unspecified".equalsIgnoreCase(notes)) {
-                notes = "";
-                applyTaskDetail("Notes", notes);
-            }
-
-
-        if (!"Unspecified".equalsIgnoreCase(taskName)) {
-            addCompleteTask(finalTask);
-        } else {
-            synthesizeAssistantSpeech("You forgot to mention the name of the task, what should we call it?");
-            isAskingForTaskName = true;
-        }
-//        Log.v("TaskDetails", "Task Name: " + finalTask.getTaskName());
-//        Log.v("TaskDetails", "Importance: " + finalTask.getImportanceLevel());
-//        Log.v("TaskDetails", "Urgency: " + finalTask.getUrgencyLevel());
-//        Log.v("TaskDetails", "Deadline: " + finalTask.getDeadline());
-//        Log.v("TaskDetails", "Recurrence: " + finalTask.getRecurrence());
-//        Log.v("TaskDetails", "Schedule: " + finalTask.getSchedule());
-//        Log.v("TaskDetails", "Notes: " + finalTask.getNotes());
     }
+
 
     private void addCompleteTask(Task finalTask) {
         taskDatabaseManager.fetchTasksWithStatus(tasks -> {
@@ -527,7 +376,7 @@ public class Live2DFragment extends Fragment implements View.OnTouchListener, Sp
         String taskName = "", deadline = "";
 
         if ("add task".equalsIgnoreCase(intent) || "add task with deadline".equalsIgnoreCase(intent)) {
-            prefilterAddCompleteTask(responseText);
+            prefilterAddEditTask(responseText, true);
             return;
         } else {
             Matcher taskMatcher = taskPattern.matcher(responseText);
@@ -568,7 +417,8 @@ public class Live2DFragment extends Fragment implements View.OnTouchListener, Sp
 
         switch(intent) {
             case "Edit Task":
-                editTaskThroughSpeech(taskName);
+            case "Edit Task With Deadline":
+                prefilterAddEditTask(responseText, false);
                 return;
             case "Delete Task":
                 deleteTaskThroughSpeech(taskName);
@@ -791,7 +641,110 @@ public class Live2DFragment extends Fragment implements View.OnTouchListener, Sp
         }, taskName);
     }
 
-    private void editTaskThroughSpeech(String taskName) {
+    private void askQuestion( String question) {
+        Toast.makeText(requireContext(), String.format("%s: %s", aiName, question), Toast.LENGTH_SHORT).show();
+        synthesizeAssistantSpeech(question);
+    }
+
+    private void prefilterAddEditTask(String responseText, boolean isAddTask) {
+        // Define patterns to extract each detail
+        Pattern taskNamePattern = Pattern.compile("TASK_NAME: (.+?)(?=\\n|$)");
+        Pattern newTaskNamePattern = Pattern.compile("NEW_TASK_NAME: (.+?)(?=\\n|$)");
+        Pattern importancePattern = Pattern.compile("IMPORTANCE: (.+?)(?=\\n|$)");
+        Pattern urgencyPattern = Pattern.compile("URGENCY: (.+?)(?=\\n|$)");
+        Pattern deadlinePattern = Pattern.compile("DEADLINE: (.+?)(?=\\n|$)");
+        Pattern recurrencePattern = Pattern.compile("RECURRENCE: (.+?)(?=\\n|$)");
+        Pattern schedulePattern = Pattern.compile("SCHEDULE: (.+?)(?=\\n|$)");
+        Pattern reminderPattern = Pattern.compile("REMINDER: (.+?)(?=\\n|$)");
+        Pattern notesPattern = Pattern.compile("NOTES: (.+?)(?=\\n|$)");
+
+        String taskName = "Unspecified";
+        String newTaskName = "Unspecified";
+        String importance = "Unspecified";
+        String urgency = "Unspecified";
+        String deadline = "Unspecified";
+        String recurrence = "Unspecified";
+        String schedule = "Unspecified";
+        String reminder = "Unspecified";
+        String notes = "Unspecified";
+
+        Matcher taskNameMatcher = taskNamePattern.matcher(responseText);
+        if (taskNameMatcher.find()) {
+            taskName = taskNameMatcher.group(1);
+        }
+
+        Matcher newTaskNameMatcher = newTaskNamePattern.matcher(responseText);
+        if (newTaskNameMatcher.find()) {
+            taskName = newTaskNameMatcher.group(1);
+        }
+
+        Matcher importanceMatcher = importancePattern.matcher(responseText);
+        if (importanceMatcher.find()) {
+            importance = importanceMatcher.group(1);
+        }
+
+        Matcher urgencyMatcher = urgencyPattern.matcher(responseText);
+        if (urgencyMatcher.find()) {
+            urgency = urgencyMatcher.group(1);
+        }
+
+        Matcher deadlineMatcher = deadlinePattern.matcher(responseText);
+        if (deadlineMatcher.find()) {
+            deadline = deadlineMatcher.group(1);
+        }
+
+        Matcher recurrenceMatcher = recurrencePattern.matcher(responseText);
+        if (recurrenceMatcher.find()) {
+            recurrence = recurrenceMatcher.group(1);
+        }
+
+        Log.v("RECURRENCE", recurrence);
+
+        Matcher scheduleMatcher = schedulePattern.matcher(responseText);
+        if (scheduleMatcher.find()) {
+            schedule = scheduleMatcher.group(1);
+        }
+
+        Matcher reminderMatcher = reminderPattern.matcher(responseText);
+        if (reminderMatcher.find()) {
+            schedule = reminderMatcher.group(1);
+        }
+
+        Matcher notesMatcher = notesPattern.matcher(responseText);
+        if (notesMatcher.find()) {
+            notes = notesMatcher.group(1);
+        }
+
+        if (isAddTask) {
+            tempTaskForAddEdit = new Task(taskName, importance, urgency, deadline, schedule, recurrence, true, notes);
+            applyTaskDetail("Importance", importance);
+            applyTaskDetail("Urgency", urgency);
+            applyTaskDetail("Deadline", deadline);
+            applyTaskDetail("Set Recurrence", recurrence);
+            applyTaskDetail("Schedule", schedule);
+            if ("unspecified".equalsIgnoreCase(notes)) {
+                notes = "";
+                applyTaskDetail("Notes", notes);
+            }
+
+            if (!"Unspecified".equalsIgnoreCase(taskName)) {
+                addCompleteTask(tempTaskForAddEdit);
+            } else {
+                synthesizeAssistantSpeech("You forgot to mention the name of the task, what should we call it?");
+                isAskingForTaskName = true;
+            }
+        } else {
+            String taskNameEdit = tempTaskForAddEdit.getTaskName();
+
+            if (inEditTaskInteraction) {
+                taskNameEdit = tempEditTaskName;
+            }
+            tempTaskForAddEdit = new Task(taskName, importance, urgency, deadline, schedule, recurrence, true, notes);
+            editTaskThroughSpeech(taskNameEdit, newTaskName, reminder);
+        }
+    }
+
+    private void editTaskThroughSpeech(String taskName, String newTaskName, String reminder) {
         taskDatabaseManager.fetchTaskByName(tasks -> {
             if (tasks.isEmpty()) {
                 synthesizeAssistantSpeech(AIRandomSpeech.generateTaskNotFound(taskName));
@@ -801,91 +754,148 @@ public class Live2DFragment extends Fragment implements View.OnTouchListener, Sp
             Task task = tasks.get(0);
             Log.d(TAG_SERVER_RESPONSE, "Task found: " + task.getTaskName());
 
-            finalTask = task;
-            isUserDone = false;
+            tempEditTaskName = task.getTaskName();
 
-            turnBasedInteraction();
+            taskToEdit = task;
+            if (!newTaskName.equalsIgnoreCase("unspecified")) {
+                taskToEdit.setTaskName(newTaskName);
+                tempEditTaskName = newTaskName;
+            }
+            if (!tempTaskForAddEdit.getImportanceLevel().equalsIgnoreCase("unspecified")
+                    && ValidValues.VALID_IMPORTANCE_LEVELS.contains(tempTaskForAddEdit.getImportanceLevel())) {
+                taskToEdit.setImportanceLevel(tempTaskForAddEdit.getImportanceLevel());
+            }
+            if (!tempTaskForAddEdit.getUrgencyLevel().equalsIgnoreCase("unspecified")
+                    && ValidValues.VALID_URGENCY_LEVELS.contains(tempTaskForAddEdit.getUrgencyLevel())) {
+                taskToEdit.setUrgencyLevel(tempTaskForAddEdit.getUrgencyLevel());
+            }
+            if (!tempTaskForAddEdit.getDeadline().equalsIgnoreCase("unspecified")
+                    && CalendarUtils.isDateAccepted(tempTaskForAddEdit.getDeadline())) {
+                taskToEdit.setDeadline(tempTaskForAddEdit.getDeadline());
+            }
+            if (!tempTaskForAddEdit.getRecurrence().equalsIgnoreCase("unspecified")
+                    && CalendarUtils.isRecurrenceAccepted(tempTaskForAddEdit.getRecurrence())
+                    || tempTaskForAddEdit.equals("Daily")) {
+                taskToEdit.setRecurrence(tempTaskForAddEdit.getRecurrence());
+            }
+            if (!tempTaskForAddEdit.getSchedule().equalsIgnoreCase("unspecified")
+                    && CalendarUtils.isDateAccepted(tempTaskForAddEdit.getSchedule())) {
+                taskToEdit.setSchedule(tempTaskForAddEdit.getSchedule());
+            }
+            if (!tempTaskForAddEdit.getNotes().equalsIgnoreCase("unspecified")) {
+                taskToEdit.setNotes(tempTaskForAddEdit.getNotes());
+            }
+            if (reminder.equalsIgnoreCase("false")) {
+                taskToEdit.setReminder(false);
+            }
+
+
+            if (!taskToEdit.getRecurrence().equalsIgnoreCase("none") && !taskToEdit.getDeadline().equalsIgnoreCase("no deadline")) {
+                synthesizeAssistantSpeech("Recurrent or repeating tasks cant have deadlines, so I've set the deadline to none.");
+                taskToEdit.setDeadline("No deadline");
+            }
+
+            taskDatabaseManager.updateTask(taskToEdit);
+
             inEditTaskInteraction = true;
+            turnBasedInteraction();
         }, taskName);
     }
 
-    private void askQuestion( String question) {
-        Toast.makeText(requireContext(), String.format("%s: %s", aiName, question), Toast.LENGTH_SHORT).show();
-        synthesizeAssistantSpeech(question);
+
+    private void turnBasedInteraction() {
+        if (!inEditTaskInteraction) {
+            return;
+        }
+        String followUpQuestion = AIRandomSpeech.generateFollowUpChangeMessage();
+
+        askQuestion(followUpQuestion);
     }
 
-    private void processResponse(String detail, String responseText) {
-        Map<String, Pattern> patternMap = new HashMap<>();
-        patternMap.put("Task Name", Pattern.compile("TASK_NAME: (.+)"));
-        patternMap.put("Urgency", Pattern.compile("URGENCY: (.+)"));
-        patternMap.put("Importance", Pattern.compile("IMPORTANCE: (.+)"));
-        patternMap.put("Deadline", Pattern.compile("DEADLINE: (.+)"));
-        patternMap.put("Set Recurrence", Pattern.compile("RECURRENCE: (.+)"));
-        patternMap.put("Edit Recurrence", Pattern.compile("RECURRENCE: (.+)"));
-        patternMap.put("Repeat Task", Pattern.compile("RECURRENCE: (.+)")); // Assuming it's the same as "Set or Edit Recurrence"
-        patternMap.put("Schedule", Pattern.compile("SCHEDULE: (.+)"));
-        patternMap.put("Reminder", Pattern.compile("REMINDER: (.+)"));
-        patternMap.put("Notes", Pattern.compile("NOTES: (.+)"));
+    private void handleRegularInteraction(String recognizedSpeech) {
+        HttpRequest.sendRequest(recognizedSpeech, aiName, user.getId(), inEditTaskInteraction, new HttpRequest.HttpRequestCallback() {
+            @Override
+            public void onSuccess(String intent, String responseText) {
+                mainHandler.post(() -> {
+                    if (inEditTaskInteraction) {
+                        if (intent.equalsIgnoreCase("edit task")) {
+                            performIntent(intent, responseText);
+                        } else if (intent.equalsIgnoreCase("done")) {
+                            inEditTaskInteraction = false;
+                            synthesizeAssistantSpeech("Oki, let me know if there's anything else.");
+                        } else {
+                            synthesizeAssistantSpeech("I'm sorry I couldn't understand.");
+                        }
+                    } else {
+                        if (!intent.equals("null")) {
+                            performIntent(intent, responseText);
+                        } else {
+                            if (isFocusModeEnabled()) {
+                                String focusResponse = AIRandomSpeech.generateFocusModeMessage();
+                                Toast.makeText(requireContext(), String.format("%s: %s", aiName, focusResponse), Toast.LENGTH_LONG).show();
+                                synthesizeAssistantSpeech(focusResponse);
+                            } else {
+                                Toast.makeText(requireContext(), String.format("%s: %s", aiName, responseText), Toast.LENGTH_LONG).show();
+                                synthesizeAssistantSpeech(responseText);
+                            }
+                        }
+                    }
+                });
+            }
 
-        Pattern pattern = patternMap.get(detail);
-        if (pattern == null) {
-            if (responseText.equals("DONE")) {
+            @Override
+            public void onFailure(String errorMessage) {
+                mainHandler.post(() -> {
+                    Toast.makeText(requireContext(), errorMessage, Toast.LENGTH_LONG).show();
+                    Log.d(TAG_SERVER_RESPONSE, errorMessage);
+                });
+            }
+        });
+    }
 
-                updateTaskThroughSpeech(false);
-                return;
-                // TODO: Can cause to run turnBasedInteraction also when no intent is caught.
-            } else if (responseText.equals("NOT DONE")) {
-                synthesizeAssistantSpeech("Ok! I'm listening");
-                return;
-            } else {        // the responseText is UNRECOGNIZED
-                updateTaskThroughSpeech(true);
+    @Override
+    public void onSpeechRecognized(String recognizedSpeech) {
+        realTimeSpeechTextView.setText(recognizedSpeech);
+        setModelExpression("default1");
+
+        Handler handler = new Handler(Looper.getMainLooper());
+
+        insertDialogue(recognizedSpeech, false);
+        if (recognizedSpeech.equalsIgnoreCase("focus mode on")) {
+            if (isFocusModeEnabled()) {
+                synthesizeAssistantSpeech("Focus mode is already activated");
                 return;
             }
+            setFocusMode(true);
+            startSpecificModelMotion(LAppDefine.MotionGroup.SWITCH.getId(), 0);
+
+            handler.postDelayed(() -> {
+                synthesizeAssistantSpeech(AIRandomSpeech.generateFocusModeOn());
+            }, 2000);
+            return;
+        } else if (recognizedSpeech.equalsIgnoreCase("focus mode off")) {
+            if (!isFocusModeEnabled()) {
+                synthesizeAssistantSpeech("Focus mode is already off");
+                return;
+            }
+            setFocusMode(false);
+            startSpecificModelMotion(LAppDefine.MotionGroup.SWITCH.getId(), 0);
+            handler.postDelayed(() -> {
+                synthesizeAssistantSpeech(AIRandomSpeech.generateFocusModeOff());
+            }, 2000);
+            return;
         }
 
-        Matcher matcher = pattern.matcher(responseText);
-        if (matcher.find()) {
-            String value = matcher.group(1);
-            applyTaskDetail(detail, value);
-        } else {
-            Toast.makeText(requireContext(), "Couldn't determine the correct value for " + detail, Toast.LENGTH_SHORT).show();
+        if (confirmAddTaskWithUser) {
+            confirmWithUser(recognizedSpeech);
+        } else if (inTaskDetailInteraction) {
+            handleTaskDetailInteraction(recognizedSpeech);
+        }else if (isAskingForTaskName) {
+            getTaskName(recognizedSpeech);
+        }else {
+            handleRegularInteraction(recognizedSpeech);
         }
     }
-
-    private void updateTaskThroughSpeech (boolean withError) {
-        inEditTaskInteraction = false;
-        isUserDone = true;
-        taskDatabaseManager.updateTask(finalTask);
-
-        if (withError) {
-            SpeechSynthesis.synthesizeSpeechAsync("Sorry, I didn't get that but I have recorded your task. If you need anything else, just tell me.");
-        } else {
-            String dialogue = AIRandomSpeech.generateTaskUpdated(finalTask.getTaskName());
-            SpeechSynthesis.synthesizeSpeechAsync(dialogue);
-            insertDialogue(dialogue, true);
-        }
-
-        openTaskDetailFragment(finalTask);
-//        new Handler(Looper.getMainLooper()).postDelayed(() -> openTaskDetailFragment(finalTask), 2000);
-    }
-
-    private Task setTaskFromSpeech(String taskName, String deadline) {
-        String urgency = DialogUtils.setAutomaticUrgency(deadline);
-
-        Task newTask = new Task();
-        newTask.setTaskName(taskName);
-        newTask.setImportanceLevel("None");
-        newTask.setUrgencyLevel(urgency);
-        newTask.setDeadline(deadline);
-        newTask.setSchedule("No schedule");
-        newTask.setRecurrence("None");
-        newTask.setReminder(true);
-        newTask.setNotes("");
-        newTask.setStatus("Unfinished");
-
-        return newTask;
-    }
-
 
     private void insertDialogue(String dialogue, boolean isAssistant) {
         // Ensure this code runs on a thread with a Looper
@@ -905,7 +915,7 @@ public class Live2DFragment extends Fragment implements View.OnTouchListener, Sp
     private void confirmWithUser(String recognizedSpeech) {
         if (recognizedSpeech.equalsIgnoreCase("yes")) {
             confirmAddTaskWithUser = false;
-            insertCompleteTask(finalTask);
+            insertCompleteTask(tempTaskForAddEdit);
         } else if (recognizedSpeech.equalsIgnoreCase("no")) {
             synthesizeAssistantSpeech("Okiiiiiiii");
             confirmAddTaskWithUser = false;
@@ -915,8 +925,8 @@ public class Live2DFragment extends Fragment implements View.OnTouchListener, Sp
     }
 
     private void getTaskName(String recognizedSpeech) {
-        finalTask.setTaskName(recognizedSpeech);
-        addCompleteTask(finalTask);
+        tempTaskForAddEdit.setTaskName(recognizedSpeech);
+        addCompleteTask(tempTaskForAddEdit);
         isAskingForTaskName = false;
     }
 
@@ -956,40 +966,6 @@ public class Live2DFragment extends Fragment implements View.OnTouchListener, Sp
         });
     }
 
-    private void handleRegularInteraction(String recognizedSpeech) {
-        HttpRequest.sendRequest(recognizedSpeech, aiName, user.getId(), inEditTaskInteraction, new HttpRequest.HttpRequestCallback() {
-            @Override
-            public void onSuccess(String intent, String responseText) {
-                mainHandler.post(() -> {
-                    if (inEditTaskInteraction) {
-                        processResponse(intent, responseText);
-                        turnBasedInteraction();
-                    } else {
-                        if (!intent.equals("null")) {
-                            performIntent(intent, responseText);
-                        } else {
-                            if (isFocusModeEnabled()) {
-                                String focusResponse = AIRandomSpeech.generateFocusModeMessage();
-                                Toast.makeText(requireContext(), String.format("%s: %s", aiName, focusResponse), Toast.LENGTH_LONG).show();
-                                synthesizeAssistantSpeech(focusResponse);
-                            } else {
-                                Toast.makeText(requireContext(), String.format("%s: %s", aiName, responseText), Toast.LENGTH_LONG).show();
-                                synthesizeAssistantSpeech(responseText);
-                            }
-                        }
-                    }
-                });
-            }
-
-            @Override
-            public void onFailure(String errorMessage) {
-                mainHandler.post(() -> {
-                    Toast.makeText(requireContext(), errorMessage, Toast.LENGTH_LONG).show();
-                    Log.d(TAG_SERVER_RESPONSE, errorMessage);
-                });
-            }
-        });
-    }
 
     private void openTaskDetailFragment(Task task) {
         ((MainActivity) requireActivity()).showTaskDetailFragment(task);

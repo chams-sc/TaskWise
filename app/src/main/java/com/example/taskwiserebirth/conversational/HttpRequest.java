@@ -122,7 +122,7 @@ public class HttpRequest {
                     if (!response.isSuccessful()) {
                         if (response.code() == 404) {
                             callback.onFailure("Page not found");
-                        } else if (response.code() == 503) {
+                        } else if (response.code() == 502) {
                             callback.onFailure("Sorry, server is not available at the moment");
                         } else if (response.code() == 500) {
                             callback.onFailure("We apologize, server is still loading. Please try again later.");
