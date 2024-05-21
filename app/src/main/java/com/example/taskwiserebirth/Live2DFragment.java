@@ -992,8 +992,7 @@ public class Live2DFragment extends Fragment implements View.OnTouchListener, Sp
     }
 
     private void openTaskDetailFragment(Task task) {
-        TaskDetailFragment taskDetailFragment = new TaskDetailFragment(task);
-        ((MainActivity) requireActivity()).replaceFragment(taskDetailFragment, true);
+        ((MainActivity) requireActivity()).showTaskDetailFragment(task);
     }
 
     @Override

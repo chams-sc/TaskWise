@@ -10,22 +10,46 @@ import androidx.fragment.app.Fragment;
 import androidx.fragment.app.FragmentManager;
 import androidx.fragment.app.FragmentTransaction;
 
+import com.example.taskwiserebirth.task.Task;
 import com.example.taskwiserebirth.utils.SystemUIHelper;
 import com.google.android.material.bottomnavigation.BottomNavigationView;
 
 public class MainActivity extends AppCompatActivity {
 
-    BottomNavigationView bottomNavigationView;
+    private BottomNavigationView bottomNavigationView;
+    private FragmentManager fragmentManager;
+    private Fragment activeFragment;
+    private Live2DFragment live2DFragment;
+    private AddTaskFragment addTaskFragment;
+    private SMSFragment smsFragment;
+    private SettingsFragment settingsFragment;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
-        
+
         SystemUIHelper.setSystemUIVisibility(this);
 
         bottomNavigationView = findViewById(R.id.bottomNavigationView);
-        replaceFragment(new Live2DFragment(), false);
+
+        // Initialize fragments
+        live2DFragment = new Live2DFragment();
+        addTaskFragment = new AddTaskFragment();
+        smsFragment = new SMSFragment();
+        settingsFragment = new SettingsFragment();
+
+        fragmentManager = getSupportFragmentManager();
+
+        // Add fragments to the fragment manager
+        FragmentTransaction fragmentTransaction = fragmentManager.beginTransaction();
+        fragmentTransaction.add(R.id.frame_layout, live2DFragment, "LIVE2D_FRAGMENT").hide(live2DFragment);
+        fragmentTransaction.add(R.id.frame_layout, addTaskFragment, "ADD_TASK_FRAGMENT").hide(addTaskFragment);
+        fragmentTransaction.add(R.id.frame_layout, smsFragment, "SMS_FRAGMENT").hide(smsFragment);
+        fragmentTransaction.add(R.id.frame_layout, settingsFragment, "SETTINGS_FRAGMENT").hide(settingsFragment);
+        fragmentTransaction.show(live2DFragment).commit();
+
+        activeFragment = live2DFragment;
 
         setupBottomNavigationListener();
     }
@@ -33,20 +57,34 @@ public class MainActivity extends AppCompatActivity {
     private void setupBottomNavigationListener() {
         bottomNavigationView.setOnItemSelectedListener(menuItem -> {
             int itemId = menuItem.getItemId();
-            Fragment currentFragment = getSupportFragmentManager().findFragmentById(R.id.frame_layout);
 
-            if (itemId == R.id.bottom_home && !(currentFragment instanceof Live2DFragment)) {
-                replaceFragment(new Live2DFragment(), false);
-            } else if (itemId == R.id.bottom_clip && !(currentFragment instanceof AddTaskFragment)) {
-                replaceFragment(new AddTaskFragment(), false);
-            } else if (itemId == R.id.bottom_sms && !(currentFragment instanceof SMSFragment)) {
-                replaceFragment(new SMSFragment(), false);
-            } else if (itemId == R.id.bottom_settings && !(currentFragment instanceof SettingsFragment)) {
-                replaceFragment(new SettingsFragment(), false);
+            if (itemId == R.id.bottom_home) {
+                showFragment(live2DFragment);
+            } else if (itemId == R.id.bottom_clip) {
+                showFragment(addTaskFragment);
+            } else if (itemId == R.id.bottom_sms) {
+                showFragment(smsFragment);
+            } else if (itemId == R.id.bottom_settings) {
+                showFragment(settingsFragment);
             }
 
             return true;
         });
+    }
+
+    private void showFragment(Fragment fragment) {
+        FragmentTransaction fragmentTransaction = fragmentManager.beginTransaction();
+        fragmentTransaction.hide(activeFragment).show(fragment).commit();
+        activeFragment = fragment;
+    }
+
+    public void showTaskDetailFragment(Task task) {
+        TaskDetailFragment taskDetailFragment = new TaskDetailFragment(task);
+
+        FragmentTransaction fragmentTransaction = fragmentManager.beginTransaction();
+        fragmentTransaction.add(R.id.frame_layout, taskDetailFragment, "TASK_DETAIL_FRAGMENT")
+                .addToBackStack(null) // Add the transaction to the back stack
+                .commit();
     }
 
     public void replaceFragment(Fragment fragment, boolean addToBackStack) {
@@ -67,7 +105,6 @@ public class MainActivity extends AppCompatActivity {
 
         fragmentTransaction.commit();
     }
-
 
     /**
      * Toggles the visibility of the navigation bar.
@@ -100,5 +137,4 @@ public class MainActivity extends AppCompatActivity {
             SystemUIHelper.setSystemUIVisibility(this);
         }
     }
-
 }
