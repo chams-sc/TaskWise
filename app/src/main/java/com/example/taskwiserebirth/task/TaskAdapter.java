@@ -22,6 +22,7 @@ import androidx.recyclerview.widget.RecyclerView;
 import com.example.taskwiserebirth.R;
 import com.example.taskwiserebirth.TaskDetailFragment;
 import com.example.taskwiserebirth.utils.CalendarUtils;
+import com.example.taskwiserebirth.utils.PopupMenuUtils;
 import com.example.taskwiserebirth.utils.SystemUIHelper;
 
 import java.util.Date;
@@ -70,7 +71,7 @@ public class TaskAdapter extends RecyclerView.Adapter<TaskViewHolder> {
         holder.deadline.setText(currentTask.getDeadline());
         holder.deadline.setTextColor(deadlineColor);
 
-        holder.menuView.setOnClickListener(v -> showPopupMenu(v, currentTask));
+        holder.menuView.setOnClickListener(v -> PopupMenuUtils.showPopupMenu(context, v, currentTask, actionListener, activity));
 
         holder.itemView.setOnClickListener(v -> {
             TaskDetailFragment fragmentViewerCard = new TaskDetailFragment(currentTask);

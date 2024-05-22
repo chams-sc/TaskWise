@@ -52,14 +52,14 @@ public class DialogUtils {
         this.taskDatabaseManager = taskDatabaseManager;
     }
 
-    public void showBottomSheetDialog(Task task) {
+    public void showBottomSheetDialog(Task task, TaskDatabaseManager.TaskUpdateListener listener) {
         final BottomSheetDialog bottomSheetDialog = new BottomSheetDialog(activity);
         View bottomSheetView = LayoutInflater.from(activity).inflate(R.layout.bottom_add_task, null);
 
         SystemUIHelper.setFlagsOnThePeekView();
 
         bottomSheetDialog.setContentView(bottomSheetView);
-        setUpTaskForm(bottomSheetDialog, bottomSheetView, task);
+        setUpTaskForm(bottomSheetDialog, bottomSheetView, task, listener);
 
         bottomSheetDialog.setOnDismissListener(dialogInterface -> SystemUIHelper.setSystemUIVisibility((AppCompatActivity) activity));
 
@@ -67,7 +67,7 @@ public class DialogUtils {
         dialogs.add(bottomSheetDialog);
     }
 
-    private void setUpTaskForm(Dialog bottomSheetDialog, View bottomSheetView, Task task) {
+    private void setUpTaskForm(Dialog bottomSheetDialog, View bottomSheetView, Task task, TaskDatabaseManager.TaskUpdateListener listener) {
         Spinner importanceSpinner = bottomSheetView.findViewById(R.id.importance);
         Spinner urgencySpinner = bottomSheetView.findViewById(R.id.urgency);
         Spinner recurrenceSpinner = bottomSheetView.findViewById(R.id.recurrence);
@@ -119,9 +119,17 @@ public class DialogUtils {
             Task newTask = setTaskFromFields(bottomSheetDialog, task);
             if (newTask != null) {
                 if (task != null) {
-                    taskDatabaseManager.updateTask(newTask);
-                    daysSelected = null;
-                    bottomSheetDialog.dismiss();
+                    taskDatabaseManager.updateTask(newTask, new TaskDatabaseManager.TaskUpdateListener() {
+                        @Override
+                        public void onTaskUpdated(Task updatedTask) {
+                            Toast.makeText(activity, "Task updated", Toast.LENGTH_SHORT).show();
+                            daysSelected = null;
+                            bottomSheetDialog.dismiss();
+                            if (listener != null) {
+                                listener.onTaskUpdated(updatedTask);
+                            }
+                        }
+                    });
                 } else {
                     taskDatabaseManager.fetchTaskByName(new TaskDatabaseManager.TaskFetchListener() {
                         @Override

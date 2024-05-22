@@ -26,7 +26,7 @@ import java.util.List;
 import io.realm.mongodb.App;
 import io.realm.mongodb.User;
 
-public class UnfinishedTaskFragment extends Fragment implements TaskAdapter.TaskActionListener, DatabaseChangeListener, NestedScrollView.OnScrollChangeListener {
+public class UnfinishedTaskFragment extends Fragment implements TaskAdapter.TaskActionListener, TaskDatabaseManager.TaskUpdateListener, DatabaseChangeListener, NestedScrollView.OnScrollChangeListener {
 
     private TaskAdapter taskAdapter;
     private TaskDatabaseManager taskDatabaseManager;
@@ -85,7 +85,7 @@ public class UnfinishedTaskFragment extends Fragment implements TaskAdapter.Task
 
     @Override
     public void onEditTask(Task task) {
-        dialogUtils.showBottomSheetDialog(task);
+        dialogUtils.showBottomSheetDialog(task, this);
     }
 
     @Override
@@ -115,5 +115,10 @@ public class UnfinishedTaskFragment extends Fragment implements TaskAdapter.Task
         MongoDbRealmHelper.removeDatabaseChangeListener(this);
         taskAdapter = null;
         dialogUtils.dismissDialogs();
+    }
+
+    @Override
+    public void onTaskUpdated(Task updatedTask) {
+
     }
 }

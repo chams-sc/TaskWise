@@ -42,7 +42,7 @@ import java.util.Locale;
 import io.realm.mongodb.App;
 import io.realm.mongodb.User;
 
-public class AddTaskFragment extends Fragment implements DatabaseChangeListener, NestedScrollView.OnScrollChangeListener, TaskAdapter.TaskActionListener, CalendarAdapter.OnDateSelectedListener {
+public class AddTaskFragment extends Fragment implements DatabaseChangeListener, NestedScrollView.OnScrollChangeListener, TaskAdapter.TaskActionListener, CalendarAdapter.OnDateSelectedListener, TaskDatabaseManager.TaskUpdateListener {
 
     private TaskAdapter taskAdapter;
     private Date selectedDate;
@@ -75,7 +75,7 @@ public class AddTaskFragment extends Fragment implements DatabaseChangeListener,
         setUpTaskRecyclerView(rootView);
 
         FloatingActionButton addTaskButton = rootView.findViewById(R.id.fab);
-        addTaskButton.setOnClickListener(v -> dialogUtils.showBottomSheetDialog(null));
+        addTaskButton.setOnClickListener(v -> dialogUtils.showBottomSheetDialog(null, this));
 
         CalendarUtils.displayTimeOfDay(rootView);
 
@@ -190,15 +190,15 @@ public class AddTaskFragment extends Fragment implements DatabaseChangeListener,
         }, selectedDate);
     }
 
-//    @Override
-//    public void onHiddenChanged(boolean hidden) {
-//        super.onHiddenChanged(hidden);
-//        if (!hidden) {
-//            // Fragment is now visible
-//            Log.d("AddTaskFragment", "Fragment is now visible");
-//            scrollToCurrentDatePosition(calendarRecyclerView, calendarList);
-//        }
-//    }
+    @Override
+    public void onHiddenChanged(boolean hidden) {
+        super.onHiddenChanged(hidden);
+        if (!hidden) {
+            // Fragment is now visible
+            Log.d("AddTaskFragment", "Fragment is now visible");
+            scrollToCurrentDatePosition(calendarRecyclerView, calendarList);
+        }
+    }
 
     @Override
     public void onDestroyView() {
@@ -229,7 +229,7 @@ public class AddTaskFragment extends Fragment implements DatabaseChangeListener,
 
     @Override
     public void onEditTask(Task task) {
-        dialogUtils.showBottomSheetDialog(task);
+        dialogUtils.showBottomSheetDialog(task, this);
     }
 
     @Override
@@ -259,5 +259,10 @@ public class AddTaskFragment extends Fragment implements DatabaseChangeListener,
             String formattedDate = dateFormat.format(date.getTime());
             todayTask.setText(formattedDate);
         }
+    }
+
+    @Override
+    public void onTaskUpdated(Task updatedTask) {
+
     }
 }

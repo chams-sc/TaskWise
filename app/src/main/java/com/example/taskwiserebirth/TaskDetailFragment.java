@@ -12,13 +12,23 @@ import android.widget.TextView;
 import androidx.core.widget.NestedScrollView;
 import androidx.fragment.app.Fragment;
 
+import com.example.taskwiserebirth.database.MongoDbRealmHelper;
+import com.example.taskwiserebirth.database.TaskDatabaseManager;
 import com.example.taskwiserebirth.task.Task;
+import com.example.taskwiserebirth.task.TaskAdapter;
 import com.example.taskwiserebirth.utils.CalendarUtils;
+import com.example.taskwiserebirth.utils.DialogUtils;
+import com.example.taskwiserebirth.utils.PopupMenuUtils;
+
+import io.realm.mongodb.App;
+import io.realm.mongodb.User;
 
 
-public class TaskDetailFragment extends Fragment {
+public class TaskDetailFragment extends Fragment implements TaskAdapter.TaskActionListener, TaskDatabaseManager.TaskUpdateListener {
 
-    private final Task task;
+    private Task task;
+    private TaskDatabaseManager taskDatabaseManager;
+    private DialogUtils dialogUtils;
 
 
     public TaskDetailFragment (Task task) {
@@ -30,8 +40,17 @@ public class TaskDetailFragment extends Fragment {
                              Bundle savedInstanceState) {
         View rootView = inflater.inflate(R.layout.fragment_task_detail, container, false);
 
+        App app = MongoDbRealmHelper.initializeRealmApp();
+        User user = app.currentUser();
+        taskDatabaseManager = new TaskDatabaseManager(user, requireContext());
+        dialogUtils = new DialogUtils(requireActivity(), taskDatabaseManager);
+
         ImageView backArrowImageView = rootView.findViewById(R.id.back_arrow);
         backArrowImageView.setOnClickListener(v -> requireActivity().getSupportFragmentManager().popBackStack());
+
+        ImageView taskDetailMenu = rootView.findViewById(R.id.taskDetailMenu);
+        taskDetailMenu.setOnClickListener(v -> PopupMenuUtils.showPopupMenu(requireContext(), v, task, this, requireActivity()));
+
 
         NestedScrollView nestedScrollView = rootView.findViewById(R.id.nestedScrollViewTaskDetail);
         nestedScrollView.setOnScrollChangeListener(new View.OnScrollChangeListener() {
@@ -67,5 +86,26 @@ public class TaskDetailFragment extends Fragment {
 
         notes.setText(task.getNotes().isEmpty() ? "No notes" : task.getNotes());
         notes.setTypeface(null, task.getNotes().isEmpty() ? Typeface.BOLD : Typeface.NORMAL);
+    }
+
+    @Override
+    public void onEditTask(Task task) {
+        dialogUtils.showBottomSheetDialog(task, this);
+    }
+
+    @Override
+    public void onDeleteTask(Task task) {
+        taskDatabaseManager.deleteTask(task);
+    }
+
+    @Override
+    public void onDoneTask(Task task) {
+        taskDatabaseManager.markTaskAsFinished(task);
+    }
+
+    @Override
+    public void onTaskUpdated(Task updatedTask) {
+        this.task = updatedTask;
+        setUpTaskDetail(getView());
     }
 }

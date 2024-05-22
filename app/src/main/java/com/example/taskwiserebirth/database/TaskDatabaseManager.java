@@ -29,8 +29,13 @@ public class TaskDatabaseManager {
 
     private final String finishedStatus = "Finished";
     private final String unfinishedStatus = "Unfinished";
+
     public interface TaskFetchListener {
         void onTasksFetched(List<Task> tasks);
+    }
+
+    public interface TaskUpdateListener {
+        void onTaskUpdated(Task updatedTask);
     }
 
     public TaskDatabaseManager (User user, Context context) {
@@ -72,7 +77,7 @@ public class TaskDatabaseManager {
         }
     }
 
-    public void updateTask(Task task) {
+    public void updateTask(Task task,TaskUpdateListener listener) {
         Document filter = new Document("owner_id", user.getId())
                 .append("_id", task.getId());
 
@@ -85,8 +90,10 @@ public class TaskDatabaseManager {
                 } else {
                     NotificationScheduler.cancelNotification(context, task);
                 }
-                Toast.makeText(context, "Task updated", Toast.LENGTH_SHORT).show();
                 MongoDbRealmHelper.notifyDatabaseChangeListeners();
+                if (listener != null) {
+                    listener.onTaskUpdated(task);
+                }
             } else {
                 Log.e(TAG_TASK_DBM, "Failed to update data: " + result.getError().getMessage());
             }

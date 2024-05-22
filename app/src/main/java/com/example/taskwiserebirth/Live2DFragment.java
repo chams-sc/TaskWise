@@ -75,15 +75,11 @@ public class Live2DFragment extends Fragment implements View.OnTouchListener, Sp
     private boolean inEditTaskInteraction = false;
     private boolean confirmAddTaskWithUser = false;
     private boolean inTaskDetailInteraction = false;
-    private boolean isUserDone = false;
     private boolean isExpanded = false;
     private boolean isAskingForTaskName = false;
     private boolean hasRecurrence = false;
-    private boolean hasDeadline = false;
 
     private final String TAG_SERVER_RESPONSE = "SERVER_RESPONSE";
-    private static final String SHARED_PREFS = "sharedPrefs";
-    private static final String STATUS_KEY = "focus_mode";
 
     private final Handler mainHandler = new Handler(Looper.getMainLooper());
     private SharedViewModel sharedViewModel;
@@ -143,12 +139,7 @@ public class Live2DFragment extends Fragment implements View.OnTouchListener, Sp
         speakBtn.setOnClickListener(v -> handleSpeakButtonClick());
 
         realTimeSpeechTextView = view.findViewById(R.id.realTimeSpeechTextView);
-        realTimeSpeechTextView.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                toggleRealTimeSpeechTextViewExpansion();
-            }
-        });
+        realTimeSpeechTextView.setOnClickListener(v -> toggleRealTimeSpeechTextViewExpansion());
     }
 
     private void handleSpeakButtonClick() {
@@ -267,10 +258,6 @@ public class Live2DFragment extends Fragment implements View.OnTouchListener, Sp
         if (!tempTaskForAddEdit.getRecurrence().equals("None") && !tempTaskForAddEdit.getRecurrence().equalsIgnoreCase("unspecified")) {
             tempTaskForAddEdit.setRecurrence("None");
             tempTaskForAddEdit.setSchedule("No schedule");
-
-            hasDeadline = true;
-        } else {
-            hasDeadline = false;
         }
     }
 
@@ -331,7 +318,7 @@ public class Live2DFragment extends Fragment implements View.OnTouchListener, Sp
     }
 
 
-    private void addCompleteTask(Task finalTask) {
+    private void addCompleteTask(Task task) {
         taskDatabaseManager.fetchTasksWithStatus(tasks -> {
             if (tasks.size() >= 10) {
                 synthesizeAssistantSpeech(AIRandomSpeech.generateUnfinishedTasksMessage(tasks.size()));
@@ -339,11 +326,11 @@ public class Live2DFragment extends Fragment implements View.OnTouchListener, Sp
             } else {
                 taskDatabaseManager.fetchUnfinishedTaskByName(tasks1 -> {
                     if (tasks1.isEmpty()) {
-                        insertCompleteTask(finalTask);
+                        insertCompleteTask(task);
                     } else {
-                        synthesizeAssistantSpeech(String.format("%s is already in your list of tasks", finalTask.getTaskName()));
+                        synthesizeAssistantSpeech(String.format("%s is already in your list of tasks", task.getTaskName()));
                     }
-                }, finalTask.getTaskName());
+                }, task.getTaskName());
             }
         }, false);
     }
@@ -359,15 +346,20 @@ public class Live2DFragment extends Fragment implements View.OnTouchListener, Sp
         SpeechSynthesis.synthesizeSpeechAsync(dialogue);
         insertDialogue(dialogue, true);
 
-        openTaskDetailFragment(completeTask);
+        // to get id for notif scheduler
+        taskDatabaseManager.fetchUnfinishedTaskByName(tasks -> {
+            if (tasks.isEmpty()) {
+                return;
+            }
+            openTaskDetailFragment(tasks.get(0));
+        }, completeTask.getTaskName());
     }
 
     private void performIntent(String intent, String responseText){
 
         Pattern taskPattern = Pattern.compile("TASK_NAME: (.+?)(?:\\nDEADLINE:|$)");
-        Pattern deadlinePattern = Pattern.compile("DEADLINE: (.+)");
 
-        String taskName = "", deadline = "";
+        String taskName = "";
 
         if ("add task".equalsIgnoreCase(intent) || "add task with deadline".equalsIgnoreCase(intent)) {
             prefilterAddEditTask(responseText, true);
@@ -376,21 +368,6 @@ public class Live2DFragment extends Fragment implements View.OnTouchListener, Sp
             Matcher taskMatcher = taskPattern.matcher(responseText);
             if (taskMatcher.find()) {
                 taskName = taskMatcher.group(1);
-            }
-
-            Matcher deadlineMatcher = deadlinePattern.matcher(responseText);
-            if (deadlineMatcher.find()) {
-                deadline = deadlineMatcher.group(1);
-                // check if the deadline matches the required pattern "MM-dd-yyyy | hh:mm a"
-                if (!deadline.matches("\\d{2}-\\d{2}-\\d{4} \\| \\d{2}:\\d{2} [AP]M")) {
-                    deadline = "No deadline";
-                } else {
-                    // check if deadline is set to the past, if true set to default "No Deadline"
-                    if (!CalendarUtils.isDateAccepted(deadline)) {
-                        synthesizeAssistantSpeech("Deadline cannot be in the past so it is set to default");
-                        deadline = "No deadline";
-                    }
-                }
             }
 
             // Define a set of intents that do not require a task name check
@@ -772,7 +749,7 @@ public class Live2DFragment extends Fragment implements View.OnTouchListener, Sp
             }
             if (!tempTaskForAddEdit.getRecurrence().equalsIgnoreCase("unspecified")
                     && CalendarUtils.isRecurrenceAccepted(tempTaskForAddEdit.getRecurrence())
-                    || tempTaskForAddEdit.equals("Daily")) {
+                    || tempTaskForAddEdit.getRecurrence().equals("Daily")) {
                 taskToEdit.setRecurrence(tempTaskForAddEdit.getRecurrence());
             }
             if (!tempTaskForAddEdit.getSchedule().equalsIgnoreCase("unspecified")
@@ -792,7 +769,12 @@ public class Live2DFragment extends Fragment implements View.OnTouchListener, Sp
                 taskToEdit.setDeadline("No deadline");
             }
 
-            taskDatabaseManager.updateTask(taskToEdit);
+            taskDatabaseManager.updateTask(taskToEdit, new TaskDatabaseManager.TaskUpdateListener() {
+                @Override
+                public void onTaskUpdated(Task updatedTask) {
+                    // do something when task updates
+                }
+            });
 
             inEditTaskInteraction = true;
             turnBasedInteraction();
@@ -829,9 +811,7 @@ public class Live2DFragment extends Fragment implements View.OnTouchListener, Sp
             onFocusModeChanged(true);
             startSpecificModelMotion(LAppDefine.MotionGroup.SWITCH.getId(), 0);
 
-            handler.postDelayed(() -> {
-                synthesizeAssistantSpeech(AIRandomSpeech.generateFocusModeOn());
-            }, 2000);
+            handler.postDelayed(() -> synthesizeAssistantSpeech(AIRandomSpeech.generateFocusModeOn()), 2000);
             return;
         } else if (recognizedSpeech.equalsIgnoreCase("focus mode off")) {
             if (!FocusModeHelper.isFocusModeEnabled(requireContext())) {
@@ -840,9 +820,7 @@ public class Live2DFragment extends Fragment implements View.OnTouchListener, Sp
             }
             onFocusModeChanged(false);
             startSpecificModelMotion(LAppDefine.MotionGroup.SWITCH.getId(), 0);
-            handler.postDelayed(() -> {
-                synthesizeAssistantSpeech(AIRandomSpeech.generateFocusModeOff());
-            }, 2000);
+            handler.postDelayed(() -> synthesizeAssistantSpeech(AIRandomSpeech.generateFocusModeOff()), 2000);
             return;
         }
 
