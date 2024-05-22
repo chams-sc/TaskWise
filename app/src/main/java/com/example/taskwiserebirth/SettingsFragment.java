@@ -22,7 +22,6 @@ import androidx.lifecycle.ViewModelProvider;
 import com.example.taskwiserebirth.database.ConversationDbManager;
 import com.example.taskwiserebirth.database.MongoDbRealmHelper;
 import com.example.taskwiserebirth.database.UserDatabaseManager;
-import com.example.taskwiserebirth.utils.CustomPositionDialogFragment;
 import com.example.taskwiserebirth.utils.FocusModeHelper;
 import com.example.taskwiserebirth.utils.SharedViewModel;
 import com.example.taskwiserebirth.utils.SystemUIHelper;
@@ -51,17 +50,6 @@ public class SettingsFragment extends Fragment {
             SwitchCompat focusModeSwitch = view.findViewById(R.id.switchBtn);
             focusModeSwitch.setChecked(isEnabled);
         });
-
-        TextView closeToDue = view.findViewById(R.id.closeToDue);
-        closeToDue.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                CustomPositionDialogFragment dialogFragment = new CustomPositionDialogFragment();
-                dialogFragment.show(requireActivity().getSupportFragmentManager(), "customPositionDialog");
-
-            }
-        });
-
 
         initializeVariables();
         setUpUIComponents(view);

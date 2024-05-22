@@ -135,12 +135,7 @@ public class Live2DFragment extends Fragment implements View.OnTouchListener, Sp
 
     private void initializeUIComponents(View view) {
         collapseBtn = view.findViewById(R.id.fullscreen_button);
-        collapseBtn.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                toggleFullscreen();
-            }
-        });
+        collapseBtn.setOnClickListener(v -> toggleFullscreen());
         FloatingActionButton speakBtn = view.findViewById(R.id.speakBtn);
         speakBtn.setOnClickListener(v -> handleSpeakButtonClick());
 
@@ -862,14 +857,24 @@ public class Live2DFragment extends Fragment implements View.OnTouchListener, Sp
                     if (intent.equalsIgnoreCase("edit task")) {
                         performIntentEdit(responseText);
                     } else if (intent.equalsIgnoreCase("null")) {
-
+                        if (responseText.equalsIgnoreCase("done")) {
+                            inEditTaskInteraction = false;
+                            synthesizeAssistantSpeech("Ok, you're done");
+                        } else if (responseText.equalsIgnoreCase("unrecognized")) {
+                            synthesizeAssistantSpeech("I'm sorry, I didn't understand, what else do you want to edit?");
+                        } else {
+                            performIntentEdit(responseText);
+                        }
                     }
                 });
             }
 
             @Override
             public void onFailure(String errorMessage) {
-
+                mainHandler.post(() -> {
+                    Toast.makeText(requireContext(), errorMessage, Toast.LENGTH_LONG).show();
+                    Log.d(TAG_SERVER_RESPONSE, errorMessage);
+                });
             }
         });
     }
