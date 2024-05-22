@@ -731,6 +731,7 @@ public class Live2DFragment extends Fragment implements View.OnTouchListener, Sp
                 isAskingForTaskName = true;
             }
         } else {
+            // TODO: pag nag edit need muna icheck kung ang task name ay nageexist sa database bago iedit
             tempTaskForAddEdit = new Task(taskName, importance, urgency, deadline, schedule, recurrence, true, notes);
 
             String taskNameEdit = taskName;
@@ -738,11 +739,12 @@ public class Live2DFragment extends Fragment implements View.OnTouchListener, Sp
             if (inEditTaskInteraction) {
                 taskNameEdit = tempEditTaskName;
             }
-            if (!"Unspecified".equalsIgnoreCase(taskName)) {
-                synthesizeAssistantSpeech("You forgot to mention the name of the task, what should we call it?");
+            if ("Unspecified".equalsIgnoreCase(taskName)) {
+                synthesizeAssistantSpeech("You forgot to mention the name of the task, which task was it?");
                 isAskingForTaskName = true;
+            } else {
+                editTaskThroughSpeech(taskNameEdit, newTaskName, reminder);
             }
-            editTaskThroughSpeech(taskNameEdit, newTaskName, reminder);
         }
     }
 
@@ -778,7 +780,7 @@ public class Live2DFragment extends Fragment implements View.OnTouchListener, Sp
             if (!tempTaskForAddEdit.getRecurrence().equalsIgnoreCase("unspecified")
                     && CalendarUtils.isRecurrenceAccepted(tempTaskForAddEdit.getRecurrence())
                     || tempTaskForAddEdit.getRecurrence().equals("Daily")) {
-                taskToEdit.setRecurrence(tempTaskForAddEdit.getRecurrence());
+                taskToEdit.setRecurrence(CalendarUtils.formatRecurrence(tempTaskForAddEdit.getRecurrence()));
             }
             if (!tempTaskForAddEdit.getSchedule().equalsIgnoreCase("unspecified")
                     && CalendarUtils.isDateAccepted(tempTaskForAddEdit.getSchedule())) {
@@ -859,6 +861,7 @@ public class Live2DFragment extends Fragment implements View.OnTouchListener, Sp
             handleTaskDetailInteraction(recognizedSpeech);
         } else if (isAskingForTaskName) {
             getTaskName(recognizedSpeech);
+            addCompleteTask(tempTaskForAddEdit);
         } else if (isRequestNameFromGrok) {
             handleRequestTaskName(recognizedSpeech);
         }else if (inEditTaskInteraction) {
@@ -1023,7 +1026,6 @@ public class Live2DFragment extends Fragment implements View.OnTouchListener, Sp
 
     private void getTaskName(String recognizedSpeech) {
         tempTaskForAddEdit.setTaskName(recognizedSpeech);
-        addCompleteTask(tempTaskForAddEdit);
         isAskingForTaskName = false;
     }
 
