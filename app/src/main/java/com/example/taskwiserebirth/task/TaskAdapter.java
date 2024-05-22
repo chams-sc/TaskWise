@@ -70,7 +70,7 @@ public class TaskAdapter extends RecyclerView.Adapter<TaskViewHolder> {
         holder.deadline.setText(currentTask.getDeadline());
         holder.deadline.setTextColor(deadlineColor);
 
-        holder.imageView.setOnClickListener(v -> showPopupMenu(v, currentTask));
+        holder.menuView.setOnClickListener(v -> showPopupMenu(v, currentTask));
 
         holder.itemView.setOnClickListener(v -> {
             TaskDetailFragment fragmentViewerCard = new TaskDetailFragment(currentTask);

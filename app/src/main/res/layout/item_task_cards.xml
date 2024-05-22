@@ -56,15 +56,29 @@
             tools:text="Priority" />
 
 
-        <ImageView
-            android:id="@+id/menus"
+        <FrameLayout
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_alignParentTop="true"
             android:layout_alignParentEnd="true"
             android:layout_marginTop="4dp"
-            android:layout_marginEnd="4dp"
-            android:src="@drawable/baseline_menu" />
+            android:layout_marginEnd="4dp">
+
+            <View
+                android:id="@+id/menuViewContainer"
+                android:layout_width="48dp"
+                android:layout_height="48dp"
+                android:layout_gravity="center"
+                android:background="@android:color/transparent" />
+
+            <ImageView
+                android:id="@+id/menus"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_gravity="end|top"
+                android:src="@drawable/baseline_menu" />
+
+        </FrameLayout>
 
     </RelativeLayout>
 </androidx.cardview.widget.CardView>
