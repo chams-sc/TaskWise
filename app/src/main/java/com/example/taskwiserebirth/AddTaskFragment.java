@@ -47,6 +47,8 @@ public class AddTaskFragment extends Fragment implements DatabaseChangeListener,
     private View rootView;
     private TaskDatabaseManager taskDatabaseManager;
     private DialogUtils dialogUtils;
+    private RecyclerView calendarRecyclerView;
+    private List<Calendar> calendarList;
 
     public AddTaskFragment() {
     }
@@ -98,7 +100,7 @@ public class AddTaskFragment extends Fragment implements DatabaseChangeListener,
 
 
     private void setUpCalendarRecyclerView(View rootView) {
-        RecyclerView calendarRecyclerView = rootView.findViewById(R.id.calendarRecyclerView);
+        calendarRecyclerView = rootView.findViewById(R.id.calendarRecyclerView);
 
         TextView currentMonth = rootView.findViewById(R.id.monthTxt);
 
@@ -113,7 +115,7 @@ public class AddTaskFragment extends Fragment implements DatabaseChangeListener,
 
         currentMonth.setText(currentMonthName);
 
-        List<Calendar> calendarList = CalendarUtils.getDatesForCurrentMonth();
+        calendarList = CalendarUtils.getDatesForCurrentMonth();
 
         CalendarAdapter calendarAdapter = new CalendarAdapter(calendarList, this);
 
@@ -121,8 +123,6 @@ public class AddTaskFragment extends Fragment implements DatabaseChangeListener,
         calendarRecyclerView.setLayoutManager(layoutManager);
 
         calendarRecyclerView.setAdapter(calendarAdapter);
-
-        scrollToCurrentDatePosition(calendarRecyclerView, calendarList);
 
         currentMonth.setOnClickListener(v -> scrollToCurrentDatePosition(calendarRecyclerView, calendarList));
     }

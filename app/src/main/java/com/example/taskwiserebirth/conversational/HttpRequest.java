@@ -32,7 +32,7 @@ public class HttpRequest {
 
 
     // add boolean isTurnBased if true change server address
-    public static void sendRequest(String userMessage, String aiName, String userId, boolean inTurnBasedInteraction, final HttpRequestCallback callback) {
+    public static void regularRequest(String userMessage, String aiName, String userId, final HttpRequestCallback callback) {
         JSONObject requestBodyJson = new JSONObject();
         try {
             requestBodyJson.put("user_prompt", userMessage);
@@ -42,11 +42,25 @@ public class HttpRequest {
             e.printStackTrace();
         }
 
-        String url = inTurnBasedInteraction ? SERVER_ADDRESS + GET_TASK_DETAIL : SERVER_ADDRESS;
+        String url = SERVER_ADDRESS;
         sendHttpRequest(url, requestBodyJson, callback);
     }
 
-    public static void taskDetailResponse(Task task, String userMessage, String aiName, final HttpRequestCallback callback) {
+    public static void editTaskRequest(String userMessage, String aiName, String userId, final HttpRequestCallback callback) {
+        JSONObject requestBodyJson = new JSONObject();
+        try {
+            requestBodyJson.put("user_prompt", userMessage);
+            requestBodyJson.put("ai_name", aiName);
+            requestBodyJson.put("user_id", userId);
+        } catch (JSONException e) {
+            e.printStackTrace();
+        }
+
+        String url = SERVER_ADDRESS + GET_TASK_DETAIL;
+        sendHttpRequest(url, requestBodyJson, callback);
+    }
+
+    public static void taskDetailRequest(Task task, String userMessage, String aiName, final HttpRequestCallback callback) {
         JSONObject requestBodyJson = new JSONObject();
         try {
             SimpleDateFormat sdf = new SimpleDateFormat("MM-dd-yyyy | hh:mm a");
