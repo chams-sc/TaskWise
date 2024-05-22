@@ -164,16 +164,16 @@ public class AIRandomSpeech {
     };
 
     private static final String[] followUpChangeMessages = {
-            "Got it. Anything else you want to change?",
-            "Sure, noted. What else needs editing?",
-            "Understood. Is there anything else you'd like to modify?",
-            "Okay, got that. Any other changes?",
-            "Alright. Do you have any more updates?",
-            "Noted. Anything else you want to tweak?",
-            "Sure thing. Any other edits?",
-            "Got it. What else do you need to adjust?",
-            "Understood. Any more modifications?",
-            "Okay. Is there anything else you'd like to update?"
+            "Anything else you want to change?",
+            "What else needs editing?",
+            "Is there anything else you'd like to modify?",
+            "Any other changes?",
+            "Do you have any more updates?",
+            "Anything else you want to tweak?",
+            "Any other edits?",
+            "What else do you need to adjust?",
+            "Any more modifications?",
+            "Is there anything else you'd like to update?"
     };
 
     private static final String[] focusModeMessages = {

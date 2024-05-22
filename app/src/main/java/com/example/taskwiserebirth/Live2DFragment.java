@@ -66,6 +66,7 @@ public class Live2DFragment extends Fragment implements View.OnTouchListener, Sp
     private Task taskToEdit;
     private String tempEditTaskName;
     private String aiName;
+    private String grokTaskName;
     private TextView realTimeSpeechTextView;
 
     private Task tempTask;
@@ -79,6 +80,7 @@ public class Live2DFragment extends Fragment implements View.OnTouchListener, Sp
     private boolean isExpanded = false;
     private boolean isAskingForTaskName = false;
     private boolean hasRecurrence = false;
+    private boolean isRequestNameFromGrok = false;
 
     private final String TAG_SERVER_RESPONSE = "SERVER_RESPONSE";
 
@@ -386,8 +388,13 @@ public class Live2DFragment extends Fragment implements View.OnTouchListener, Sp
                     "most important tasks",
                     "unfinished tasks",
                     "finished tasks",
-                    "task with nearest deadline",
-                    "created tasks"
+                    "which of my task has the nearest deadline",
+                    "what is my nearest deadline",
+                    "created tasks",
+                    "Details of the Task",
+                    "Information of the Task",
+                    "I need the details of the task",
+                    "I need the information of the task"
             ));
 
             // Check if taskName is required for the given intent
@@ -423,7 +430,8 @@ public class Live2DFragment extends Fragment implements View.OnTouchListener, Sp
             case "finished tasks":
                 getFinishedTasks();
                 return;
-            case "task with nearest deadline":
+            case "which of my task has the nearest deadline":
+            case "what is my nearest deadline":
                 getNearestDeadline();
                 return;
             case "created tasks":
@@ -582,6 +590,11 @@ public class Live2DFragment extends Fragment implements View.OnTouchListener, Sp
 
     private void getTaskDetail(String taskName) {
         taskDatabaseManager.fetchTaskByName(tasks -> {
+            if (taskName.equalsIgnoreCase("unspecified")) {
+                synthesizeAssistantSpeech("Which task do you need information of?");
+                isRequestNameFromGrok = true;
+                return;
+            }
             if (tasks.isEmpty()) {
                 synthesizeAssistantSpeech("I'm sorry but I couldn't find your task " + taskName);
             } else {
@@ -725,6 +738,10 @@ public class Live2DFragment extends Fragment implements View.OnTouchListener, Sp
             if (inEditTaskInteraction) {
                 taskNameEdit = tempEditTaskName;
             }
+            if (!"Unspecified".equalsIgnoreCase(taskName)) {
+                synthesizeAssistantSpeech("You forgot to mention the name of the task, what should we call it?");
+                isAskingForTaskName = true;
+            }
             editTaskThroughSpeech(taskNameEdit, newTaskName, reminder);
         }
     }
@@ -835,48 +852,24 @@ public class Live2DFragment extends Fragment implements View.OnTouchListener, Sp
             return;
         }
 
+
         if (confirmAddTaskWithUser) {
             confirmWithUser(recognizedSpeech);
         } else if (inTaskDetailInteraction) {
             handleTaskDetailInteraction(recognizedSpeech);
         } else if (isAskingForTaskName) {
             getTaskName(recognizedSpeech);
-        } else if (inEditTaskInteraction) {
+        } else if (isRequestNameFromGrok) {
+            handleRequestTaskName(recognizedSpeech);
+        }else if (inEditTaskInteraction) {
             handleEditTaskInteraction(recognizedSpeech);
         } else {
-            handleRegularInteraction(recognizedSpeech);
+            if (containsKeyword(recognizedSpeech, new String[]{"add", "edit", "delete", "mark"})) {
+                handleRegularInteraction(recognizedSpeech);
+            } else {
+                handleSecondaryIntent(recognizedSpeech);
+            }
         }
-    }
-
-    private void handleEditTaskInteraction(String recognizedSpeech) {
-        HttpRequest.editTaskRequest(recognizedSpeech, aiName, user.getId(), new HttpRequest.HttpRequestCallback() {
-            @Override
-            public void onSuccess(String intent, String responseText) {
-                Log.v("TestIntentResponse", "Intent: " + intent + " response text: "+ responseText);
-                mainHandler.post(() -> {
-                    if (intent.equalsIgnoreCase("edit task")) {
-                        performIntentEdit(responseText);
-                    } else if (intent.equalsIgnoreCase("null")) {
-                        if (responseText.equalsIgnoreCase("done")) {
-                            inEditTaskInteraction = false;
-                            synthesizeAssistantSpeech("Ok, you're done");
-                        } else if (responseText.equalsIgnoreCase("unrecognized")) {
-                            synthesizeAssistantSpeech("I'm sorry, I didn't understand, what else do you want to edit?");
-                        } else {
-                            performIntentEdit(responseText);
-                        }
-                    }
-                });
-            }
-
-            @Override
-            public void onFailure(String errorMessage) {
-                mainHandler.post(() -> {
-                    Toast.makeText(requireContext(), errorMessage, Toast.LENGTH_LONG).show();
-                    Log.d(TAG_SERVER_RESPONSE, errorMessage);
-                });
-            }
-        });
     }
 
     private void handleRegularInteraction(String recognizedSpeech) {
@@ -895,6 +888,97 @@ public class Live2DFragment extends Fragment implements View.OnTouchListener, Sp
                         } else {
                             Toast.makeText(requireContext(), String.format("%s: %s", aiName, responseText), Toast.LENGTH_LONG).show();
                             synthesizeAssistantSpeech(responseText);
+                        }
+                    }
+                });
+            }
+
+            @Override
+            public void onFailure(String errorMessage) {
+                mainHandler.post(() -> {
+                    Toast.makeText(requireContext(), errorMessage, Toast.LENGTH_LONG).show();
+                    Log.d(TAG_SERVER_RESPONSE, errorMessage);
+                });
+            }
+        });
+    }
+
+    private void handleSecondaryIntent(String recognizedSpeech) {
+        HttpRequest.secondaryIntentReq(recognizedSpeech, aiName, user.getId(), new HttpRequest.HttpRequestCallback() {
+            @Override
+            public void onSuccess(String intent, String responseText) {
+                Log.v("TestIntentResponse", "Intent: " + intent + " response text: "+ responseText);
+                mainHandler.post(() -> {
+                    if (!intent.equals("null")) {
+                        performIntent(intent, responseText);
+                    } else {
+                        if (FocusModeHelper.isFocusModeEnabled(requireContext())) {
+                            String focusResponse = AIRandomSpeech.generateFocusModeMessage();
+                            Toast.makeText(requireContext(), String.format("%s: %s", aiName, focusResponse), Toast.LENGTH_LONG).show();
+                            synthesizeAssistantSpeech(focusResponse);
+                        } else {
+                            Toast.makeText(requireContext(), String.format("%s: %s", aiName, responseText), Toast.LENGTH_LONG).show();
+                            synthesizeAssistantSpeech(responseText);
+                        }
+                    }
+                });
+            }
+
+            @Override
+            public void onFailure(String errorMessage) {
+                mainHandler.post(() -> {
+                    Toast.makeText(requireContext(), errorMessage, Toast.LENGTH_LONG).show();
+                    Log.d(TAG_SERVER_RESPONSE, errorMessage);
+                });
+            }
+        });
+    }
+
+    private void handleRequestTaskName(String recognizedSpeech) {
+        HttpRequest.requestTaskName(recognizedSpeech, new HttpRequest.HttpRequestCallback() {
+            @Override
+            public void onSuccess(String intent, String responseText) {
+                Log.v("handleRequestTaskName", "intent: " + intent + " response: " + responseText);
+                mainHandler.post(() -> {
+                    Pattern taskNamePattern = Pattern.compile("TASK_NAME: (.+?)(?=\\n|$)");
+                    String taskName = "";
+                    Matcher taskNameMatcher = taskNamePattern.matcher(responseText);
+                    if (taskNameMatcher.find()) {
+                        taskName = taskNameMatcher.group(1);
+                        Log.d("DEBUG_TASK_NAME", "Extracted task name: " + taskName);
+                    }
+                    grokTaskName = taskName;
+                    isRequestNameFromGrok = false;
+                    getTaskDetail(taskName);
+                });
+            }
+
+            @Override
+            public void onFailure(String errorMessage) {
+                mainHandler.post(() -> {
+                    Toast.makeText(requireContext(), errorMessage, Toast.LENGTH_LONG).show();
+                    Log.d(TAG_SERVER_RESPONSE, errorMessage);
+                });
+            }
+        });
+    }
+
+    private void handleEditTaskInteraction(String recognizedSpeech) {
+        HttpRequest.editTaskRequest(recognizedSpeech, aiName, user.getId(), new HttpRequest.HttpRequestCallback() {
+            @Override
+            public void onSuccess(String intent, String responseText) {
+                Log.v("TestIntentResponse", "Intent: " + intent + " response text: "+ responseText);
+                mainHandler.post(() -> {
+                    if (intent.equalsIgnoreCase("edit task")) {
+                        performIntentEdit(responseText);
+                    } else if (intent.equalsIgnoreCase("null")) {
+                        if (responseText.equalsIgnoreCase("done")) {
+                            inEditTaskInteraction = false;
+                            synthesizeAssistantSpeech("Ok, you're done");
+                        } else if (responseText.equalsIgnoreCase("unrecognized")) {
+                            synthesizeAssistantSpeech("I'm sorry, I didn't understand, what else do you want to edit?");
+                        } else {
+                            performIntentEdit(responseText);
                         }
                     }
                 });
@@ -982,6 +1066,15 @@ public class Live2DFragment extends Fragment implements View.OnTouchListener, Sp
 
     private void openTaskDetailFragment(Task task) {
         ((MainActivity) requireActivity()).showTaskDetailFragment(task);
+    }
+
+    private boolean containsKeyword(String speech, String[] keywords) {
+        for (String keyword : keywords) {
+            if (speech.toLowerCase().contains(keyword)) {
+                return true;
+            }
+        }
+        return false;
     }
 
     @Override

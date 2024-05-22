@@ -27,11 +27,13 @@ import okhttp3.Response;
 public class HttpRequest {
 
     private static final String SERVER_ADDRESS = "https://taskwise.michacaldaira.com/";
-    private static String GET_TASK_DETAIL = "task_detail";
+    private static final String GET_TASK_DETAIL = "task_detail";
     private static final String PROCESS_TASK_DETAIL = "process_task_detail";
+    private static final String GET_TASK_NAME = "get_task_name";
+    private static final String SECONDARY_INTENT = "secondary_intent";
+    private static final String TAG_HTTP = "HttpRequest";
 
 
-    // add boolean isTurnBased if true change server address
     public static void regularRequest(String userMessage, String aiName, String userId, final HttpRequestCallback callback) {
         JSONObject requestBodyJson = new JSONObject();
         try {
@@ -39,10 +41,24 @@ public class HttpRequest {
             requestBodyJson.put("ai_name", aiName);
             requestBodyJson.put("user_id", userId);
         } catch (JSONException e) {
-            e.printStackTrace();
+            Log.e(TAG_HTTP, e.getMessage());
         }
 
         String url = SERVER_ADDRESS;
+        sendHttpRequest(url, requestBodyJson, callback);
+    }
+
+    public static void secondaryIntentReq(String userMessage, String aiName, String userId, final HttpRequestCallback callback) {
+        JSONObject requestBodyJson = new JSONObject();
+        try {
+            requestBodyJson.put("user_prompt", userMessage);
+            requestBodyJson.put("ai_name", aiName);
+            requestBodyJson.put("user_id", userId);
+        } catch (JSONException e) {
+            Log.e(TAG_HTTP, e.getMessage());
+        }
+
+        String url = SERVER_ADDRESS + SECONDARY_INTENT;
         sendHttpRequest(url, requestBodyJson, callback);
     }
 
@@ -53,10 +69,22 @@ public class HttpRequest {
             requestBodyJson.put("ai_name", aiName);
             requestBodyJson.put("user_id", userId);
         } catch (JSONException e) {
-            e.printStackTrace();
+            Log.e(TAG_HTTP, e.getMessage());
         }
 
         String url = SERVER_ADDRESS + GET_TASK_DETAIL;
+        sendHttpRequest(url, requestBodyJson, callback);
+    }
+
+    public static void requestTaskName(String userMessage, final HttpRequestCallback callback) {
+        JSONObject requestBodyJson = new JSONObject();
+        try {
+            requestBodyJson.put("user_prompt", userMessage);
+        } catch (JSONException e) {
+            Log.e(TAG_HTTP, e.getMessage());
+        }
+
+        String url = SERVER_ADDRESS + GET_TASK_NAME;
         sendHttpRequest(url, requestBodyJson, callback);
     }
 
