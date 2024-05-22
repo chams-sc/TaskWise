@@ -56,15 +56,18 @@ public class MainActivity extends AppCompatActivity {
 
         fragmentManager = getSupportFragmentManager();
 
-        // Add fragments to the fragment manager
-        FragmentTransaction fragmentTransaction = fragmentManager.beginTransaction();
-        fragmentTransaction.add(R.id.frame_layout, live2DFragment, "LIVE2D_FRAGMENT").hide(live2DFragment);
-        fragmentTransaction.add(R.id.frame_layout, addTaskFragment, "ADD_TASK_FRAGMENT").hide(addTaskFragment);
-        fragmentTransaction.add(R.id.frame_layout, smsFragment, "SMS_FRAGMENT").hide(smsFragment);
-        fragmentTransaction.add(R.id.frame_layout, settingsFragment, "SETTINGS_FRAGMENT").hide(settingsFragment);
-        fragmentTransaction.show(live2DFragment).commit();
-
-        activeFragment = live2DFragment;
+        // Add fragments to the fragment manager only if not previously added
+        if (savedInstanceState == null) {
+            FragmentTransaction fragmentTransaction = fragmentManager.beginTransaction();
+            fragmentTransaction.add(R.id.frame_layout, live2DFragment, "LIVE2D_FRAGMENT").hide(live2DFragment);
+            fragmentTransaction.add(R.id.frame_layout, addTaskFragment, "ADD_TASK_FRAGMENT").hide(addTaskFragment);
+            fragmentTransaction.add(R.id.frame_layout, smsFragment, "SMS_FRAGMENT").hide(smsFragment);
+            fragmentTransaction.add(R.id.frame_layout, settingsFragment, "SETTINGS_FRAGMENT").hide(settingsFragment);
+            fragmentTransaction.show(live2DFragment).commit();
+            activeFragment = live2DFragment;
+        } else {
+            activeFragment = fragmentManager.findFragmentByTag("LIVE2D_FRAGMENT");
+        }
 
         setupBottomNavigationListener();
     }
@@ -109,6 +112,15 @@ public class MainActivity extends AppCompatActivity {
 
         FragmentTransaction fragmentTransaction = fragmentManager.beginTransaction();
         fragmentTransaction.add(R.id.frame_layout, taskDetailFragment, "TASK_DETAIL_FRAGMENT")
+                .addToBackStack(null) // Add the transaction to the back stack
+                .commit();
+    }
+
+    public void showAllTaskFragment() {
+        AllTaskFragment allTaskFragment = new AllTaskFragment();
+
+        FragmentTransaction fragmentTransaction = fragmentManager.beginTransaction();
+        fragmentTransaction.add(R.id.frame_layout, allTaskFragment, "ALL_TASK_FRAGMENT")
                 .addToBackStack(null) // Add the transaction to the back stack
                 .commit();
     }

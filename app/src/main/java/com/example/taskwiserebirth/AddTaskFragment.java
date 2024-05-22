@@ -4,9 +4,11 @@ import android.app.AlarmManager;
 import android.content.Context;
 import android.os.Build;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.view.ViewTreeObserver;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 
@@ -80,10 +82,8 @@ public class AddTaskFragment extends Fragment implements DatabaseChangeListener,
         LinearLayout todayTaskContainer = rootView.findViewById(R.id.viewAllContainer);
         todayTaskContainer.setOnClickListener(v -> {
             // Navigate to All Task Fragment
-            AllTaskFragment allTaskFragment = new AllTaskFragment();
-            ((MainActivity) requireActivity()).replaceFragment(allTaskFragment, true);
+            ((MainActivity) requireActivity()).showAllTaskFragment();
         });
-
 
         PermissionUtils.requestNotificationPermission(requireActivity());
 
@@ -97,7 +97,21 @@ public class AddTaskFragment extends Fragment implements DatabaseChangeListener,
         return rootView;
     }
 
+    @Override
+    public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
+        super.onViewCreated(view, savedInstanceState);
 
+        // Use ViewTreeObserver to ensure the RecyclerView is fully laid out before scrolling
+        calendarRecyclerView.getViewTreeObserver().addOnGlobalLayoutListener(new ViewTreeObserver.OnGlobalLayoutListener() {
+            @Override
+            public void onGlobalLayout() {
+                if (isVisible()) {
+                    calendarRecyclerView.getViewTreeObserver().removeOnGlobalLayoutListener(this);
+                    scrollToCurrentDatePosition(calendarRecyclerView, calendarList);
+                }
+            }
+        });
+    }
 
     private void setUpCalendarRecyclerView(View rootView) {
         calendarRecyclerView = rootView.findViewById(R.id.calendarRecyclerView);
@@ -129,6 +143,7 @@ public class AddTaskFragment extends Fragment implements DatabaseChangeListener,
 
     private void scrollToCurrentDatePosition(RecyclerView calendarRecyclerView, List<Calendar> calendarList) {
         int currentPosition = CalendarUtils.getCurrentDatePosition(calendarList);
+        Log.d("AddTaskFragment", "Scrolling to position: " + currentPosition);
 
         if (currentPosition != -1) {
             smoothScrollToPosition(calendarRecyclerView, currentPosition);
@@ -148,7 +163,6 @@ public class AddTaskFragment extends Fragment implements DatabaseChangeListener,
         smoothScroller.setTargetPosition(position);
         recyclerView.getLayoutManager().startSmoothScroll(smoothScroller);
     }
-
 
     private void setUpTaskRecyclerView(View rootView) {
         RecyclerView cardRecyclerView = rootView.findViewById(R.id.tasksRecyclerView);
@@ -176,6 +190,16 @@ public class AddTaskFragment extends Fragment implements DatabaseChangeListener,
         }, selectedDate);
     }
 
+//    @Override
+//    public void onHiddenChanged(boolean hidden) {
+//        super.onHiddenChanged(hidden);
+//        if (!hidden) {
+//            // Fragment is now visible
+//            Log.d("AddTaskFragment", "Fragment is now visible");
+//            scrollToCurrentDatePosition(calendarRecyclerView, calendarList);
+//        }
+//    }
+
     @Override
     public void onDestroyView() {
         super.onDestroyView();
@@ -185,6 +209,7 @@ public class AddTaskFragment extends Fragment implements DatabaseChangeListener,
         rootView = null;
         taskAdapter = null;
     }
+
     @Override
     public void onPause() {
         super.onPause();
