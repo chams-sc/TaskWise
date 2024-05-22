@@ -10,7 +10,7 @@ import android.view.LayoutInflater;
 import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.ImageButton;
+import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -72,6 +72,7 @@ public class Live2DFragment extends Fragment implements View.OnTouchListener, Sp
     private String chosenExpression;
     private Map<String, String[]> expressionMap;
 
+    private boolean isFullscreen = false;
     private boolean inEditTaskInteraction = false;
     private boolean confirmAddTaskWithUser = false;
     private boolean inTaskDetailInteraction = false;
@@ -83,6 +84,7 @@ public class Live2DFragment extends Fragment implements View.OnTouchListener, Sp
 
     private final Handler mainHandler = new Handler(Looper.getMainLooper());
     private SharedViewModel sharedViewModel;
+    private ImageView collapseBtn;
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
@@ -132,14 +134,28 @@ public class Live2DFragment extends Fragment implements View.OnTouchListener, Sp
     }
 
     private void initializeUIComponents(View view) {
-        ImageButton collapseBtn = view.findViewById(R.id.fullscreen_button);
-        collapseBtn.setOnClickListener(v -> ((MainActivity) requireActivity()).toggleNavBarVisibility(false, false));
-
+        collapseBtn = view.findViewById(R.id.fullscreen_button);
+        collapseBtn.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                toggleFullscreen();
+            }
+        });
         FloatingActionButton speakBtn = view.findViewById(R.id.speakBtn);
         speakBtn.setOnClickListener(v -> handleSpeakButtonClick());
 
         realTimeSpeechTextView = view.findViewById(R.id.realTimeSpeechTextView);
         realTimeSpeechTextView.setOnClickListener(v -> toggleRealTimeSpeechTextViewExpansion());
+    }
+
+    private void toggleFullscreen() {
+        isFullscreen = !isFullscreen;
+        if (isFullscreen) {
+            collapseBtn.setBackgroundResource(R.drawable.ic_exit_fullscreen);
+        } else {
+            collapseBtn.setBackgroundResource(R.drawable.fullscreen);
+        }
+        ((MainActivity) requireActivity()).toggleNavBarVisibility(false, false);
     }
 
     private void handleSpeakButtonClick() {
