@@ -824,16 +824,21 @@ public class Live2DFragment extends Fragment implements View.OnTouchListener, Sp
             }
             if (!tempTaskForAddEdit.getRecurrence().equalsIgnoreCase("unspecified")
                     && CalendarUtils.isRecurrenceAccepted(tempTaskForAddEdit.getRecurrence())
-                    || tempTaskForAddEdit.getRecurrence().equals("Daily")) {
-                if (!taskToEdit.getSchedule().equals("No schedule")) {
-                    String schedule = taskToEdit.getSchedule();
-                    // Extracting the time part from the schedule string
-                    String filteredSched = schedule.substring(schedule.lastIndexOf("|") + 1).trim();
-                    taskToEdit.setSchedule(filteredSched);
+                    || tempTaskForAddEdit.getRecurrence().equals("Daily") || tempTaskForAddEdit.getRecurrence().equals("None")) {
+                if (tempTaskForAddEdit.getRecurrence().equals("None")) {
+                    taskToEdit.setRecurrence("None");
+                    taskToEdit.setSchedule("No schedule");
                 } else {
-                    taskToEdit.setSchedule("09:00 AM");
+                    if (!taskToEdit.getSchedule().equals("No schedule")) {
+                        String schedule = taskToEdit.getSchedule();
+                        // Extracting the time part from the schedule string
+                        String filteredSched = schedule.substring(schedule.lastIndexOf("|") + 1).trim();
+                        taskToEdit.setSchedule(filteredSched);
+                    } else {
+                        taskToEdit.setSchedule("09:00 AM");
+                    }
+                    taskToEdit.setRecurrence(CalendarUtils.formatRecurrence(tempTaskForAddEdit.getRecurrence()));
                 }
-                taskToEdit.setRecurrence(CalendarUtils.formatRecurrence(tempTaskForAddEdit.getRecurrence()));
             }
             if (!tempTaskForAddEdit.getNotes().equalsIgnoreCase("unspecified")) {
                 taskToEdit.setNotes(tempTaskForAddEdit.getNotes());
