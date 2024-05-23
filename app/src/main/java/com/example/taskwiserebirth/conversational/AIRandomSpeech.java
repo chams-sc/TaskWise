@@ -144,12 +144,24 @@ public class AIRandomSpeech {
             "Hmm, it seems like there's no task named %s.",
             "Sorry, but I don't see any task called %s.",
             "It looks like there's no task by the name of %s.",
-            "No task named %s found. Maybe check the name again?",
             "I'm afraid there's no task called %s in your list.",
             "There's no task named %s. Can you double-check the name?",
             "I couldn't locate a task named %s. Maybe it was deleted?",
             "Unfortunately, there's no task called %s."
     };
+
+    private static final String[] taskNotFoundAndVerify = {
+            "I couldn't find a task named %s. Did you mean something else?",
+            "Hmm, no task called %s here. Can you clarify the name?",
+            "Oops! %s doesn't ring a bell. What task are you looking for?",
+            "No luck finding %s. Could you specify the task again?",
+            "Looks like there's no task named %s. Could you check the name for me?",
+            "Sorry, %s isn't in the list. What task did you mean?",
+            "I don't see a task called %s. Maybe try a different name?",
+            "There's no task named %s. Do you have another name in mind?",
+            "I'm afraid there's no task called %s. What task are you referring to?"
+    };
+
 
     private static final String[] editPromptMessages = {
             "Sure, what do you want to edit?",
@@ -261,6 +273,12 @@ public class AIRandomSpeech {
     public static String generateTaskNotFound(String taskName) {
         int randomIndex = random.nextInt(taskNotFoundMessage.length);
         String randomMessage = taskNotFoundMessage[randomIndex];
+        return String.format(randomMessage, taskName);
+    }
+
+    public static String generateTaskNotFoundAndVerify(String taskName) {
+        int randomIndex = random.nextInt(taskNotFoundAndVerify.length);
+        String randomMessage = taskNotFoundAndVerify[randomIndex];
         return String.format(randomMessage, taskName);
     }
 

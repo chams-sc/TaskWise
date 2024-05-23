@@ -768,11 +768,11 @@ public class Live2DFragment extends Fragment implements View.OnTouchListener, Sp
 
     private void getEditTaskName(String recognizedSpeech) {
         Log.v("getEditTaskName", "getEditTaskName run");
-        taskDatabaseManager.fetchUnfinishedTaskByName(new TaskDatabaseManager.TaskFetchListener() {
+        taskDatabaseManager.fetchTaskByName(new TaskDatabaseManager.TaskFetchListener() {
             @Override
             public void onTasksFetched(List<Task> tasks) {
                 if (tasks.isEmpty()) {
-                    synthesizeAssistantSpeech(AIRandomSpeech.generateTaskNotFound(recognizedSpeech) + " Can you be more specific?");
+                    synthesizeAssistantSpeech(AIRandomSpeech.generateTaskNotFoundAndVerify(recognizedSpeech));
                 } else {
                     tempEditTaskName = recognizedSpeech;
                     editTaskAskingForTaskName = false;
@@ -792,7 +792,8 @@ public class Live2DFragment extends Fragment implements View.OnTouchListener, Sp
     private void editTaskThroughSpeech(String taskName, String newTaskName) {
         taskDatabaseManager.fetchTaskByName(tasks -> {
             if (tasks.isEmpty()) {
-                synthesizeAssistantSpeech(AIRandomSpeech.generateTaskNotFound(taskName));
+                synthesizeAssistantSpeech(AIRandomSpeech.generateTaskNotFoundAndVerify(taskName));
+                editTaskAskingForTaskName = true;
                 return;
             }
 
@@ -820,7 +821,16 @@ public class Live2DFragment extends Fragment implements View.OnTouchListener, Sp
             }
             if (!tempTaskForAddEdit.getSchedule().equalsIgnoreCase("unspecified")
                     && CalendarUtils.isDateAccepted(tempTaskForAddEdit.getSchedule())) {
-                taskToEdit.setSchedule(tempTaskForAddEdit.getSchedule());
+                // if there is recurrence, extract only the time part
+                if (!taskToEdit.getRecurrence().equals("None")) {
+                    String schedule = tempTaskForAddEdit.getSchedule();
+                    // Extracting the time part from the schedule string
+                    String filteredSched = schedule.substring(schedule.lastIndexOf("|") + 1).trim();
+                    Log.v("EditTaskThroughSpeech", "sched: " + filteredSched);
+                    taskToEdit.setSchedule(filteredSched);
+                } else {
+                    taskToEdit.setSchedule(tempTaskForAddEdit.getSchedule());
+                }
             }
             if (!tempTaskForAddEdit.getRecurrence().equalsIgnoreCase("unspecified")
                     && CalendarUtils.isRecurrenceAccepted(tempTaskForAddEdit.getRecurrence())
