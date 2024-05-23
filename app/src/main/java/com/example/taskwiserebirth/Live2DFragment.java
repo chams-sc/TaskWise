@@ -834,8 +834,8 @@ public class Live2DFragment extends Fragment implements View.OnTouchListener, Sp
             }
             if (!tempTaskForAddEdit.getRecurrence().equalsIgnoreCase("unspecified")
                     && CalendarUtils.isRecurrenceAccepted(tempTaskForAddEdit.getRecurrence())
-                    || tempTaskForAddEdit.getRecurrence().equals("Daily") || tempTaskForAddEdit.getRecurrence().equals("None")) {
-                if (tempTaskForAddEdit.getRecurrence().equals("None")) {
+                    || tempTaskForAddEdit.getRecurrence().equalsIgnoreCase("daily") || tempTaskForAddEdit.getRecurrence().equalsIgnoreCase("none")) {
+                if (tempTaskForAddEdit.getRecurrence().equalsIgnoreCase("none")) {
                     taskToEdit.setRecurrence("None");
                     taskToEdit.setSchedule("No schedule");
                 } else {
