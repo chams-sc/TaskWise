@@ -26,7 +26,10 @@ import okhttp3.Response;
 
 public class HttpRequest {
 
-    private static final String SERVER_ADDRESS = "https://taskwise.michacaldaira.com/";
+    private static final String SERVER_ADDRESS = "https://taskwise.michacaldaira.com/";  // add task link
+    private static final String EDIT_TASK = "edit_intent";
+    private static final String DELETE_TASK = "delete_intent";
+    private static final String MARK_TASK = "mark_intent";
     private static final String GET_TASK_DETAIL = "task_detail";
     private static final String PROCESS_TASK_DETAIL = "process_task_detail";
     private static final String GET_TASK_NAME = "get_task_name";
@@ -34,7 +37,7 @@ public class HttpRequest {
     private static final String TAG_HTTP = "HttpRequest";
 
 
-    public static void regularRequest(String userMessage, String aiName, String userId, final HttpRequestCallback callback) {
+    public static void addRequest(String userMessage, String aiName, String userId, final HttpRequestCallback callback) {
         JSONObject requestBodyJson = new JSONObject();
         try {
             requestBodyJson.put("user_prompt", userMessage);
@@ -45,6 +48,48 @@ public class HttpRequest {
         }
 
         String url = SERVER_ADDRESS;
+        sendHttpRequest(url, requestBodyJson, callback);
+    }
+
+    public static void editRequest(String userMessage, String aiName, String userId, final HttpRequestCallback callback) {
+        JSONObject requestBodyJson = new JSONObject();
+        try {
+            requestBodyJson.put("user_prompt", userMessage);
+            requestBodyJson.put("ai_name", aiName);
+            requestBodyJson.put("user_id", userId);
+        } catch (JSONException e) {
+            Log.e(TAG_HTTP, e.getMessage());
+        }
+
+        String url = SERVER_ADDRESS + EDIT_TASK;
+        sendHttpRequest(url, requestBodyJson, callback);
+    }
+
+    public static void deleteRequest(String userMessage, String aiName, String userId, final HttpRequestCallback callback) {
+        JSONObject requestBodyJson = new JSONObject();
+        try {
+            requestBodyJson.put("user_prompt", userMessage);
+            requestBodyJson.put("ai_name", aiName);
+            requestBodyJson.put("user_id", userId);
+        } catch (JSONException e) {
+            Log.e(TAG_HTTP, e.getMessage());
+        }
+
+        String url = SERVER_ADDRESS + DELETE_TASK;
+        sendHttpRequest(url, requestBodyJson, callback);
+    }
+
+    public static void markRequest(String userMessage, String aiName, String userId, final HttpRequestCallback callback) {
+        JSONObject requestBodyJson = new JSONObject();
+        try {
+            requestBodyJson.put("user_prompt", userMessage);
+            requestBodyJson.put("ai_name", aiName);
+            requestBodyJson.put("user_id", userId);
+        } catch (JSONException e) {
+            Log.e(TAG_HTTP, e.getMessage());
+        }
+
+        String url = SERVER_ADDRESS + MARK_TASK;
         sendHttpRequest(url, requestBodyJson, callback);
     }
 

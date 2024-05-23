@@ -924,11 +924,155 @@ public class Live2DFragment extends Fragment implements View.OnTouchListener, Sp
             handleEditTaskInteraction(recognizedSpeech);
         } else {
             if (containsKeyword(recognizedSpeech, new String[]{"add", "edit", "delete", "mark"})) {
-                handleRegularInteraction(recognizedSpeech);
+                String firstKeyword = getFirstKeyword(recognizedSpeech, new String[]{"add", "edit", "delete", "mark"});
+                if (firstKeyword != null) {
+                    switch (firstKeyword) {
+                        case "add":
+                            handleAddInteraction(recognizedSpeech);
+                            break;
+                        case "edit":
+                            handleEditInteraction(recognizedSpeech);
+                            break;
+                        case "delete":
+                            handleDeleteInteraction(recognizedSpeech);
+                            break;
+                        case "mark":
+                            handleMarkInteraction(recognizedSpeech);
+                            break;
+                    }
+                }
             } else {
                 handleSecondaryIntent(recognizedSpeech);
             }
         }
+    }
+
+    private void handleMarkInteraction(String recognizedSpeech) {
+        Log.v("handleMarkInteraction", "handleMarkInteraction running");
+        HttpRequest.markRequest(recognizedSpeech, aiName, user.getId(), new HttpRequest.HttpRequestCallback() {
+            @Override
+            public void onSuccess(String intent, String responseText) {
+                Log.v("TestIntentResponse", "Intent: " + intent + " response text: "+ responseText);
+                mainHandler.post(() -> {
+                    if (!intent.equals("null")) {
+                        performIntent(intent, responseText);
+                    } else {
+                        if (FocusModeHelper.isFocusModeEnabled(requireContext())) {
+                            String focusResponse = AIRandomSpeech.generateFocusModeMessage();
+                            Toast.makeText(requireContext(), String.format("%s: %s", aiName, focusResponse), Toast.LENGTH_LONG).show();
+                            synthesizeAssistantSpeech(focusResponse);
+                        } else {
+                            Toast.makeText(requireContext(), String.format("%s: %s", aiName, responseText), Toast.LENGTH_LONG).show();
+                            synthesizeAssistantSpeech(responseText);
+                        }
+                    }
+                });
+            }
+
+            @Override
+            public void onFailure(String errorMessage) {
+                mainHandler.post(() -> {
+                    Toast.makeText(requireContext(), errorMessage, Toast.LENGTH_LONG).show();
+                    Log.d(TAG_SERVER_RESPONSE, errorMessage);
+                });
+            }
+        });
+    }
+
+    private void handleDeleteInteraction(String recognizedSpeech) {
+        Log.v("handleDeleteInteraction", "handleDeleteInteraction running");
+        HttpRequest.deleteRequest(recognizedSpeech, aiName, user.getId(), new HttpRequest.HttpRequestCallback() {
+            @Override
+            public void onSuccess(String intent, String responseText) {
+                Log.v("TestIntentResponse", "Intent: " + intent + " response text: "+ responseText);
+                mainHandler.post(() -> {
+                    if (!intent.equals("null")) {
+                        performIntent(intent, responseText);
+                    } else {
+                        if (FocusModeHelper.isFocusModeEnabled(requireContext())) {
+                            String focusResponse = AIRandomSpeech.generateFocusModeMessage();
+                            Toast.makeText(requireContext(), String.format("%s: %s", aiName, focusResponse), Toast.LENGTH_LONG).show();
+                            synthesizeAssistantSpeech(focusResponse);
+                        } else {
+                            Toast.makeText(requireContext(), String.format("%s: %s", aiName, responseText), Toast.LENGTH_LONG).show();
+                            synthesizeAssistantSpeech(responseText);
+                        }
+                    }
+                });
+            }
+
+            @Override
+            public void onFailure(String errorMessage) {
+                mainHandler.post(() -> {
+                    Toast.makeText(requireContext(), errorMessage, Toast.LENGTH_LONG).show();
+                    Log.d(TAG_SERVER_RESPONSE, errorMessage);
+                });
+            }
+        });
+    }
+
+    private void handleEditInteraction(String recognizedSpeech) {
+        Log.v("handleEditInteraction", "handleEditInteraction running");
+        HttpRequest.editRequest(recognizedSpeech, aiName, user.getId(), new HttpRequest.HttpRequestCallback() {
+            @Override
+            public void onSuccess(String intent, String responseText) {
+                Log.v("TestIntentResponse", "Intent: " + intent + " response text: "+ responseText);
+                mainHandler.post(() -> {
+                    if (!intent.equals("null")) {
+                        performIntent(intent, responseText);
+                    } else {
+                        if (FocusModeHelper.isFocusModeEnabled(requireContext())) {
+                            String focusResponse = AIRandomSpeech.generateFocusModeMessage();
+                            Toast.makeText(requireContext(), String.format("%s: %s", aiName, focusResponse), Toast.LENGTH_LONG).show();
+                            synthesizeAssistantSpeech(focusResponse);
+                        } else {
+                            Toast.makeText(requireContext(), String.format("%s: %s", aiName, responseText), Toast.LENGTH_LONG).show();
+                            synthesizeAssistantSpeech(responseText);
+                        }
+                    }
+                });
+            }
+
+            @Override
+            public void onFailure(String errorMessage) {
+                mainHandler.post(() -> {
+                    Toast.makeText(requireContext(), errorMessage, Toast.LENGTH_LONG).show();
+                    Log.d(TAG_SERVER_RESPONSE, errorMessage);
+                });
+            }
+        });
+    }
+
+    private void handleAddInteraction(String recognizedSpeech) {
+        Log.v("handleRegularInteraction", "handleRegularInteraction running");
+        HttpRequest.addRequest(recognizedSpeech, aiName, user.getId(), new HttpRequest.HttpRequestCallback() {
+            @Override
+            public void onSuccess(String intent, String responseText) {
+                Log.v("TestIntentResponse", "Intent: " + intent + " response text: "+ responseText);
+                mainHandler.post(() -> {
+                    if (!intent.equals("null")) {
+                        performIntent(intent, responseText);
+                    } else {
+                        if (FocusModeHelper.isFocusModeEnabled(requireContext())) {
+                            String focusResponse = AIRandomSpeech.generateFocusModeMessage();
+                            Toast.makeText(requireContext(), String.format("%s: %s", aiName, focusResponse), Toast.LENGTH_LONG).show();
+                            synthesizeAssistantSpeech(focusResponse);
+                        } else {
+                            Toast.makeText(requireContext(), String.format("%s: %s", aiName, responseText), Toast.LENGTH_LONG).show();
+                            synthesizeAssistantSpeech(responseText);
+                        }
+                    }
+                });
+            }
+
+            @Override
+            public void onFailure(String errorMessage) {
+                mainHandler.post(() -> {
+                    Toast.makeText(requireContext(), errorMessage, Toast.LENGTH_LONG).show();
+                    Log.d(TAG_SERVER_RESPONSE, errorMessage);
+                });
+            }
+        });
     }
 
     private void handleEditTaskInteraction(String recognizedSpeech) {
@@ -949,38 +1093,6 @@ public class Live2DFragment extends Fragment implements View.OnTouchListener, Sp
                             synthesizeAssistantSpeech("I'm sorry, I didn't understand, what else do you want to edit?");
                         } else {
                             performIntentEdit(responseText);
-                        }
-                    }
-                });
-            }
-
-            @Override
-            public void onFailure(String errorMessage) {
-                mainHandler.post(() -> {
-                    Toast.makeText(requireContext(), errorMessage, Toast.LENGTH_LONG).show();
-                    Log.d(TAG_SERVER_RESPONSE, errorMessage);
-                });
-            }
-        });
-    }
-
-    private void handleRegularInteraction(String recognizedSpeech) {
-        Log.v("handleRegularInteraction", "handleRegularInteraction running");
-        HttpRequest.regularRequest(recognizedSpeech, aiName, user.getId(), new HttpRequest.HttpRequestCallback() {
-            @Override
-            public void onSuccess(String intent, String responseText) {
-                Log.v("TestIntentResponse", "Intent: " + intent + " response text: "+ responseText);
-                mainHandler.post(() -> {
-                    if (!intent.equals("null")) {
-                        performIntent(intent, responseText);
-                    } else {
-                        if (FocusModeHelper.isFocusModeEnabled(requireContext())) {
-                            String focusResponse = AIRandomSpeech.generateFocusModeMessage();
-                            Toast.makeText(requireContext(), String.format("%s: %s", aiName, focusResponse), Toast.LENGTH_LONG).show();
-                            synthesizeAssistantSpeech(focusResponse);
-                        } else {
-                            Toast.makeText(requireContext(), String.format("%s: %s", aiName, responseText), Toast.LENGTH_LONG).show();
-                            synthesizeAssistantSpeech(responseText);
                         }
                     }
                 });
@@ -1135,6 +1247,19 @@ public class Live2DFragment extends Fragment implements View.OnTouchListener, Sp
             }
         }
         return false;
+    }
+
+    private String getFirstKeyword(String speech, String[] keywords) {
+        int firstIndex = speech.length();
+        String firstKeyword = null;
+        for (String keyword : keywords) {
+            int index = speech.toLowerCase().indexOf(keyword);
+            if (index != -1 && index < firstIndex) {
+                firstIndex = index;
+                firstKeyword = keyword;
+            }
+        }
+        return firstKeyword;
     }
 
     @Override
