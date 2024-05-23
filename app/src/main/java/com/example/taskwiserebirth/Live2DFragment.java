@@ -63,8 +63,9 @@ public class Live2DFragment extends Fragment implements View.OnTouchListener, Sp
     private UserDatabaseManager userDatabaseManager;
     private User user;
     private Task tempTaskForAddEdit;
+    private Task initialTaskForEdit;
     private Task taskToEdit;
-    private String tempEditTaskName;
+    private String tempEditTaskName = "";
     private String aiName;
     private String grokTaskName;
     private TextView realTimeSpeechTextView;
@@ -78,7 +79,8 @@ public class Live2DFragment extends Fragment implements View.OnTouchListener, Sp
     private boolean confirmAddTaskWithUser = false;
     private boolean inTaskDetailInteraction = false;
     private boolean isExpanded = false;
-    private boolean isAskingForTaskName = false;
+    private boolean addTaskAskingForTaskName = false;
+    private boolean editTaskAskingForTaskName = false;
     private boolean hasRecurrence = false;
     private boolean isRequestNameFromGrok = false;
 
@@ -704,7 +706,7 @@ public class Live2DFragment extends Fragment implements View.OnTouchListener, Sp
 
         Matcher reminderMatcher = reminderPattern.matcher(responseText);
         if (reminderMatcher.find()) {
-            schedule = reminderMatcher.group(1);
+            reminder = reminderMatcher.group(1);
         }
 
         Matcher notesMatcher = notesPattern.matcher(responseText);
@@ -728,27 +730,66 @@ public class Live2DFragment extends Fragment implements View.OnTouchListener, Sp
                 addCompleteTask(tempTaskForAddEdit);
             } else {
                 synthesizeAssistantSpeech("You forgot to mention the name of the task, what should we call it?");
-                isAskingForTaskName = true;
+                addTaskAskingForTaskName = true;
             }
         } else {
-            // TODO: pag nag edit need muna icheck kung ang task name ay nageexist sa database bago iedit
             tempTaskForAddEdit = new Task(taskName, importance, urgency, deadline, schedule, recurrence, true, notes);
+            inEditTaskInteraction = true;
 
-            String taskNameEdit = taskName;
-
-            if (inEditTaskInteraction) {
-                taskNameEdit = tempEditTaskName;
+            if (tempEditTaskName.isEmpty()) {
+                tempEditTaskName = tempTaskForAddEdit.getTaskName();
             }
-            if ("Unspecified".equalsIgnoreCase(taskName)) {
-                synthesizeAssistantSpeech("You forgot to mention the name of the task, which task was it?");
-                isAskingForTaskName = true;
+
+            if (reminder.equalsIgnoreCase("false")) {
+                tempTaskForAddEdit.setReminder(false);
             } else {
-                editTaskThroughSpeech(taskNameEdit, newTaskName, reminder);
+                tempTaskForAddEdit.setReminder(true);
             }
+
+            if ("Unspecified".equalsIgnoreCase(tempEditTaskName)) {
+                synthesizeAssistantSpeech("You forgot to mention the name of the task, which task was it?");
+                editTaskAskingForTaskName = true;
+            } else {
+                editTaskThroughSpeech(tempEditTaskName, newTaskName);
+            }
+//            String taskNameEdit = taskName;
+//
+//            if (inEditTaskInteraction) {
+//                taskNameEdit = tempEditTaskName;
+//            }
+//            if ("Unspecified".equalsIgnoreCase(taskName)) {
+//                synthesizeAssistantSpeech("You forgot to mention the name of the task, which task was it?");
+//                isAskingForTaskName = true;
+//            } else {
+//                editTaskThroughSpeech(taskNameEdit, newTaskName, reminder);
+//            }
         }
     }
 
-    private void editTaskThroughSpeech(String taskName, String newTaskName, String reminder) {
+    private void getEditTaskName(String recognizedSpeech) {
+        Log.v("getEditTaskName", "getEditTaskName run");
+        taskDatabaseManager.fetchUnfinishedTaskByName(new TaskDatabaseManager.TaskFetchListener() {
+            @Override
+            public void onTasksFetched(List<Task> tasks) {
+                if (tasks.isEmpty()) {
+                    synthesizeAssistantSpeech(AIRandomSpeech.generateTaskNotFound(recognizedSpeech) + " Can you be more specific?");
+                } else {
+                    tempEditTaskName = recognizedSpeech;
+                    editTaskAskingForTaskName = false;
+                    editTaskThroughSpeech(recognizedSpeech,"unspecified");
+                }
+            }
+        }, recognizedSpeech);
+    }
+
+    private void getAddTaskName(String recognizedSpeech) {
+        Log.v("getAddTaskName", "running");
+        tempTaskForAddEdit.setTaskName(recognizedSpeech);
+        addCompleteTask(tempTaskForAddEdit);
+        addTaskAskingForTaskName = false;
+    }
+
+    private void editTaskThroughSpeech(String taskName, String newTaskName) {
         taskDatabaseManager.fetchTaskByName(tasks -> {
             if (tasks.isEmpty()) {
                 synthesizeAssistantSpeech(AIRandomSpeech.generateTaskNotFound(taskName));
@@ -777,20 +818,30 @@ public class Live2DFragment extends Fragment implements View.OnTouchListener, Sp
                     && CalendarUtils.isDateAccepted(tempTaskForAddEdit.getDeadline())) {
                 taskToEdit.setDeadline(tempTaskForAddEdit.getDeadline());
             }
-            if (!tempTaskForAddEdit.getRecurrence().equalsIgnoreCase("unspecified")
-                    && CalendarUtils.isRecurrenceAccepted(tempTaskForAddEdit.getRecurrence())
-                    || tempTaskForAddEdit.getRecurrence().equals("Daily")) {
-                taskToEdit.setRecurrence(CalendarUtils.formatRecurrence(tempTaskForAddEdit.getRecurrence()));
-            }
             if (!tempTaskForAddEdit.getSchedule().equalsIgnoreCase("unspecified")
                     && CalendarUtils.isDateAccepted(tempTaskForAddEdit.getSchedule())) {
                 taskToEdit.setSchedule(tempTaskForAddEdit.getSchedule());
             }
+            if (!tempTaskForAddEdit.getRecurrence().equalsIgnoreCase("unspecified")
+                    && CalendarUtils.isRecurrenceAccepted(tempTaskForAddEdit.getRecurrence())
+                    || tempTaskForAddEdit.getRecurrence().equals("Daily")) {
+                if (!taskToEdit.getSchedule().equals("No schedule")) {
+                    String schedule = taskToEdit.getSchedule();
+                    // Extracting the time part from the schedule string
+                    String filteredSched = schedule.substring(schedule.lastIndexOf("|") + 1).trim();
+                    taskToEdit.setSchedule(filteredSched);
+                } else {
+                    taskToEdit.setSchedule("09:00 AM");
+                }
+                taskToEdit.setRecurrence(CalendarUtils.formatRecurrence(tempTaskForAddEdit.getRecurrence()));
+            }
             if (!tempTaskForAddEdit.getNotes().equalsIgnoreCase("unspecified")) {
                 taskToEdit.setNotes(tempTaskForAddEdit.getNotes());
             }
-            if (reminder.equalsIgnoreCase("false")) {
+            if (!tempTaskForAddEdit.isReminder()) {
                 taskToEdit.setReminder(false);
+            } else {
+                taskToEdit.setReminder(true);
             }
 
 
@@ -802,11 +853,10 @@ public class Live2DFragment extends Fragment implements View.OnTouchListener, Sp
             taskDatabaseManager.updateTask(taskToEdit, new TaskDatabaseManager.TaskUpdateListener() {
                 @Override
                 public void onTaskUpdated(Task updatedTask) {
-                    // do something when task updates
+
                 }
             });
 
-            inEditTaskInteraction = true;
             turnBasedInteraction();
         }, taskName);
     }
@@ -859,12 +909,13 @@ public class Live2DFragment extends Fragment implements View.OnTouchListener, Sp
             confirmWithUser(recognizedSpeech);
         } else if (inTaskDetailInteraction) {
             handleTaskDetailInteraction(recognizedSpeech);
-        } else if (isAskingForTaskName) {
-            getTaskName(recognizedSpeech);
-            addCompleteTask(tempTaskForAddEdit);
-        } else if (isRequestNameFromGrok) {
+        } else if (addTaskAskingForTaskName) {
+            getAddTaskName(recognizedSpeech);
+        } else if (editTaskAskingForTaskName) {
+            getEditTaskName(recognizedSpeech);
+        }else if (isRequestNameFromGrok) {
             handleRequestTaskName(recognizedSpeech);
-        }else if (inEditTaskInteraction) {
+        } else if (inEditTaskInteraction) {
             handleEditTaskInteraction(recognizedSpeech);
         } else {
             if (containsKeyword(recognizedSpeech, new String[]{"add", "edit", "delete", "mark"})) {
@@ -875,7 +926,41 @@ public class Live2DFragment extends Fragment implements View.OnTouchListener, Sp
         }
     }
 
+    private void handleEditTaskInteraction(String recognizedSpeech) {
+        Log.v("handleEditTaskInteraction", "handleEditTaskInteraction running");
+        HttpRequest.editTaskRequest(recognizedSpeech, aiName, user.getId(), new HttpRequest.HttpRequestCallback() {
+            @Override
+            public void onSuccess(String intent, String responseText) {
+                Log.v("TestIntentResponse", "Intent: " + intent + " response text: "+ responseText);
+                mainHandler.post(() -> {
+                    if (intent.equalsIgnoreCase("edit task")) {
+                        performIntentEdit(responseText);
+                    } else if (intent.equalsIgnoreCase("null")) {
+                        if (responseText.equalsIgnoreCase("done")) {
+                            inEditTaskInteraction = false;
+                            tempEditTaskName = "";
+                            synthesizeAssistantSpeech("Ok, you're done");
+                        } else if (responseText.equalsIgnoreCase("unrecognized")) {
+                            synthesizeAssistantSpeech("I'm sorry, I didn't understand, what else do you want to edit?");
+                        } else {
+                            performIntentEdit(responseText);
+                        }
+                    }
+                });
+            }
+
+            @Override
+            public void onFailure(String errorMessage) {
+                mainHandler.post(() -> {
+                    Toast.makeText(requireContext(), errorMessage, Toast.LENGTH_LONG).show();
+                    Log.d(TAG_SERVER_RESPONSE, errorMessage);
+                });
+            }
+        });
+    }
+
     private void handleRegularInteraction(String recognizedSpeech) {
+        Log.v("handleRegularInteraction", "handleRegularInteraction running");
         HttpRequest.regularRequest(recognizedSpeech, aiName, user.getId(), new HttpRequest.HttpRequestCallback() {
             @Override
             public void onSuccess(String intent, String responseText) {
@@ -907,6 +992,7 @@ public class Live2DFragment extends Fragment implements View.OnTouchListener, Sp
     }
 
     private void handleSecondaryIntent(String recognizedSpeech) {
+        Log.v("handleSecondaryIntent", "handleSecondaryIntent running");
         HttpRequest.secondaryIntentReq(recognizedSpeech, aiName, user.getId(), new HttpRequest.HttpRequestCallback() {
             @Override
             public void onSuccess(String intent, String responseText) {
@@ -938,6 +1024,7 @@ public class Live2DFragment extends Fragment implements View.OnTouchListener, Sp
     }
 
     private void handleRequestTaskName(String recognizedSpeech) {
+        Log.v("handleRequestTaskName", "handleRequestTaskName running");
         HttpRequest.requestTaskName(recognizedSpeech, new HttpRequest.HttpRequestCallback() {
             @Override
             public void onSuccess(String intent, String responseText) {
@@ -953,37 +1040,6 @@ public class Live2DFragment extends Fragment implements View.OnTouchListener, Sp
                     grokTaskName = taskName;
                     isRequestNameFromGrok = false;
                     getTaskDetail(taskName);
-                });
-            }
-
-            @Override
-            public void onFailure(String errorMessage) {
-                mainHandler.post(() -> {
-                    Toast.makeText(requireContext(), errorMessage, Toast.LENGTH_LONG).show();
-                    Log.d(TAG_SERVER_RESPONSE, errorMessage);
-                });
-            }
-        });
-    }
-
-    private void handleEditTaskInteraction(String recognizedSpeech) {
-        HttpRequest.editTaskRequest(recognizedSpeech, aiName, user.getId(), new HttpRequest.HttpRequestCallback() {
-            @Override
-            public void onSuccess(String intent, String responseText) {
-                Log.v("TestIntentResponse", "Intent: " + intent + " response text: "+ responseText);
-                mainHandler.post(() -> {
-                    if (intent.equalsIgnoreCase("edit task")) {
-                        performIntentEdit(responseText);
-                    } else if (intent.equalsIgnoreCase("null")) {
-                        if (responseText.equalsIgnoreCase("done")) {
-                            inEditTaskInteraction = false;
-                            synthesizeAssistantSpeech("Ok, you're done");
-                        } else if (responseText.equalsIgnoreCase("unrecognized")) {
-                            synthesizeAssistantSpeech("I'm sorry, I didn't understand, what else do you want to edit?");
-                        } else {
-                            performIntentEdit(responseText);
-                        }
-                    }
                 });
             }
 
@@ -1024,12 +1080,9 @@ public class Live2DFragment extends Fragment implements View.OnTouchListener, Sp
         }
     }
 
-    private void getTaskName(String recognizedSpeech) {
-        tempTaskForAddEdit.setTaskName(recognizedSpeech);
-        isAskingForTaskName = false;
-    }
-
     private void handleTaskDetailInteraction(String recognizedSpeech) {
+        Log.v("handleTaskDetailInteraction", "handleTaskDetailInteraction running");
+
         final List<String> doneIntents = Arrays.asList("done", "finished", "all set", "i'm good", "thank you");
         HttpRequest.taskDetailRequest(tempTask, recognizedSpeech, aiName, new HttpRequest.HttpRequestCallback() {
             @Override
