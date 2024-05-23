@@ -8,6 +8,7 @@ import android.view.ViewGroup;
 import android.widget.TextView;
 
 import androidx.fragment.app.Fragment;
+import androidx.lifecycle.ViewModelProvider;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
@@ -16,6 +17,7 @@ import com.example.taskwiserebirth.chatlogs.ChatMessage;
 import com.example.taskwiserebirth.database.ConversationDbManager;
 import com.example.taskwiserebirth.database.MongoDbRealmHelper;
 import com.example.taskwiserebirth.database.UserDatabaseManager;
+import com.example.taskwiserebirth.utils.SharedViewModel;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -29,6 +31,7 @@ public class SMSFragment extends Fragment {
     private RecyclerView recyclerView;
     private ConversationDbManager conversationDbManager;
     private String aiName;
+    private SharedViewModel sharedViewModel;
     private UserDatabaseManager userDatabaseManager;
     private TextView chatAiDisplay;
 
@@ -51,10 +54,15 @@ public class SMSFragment extends Fragment {
         userDatabaseManager = new UserDatabaseManager(user, requireContext());
         chatAiDisplay = view.findViewById(R.id.chatAiName);
 
-        userDatabaseManager.getUserData(userModel -> {
-            aiName = userModel.getAiName();
+        sharedViewModel = new ViewModelProvider(requireActivity()).get(SharedViewModel.class);
+        sharedViewModel.getAiNameLiveData().observe(getViewLifecycleOwner(), aiName -> {
             chatAiDisplay.setText(aiName);
         });
+
+//        userDatabaseManager.getUserData(userModel -> {
+//            aiName = userModel.getAiName();
+//            chatAiDisplay.setText(aiName);
+//        });
 
         conversationDbManager.setNewMessageCallback(newMessage -> {
             chatMessages.add(newMessage);

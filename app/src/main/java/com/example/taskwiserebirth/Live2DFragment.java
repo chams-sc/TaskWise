@@ -69,6 +69,8 @@ public class Live2DFragment extends Fragment implements View.OnTouchListener, Sp
     private String aiName;
     private String grokTaskName;
     private TextView realTimeSpeechTextView;
+    private SharedViewModel sharedViewModel;
+
 
     private Task tempTask;
     private String chosenExpression;
@@ -88,7 +90,7 @@ public class Live2DFragment extends Fragment implements View.OnTouchListener, Sp
     private final String TAG_SERVER_RESPONSE = "SERVER_RESPONSE";
 
     private final Handler mainHandler = new Handler(Looper.getMainLooper());
-    private SharedViewModel sharedViewModel;
+
     private ImageView collapseBtn;
 
     @Override
@@ -108,6 +110,12 @@ public class Live2DFragment extends Fragment implements View.OnTouchListener, Sp
         initializeUIComponents(view);
         initializeSpeechRecognition(view);
         setupExpressions();
+
+        sharedViewModel = new ViewModelProvider(requireActivity()).get(SharedViewModel.class);
+        // Observe aiName changes
+        sharedViewModel.getAiNameLiveData().observe(getViewLifecycleOwner(), name -> {
+            aiName = name;
+        });
 
         return view;
     }
@@ -134,8 +142,6 @@ public class Live2DFragment extends Fragment implements View.OnTouchListener, Sp
         taskDatabaseManager = new TaskDatabaseManager(user, requireContext());
         conversationDbManager = ((MainActivity) requireActivity()).getConversationDbManager();
         userDatabaseManager = new UserDatabaseManager(user, requireContext());
-
-        userDatabaseManager.getUserData(userModel -> aiName = userModel.getAiName());
     }
 
     private void initializeUIComponents(View view) {

@@ -36,6 +36,7 @@ public class SettingsFragment extends Fragment {
     private UserDatabaseManager userDatabaseManager;
     private ConversationDbManager conversationDbManager;
     private String aiName;
+    private SharedViewModel sharedViewModel;
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
@@ -43,7 +44,7 @@ public class SettingsFragment extends Fragment {
         View view = inflater.inflate(R.layout.fragment_settings, container, false);
 
         // Initialize ViewModel
-        SharedViewModel sharedViewModel = new ViewModelProvider(requireActivity()).get(SharedViewModel.class);
+        sharedViewModel = new ViewModelProvider(requireActivity()).get(SharedViewModel.class);
 
         // Observe focus mode changes
         sharedViewModel.getFocusModeLiveData().observe(getViewLifecycleOwner(), isEnabled -> {
@@ -72,6 +73,7 @@ public class SettingsFragment extends Fragment {
             if (isAdded()) {
                 aiName = userModel.getAiName();
                 emailTxtView.setText(userModel.getEmail());
+                sharedViewModel.setAiName(aiName); // Set initial aiName
             }
         });
 
@@ -105,6 +107,7 @@ public class SettingsFragment extends Fragment {
                 if (isAdded()) {
                     userDatabaseManager.changeAiName(newAiName);
                     aiName = newAiName;
+                    sharedViewModel.setAiName(aiName);
                     dialog.dismiss();
                 }
             }
