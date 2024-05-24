@@ -876,21 +876,33 @@ public class Live2DFragment extends Fragment implements View.OnTouchListener, Sp
                 }
             } else {
                 if (hasScheduleChange) {
-                    // check if sched is earlier than current time
-                    if (CalendarUtils.isDateAccepted(tempTaskForAddEdit.getSchedule())) {
-                        if (!taskToEdit.getDeadline().equalsIgnoreCase("no deadline")) {
-                            boolean newSchedIsValid = CalendarUtils.isDateAccepted(tempTaskForAddEdit.getSchedule(), taskToEdit.getDeadline());
-                            if (newSchedIsValid) {
-                                taskToEdit.setSchedule(tempTaskForAddEdit.getSchedule());
-                            } else {
-                                synthesizeAssistantSpeech("Your new schedule cannot be later than your deadline.");
-                            }
-                        }
+                    if (!taskToEdit.getRecurrence().equalsIgnoreCase("none")) {
+                        String schedule = taskToEdit.getSchedule();
+                        // Extracting the time part from the schedule string
+                        String filteredSched = schedule.substring(schedule.lastIndexOf("|") + 1).trim();
+                        taskToEdit.setSchedule(filteredSched);
                     } else {
-                        synthesizeAssistantSpeech("Your schedule cannot be earlier than the current date and time.");
+                        // check if sched is earlier than current time
+                        if (CalendarUtils.isDateAccepted(tempTaskForAddEdit.getSchedule())) {
+                            if (!taskToEdit.getDeadline().equalsIgnoreCase("no deadline")) {
+                                boolean newSchedIsValid = CalendarUtils.isDateAccepted(tempTaskForAddEdit.getSchedule(), taskToEdit.getDeadline());
+                                if (newSchedIsValid) {
+                                    taskToEdit.setSchedule(tempTaskForAddEdit.getSchedule());
+                                } else {
+                                    synthesizeAssistantSpeech("Your new schedule cannot be later than your deadline.");
+                                }
+                            }
+                        } else {
+                            synthesizeAssistantSpeech("Your schedule cannot be earlier than the current date and time.");
+                        }
                     }
                 }
                 if (hasDeadlineChange) {
+                    if (!taskToEdit.getRecurrence().equalsIgnoreCase("none")) {
+                        taskToEdit.setRecurrence("None");
+                        taskToEdit.setSchedule("No schedule");
+                        synthesizeAssistantSpeech("I have removed your existing recurrence to apply your new deadline.");
+                    }
                     if (CalendarUtils.isDateAccepted(tempTaskForAddEdit.getDeadline())) {
                         if (!taskToEdit.getSchedule().equalsIgnoreCase("no schedule")) {
                             boolean schedIsValid = CalendarUtils.isDateAccepted(taskToEdit.getSchedule(), tempTaskForAddEdit.getDeadline());
