@@ -96,6 +96,13 @@ public class CalendarUtils {
         }
     }
 
+    public static boolean isDateInCorrectFormat(String input) {
+        // Define the format pattern
+        String formatPattern = "^\\d{2}-\\d{2}-\\d{4} \\| \\d{2}:\\d{2} (AM|PM)$";
+        // Check if the input matches the pattern
+        return Pattern.matches(formatPattern, input);
+    }
+
     /**
      * Checks if the given date is accepted based on current date.
      *
@@ -106,6 +113,12 @@ public class CalendarUtils {
         Date currentDate = new Date();
         Date parsedDate = CalendarUtils.parseDeadline(date);
         return parsedDate != null && parsedDate.after(currentDate);
+    }
+
+    public static boolean isDateAccepted(String schedule, String deadline) {
+        Date scheduleDate = CalendarUtils.parseDeadline(schedule);
+        Date deadlineDate = CalendarUtils.parseDeadline(deadline);
+        return scheduleDate != null && deadlineDate != null && !scheduleDate.after(deadlineDate);
     }
 
     public static boolean isRecurrenceAccepted(String recurrence) {
