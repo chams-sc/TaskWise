@@ -841,7 +841,7 @@ public class Live2DFragment extends Fragment implements View.OnTouchListener, Sp
 
             // may recurrence change at hindi equal to none
             if (hasRecurrenceChange && hasRecurrenceOnRecognizedSpeech) {
-                if (tempTaskForAddEdit.getRecurrence().equalsIgnoreCase("none")) {
+                if (!tempTaskForAddEdit.getRecurrence().equalsIgnoreCase("none")) {
                     if (hasDeadlineChange && hasScheduleChange) {
                         // set deadline to none
                         taskToEdit.setDeadline("No deadline");
@@ -856,6 +856,12 @@ public class Live2DFragment extends Fragment implements View.OnTouchListener, Sp
                             taskToEdit.setSchedule("09:00 AM");
                         }
 
+                        if (tempTaskForAddEdit.getRecurrence().equalsIgnoreCase("daily")) {
+                            taskToEdit.setRecurrence("Daily");
+                        } else {
+                            taskToEdit.setRecurrence(CalendarUtils.formatRecurrence(tempTaskForAddEdit.getRecurrence()));
+                        }
+                        synthesizeAssistantSpeech("Recurring or repeating tasks cant have deadlines, so deadline is not applicable");
                     } else if (hasDeadlineChange || hasScheduleChange) {
                         taskToEdit.setDeadline("No deadline");
                         // if iseset to days of week or daily, check kung valid ang format ng sched, if not format it
@@ -867,11 +873,50 @@ public class Live2DFragment extends Fragment implements View.OnTouchListener, Sp
                         } else {
                             taskToEdit.setSchedule("09:00 AM");
                         }
+
+                        if (tempTaskForAddEdit.getRecurrence().equalsIgnoreCase("daily")) {
+                            taskToEdit.setRecurrence("Daily");
+                        } else {
+                            taskToEdit.setRecurrence(CalendarUtils.formatRecurrence(tempTaskForAddEdit.getRecurrence()));
+                        }
+
+                        if (hasDeadlineChange || !taskToEdit.getDeadline().equalsIgnoreCase("No deadline")) {
+                            synthesizeAssistantSpeech("Recurring or repeating tasks cant have deadlines, so deadline is not applicable");
+                        }
+
+                    } else {
+                        if (taskToEdit.getRecurrence().equalsIgnoreCase("none")) {
+                            if (!taskToEdit.getSchedule().equalsIgnoreCase("No schedule") && taskToEdit.getDeadline().equalsIgnoreCase("no deadline")) {
+                                Log.v("DEBUG", "!taskToEdit.getSchedule().equalsIgnoreCase(\"No schedule\")");
+                                String schedule = taskToEdit.getSchedule();
+                                // Extracting the time part from the schedule string
+                                String filteredSched = schedule.substring(schedule.lastIndexOf("|") + 1).trim();
+                                taskToEdit.setSchedule(filteredSched);
+                                taskToEdit.setRecurrence(CalendarUtils.formatRecurrence(tempTaskForAddEdit.getRecurrence()));
+                            } else if (!taskToEdit.getDeadline().equalsIgnoreCase("no deadline") && taskToEdit.getSchedule().equalsIgnoreCase("no schedule")) {
+                                Log.v("DEBUG", "!taskToEdit.getDeadline().equalsIgnoreCase(\"no deadline\") && taskToEdit.getSchedule().equalsIgnoreCase(\"no schedule\")");
+                                taskToEdit.setDeadline("No deadline");
+                                taskToEdit.setRecurrence(CalendarUtils.formatRecurrence(tempTaskForAddEdit.getRecurrence()));
+                                taskToEdit.setSchedule("09:00 AM");
+                            } else if (!taskToEdit.getSchedule().equalsIgnoreCase("no schedule") && !taskToEdit.getDeadline().equalsIgnoreCase("no deadline")) {
+                                Log.v("DEBUG", "!taskToEdit.getSchedule().equalsIgnoreCase(\"no schedule\") && !taskToEdit.getDeadline().equalsIgnoreCase(\"no deadline\")");
+                                taskToEdit.setDeadline("No deadline");
+                                taskToEdit.setRecurrence(CalendarUtils.formatRecurrence(tempTaskForAddEdit.getRecurrence()));
+
+                                String schedule = taskToEdit.getSchedule();
+                                // Extracting the time part from the schedule string
+                                String filteredSched = schedule.substring(schedule.lastIndexOf("|") + 1).trim();
+                                taskToEdit.setSchedule(filteredSched);
+                            }
+                        } else {
+                            taskToEdit.setRecurrence(CalendarUtils.formatRecurrence(tempTaskForAddEdit.getRecurrence()));
+                        }
                     }
-                    synthesizeAssistantSpeech("Recurring or repeating tasks cant have deadlines, so deadline is not applicable");
-                } else if (tempTaskForAddEdit.getRecurrence().equalsIgnoreCase("none")){
+
+                } else {
                     if (!taskToEdit.getRecurrence().equalsIgnoreCase("none")) {
                         taskToEdit.setSchedule("No schedule");
+                        taskToEdit.setRecurrence("None");
                     }
                 }
             } else {
@@ -920,71 +965,6 @@ public class Live2DFragment extends Fragment implements View.OnTouchListener, Sp
                 }
 
             }
-
-//            if (!tempTaskForAddEdit.getDeadline().equalsIgnoreCase("unspecified")
-//                    && CalendarUtils.isDateAccepted(tempTaskForAddEdit.getDeadline())) {
-//                taskToEdit.setDeadline(tempTaskForAddEdit.getDeadline());
-//            }
-//            if (!tempTaskForAddEdit.getSchedule().equalsIgnoreCase("unspecified")
-//                    && CalendarUtils.isDateAccepted(tempTaskForAddEdit.getSchedule())) {
-//                // if there is recurrence, extract only the time part
-//                if (!taskToEdit.getRecurrence().equals("None")) {
-//                    String schedule = tempTaskForAddEdit.getSchedule();
-//                    // Extracting the time part from the schedule string
-//                    String filteredSched = schedule.substring(schedule.lastIndexOf("|") + 1).trim();
-//                    Log.v("EditTaskThroughSpeech", "sched: " + filteredSched);
-//                    taskToEdit.setSchedule(filteredSched);
-//                } else {
-//                    taskToEdit.setSchedule(tempTaskForAddEdit.getSchedule());
-//                }
-//            }
-//            if (hasRecurrenceOnRecognizedSpeech) {
-//                Log.v("editTaskSpeech", "hasRecurrenceOnRecognizedSpeech set to false");
-//                // if valid ang recurrence, e.g. days of week, daily or none
-//                if (!tempTaskForAddEdit.getRecurrence().equalsIgnoreCase("unspecified")
-//                        && CalendarUtils.isRecurrenceAccepted(tempTaskForAddEdit.getRecurrence())
-//                        || tempTaskForAddEdit.getRecurrence().equalsIgnoreCase("daily") || tempTaskForAddEdit.getRecurrence().equalsIgnoreCase("none")) {
-//                    // if iseset ang recurrence to none, ireset and schedule at deadline
-//                    if (tempTaskForAddEdit.getRecurrence().equalsIgnoreCase("none")) {
-//                        taskToEdit.setRecurrence("None");
-//                        taskToEdit.setSchedule("No schedule");
-//                    } else {
-//                        // if iseset to days of week or daily, check kung valid ang format ng sched, if not format it
-//                        if (!taskToEdit.getSchedule().equals("No schedule")) {
-//                            String schedule = taskToEdit.getSchedule();
-//                            // Extracting the time part from the schedule string
-//                            String filteredSched = schedule.substring(schedule.lastIndexOf("|") + 1).trim();
-//                            taskToEdit.setSchedule(filteredSched);
-//                        } else {
-//                            taskToEdit.setSchedule("09:00 AM");
-//                        }
-//
-//                        // case if recurrence is set to daily
-//                        if (tempTaskForAddEdit.getRecurrence().equalsIgnoreCase("daily")) {
-//                            taskToEdit.setRecurrence("Daily");
-//                        // case if days of weeks
-//                        } else {
-//                            taskToEdit.setRecurrence(CalendarUtils.formatRecurrence(tempTaskForAddEdit.getRecurrence()));
-//                        }
-//                    }
-//                }
-//                hasRecurrenceOnRecognizedSpeech = false;
-//            }
-//            if (!tempTaskForAddEdit.getNotes().equalsIgnoreCase("unspecified")) {
-//                taskToEdit.setNotes(tempTaskForAddEdit.getNotes());
-//            }
-//            if (!tempTaskForAddEdit.isReminder()) {
-//                taskToEdit.setReminder(false);
-//            } else {
-//                taskToEdit.setReminder(true);
-//            }
-//
-//
-//            if (!taskToEdit.getRecurrence().equalsIgnoreCase("none") && !taskToEdit.getDeadline().equalsIgnoreCase("no deadline")) {
-//                synthesizeAssistantSpeech("Recurring or repeating tasks cant have deadlines, so deadline is not applicable");
-//                taskToEdit.setDeadline("No deadline");
-//            }
-
             taskDatabaseManager.updateTask(taskToEdit, new TaskDatabaseManager.TaskUpdateListener() {
                 @Override
                 public void onTaskUpdated(Task updatedTask) {
@@ -994,6 +974,14 @@ public class Live2DFragment extends Fragment implements View.OnTouchListener, Sp
 
             turnBasedInteraction();
         }, taskName);
+    }
+
+    private void updateRecurrenceSched(Task task) {
+        String schedule = task.getSchedule();
+        // Extracting the time part from the schedule string
+        String filteredSched = schedule.substring(schedule.lastIndexOf("|") + 1).trim();
+        task.setSchedule(filteredSched);
+        task.setRecurrence(CalendarUtils.formatRecurrence(tempTaskForAddEdit.getRecurrence()));
     }
 
 
