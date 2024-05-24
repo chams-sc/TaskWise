@@ -885,31 +885,32 @@ public class Live2DFragment extends Fragment implements View.OnTouchListener, Sp
                         }
 
                     } else {
-                        if (taskToEdit.getRecurrence().equalsIgnoreCase("none")) {
+                        if (taskToEdit.getRecurrence().equalsIgnoreCase("none") || tempTaskForAddEdit.getRecurrence().equalsIgnoreCase("daily")) {
                             if (!taskToEdit.getSchedule().equalsIgnoreCase("No schedule") && taskToEdit.getDeadline().equalsIgnoreCase("no deadline")) {
                                 Log.v("DEBUG", "!taskToEdit.getSchedule().equalsIgnoreCase(\"No schedule\")");
                                 String schedule = taskToEdit.getSchedule();
                                 // Extracting the time part from the schedule string
                                 String filteredSched = schedule.substring(schedule.lastIndexOf("|") + 1).trim();
                                 taskToEdit.setSchedule(filteredSched);
-                                taskToEdit.setRecurrence(CalendarUtils.formatRecurrence(tempTaskForAddEdit.getRecurrence()));
                             } else if (!taskToEdit.getDeadline().equalsIgnoreCase("no deadline") && taskToEdit.getSchedule().equalsIgnoreCase("no schedule")) {
                                 Log.v("DEBUG", "!taskToEdit.getDeadline().equalsIgnoreCase(\"no deadline\") && taskToEdit.getSchedule().equalsIgnoreCase(\"no schedule\")");
                                 taskToEdit.setDeadline("No deadline");
-                                taskToEdit.setRecurrence(CalendarUtils.formatRecurrence(tempTaskForAddEdit.getRecurrence()));
                                 taskToEdit.setSchedule("09:00 AM");
                             } else if (!taskToEdit.getSchedule().equalsIgnoreCase("no schedule") && !taskToEdit.getDeadline().equalsIgnoreCase("no deadline")) {
                                 Log.v("DEBUG", "!taskToEdit.getSchedule().equalsIgnoreCase(\"no schedule\") && !taskToEdit.getDeadline().equalsIgnoreCase(\"no deadline\")");
                                 taskToEdit.setDeadline("No deadline");
-                                taskToEdit.setRecurrence(CalendarUtils.formatRecurrence(tempTaskForAddEdit.getRecurrence()));
 
                                 String schedule = taskToEdit.getSchedule();
                                 // Extracting the time part from the schedule string
                                 String filteredSched = schedule.substring(schedule.lastIndexOf("|") + 1).trim();
                                 taskToEdit.setSchedule(filteredSched);
                             }
-                        } else {
-                            taskToEdit.setRecurrence(CalendarUtils.formatRecurrence(tempTaskForAddEdit.getRecurrence()));
+
+                            if (tempTaskForAddEdit.getRecurrence().equalsIgnoreCase("daily")) {
+                                taskToEdit.setRecurrence("Daily");
+                            } else {
+                                taskToEdit.setRecurrence(CalendarUtils.formatRecurrence(tempTaskForAddEdit.getRecurrence()));
+                            }
                         }
                     }
 
@@ -919,6 +920,7 @@ public class Live2DFragment extends Fragment implements View.OnTouchListener, Sp
                         taskToEdit.setRecurrence("None");
                     }
                 }
+
             } else {
                 if (hasScheduleChange) {
                     if (!taskToEdit.getRecurrence().equalsIgnoreCase("none")) {
