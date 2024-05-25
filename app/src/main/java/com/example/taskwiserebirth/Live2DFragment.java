@@ -1,5 +1,7 @@
 package com.example.taskwiserebirth;
 
+import android.animation.AnimatorListenerAdapter;
+import android.animation.ObjectAnimator;
 import android.opengl.GLSurfaceView;
 import android.os.Bundle;
 import android.os.Handler;
@@ -14,6 +16,7 @@ import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import androidx.cardview.widget.CardView;
 import androidx.fragment.app.Fragment;
 import androidx.lifecycle.ViewModelProvider;
 
@@ -64,6 +67,7 @@ public class Live2DFragment extends Fragment implements View.OnTouchListener, Sp
     private Task taskToEdit;
     private String aiName;
     private TextView realTimeSpeechTextView;
+    private CardView cardViewSpeech;
     private SharedViewModel sharedViewModel;
     private ImageView collapseBtn;
     private String tempEditTaskName = "";
@@ -91,7 +95,8 @@ public class Live2DFragment extends Fragment implements View.OnTouchListener, Sp
     private final String TAG_SERVER_RESPONSE = "SERVER_RESPONSE";
 
     private final Handler mainHandler = new Handler(Looper.getMainLooper());
-    private Runnable checkSpeechListeningAndAnimate;
+    private static final long FADE_OUT_DELAY = 5000; // 3 seconds delay before starting fade-out
+    private static final long FADE_OUT_DURATION = 1000;
 
 
     @Override
@@ -148,6 +153,7 @@ public class Live2DFragment extends Fragment implements View.OnTouchListener, Sp
         FloatingActionButton speakBtn = view.findViewById(R.id.speakBtn);
         speakBtn.setOnClickListener(v -> handleSpeakButtonClick());
 
+        cardViewSpeech = view.findViewById(R.id.cardviewSpeech);
         realTimeSpeechTextView = view.findViewById(R.id.realTimeSpeechTextView);
         realTimeSpeechTextView.setOnClickListener(v -> toggleRealTimeSpeechTextViewExpansion());
     }
@@ -172,6 +178,10 @@ public class Live2DFragment extends Fragment implements View.OnTouchListener, Sp
             changeExpression("listening");
             startSpecificModelMotion(LAppDefine.MotionGroup.IDLE.getId(), 3);
 
+            cardViewSpeech.setVisibility(View.VISIBLE);
+            cardViewSpeech.setAlpha(1f);
+            realTimeSpeechTextView.setText("Listening...");
+
             Runnable checkListeningAndAnimate = new Runnable() {
                 @Override
                 public void run() {
@@ -188,7 +198,7 @@ public class Live2DFragment extends Fragment implements View.OnTouchListener, Sp
 
     private void toggleRealTimeSpeechTextViewExpansion() {
         if (isExpanded) {
-            realTimeSpeechTextView.setMaxLines(7);
+            realTimeSpeechTextView.setMaxLines(3);
             realTimeSpeechTextView.setEllipsize(TextUtils.TruncateAt.END);
         } else {
             realTimeSpeechTextView.setMaxLines(Integer.MAX_VALUE);
@@ -1225,7 +1235,7 @@ public class Live2DFragment extends Fragment implements View.OnTouchListener, Sp
         realTimeSpeechTextView.setText(recognizedSpeech);
         setModelExpression(defaultExpression);
 
-        Handler handler = new Handler(Looper.getMainLooper());
+        mainHandler.postDelayed(this::fadeOutCardView, FADE_OUT_DELAY);
 
         insertDialogue(recognizedSpeech, false);
         if (recognizedSpeech.equalsIgnoreCase("focus mode on")) {
@@ -1236,7 +1246,7 @@ public class Live2DFragment extends Fragment implements View.OnTouchListener, Sp
             onFocusModeChanged(true);
             startSpecificModelMotion(LAppDefine.MotionGroup.SWITCH.getId(), 0);
 
-            handler.postDelayed(() -> synthesizeAssistantSpeech(AIRandomSpeech.generateFocusModeOn()), 2000);
+            mainHandler.postDelayed(() -> synthesizeAssistantSpeech(AIRandomSpeech.generateFocusModeOn()), 2000);
             return;
         } else if (recognizedSpeech.equalsIgnoreCase("focus mode off")) {
             if (!FocusModeHelper.isFocusModeEnabled(requireContext())) {
@@ -1245,7 +1255,7 @@ public class Live2DFragment extends Fragment implements View.OnTouchListener, Sp
             }
             onFocusModeChanged(false);
             startSpecificModelMotion(LAppDefine.MotionGroup.SWITCH.getId(), 0);
-            handler.postDelayed(() -> synthesizeAssistantSpeech(AIRandomSpeech.generateFocusModeOff()), 2000);
+            mainHandler.postDelayed(() -> synthesizeAssistantSpeech(AIRandomSpeech.generateFocusModeOff()), 2000);
             return;
         }
 
@@ -1294,6 +1304,18 @@ public class Live2DFragment extends Fragment implements View.OnTouchListener, Sp
                 handleSecondaryIntent(recognizedSpeech);
             }
         }
+    }
+
+    private void fadeOutCardView() {
+        ObjectAnimator fadeOut = ObjectAnimator.ofFloat(cardViewSpeech, "alpha", 1f, 0f);
+        fadeOut.setDuration(FADE_OUT_DURATION);
+        fadeOut.addListener(new AnimatorListenerAdapter() {
+            @Override
+            public void onAnimationEnd(android.animation.Animator animation) {
+                cardViewSpeech.setVisibility(View.INVISIBLE);
+            }
+        });
+        fadeOut.start();
     }
 
     private void handleMarkInteraction(String recognizedSpeech) {
@@ -1620,7 +1642,6 @@ public class Live2DFragment extends Fragment implements View.OnTouchListener, Sp
 
     @Override
     public void onPartialSpeechRecognized(String partialSpeech) {
-        realTimeSpeechTextView.setVisibility(View.VISIBLE);
         realTimeSpeechTextView.setText(partialSpeech);
     }
 

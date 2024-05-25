@@ -49,34 +49,49 @@
             app:layout_constraintEnd_toEndOf="parent"
             app:maxImageSize="40dp" />
 
-        <LinearLayout
+
+        <androidx.cardview.widget.CardView
+            android:id="@+id/cardviewSpeech"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_marginHorizontal="40dp"
-            android:gravity="center"
+            app:cardCornerRadius="10dp"
+            app:cardElevation="8dp"
+            app:cardPreventCornerOverlap="false"
+            android:background="@drawable/bg_subtitle"
             app:layout_constraintBottom_toTopOf="@+id/speakBtn"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
+            android:visibility="invisible"
             app:layout_constraintTop_toTopOf="@+id/middleGuide">
 
-            <TextView
-                android:id="@+id/realTimeSpeechTextView"
-                android:layout_width="wrap_content"
+            <LinearLayout
+                android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:background="@drawable/bg_subtitle"
-                android:ellipsize="end"
-                android:fontFamily="@font/inter"
                 android:gravity="center"
-                android:justificationMode="inter_word"
-                android:maxLines="7"
-                android:padding="12dp"
-                android:text="Real-time speech will appear here"
-                android:textColor="@color/black"
-                android:textSize="12sp"
-                android:visibility="invisible"
-                android:clickable="true"
-                android:focusable="true"/>
-        </LinearLayout>
+                android:background="@drawable/bg_subtitle">
+
+                <TextView
+                    android:id="@+id/realTimeSpeechTextView"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:ellipsize="end"
+                    android:fontFamily="@font/inter"
+                    android:gravity="center"
+                    android:justificationMode="inter_word"
+                    android:maxLines="3"
+                    android:padding="12dp"
+                    android:text="Listening..."
+                    android:textColor="@color/black"
+                    android:textSize="12sp"
+                    android:visibility="visible"
+                    android:clickable="true"
+                    android:focusable="true"/>
+            </LinearLayout>
+
+        </androidx.cardview.widget.CardView>
+
+
 
         <androidx.constraintlayout.widget.Guideline
             android:id="@+id/middleGuide"
