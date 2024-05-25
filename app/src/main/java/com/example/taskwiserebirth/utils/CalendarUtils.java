@@ -111,9 +111,10 @@ public class CalendarUtils {
      * @return {@code true} if the given date is after the current date, {@code false} otherwise.
      */
     public static boolean isDateAccepted(String date) {
+        Log.v("CalendarUtils", "isDateAccepted running for date: " + date);
         Date currentDate = new Date();
         Date parsedDate = CalendarUtils.parseDeadline(date);
-        Log.v("CalendarUtils", "isDateAccepted runnnign");
+        Log.v("CalendarUtils", "Current date: " + currentDate + ", Parsed date: " + parsedDate);
         return parsedDate != null && parsedDate.after(currentDate);
     }
 

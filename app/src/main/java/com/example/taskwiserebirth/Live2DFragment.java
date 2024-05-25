@@ -29,7 +29,6 @@ import com.example.taskwiserebirth.conversational.SpeechSynthesis;
 import com.example.taskwiserebirth.database.ConversationDbManager;
 import com.example.taskwiserebirth.database.MongoDbRealmHelper;
 import com.example.taskwiserebirth.database.TaskDatabaseManager;
-import com.example.taskwiserebirth.database.UserDatabaseManager;
 import com.example.taskwiserebirth.task.Task;
 import com.example.taskwiserebirth.task.TaskPriorityCalculator;
 import com.example.taskwiserebirth.utils.CalendarUtils;
@@ -60,14 +59,12 @@ public class Live2DFragment extends Fragment implements View.OnTouchListener, Sp
     private SpeechRecognition speechRecognition;
     private TaskDatabaseManager taskDatabaseManager;
     private ConversationDbManager conversationDbManager;
-    private UserDatabaseManager userDatabaseManager;
     private User user;
     private Task tempTaskForAddEdit = new Task();
-    private Task initialTaskForEdit;
     private Task taskToEdit;
     private String tempEditTaskName = "";
+    private String tempNotes = "";
     private String aiName;
-    private String grokTaskName;
     private TextView realTimeSpeechTextView;
     private SharedViewModel sharedViewModel;
 
@@ -87,6 +84,7 @@ public class Live2DFragment extends Fragment implements View.OnTouchListener, Sp
     private boolean isRequestNameFromGrok = false;
     private boolean hasRecurrenceOnRecognizedSpeech = false;
     private boolean previousHasRecurrenceOnRecognizedSpeech = false;
+    private boolean addNotesAskingForTaskName = false;
 
     private final String TAG_SERVER_RESPONSE = "SERVER_RESPONSE";
 
@@ -142,7 +140,6 @@ public class Live2DFragment extends Fragment implements View.OnTouchListener, Sp
 
         taskDatabaseManager = new TaskDatabaseManager(user, requireContext());
         conversationDbManager = ((MainActivity) requireActivity()).getConversationDbManager();
-        userDatabaseManager = new UserDatabaseManager(user, requireContext());
     }
 
     private void initializeUIComponents(View view) {
@@ -404,12 +401,14 @@ public class Live2DFragment extends Fragment implements View.OnTouchListener, Sp
                     "Details of the Task",
                     "Information of the Task",
                     "I need the details of the task",
-                    "I need the information of the task"
+                    "I need the information of the task",
+                    "add notes to my task",
+                    "add notes"
             ));
 
             // Check if taskName is required for the given intent
             if (!noTaskNameRequiredIntents.contains(intent) && taskName.equalsIgnoreCase("unspecified")) {
-                synthesizeAssistantSpeech("Hmmm, I am unable to determine the task name."); // TODO: ask user the task name
+                synthesizeAssistantSpeech("Hmmm, I am unable to determine the task name.");
                 return;
             }
         }
@@ -474,9 +473,52 @@ public class Live2DFragment extends Fragment implements View.OnTouchListener, Sp
             case "what did i note in my task":
                 getTaskNotes(taskName);
                 return;
+            case "add notes to my task":
+            case "add notes":
+                addNotesToTask(responseText);
+                return;
             default:
                 synthesizeAssistantSpeech("I'm sorry, I didn't quite catch that. Could you please be a bit more specific? It would help me assist you better.");
         }
+    }
+
+    private void addNotesToTask(String responseText) {
+        Pattern taskNamePattern = Pattern.compile("TASK_NAME: (.+?)(?=\\n|$)");
+        Pattern notesPattern = Pattern.compile("NOTES: (.+?)(?=\\n|$)");
+
+        String taskName;
+        String notes;
+
+        Matcher taskNameMatcher = taskNamePattern.matcher(responseText);
+        if (taskNameMatcher.find()) {
+            taskName = taskNameMatcher.group(1);
+        } else {
+            taskName = "";
+        }
+
+        Matcher notesMatcher = notesPattern.matcher(responseText);
+        if (notesMatcher.find()) {
+            notes = notesMatcher.group(1);
+        } else {
+            notes = "";
+        }
+
+        Log.v("DEBUG_addNotesToTask", "task name: " + taskName + "response: " + responseText);
+        taskDatabaseManager.fetchTaskByName(tasks -> {
+            if (tasks.isEmpty()) {
+                synthesizeAssistantSpeech("I'm sorry but I couldn't find your task " + taskName + ". Which task were you referring to?");
+                addNotesAskingForTaskName = true;
+                tempNotes = notes;
+            } else {
+                Task task = tasks.get(0);
+                String taskNotes = task.getNotes();
+                task.setNotes((taskNotes + "\n" + notes).trim());
+                taskDatabaseManager.updateTask(task, updatedTask -> {
+                    openTaskDetailFragment(task);
+                    synthesizeAssistantSpeech(AIRandomSpeech.generateTaskUpdated(task.getTaskName()));
+                });
+            }
+        }, taskName);
     }
 
     private void getTaskNotes(String taskName) {
@@ -923,9 +965,32 @@ public class Live2DFragment extends Fragment implements View.OnTouchListener, Sp
                 if (tasks.isEmpty()) {
                     synthesizeAssistantSpeech(AIRandomSpeech.generateTaskNotFoundAndVerify(recognizedSpeech));
                 } else {
-//                    tempEditTaskName = recognizedSpeech;
                     editTaskAskingForTaskName = false;
                     editTaskThroughSpeech(recognizedSpeech,"unspecified");
+                }
+            }
+        }, recognizedSpeech);
+    }
+
+    private void getNotesTaskName(String recognizedSpeech) {
+        Log.v("getNotesTaskName", "getNotesTaskName run");
+        taskDatabaseManager.fetchTaskByName(new TaskDatabaseManager.TaskFetchListener() {
+            @Override
+            public void onTasksFetched(List<Task> tasks) {
+                if (tasks.isEmpty()) {
+                    synthesizeAssistantSpeech(AIRandomSpeech.generateTaskNotFoundAndVerify(recognizedSpeech));
+                } else {
+                    addNotesAskingForTaskName = false;
+                    Task task = tasks.get(0);
+                    String taskNotes = task.getNotes();
+                    task.setNotes((taskNotes + "\n" + tempNotes).trim());
+                    taskDatabaseManager.updateTask(task, new TaskDatabaseManager.TaskUpdateListener() {
+                        @Override
+                        public void onTaskUpdated(Task updatedTask) {
+                            openTaskDetailFragment(task);
+                            synthesizeAssistantSpeech(AIRandomSpeech.generateTaskUpdated(task.getTaskName()));
+                        }
+                    });
                 }
             }
         }, recognizedSpeech);
@@ -967,6 +1032,16 @@ public class Live2DFragment extends Fragment implements View.OnTouchListener, Sp
             if (!tempTaskForAddEdit.getUrgencyLevel().equalsIgnoreCase("unspecified")
                     && ValidValues.VALID_URGENCY_LEVELS.contains(tempTaskForAddEdit.getUrgencyLevel())) {
                 taskToEdit.setUrgencyLevel(tempTaskForAddEdit.getUrgencyLevel());
+            }
+
+            if (!tempTaskForAddEdit.getNotes().equalsIgnoreCase("unspecified")) {
+                taskToEdit.setNotes(tempTaskForAddEdit.getNotes());
+            }
+
+            if (!tempTaskForAddEdit.isReminder()) {
+                taskToEdit.setReminder(false);
+            } else {
+                taskToEdit.setReminder(true);
             }
 
             // Handle recurrence, deadline, and schedule changes
@@ -1076,6 +1151,7 @@ public class Live2DFragment extends Fragment implements View.OnTouchListener, Sp
                         taskToEdit.setSchedule(filteredSched);
                     } else {
                         Log.v("DEBUG", "hasScheduleChange else running");
+                        Log.v("Schedule", tempTaskForAddEdit.getSchedule());
                         // check if sched is earlier than current time
                         if (CalendarUtils.isDateAccepted(tempTaskForAddEdit.getSchedule())) {
                             if (!taskToEdit.getDeadline().equalsIgnoreCase("no deadline")) {
@@ -1194,6 +1270,8 @@ public class Live2DFragment extends Fragment implements View.OnTouchListener, Sp
             getAddTaskName(recognizedSpeech);
         } else if (editTaskAskingForTaskName) {
             getEditTaskName(recognizedSpeech);
+        } else if (addNotesAskingForTaskName) {
+            getNotesTaskName(recognizedSpeech);
         }else if (isRequestNameFromGrok) {
             handleRequestTaskName(recognizedSpeech);
         } else if (inEditTaskInteraction) {
@@ -1431,7 +1509,6 @@ public class Live2DFragment extends Fragment implements View.OnTouchListener, Sp
                         taskName = taskNameMatcher.group(1);
                         Log.d("DEBUG_TASK_NAME", "Extracted task name: " + taskName);
                     }
-                    grokTaskName = taskName;
                     isRequestNameFromGrok = false;
                     getTaskDetail(taskName);
                 });
