@@ -18,8 +18,8 @@ import java.util.concurrent.Future;
 
 public class SpeechSynthesis {
 
-    private static final String voiceName = "en-US-SaraNeural";
-    private static final String pitch = "x-high";
+    private static final String voiceName = "en-AU-AnnetteNeural";
+    private static final String pitch = "high";
     private static ExecutorService executor = Executors.newSingleThreadExecutor();
     private static volatile boolean isShutdown = false;
     private static volatile boolean speaking = false;

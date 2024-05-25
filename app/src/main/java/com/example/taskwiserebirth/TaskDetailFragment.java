@@ -84,6 +84,10 @@ public class TaskDetailFragment extends Fragment implements TaskAdapter.TaskActi
         recurrence.setText(task.getRecurrence());
         reminder.setChecked(task.isReminder());
 
+        if (!task.getRecurrence().equalsIgnoreCase("none")) {
+            deadline.setText("Repeating");
+        }
+
         notes.setText(task.getNotes().isEmpty() ? "No notes" : task.getNotes());
         notes.setTypeface(null, task.getNotes().isEmpty() ? Typeface.BOLD : Typeface.NORMAL);
     }

@@ -1214,6 +1214,7 @@ public class Live2DFragment extends Fragment implements View.OnTouchListener, Sp
                         if (responseText.equalsIgnoreCase("done")) {
                             inEditTaskInteraction = false;
                             tempEditTaskName = "";
+                            openTaskDetailFragment(taskToEdit);
                             synthesizeAssistantSpeech("Okii, your task has been updated.");
                         } else if (responseText.equalsIgnoreCase("unrecognized")) {
                             synthesizeAssistantSpeech("I'm sorry, I didn't understand, what else do you want to edit?");
