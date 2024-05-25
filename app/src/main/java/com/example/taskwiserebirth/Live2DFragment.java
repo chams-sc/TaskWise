@@ -86,6 +86,7 @@ public class Live2DFragment extends Fragment implements View.OnTouchListener, Sp
     private boolean hasRecurrenceAddTask = false;
     private boolean isRequestNameFromGrok = false;
     private boolean hasRecurrenceOnRecognizedSpeech = false;
+    private boolean previousHasRecurrenceOnRecognizedSpeech = false;
 
     private final String TAG_SERVER_RESPONSE = "SERVER_RESPONSE";
 
@@ -417,6 +418,7 @@ public class Live2DFragment extends Fragment implements View.OnTouchListener, Sp
             case "Edit Task":
             case "Edit Task With Deadline":
             case "Edit Task With Recurrence":
+            case "edit task and set the recurrence":
                 prefilterAddEditTask(responseText, false);
                 return;
             case "Delete Task":
@@ -760,17 +762,6 @@ public class Live2DFragment extends Fragment implements View.OnTouchListener, Sp
             } else {
                 editTaskThroughSpeech(tempEditTaskName, newTaskName);
             }
-//            String taskNameEdit = taskName;
-//
-//            if (inEditTaskInteraction) {
-//                taskNameEdit = tempEditTaskName;
-//            }
-//            if ("Unspecified".equalsIgnoreCase(taskName)) {
-//                synthesizeAssistantSpeech("You forgot to mention the name of the task, which task was it?");
-//                isAskingForTaskName = true;
-//            } else {
-//                editTaskThroughSpeech(taskNameEdit, newTaskName, reminder);
-//            }
         }
     }
 
@@ -782,7 +773,7 @@ public class Live2DFragment extends Fragment implements View.OnTouchListener, Sp
                 if (tasks.isEmpty()) {
                     synthesizeAssistantSpeech(AIRandomSpeech.generateTaskNotFoundAndVerify(recognizedSpeech));
                 } else {
-                    tempEditTaskName = recognizedSpeech;
+//                    tempEditTaskName = recognizedSpeech;
                     editTaskAskingForTaskName = false;
                     editTaskThroughSpeech(recognizedSpeech,"unspecified");
                 }
@@ -886,16 +877,19 @@ public class Live2DFragment extends Fragment implements View.OnTouchListener, Sp
 
                     } else {
                         if (taskToEdit.getRecurrence().equalsIgnoreCase("none") || tempTaskForAddEdit.getRecurrence().equalsIgnoreCase("daily")) {
+                            // may sched, no deadline
                             if (!taskToEdit.getSchedule().equalsIgnoreCase("No schedule") && taskToEdit.getDeadline().equalsIgnoreCase("no deadline")) {
                                 Log.v("DEBUG", "!taskToEdit.getSchedule().equalsIgnoreCase(\"No schedule\")");
                                 String schedule = taskToEdit.getSchedule();
                                 // Extracting the time part from the schedule string
                                 String filteredSched = schedule.substring(schedule.lastIndexOf("|") + 1).trim();
                                 taskToEdit.setSchedule(filteredSched);
+                            // may deadline, no sched
                             } else if (!taskToEdit.getDeadline().equalsIgnoreCase("no deadline") && taskToEdit.getSchedule().equalsIgnoreCase("no schedule")) {
                                 Log.v("DEBUG", "!taskToEdit.getDeadline().equalsIgnoreCase(\"no deadline\") && taskToEdit.getSchedule().equalsIgnoreCase(\"no schedule\")");
                                 taskToEdit.setDeadline("No deadline");
                                 taskToEdit.setSchedule("09:00 AM");
+                                synthesizeAssistantSpeech("Recurring or repeating tasks cant have deadlines, so deadline is not applicable");
                             } else if (!taskToEdit.getSchedule().equalsIgnoreCase("no schedule") && !taskToEdit.getDeadline().equalsIgnoreCase("no deadline")) {
                                 Log.v("DEBUG", "!taskToEdit.getSchedule().equalsIgnoreCase(\"no schedule\") && !taskToEdit.getDeadline().equalsIgnoreCase(\"no deadline\")");
                                 taskToEdit.setDeadline("No deadline");
@@ -904,6 +898,7 @@ public class Live2DFragment extends Fragment implements View.OnTouchListener, Sp
                                 // Extracting the time part from the schedule string
                                 String filteredSched = schedule.substring(schedule.lastIndexOf("|") + 1).trim();
                                 taskToEdit.setSchedule(filteredSched);
+                                synthesizeAssistantSpeech("Recurring or repeating tasks cant have deadlines, so deadline is not applicable");
                             }
 
                             if (tempTaskForAddEdit.getRecurrence().equalsIgnoreCase("daily")) {
@@ -924,11 +919,13 @@ public class Live2DFragment extends Fragment implements View.OnTouchListener, Sp
             } else {
                 if (hasScheduleChange) {
                     if (!taskToEdit.getRecurrence().equalsIgnoreCase("none")) {
+                        Log.v("DEBUG", "hasScheduleChange !taskToEdit.getRecurrence().equalsIgnoreCase(\"none\")");
                         String schedule = taskToEdit.getSchedule();
                         // Extracting the time part from the schedule string
                         String filteredSched = schedule.substring(schedule.lastIndexOf("|") + 1).trim();
                         taskToEdit.setSchedule(filteredSched);
                     } else {
+                        Log.v("DEBUG", "hasScheduleChange else running");
                         // check if sched is earlier than current time
                         if (CalendarUtils.isDateAccepted(tempTaskForAddEdit.getSchedule())) {
                             if (!taskToEdit.getDeadline().equalsIgnoreCase("no deadline")) {
@@ -938,6 +935,8 @@ public class Live2DFragment extends Fragment implements View.OnTouchListener, Sp
                                 } else {
                                     synthesizeAssistantSpeech("Your new schedule cannot be later than your deadline.");
                                 }
+                            } else {
+                                taskToEdit.setSchedule(tempTaskForAddEdit.getSchedule());
                             }
                         } else {
                             synthesizeAssistantSpeech("Your schedule cannot be earlier than the current date and time.");
@@ -945,36 +944,36 @@ public class Live2DFragment extends Fragment implements View.OnTouchListener, Sp
                     }
                 }
                 if (hasDeadlineChange) {
-                    if (!taskToEdit.getRecurrence().equalsIgnoreCase("none")) {
-                        taskToEdit.setRecurrence("None");
-                        taskToEdit.setSchedule("No schedule");
-                        synthesizeAssistantSpeech("I have removed your existing recurrence to apply your new deadline.");
-                    }
                     if (CalendarUtils.isDateAccepted(tempTaskForAddEdit.getDeadline())) {
-                        if (!taskToEdit.getSchedule().equalsIgnoreCase("no schedule")) {
-                            boolean schedIsValid = CalendarUtils.isDateAccepted(taskToEdit.getSchedule(), tempTaskForAddEdit.getDeadline());
-                            if (schedIsValid) {
-                                taskToEdit.setDeadline(tempTaskForAddEdit.getDeadline());
-                            } else {
-                                taskToEdit.setSchedule("No schedule");
-                                taskToEdit.setDeadline(tempTaskForAddEdit.getDeadline());
-                                synthesizeAssistantSpeech("Your schedule cannot be later than your new deadline. I have set your schedule to none UWU.");
+                        if (!taskToEdit.getRecurrence().equalsIgnoreCase("none")) {
+                            taskToEdit.setRecurrence("None");
+                            taskToEdit.setSchedule("No schedule");
+                            taskToEdit.setDeadline(tempTaskForAddEdit.getDeadline());
+                            synthesizeAssistantSpeech("I have removed your existing recurrence to apply your new deadline.");
+                        } else {
+                            if (!taskToEdit.getSchedule().equalsIgnoreCase("no schedule")) {
+                                boolean schedIsValid = CalendarUtils.isDateAccepted(taskToEdit.getSchedule(), tempTaskForAddEdit.getDeadline());
+                                if (schedIsValid) {
+                                    taskToEdit.setDeadline(tempTaskForAddEdit.getDeadline());
+                                } else {
+                                    taskToEdit.setSchedule("No schedule");
+                                    taskToEdit.setDeadline(tempTaskForAddEdit.getDeadline());
+                                    synthesizeAssistantSpeech("Your schedule cannot be later than your new deadline. I have set your schedule to none UWU.");
+                                }
                             }
                         }
                     } else {
                         synthesizeAssistantSpeech("Your deadline cannot be earlier than the current date and time.");
                     }
                 }
-
             }
             taskDatabaseManager.updateTask(taskToEdit, new TaskDatabaseManager.TaskUpdateListener() {
                 @Override
                 public void onTaskUpdated(Task updatedTask) {
-
+                    turnBasedInteraction();
                 }
             });
 
-            turnBasedInteraction();
         }, taskName);
     }
 
@@ -1029,8 +1028,13 @@ public class Live2DFragment extends Fragment implements View.OnTouchListener, Sp
             return;
         }
 
-        // Check if the recognized speech contains the word "recurrence"
-        hasRecurrenceOnRecognizedSpeech = recognizedSpeech.toLowerCase().contains("recurrence");
+        if (editTaskAskingForTaskName) {
+            hasRecurrenceOnRecognizedSpeech = previousHasRecurrenceOnRecognizedSpeech;
+        } else {
+            // Check if the recognized speech contains the word "recurrence"
+            hasRecurrenceOnRecognizedSpeech = recognizedSpeech.toLowerCase().contains("recurrence");
+            previousHasRecurrenceOnRecognizedSpeech = hasRecurrenceOnRecognizedSpeech;
+        }
 
         if (confirmAddTaskWithUser) {
             confirmWithUser(recognizedSpeech);
@@ -1210,7 +1214,7 @@ public class Live2DFragment extends Fragment implements View.OnTouchListener, Sp
                         if (responseText.equalsIgnoreCase("done")) {
                             inEditTaskInteraction = false;
                             tempEditTaskName = "";
-                            synthesizeAssistantSpeech("Ok, you're done");
+                            synthesizeAssistantSpeech("Okii, your task has been updated.");
                         } else if (responseText.equalsIgnoreCase("unrecognized")) {
                             synthesizeAssistantSpeech("I'm sorry, I didn't understand, what else do you want to edit?");
                         } else {

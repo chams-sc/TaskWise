@@ -112,6 +112,7 @@ public class CalendarUtils {
     public static boolean isDateAccepted(String date) {
         Date currentDate = new Date();
         Date parsedDate = CalendarUtils.parseDeadline(date);
+        Log.v("CalendarUtils", "isDateAccepted runnnign");
         return parsedDate != null && parsedDate.after(currentDate);
     }
 

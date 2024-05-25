@@ -173,9 +173,8 @@ public class TaskDatabaseManager {
 
     public void fetchTaskByName(TaskFetchListener listener, String taskName) {
         if (user != null) {
-            String caseInsensitiveExactMatch = "^" + taskName + "$";
             Document taskNameFilter = new Document("owner_id", user.getId())
-                    .append("task_name", new Document("$regex", caseInsensitiveExactMatch).append("$options", "i"));
+                    .append("task_name", new Document("$regex", taskName).append("$options", "i"));
 
             taskCollection.findOne(taskNameFilter).getAsync(task -> {
                 if (task.isSuccess()) {
