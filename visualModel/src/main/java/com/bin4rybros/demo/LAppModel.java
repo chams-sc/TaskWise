@@ -318,7 +318,7 @@ public class LAppModel extends CubismUserModel {
             motionManager.setReservationPriority(priority);
         } else if (!motionManager.reserveMotion(priority)) {
             if (debugMode) {
-                LAppPal.printLog("Cannot start motion.");
+//                LAppPal.printLog("Cannot start motion.");
             }
             return -1;
         }

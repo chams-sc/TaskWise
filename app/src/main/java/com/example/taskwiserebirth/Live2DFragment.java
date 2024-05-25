@@ -112,9 +112,7 @@ public class Live2DFragment extends Fragment implements View.OnTouchListener, Sp
 
         sharedViewModel = new ViewModelProvider(requireActivity()).get(SharedViewModel.class);
         // Observe aiName changes
-        sharedViewModel.getAiNameLiveData().observe(getViewLifecycleOwner(), name -> {
-            aiName = name;
-        });
+        sharedViewModel.getAiNameLiveData().observe(getViewLifecycleOwner(), name -> aiName = name);
 
         return view;
     }
@@ -870,13 +868,11 @@ public class Live2DFragment extends Fragment implements View.OnTouchListener, Sp
         Matcher taskNameMatcher = taskNamePattern.matcher(responseText);
         if (taskNameMatcher.find()) {
             taskName = taskNameMatcher.group(1);
-            Log.d("DEBUG_TASK_NAME", "Extracted task name: " + taskName);
         }
 
         Matcher newTaskNameMatcher = newTaskNamePattern.matcher(responseText);
         if (newTaskNameMatcher.find()) {
             newTaskName = newTaskNameMatcher.group(1);
-            Log.d("DEBUG_NEW_TASK_NAME", "Extracted new task name: " + newTaskName);
         }
 
         Matcher importanceMatcher = importancePattern.matcher(responseText);
@@ -898,8 +894,6 @@ public class Live2DFragment extends Fragment implements View.OnTouchListener, Sp
         if (recurrenceMatcher.find()) {
             recurrence = recurrenceMatcher.group(1);
         }
-
-        Log.v("RECURRENCE", recurrence);
 
         Matcher scheduleMatcher = schedulePattern.matcher(responseText);
         if (scheduleMatcher.find()) {
@@ -959,39 +953,30 @@ public class Live2DFragment extends Fragment implements View.OnTouchListener, Sp
 
     private void getEditTaskName(String recognizedSpeech) {
         Log.v("getEditTaskName", "getEditTaskName run");
-        taskDatabaseManager.fetchTaskByName(new TaskDatabaseManager.TaskFetchListener() {
-            @Override
-            public void onTasksFetched(List<Task> tasks) {
-                if (tasks.isEmpty()) {
-                    synthesizeAssistantSpeech(AIRandomSpeech.generateTaskNotFoundAndVerify(recognizedSpeech));
-                } else {
-                    editTaskAskingForTaskName = false;
-                    editTaskThroughSpeech(recognizedSpeech,"unspecified");
-                }
+        taskDatabaseManager.fetchTaskByName(tasks -> {
+            if (tasks.isEmpty()) {
+                synthesizeAssistantSpeech(AIRandomSpeech.generateTaskNotFoundAndVerify(recognizedSpeech));
+            } else {
+                editTaskAskingForTaskName = false;
+                editTaskThroughSpeech(recognizedSpeech,"unspecified");
             }
         }, recognizedSpeech);
     }
 
     private void getNotesTaskName(String recognizedSpeech) {
         Log.v("getNotesTaskName", "getNotesTaskName run");
-        taskDatabaseManager.fetchTaskByName(new TaskDatabaseManager.TaskFetchListener() {
-            @Override
-            public void onTasksFetched(List<Task> tasks) {
-                if (tasks.isEmpty()) {
-                    synthesizeAssistantSpeech(AIRandomSpeech.generateTaskNotFoundAndVerify(recognizedSpeech));
-                } else {
-                    addNotesAskingForTaskName = false;
-                    Task task = tasks.get(0);
-                    String taskNotes = task.getNotes();
-                    task.setNotes((taskNotes + "\n" + tempNotes).trim());
-                    taskDatabaseManager.updateTask(task, new TaskDatabaseManager.TaskUpdateListener() {
-                        @Override
-                        public void onTaskUpdated(Task updatedTask) {
-                            openTaskDetailFragment(task);
-                            synthesizeAssistantSpeech(AIRandomSpeech.generateTaskUpdated(task.getTaskName()));
-                        }
-                    });
-                }
+        taskDatabaseManager.fetchTaskByName(tasks -> {
+            if (tasks.isEmpty()) {
+                synthesizeAssistantSpeech(AIRandomSpeech.generateTaskNotFoundAndVerify(recognizedSpeech));
+            } else {
+                addNotesAskingForTaskName = false;
+                Task task = tasks.get(0);
+                String taskNotes = task.getNotes();
+                task.setNotes((taskNotes + "\n" + tempNotes).trim());
+                taskDatabaseManager.updateTask(task, updatedTask -> {
+                    openTaskDetailFragment(task);
+                    synthesizeAssistantSpeech(AIRandomSpeech.generateTaskUpdated(task.getTaskName()));
+                });
             }
         }, recognizedSpeech);
     }
@@ -1038,11 +1023,7 @@ public class Live2DFragment extends Fragment implements View.OnTouchListener, Sp
                 taskToEdit.setNotes(tempTaskForAddEdit.getNotes());
             }
 
-            if (!tempTaskForAddEdit.isReminder()) {
-                taskToEdit.setReminder(false);
-            } else {
-                taskToEdit.setReminder(true);
-            }
+            taskToEdit.setReminder(tempTaskForAddEdit.isReminder());
 
             // Handle recurrence, deadline, and schedule changes
             boolean hasRecurrenceChange = !tempTaskForAddEdit.getRecurrence().equalsIgnoreCase("unspecified");
@@ -1193,22 +1174,9 @@ public class Live2DFragment extends Fragment implements View.OnTouchListener, Sp
                     }
                 }
             }
-            taskDatabaseManager.updateTask(taskToEdit, new TaskDatabaseManager.TaskUpdateListener() {
-                @Override
-                public void onTaskUpdated(Task updatedTask) {
-                    turnBasedInteraction();
-                }
-            });
+            taskDatabaseManager.updateTask(taskToEdit, updatedTask -> turnBasedInteraction());
 
         }, taskName);
-    }
-
-    private void updateRecurrenceSched(Task task) {
-        String schedule = task.getSchedule();
-        // Extracting the time part from the schedule string
-        String filteredSched = schedule.substring(schedule.lastIndexOf("|") + 1).trim();
-        task.setSchedule(filteredSched);
-        task.setRecurrence(CalendarUtils.formatRecurrence(tempTaskForAddEdit.getRecurrence()));
     }
 
 

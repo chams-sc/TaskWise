@@ -16,6 +16,9 @@ import static com.bin4rybros.demo.LAppDefine.ResourcePath;
 import static com.bin4rybros.demo.LAppDefine.USE_MODEL_RENDER_TARGET;
 import static com.bin4rybros.demo.LAppDefine.USE_RENDER_TARGET;
 
+import android.os.Handler;
+import android.os.Looper;
+
 import com.bin4rybros.sdk.cubism.framework.math.CubismMatrix44;
 import com.bin4rybros.sdk.cubism.framework.motion.ACubismMotion;
 import com.bin4rybros.sdk.cubism.framework.motion.IFinishedMotionCallback;
@@ -130,12 +133,23 @@ public class LAppLive2DManager {
                 }
 
                 model.startRandomMotionFromGroup(MotionGroup.TAP_HEAD.getId(), Priority.FORCE.getPriority());
-//                model.startRandomMotion(MotionGroup.TAP_BODY.getId(), Priority.NORMAL.getPriority(), finishedMotion);
+                new Handler(Looper.getMainLooper()).postDelayed(new Runnable() {
+                    @Override
+                    public void run() {
+                        model.startMotion(MotionGroup.IDLE.getId(), 5, Priority.FORCE.getPriority());
+                    }
+                }, 3000);
             } else if (model.hitTest(HitAreaName.LEGS.getId(), x, y)) {
                 if (DEBUG_LOG_ENABLE) {
                     LAppPal.printLog("hit area: " + HitAreaName.LEGS.getId());
                 }
                 model.startRandomMotionFromGroup(MotionGroup.TAP_BODY.getId(), Priority.FORCE.getPriority());
+                new Handler(Looper.getMainLooper()).postDelayed(new Runnable() {
+                    @Override
+                    public void run() {
+                        model.startMotion(MotionGroup.IDLE.getId(), 5, Priority.FORCE.getPriority());
+                    }
+                }, 3000);
             }
         }
     }

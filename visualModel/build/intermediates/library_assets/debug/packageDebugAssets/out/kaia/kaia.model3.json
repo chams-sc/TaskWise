@@ -80,6 +80,11 @@
 					"File": "motions/speaking/speaking2.motion3.json",
 					"FadeInTime": 0.5,
 					"FadeOutTime": 0.5
+				},
+				{
+					"File": "motions/idle/default.motion3.json",
+					"FadeInTime": 0.5,
+					"FadeOutTime": 0.5
 				}
 			],
 			"TapBody": [
