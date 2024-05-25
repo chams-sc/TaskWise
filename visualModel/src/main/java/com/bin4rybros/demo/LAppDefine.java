@@ -183,6 +183,7 @@ public class LAppDefine {
         AFFIRMATION("Affirmation"),
         ASKING("Asking"),
         NEGATIVE("Negative"),
+        SPEAKING("Speaking"),
         SWITCH("Switch"),
         SLEEP("Sleep");
 

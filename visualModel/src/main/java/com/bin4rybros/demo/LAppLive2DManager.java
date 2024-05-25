@@ -136,7 +136,7 @@ public class LAppLive2DManager {
                 new Handler(Looper.getMainLooper()).postDelayed(new Runnable() {
                     @Override
                     public void run() {
-                        model.startMotion(MotionGroup.IDLE.getId(), 5, Priority.FORCE.getPriority());
+                        model.startMotion(MotionGroup.IDLE.getId(), 3, Priority.FORCE.getPriority());
                     }
                 }, 3000);
             } else if (model.hitTest(HitAreaName.LEGS.getId(), x, y)) {
@@ -147,7 +147,7 @@ public class LAppLive2DManager {
                 new Handler(Looper.getMainLooper()).postDelayed(new Runnable() {
                     @Override
                     public void run() {
-                        model.startMotion(MotionGroup.IDLE.getId(), 5, Priority.FORCE.getPriority());
+                        model.startMotion(MotionGroup.IDLE.getId(), 3, Priority.FORCE.getPriority());
                     }
                 }, 3000);
             }

@@ -62,11 +62,13 @@ public class Live2DFragment extends Fragment implements View.OnTouchListener, Sp
     private User user;
     private Task tempTaskForAddEdit = new Task();
     private Task taskToEdit;
-    private String tempEditTaskName = "";
-    private String tempNotes = "";
     private String aiName;
     private TextView realTimeSpeechTextView;
     private SharedViewModel sharedViewModel;
+    private ImageView collapseBtn;
+    private String tempEditTaskName = "";
+    private String tempNotes = "";
+    private String defaultExpression = "default1";
 
 
     private Task tempTask;
@@ -89,8 +91,8 @@ public class Live2DFragment extends Fragment implements View.OnTouchListener, Sp
     private final String TAG_SERVER_RESPONSE = "SERVER_RESPONSE";
 
     private final Handler mainHandler = new Handler(Looper.getMainLooper());
+    private Runnable checkSpeechListeningAndAnimate;
 
-    private ImageView collapseBtn;
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
@@ -163,11 +165,26 @@ public class Live2DFragment extends Fragment implements View.OnTouchListener, Sp
     private void handleSpeakButtonClick() {
         if (speechRecognition.isListening()) {
             speechRecognition.stopSpeechRecognition();
+            stopCurrentMotion();
+            mainHandler.postDelayed(() -> setModelExpression(defaultExpression), 500);
         } else {
             speechRecognition.startSpeechRecognition();
             changeExpression("listening");
+            startSpecificModelMotion(LAppDefine.MotionGroup.IDLE.getId(), 3);
+
+            Runnable checkListeningAndAnimate = new Runnable() {
+                @Override
+                public void run() {
+                    if (speechRecognition.isListening()) {
+                        startSpecificModelMotion(LAppDefine.MotionGroup.IDLE.getId(), 3);
+                        mainHandler.postDelayed(this, 2000);
+                    }
+                }
+            };
+            mainHandler.postDelayed(checkListeningAndAnimate, 2000);
         }
     }
+
 
     private void toggleRealTimeSpeechTextViewExpansion() {
         if (isExpanded) {
@@ -206,7 +223,7 @@ public class Live2DFragment extends Fragment implements View.OnTouchListener, Sp
         LAppLive2DManager manager = LAppLive2DManager.getInstance();
         LAppModel model = manager.getModel(0); // Assuming you want the first model, change index if needed
         if (model != null) {
-            model.startRandomMotionFromGroup(motionGroup, LAppDefine.Priority.NORMAL.getPriority());
+            model.startRandomMotionFromGroup(motionGroup, LAppDefine.Priority.FORCE.getPriority());
         }
 
         Log.v("STARTRANDOMMOTION", "starting random montion: " + motionGroup);
@@ -360,17 +377,21 @@ public class Live2DFragment extends Fragment implements View.OnTouchListener, Sp
         }
         hasRecurrenceAddTask = false;
 
-        String dialogue = AIRandomSpeech.generateTaskAdded(completeTask.getTaskName());
-        SpeechSynthesis.synthesizeSpeechAsync(dialogue);
-        insertDialogue(dialogue, true);
+        startRandomMotionFromGroup(LAppDefine.MotionGroup.AFFIRMATION.getId());
 
-        // to get id for notif scheduler
-        taskDatabaseManager.fetchUnfinishedTaskByName(tasks -> {
-            if (tasks.isEmpty()) {
-                return;
-            }
-            openTaskDetailFragment(tasks.get(0));
-        }, completeTask.getTaskName());
+        // Create a handler to post a delayed runnable
+        mainHandler.postDelayed(() -> {
+            String dialogue = AIRandomSpeech.generateTaskAdded(completeTask.getTaskName());
+            synthesizeAssistantSpeech(dialogue);
+            insertDialogue(dialogue, true);
+            // to get id for notif scheduler
+            taskDatabaseManager.fetchUnfinishedTaskByName(tasks -> {
+                if (tasks.isEmpty()) {
+                    return;
+                }
+                openTaskDetailFragment(tasks.get(0));
+            }, completeTask.getTaskName());
+        }, 3000);
     }
 
     private void performIntent(String intent, String responseText){
@@ -1196,7 +1217,7 @@ public class Live2DFragment extends Fragment implements View.OnTouchListener, Sp
     @Override
     public void onSpeechRecognized(String recognizedSpeech) {
         realTimeSpeechTextView.setText(recognizedSpeech);
-        setModelExpression("default1");
+        setModelExpression(defaultExpression);
 
         Handler handler = new Handler(Looper.getMainLooper());
 
@@ -1504,8 +1525,23 @@ public class Live2DFragment extends Fragment implements View.OnTouchListener, Sp
     private void synthesizeAssistantSpeech (String dialogue) {
         SpeechSynthesis.synthesizeSpeechAsync(dialogue);
         insertDialogue(dialogue, true);
-        setModelExpression("default1");
+        setModelExpression(defaultExpression);
+        startRandomMotionFromGroup(LAppDefine.MotionGroup.SPEAKING.getId());
+
+        // Periodically check if the speech synthesis is still ongoing and start random motion
+        Handler handler = new Handler(Looper.getMainLooper());
+        Runnable checkSpeechAndAnimate = new Runnable() {
+            @Override
+            public void run() {
+                if (SpeechSynthesis.isSpeaking()) {
+                    startRandomMotionFromGroup(LAppDefine.MotionGroup.SPEAKING.getId());
+                    mainHandler.postDelayed(this, 2000); // Check every 2 seconds, adjust as needed
+                }
+            }
+        };
+        mainHandler.postDelayed(checkSpeechAndAnimate, 2000);
     }
+
 
     private void confirmWithUser(String recognizedSpeech) {
         if (recognizedSpeech.equalsIgnoreCase("yes")) {
