@@ -308,6 +308,7 @@ public class CalendarUtils {
         return 60000;
     }
 
+    // for task detail fragment ui
     public static String formatDeadline(String deadlineString) {
         if (!deadlineString.equals("No deadline")) {
             try {
@@ -324,6 +325,71 @@ public class CalendarUtils {
             return deadlineString;
         }
     }
+
+    /**
+     * Formats a date string from "MM-DD-YYYY | hh:mm AM/PM" to "MMMM dd, yyyy hh:mm a".
+     *
+     * @param dateString the input date string in the format "MM-DD-YYYY | hh:mm AM/PM"
+     * @return the formatted date string in the format "MMMM dd, yyyy hh:mm a"
+     * @throws ParseException if the input date string cannot be parsed
+     */
+    public static String formatDateString(String dateString) {
+        // Define the input and output date formats
+        SimpleDateFormat inputFormat = new SimpleDateFormat("MM-dd-yyyy | hh:mm a", Locale.ENGLISH);
+        SimpleDateFormat outputFormat = new SimpleDateFormat("MMMM dd, yyyy hh:mm a", Locale.ENGLISH);
+
+        // Parse the input date string to a Date object
+        Date date = null;
+        try {
+            date = inputFormat.parse(dateString);
+        } catch (ParseException e) {
+            throw new RuntimeException(e);
+        }
+
+        // Format the Date object to the desired output format
+        return outputFormat.format(date);
+    }
+
+    /**
+     * Formats a date string from "MM-DD-YYYY | hh:mm AM/PM" to "MMMM dd, yyyy".
+     *
+     * @param dateString the input date string in the format "MM-DD-YYYY | hh:mm AM/PM"
+     * @return the formatted date string in the format "MMMM dd, yyyy"
+     * @throws ParseException if the input date string cannot be parsed
+     */
+    public static String getFormattedDate(String dateString) {
+        SimpleDateFormat inputFormat = new SimpleDateFormat("MM-dd-yyyy | hh:mm a", Locale.ENGLISH);
+        SimpleDateFormat outputFormat = new SimpleDateFormat("MMMM dd, yyyy", Locale.ENGLISH);
+
+        Date date = null;
+        try {
+            date = inputFormat.parse(dateString);
+        } catch (ParseException e) {
+            throw new RuntimeException(e);
+        }
+        return outputFormat.format(date);
+    }
+
+    /**
+     * Extracts the time part from a date string in the format "MM-DD-YYYY | hh:mm AM/PM".
+     *
+     * @param dateString the input date string in the format "MM-DD-YYYY | hh:mm AM/PM"
+     * @return the time part of the date string in the format "hh:mm a"
+     * @throws ParseException if the input date string cannot be parsed
+     */
+    public static String getFormattedTime(String dateString) {
+        SimpleDateFormat inputFormat = new SimpleDateFormat("MM-dd-yyyy | hh:mm a", Locale.ENGLISH);
+        SimpleDateFormat outputFormat = new SimpleDateFormat("hh:mm a", Locale.ENGLISH);
+
+        Date date = null;
+        try {
+            date = inputFormat.parse(dateString);
+        } catch (ParseException e) {
+            throw new RuntimeException(e);
+        }
+        return outputFormat.format(date);
+    }
+
 
     public static String formatCustomDeadline(Date date) {
         SimpleDateFormat outputFormat = new SimpleDateFormat("MMM dd, yyyy, 'at' hh:mm a", Locale.US);
@@ -388,6 +454,41 @@ public class CalendarUtils {
 
         // Join the full day names with " | "
         return String.join(" | ", fullDayNames);
+    }
+
+    public static String convertRecurrenceToDayNames(String recurrence) {
+        if (recurrence == null || recurrence.isEmpty()) {
+            return "";
+        }
+
+        // Split the recurrence string by " | "
+        String[] dayAbbreviations = recurrence.split(" \\| ");
+        List<String> fullDayNames = new ArrayList<>();
+
+        // Convert each abbreviation to the full day name
+        for (String abbreviation : dayAbbreviations) {
+            fullDayNames.add(getDayName(abbreviation.trim()));
+        }
+
+        // Join the full day names with commas and "and"
+        return formatDaysList(fullDayNames);
+    }
+
+    private static String formatDaysList(List<String> days) {
+        if (days.size() == 1) {
+            return days.get(0);
+        }
+
+        StringBuilder formattedRecurrence = new StringBuilder();
+        for (int i = 0; i < days.size(); i++) {
+            if (i == days.size() - 1) {
+                formattedRecurrence.append("and ").append(days.get(i));
+            } else {
+                formattedRecurrence.append(days.get(i)).append(", ");
+            }
+        }
+
+        return formattedRecurrence.toString().replace(", and", " and");
     }
 
     public static String getDayAbbreviation(String day) {

@@ -449,9 +449,148 @@ public class Live2DFragment extends Fragment implements View.OnTouchListener, Sp
             case "created tasks":
                 countCreatedTasksToday();
                 return;
+            case "what is the deadline of my task":
+                getTaskDeadline(taskName);
+                return;
+            case "what is the schedule of my task":
+                getTaskSchedule(taskName);
+                return;
+            case "what is the urgency of my task":
+            case "how urgent is my task":
+                getTaskUrgency(taskName);
+                return;
+            case "how important is my task":
+            case "what is the importance of my task":
+                getTaskImportance(taskName);
+                return;
+            case "what is the recurrence of my task":
+                getTaskReccurence(taskName);
+                return;
+            case "did i set a reminder in my task":
+                getTaskReminder(taskName);
+                return;
+            case "what are the notes of my task":
+            case "what notes did i put in my task":
+            case "what did i note in my task":
+                getTaskNotes(taskName);
+                return;
             default:
-                synthesizeAssistantSpeech("I'm sorry, I didn't quite catch that. Could you please be a bit more specific? It would really help me assist you better.");
+                synthesizeAssistantSpeech("I'm sorry, I didn't quite catch that. Could you please be a bit more specific? It would help me assist you better.");
         }
+    }
+
+    private void getTaskNotes(String taskName) {
+        taskDatabaseManager.fetchTaskByName(tasks -> {
+            if (tasks.isEmpty()) {
+                synthesizeAssistantSpeech("I'm sorry but I couldn't find your task " + taskName);
+            } else {
+                Task task = tasks.get(0);
+                if (task.getNotes().isEmpty()) {
+                    synthesizeAssistantSpeech("You did not note anything for your task " + taskName);
+                } else {
+                    synthesizeAssistantSpeech("In your task " + taskName + "you noted: " + task.getNotes());
+                }
+            }
+        }, taskName);
+    }
+
+    private void getTaskReminder(String taskName) {
+        taskDatabaseManager.fetchTaskByName(tasks -> {
+            if (tasks.isEmpty()) {
+                synthesizeAssistantSpeech("I'm sorry but I couldn't find your task " + taskName);
+            } else {
+                Task task = tasks.get(0);
+                if (task.isReminder()) {
+                    synthesizeAssistantSpeech("Your reminder for task " + taskName + " is currently on." );
+                } else {
+                    synthesizeAssistantSpeech("Your reminder for task " + taskName + " is currently off." );
+                }
+            }
+        }, taskName);
+    }
+
+    private void getTaskReccurence(String taskName) {
+        taskDatabaseManager.fetchTaskByName(tasks -> {
+            if (tasks.isEmpty()) {
+                synthesizeAssistantSpeech("I'm sorry but I couldn't find your task " + taskName);
+            } else {
+                Task task = tasks.get(0);
+                if (task.getRecurrence().equalsIgnoreCase("none")) {
+                    synthesizeAssistantSpeech("The recurrence of your task  " + taskName + " is set to none." );
+                } else if (task.getRecurrence().equalsIgnoreCase("daily") ){
+                    synthesizeAssistantSpeech("The recurrence of your task" + taskName + " is set to daily.");
+                } else {
+                    String fullDayNames = CalendarUtils.convertRecurrenceToDayNames(task.getRecurrence());
+                    synthesizeAssistantSpeech("The recurrence of your task" + taskName + " is set every " + fullDayNames);
+                }
+            }
+        }, taskName);
+    }
+
+    private void getTaskImportance(String taskName) {
+        taskDatabaseManager.fetchTaskByName(tasks -> {
+            if (tasks.isEmpty()) {
+                synthesizeAssistantSpeech("I'm sorry but I couldn't find your task " + taskName);
+            } else {
+                Task task = tasks.get(0);
+                if (task.getImportanceLevel().equalsIgnoreCase("none")) {
+                    synthesizeAssistantSpeech("The importance of your task  " + taskName + " is set to none." );
+                } else {
+                    synthesizeAssistantSpeech("The importance of your task" + taskName + " is set to " + task.getImportanceLevel());
+                }
+            }
+        }, taskName);
+    }
+
+    private void getTaskUrgency(String taskName) {
+        taskDatabaseManager.fetchTaskByName(tasks -> {
+            if (tasks.isEmpty()) {
+                synthesizeAssistantSpeech("I'm sorry but I couldn't find your task " + taskName);
+            } else {
+                Task task = tasks.get(0);
+                if (task.getUrgencyLevel().equalsIgnoreCase("none")) {
+                    synthesizeAssistantSpeech("The urgency of your task  " + taskName + " is set to none." );
+                } else {
+                    synthesizeAssistantSpeech("The urgency of your task" + taskName + " is set to " + task.getUrgencyLevel());
+                }
+            }
+        }, taskName);
+    }
+
+    private void getTaskSchedule(String taskName) {
+        taskDatabaseManager.fetchTaskByName(tasks -> {
+            if (tasks.isEmpty()) {
+                synthesizeAssistantSpeech("I'm sorry but I couldn't find your task " + taskName);
+            } else {
+                Task task = tasks.get(0);
+                if (task.getSchedule().equalsIgnoreCase("no schedule")) {
+                    synthesizeAssistantSpeech("Your task " + taskName + " has no schedule." );
+                } else {
+                    String formattedDate = CalendarUtils.getFormattedDate(task.getSchedule());
+                    String formattedTime = CalendarUtils.getFormattedTime(task.getSchedule());
+
+                    synthesizeAssistantSpeech(String.format("You scheduled your task %s on %s at %s", taskName, formattedDate, formattedTime));
+                }
+            }
+        }, taskName);
+    }
+
+    private void getTaskDeadline(String taskName) {
+        taskDatabaseManager.fetchTaskByName(tasks -> {
+            if (tasks.isEmpty()) {
+                synthesizeAssistantSpeech("I'm sorry but I couldn't find your task " + taskName);
+            } else {
+                Task task = tasks.get(0);
+                if (task.getDeadline().equalsIgnoreCase("no deadline")) {
+                    synthesizeAssistantSpeech("Your task " + taskName + " has no deadline." );
+                } else {
+                    String formattedDate = CalendarUtils.getFormattedDate(task.getDeadline());
+                    String formattedTime = CalendarUtils.getFormattedTime(task.getDeadline());
+
+                    synthesizeAssistantSpeech("Your task " + taskName + " is due on " + formattedDate + " at " + formattedTime);
+                }
+            }
+        }, taskName);
     }
 
 
@@ -1338,7 +1477,7 @@ public class Live2DFragment extends Fragment implements View.OnTouchListener, Sp
     private void handleTaskDetailInteraction(String recognizedSpeech) {
         Log.v("handleTaskDetailInteraction", "handleTaskDetailInteraction running");
 
-        final List<String> doneIntents = Arrays.asList("done", "finished", "all set", "i'm good", "thank you");
+        final List<String> doneIntents = Arrays.asList("done", "finished", "all set", "i'm good", "thank you", "that's all");
         HttpRequest.taskDetailRequest(tempTask, recognizedSpeech, aiName, new HttpRequest.HttpRequestCallback() {
             @Override
             public void onSuccess(String intent, String responseText) {
