@@ -210,7 +210,6 @@ public class Live2DFragment extends Fragment implements View.OnTouchListener, Sp
         }
     }
 
-
     private void startSpecificModelMotion(String motionGroup, int motionNumber) {
         LAppLive2DManager manager = LAppLive2DManager.getInstance();
         LAppModel model = manager.getModel(0); // Assuming you want the first model, change index if needed
@@ -383,7 +382,6 @@ public class Live2DFragment extends Fragment implements View.OnTouchListener, Sp
         mainHandler.postDelayed(() -> {
             String dialogue = AIRandomSpeech.generateTaskAdded(completeTask.getTaskName());
             synthesizeAssistantSpeech(dialogue);
-            insertDialogue(dialogue, true);
             // to get id for notif scheduler
             taskDatabaseManager.fetchUnfinishedTaskByName(tasks -> {
                 if (tasks.isEmpty()) {
@@ -532,9 +530,13 @@ public class Live2DFragment extends Fragment implements View.OnTouchListener, Sp
                 Task task = tasks.get(0);
                 String taskNotes = task.getNotes();
                 task.setNotes((taskNotes + "\n" + notes).trim());
+                startRandomMotionFromGroup(LAppDefine.MotionGroup.AFFIRMATION.getId());
+
                 taskDatabaseManager.updateTask(task, updatedTask -> {
-                    openTaskDetailFragment(task);
                     synthesizeAssistantSpeech(AIRandomSpeech.generateTaskUpdated(task.getTaskName()));
+                    mainHandler.postDelayed(() -> {
+                        mainHandler.postDelayed(() -> openTaskDetailFragment(task), 4000);
+                    }, 3000);
                 });
             }
         }, taskName);
@@ -860,7 +862,6 @@ public class Live2DFragment extends Fragment implements View.OnTouchListener, Sp
     }
 
     private void askQuestion( String question) {
-        Toast.makeText(requireContext(), String.format("%s: %s", aiName, question), Toast.LENGTH_SHORT).show();
         synthesizeAssistantSpeech(question);
     }
 
@@ -994,9 +995,14 @@ public class Live2DFragment extends Fragment implements View.OnTouchListener, Sp
                 Task task = tasks.get(0);
                 String taskNotes = task.getNotes();
                 task.setNotes((taskNotes + "\n" + tempNotes).trim());
+
+                startRandomMotionFromGroup(LAppDefine.MotionGroup.AFFIRMATION.getId());
+
                 taskDatabaseManager.updateTask(task, updatedTask -> {
-                    openTaskDetailFragment(task);
                     synthesizeAssistantSpeech(AIRandomSpeech.generateTaskUpdated(task.getTaskName()));
+                    mainHandler.postDelayed(() -> {
+                        mainHandler.postDelayed(() -> openTaskDetailFragment(task), 4000);
+                    }, 3000);
                 });
             }
         }, recognizedSpeech);
@@ -1302,10 +1308,8 @@ public class Live2DFragment extends Fragment implements View.OnTouchListener, Sp
                     } else {
                         if (FocusModeHelper.isFocusModeEnabled(requireContext())) {
                             String focusResponse = AIRandomSpeech.generateFocusModeMessage();
-                            Toast.makeText(requireContext(), String.format("%s: %s", aiName, focusResponse), Toast.LENGTH_LONG).show();
                             synthesizeAssistantSpeech(focusResponse);
                         } else {
-                            Toast.makeText(requireContext(), String.format("%s: %s", aiName, responseText), Toast.LENGTH_LONG).show();
                             synthesizeAssistantSpeech(responseText);
                         }
                     }
@@ -1334,10 +1338,8 @@ public class Live2DFragment extends Fragment implements View.OnTouchListener, Sp
                     } else {
                         if (FocusModeHelper.isFocusModeEnabled(requireContext())) {
                             String focusResponse = AIRandomSpeech.generateFocusModeMessage();
-                            Toast.makeText(requireContext(), String.format("%s: %s", aiName, focusResponse), Toast.LENGTH_LONG).show();
                             synthesizeAssistantSpeech(focusResponse);
                         } else {
-                            Toast.makeText(requireContext(), String.format("%s: %s", aiName, responseText), Toast.LENGTH_LONG).show();
                             synthesizeAssistantSpeech(responseText);
                         }
                     }
@@ -1366,10 +1368,8 @@ public class Live2DFragment extends Fragment implements View.OnTouchListener, Sp
                     } else {
                         if (FocusModeHelper.isFocusModeEnabled(requireContext())) {
                             String focusResponse = AIRandomSpeech.generateFocusModeMessage();
-                            Toast.makeText(requireContext(), String.format("%s: %s", aiName, focusResponse), Toast.LENGTH_LONG).show();
                             synthesizeAssistantSpeech(focusResponse);
                         } else {
-                            Toast.makeText(requireContext(), String.format("%s: %s", aiName, responseText), Toast.LENGTH_LONG).show();
                             synthesizeAssistantSpeech(responseText);
                         }
                     }
@@ -1398,10 +1398,8 @@ public class Live2DFragment extends Fragment implements View.OnTouchListener, Sp
                     } else {
                         if (FocusModeHelper.isFocusModeEnabled(requireContext())) {
                             String focusResponse = AIRandomSpeech.generateFocusModeMessage();
-                            Toast.makeText(requireContext(), String.format("%s: %s", aiName, focusResponse), Toast.LENGTH_LONG).show();
                             synthesizeAssistantSpeech(focusResponse);
                         } else {
-                            Toast.makeText(requireContext(), String.format("%s: %s", aiName, responseText), Toast.LENGTH_LONG).show();
                             synthesizeAssistantSpeech(responseText);
                         }
                     }
@@ -1431,8 +1429,10 @@ public class Live2DFragment extends Fragment implements View.OnTouchListener, Sp
                         if (responseText.equalsIgnoreCase("done")) {
                             inEditTaskInteraction = false;
                             tempEditTaskName = "";
-                            openTaskDetailFragment(taskToEdit);
-                            synthesizeAssistantSpeech("Okii, your task has been updated.");
+                            startRandomMotionFromGroup(LAppDefine.MotionGroup.AFFIRMATION.getId());
+
+                            mainHandler.postDelayed(() -> synthesizeAssistantSpeech(AIRandomSpeech.generateTaskUpdated(taskToEdit.getTaskName())), 3000);
+                            mainHandler.postDelayed(() -> openTaskDetailFragment(taskToEdit), 4000);
                         } else if (responseText.equalsIgnoreCase("unrecognized")) {
                             synthesizeAssistantSpeech("I'm sorry, I didn't understand, what else do you want to edit?");
                         } else {
@@ -1464,10 +1464,8 @@ public class Live2DFragment extends Fragment implements View.OnTouchListener, Sp
                     } else {
                         if (FocusModeHelper.isFocusModeEnabled(requireContext())) {
                             String focusResponse = AIRandomSpeech.generateFocusModeMessage();
-                            Toast.makeText(requireContext(), String.format("%s: %s", aiName, focusResponse), Toast.LENGTH_LONG).show();
                             synthesizeAssistantSpeech(focusResponse);
                         } else {
-                            Toast.makeText(requireContext(), String.format("%s: %s", aiName, responseText), Toast.LENGTH_LONG).show();
                             synthesizeAssistantSpeech(responseText);
                         }
                     }
