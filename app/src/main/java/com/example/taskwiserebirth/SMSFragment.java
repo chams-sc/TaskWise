@@ -59,10 +59,12 @@ public class SMSFragment extends Fragment {
             chatAiDisplay.setText(aiName);
         });
 
-//        userDatabaseManager.getUserData(userModel -> {
-//            aiName = userModel.getAiName();
-//            chatAiDisplay.setText(aiName);
-//        });
+        sharedViewModel.getClearMemoryLiveData().observe(getViewLifecycleOwner(), shouldClear -> {
+            if (shouldClear) {
+                onMemoryCleared();
+            }
+        });
+
 
         conversationDbManager.setNewMessageCallback(newMessage -> {
             chatMessages.add(newMessage);

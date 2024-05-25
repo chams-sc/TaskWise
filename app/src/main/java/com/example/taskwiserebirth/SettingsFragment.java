@@ -124,6 +124,7 @@ public class SettingsFragment extends Fragment {
             if (isAdded()) {
                 conversationDbManager.clearAIMemory(successMessage -> {
                     Toast.makeText(requireContext(), "AI memory has been cleared.", Toast.LENGTH_SHORT).show();
+                    sharedViewModel.setClearMemory(true);
                     // Notify SMSFragment about the memory clearing
                     if (getActivity() instanceof MainActivity) {
                         SMSFragment smsFragment = (SMSFragment) getActivity().getSupportFragmentManager().findFragmentByTag("SMS_FRAGMENT");
