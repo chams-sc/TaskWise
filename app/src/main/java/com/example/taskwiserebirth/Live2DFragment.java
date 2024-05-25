@@ -532,9 +532,20 @@ public class Live2DFragment extends Fragment implements View.OnTouchListener, Sp
             if (tasks.isEmpty()) {
                 synthesizeAssistantSpeech(AIRandomSpeech.generateNoTasksCompleted());
             } else {
-                int finishedTaskCount = tasks.size();
+                int finishedTaskCount = 0;
+                Date today = new Date();
+
+                for (Task task : tasks) {
+                    Date dateFinished = task.getDateFinished();
+                    if (dateFinished != null && CalendarUtils.isSameDay(dateFinished, today)) {
+                        finishedTaskCount++;
+                    }
+                }
+
                 String response;
-                if (finishedTaskCount == 1) {
+                if (finishedTaskCount == 0) {
+                    response = AIRandomSpeech.generateNoTasksCompleted();
+                } else if (finishedTaskCount == 1) {
                     response = "You were able to finish a total of " + finishedTaskCount + " task today. Great job!";
                 } else {
                     response = AIRandomSpeech.generateFinishedTaskCountMessage(finishedTaskCount);

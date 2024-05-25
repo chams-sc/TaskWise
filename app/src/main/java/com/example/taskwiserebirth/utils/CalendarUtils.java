@@ -96,6 +96,7 @@ public class CalendarUtils {
         }
     }
 
+
     public static boolean isDateInCorrectFormat(String input) {
         // Define the format pattern
         String formatPattern = "^\\d{2}-\\d{2}-\\d{4} \\| \\d{2}:\\d{2} (AM|PM)$";
