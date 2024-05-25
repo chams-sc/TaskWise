@@ -31,6 +31,13 @@ import java.util.List;
  * Manages model creation and destruction, tap event processing, and model switching.
  */
 public class LAppLive2DManager {
+
+    private boolean isChangedModel = false;
+
+    public void setChangedModel() {
+        this.isChangedModel = true;
+    }
+
     public static LAppLive2DManager getInstance() {
         if (s_instance == null) {
             s_instance = new LAppLive2DManager();
@@ -54,6 +61,11 @@ public class LAppLive2DManager {
 
     // Perform model update and rendering processing
     public void onUpdate() {
+        if (isChangedModel) {
+            isChangedModel = false;
+            nextScene();
+        }
+
         int width = LAppDelegate.getInstance().getWindowWidth();
         int height = LAppDelegate.getInstance().getWindowHeight();
 
@@ -153,6 +165,11 @@ public class LAppLive2DManager {
                         model.startMotion(MotionGroup.IDLE.getId(), 3, Priority.FORCE.getPriority());
                     }
                 }, 3000);
+            } else if (model.hitTest(HitAreaName.CLIPBOARD.getId(), x, y)) {
+                if (DEBUG_LOG_ENABLE) {
+                    LAppPal.printLog("hit area: " + HitAreaName.CLIPBOARD.getId());
+                }
+                setChangedModel(); // Flag to change the model
             }
         }
     }

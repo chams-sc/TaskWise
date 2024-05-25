@@ -90,22 +90,22 @@ public class LAppView {
 //        }
 
         // Load the gear image
-//        LAppTextureManager.TextureInfo gearTexture = textureManager.createTextureFromPngFile(LAppDefine.ResourcePath.ROOT.getPath() + LAppDefine.ResourcePath.GEAR_IMAGE.getPath());
-//
-//        float xOffset = 96.0f; // Adjust this value as needed for the x position
-//        float yOffset = 50.0f; // Adjust this value as needed for the y position
-//
-//        // Calculate the position for the gear image
-//        float x = gearTexture.width * 0.5f + xOffset;
-//        float y = windowHeight - gearTexture.height * 0.5f - yOffset;
-//        float fWidth = (float) gearTexture.width;
-//        float fHeight = (float) gearTexture.height;
-//
-//        if (gearSprite == null) {
-//            gearSprite = new LAppSprite(x, y, fWidth, fHeight, gearTexture.id, programId);
-//        } else {
-//            gearSprite.resize(x, y, fWidth, fHeight);
-//        }
+        LAppTextureManager.TextureInfo gearTexture = textureManager.createTextureFromPngFile(LAppDefine.ResourcePath.ROOT.getPath() + LAppDefine.ResourcePath.GEAR_IMAGE.getPath());
+
+        float xOffset = 96.0f; // Adjust this value as needed for the x position
+        float yOffset = 50.0f; // Adjust this value as needed for the y position
+
+        // Calculate the position for the gear image
+        float x1 = gearTexture.width * 0.5f + xOffset;
+        float y1 = windowHeight - gearTexture.height * 0.5f - yOffset;
+        float fWidth = (float) gearTexture.width;
+        float fHeight = (float) gearTexture.height;
+
+        if (gearSprite == null) {
+            gearSprite = new LAppSprite(x1, y1, fWidth, fHeight, gearTexture.id, programId);
+        } else {
+            gearSprite.resize(x1, y1, fWidth, fHeight);
+        }
 
         // Load the power image
 //        LAppTextureManager.TextureInfo powerTexture = textureManager.createTextureFromPngFile(LAppDefine.ResourcePath.ROOT.getPath() + LAppDefine.ResourcePath.POWER_IMAGE.getPath());
@@ -137,13 +137,13 @@ public class LAppView {
     public void render() {
         // Render UI and background
 //        backSprite.render();
-//        gearSprite.render();
+        gearSprite.render();
 //        powerSprite.render();
 
-        if (isChangedModel) {
-            isChangedModel = false;
-            LAppLive2DManager.getInstance().nextScene();
-        }
+//        if (isChangedModel) {
+//            isChangedModel = false;
+//            LAppLive2DManager.getInstance().nextScene();
+//        }
 
         // Render the model
         LAppLive2DManager live2dManager = LAppLive2DManager.getInstance();
@@ -292,9 +292,9 @@ public class LAppView {
         live2DManager.onTap(x, y);
 
         // Check if touched gear button
-//        if (gearSprite.isHit(pointX, pointY)) {
-//            isChangedModel = true;
-//        }
+        if (gearSprite.isHit(pointX, pointY)) {
+            isChangedModel = true;
+        }
 
         // Check if touched power button
 //        if (powerSprite.isHit(pointX, pointY)) {
@@ -410,7 +410,7 @@ public class LAppView {
     private CubismOffscreenSurfaceAndroid renderingBuffer = new CubismOffscreenSurfaceAndroid();
 
     private LAppSprite backSprite;
-    //    private LAppSprite gearSprite;
+        private LAppSprite gearSprite;
 //    private LAppSprite powerSprite;
     private LAppSprite renderingSprite;
 
