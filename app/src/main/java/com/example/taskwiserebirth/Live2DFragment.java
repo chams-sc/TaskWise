@@ -389,7 +389,7 @@ public class Live2DFragment extends Fragment implements View.OnTouchListener, Sp
                 if (tasks.isEmpty()) {
                     return;
                 }
-                openTaskDetailFragment(tasks.get(0));
+                mainHandler.postDelayed(() -> openTaskDetailFragment(tasks.get(0)), 4000);
             }, completeTask.getTaskName());
         }, 3000);
     }

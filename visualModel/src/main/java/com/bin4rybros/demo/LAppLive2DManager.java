@@ -132,6 +132,7 @@ public class LAppLive2DManager {
                     LAppPal.printLog("hit area: " + HitAreaName.BODY.getId());
                 }
 
+                model.setExpression("default1");
                 model.startRandomMotionFromGroup(MotionGroup.TAP_HEAD.getId(), Priority.FORCE.getPriority());
                 new Handler(Looper.getMainLooper()).postDelayed(new Runnable() {
                     @Override
@@ -143,6 +144,8 @@ public class LAppLive2DManager {
                 if (DEBUG_LOG_ENABLE) {
                     LAppPal.printLog("hit area: " + HitAreaName.LEGS.getId());
                 }
+
+                model.setExpression("default1");
                 model.startRandomMotionFromGroup(MotionGroup.TAP_BODY.getId(), Priority.FORCE.getPriority());
                 new Handler(Looper.getMainLooper()).postDelayed(new Runnable() {
                     @Override
