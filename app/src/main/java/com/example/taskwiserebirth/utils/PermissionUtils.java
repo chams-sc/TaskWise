@@ -3,7 +3,6 @@ package com.example.taskwiserebirth.utils;
 import android.Manifest;
 import android.app.AlertDialog;
 import android.content.Context;
-import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.net.Uri;
@@ -39,16 +38,13 @@ public class PermissionUtils {
                     .setTitle("Permission Required")
                     .setCancelable(false)
                     .setNegativeButton("Cancel", ((dialog, which) -> dialog.dismiss()))
-                    .setPositiveButton("Settings", new DialogInterface.OnClickListener() {
-                        @Override
-                        public void onClick(DialogInterface dialog, int which) {
-                            Intent intent = new Intent(Settings.ACTION_APPLICATION_DETAILS_SETTINGS);
-                            Uri uri = Uri.fromParts("package", context.getPackageName(), null);
-                            intent.setData(uri);
-                            context.startActivity(intent);
+                    .setPositiveButton("Settings", (dialog, which) -> {
+                        Intent intent = new Intent(Settings.ACTION_APPLICATION_DETAILS_SETTINGS);
+                        Uri uri = Uri.fromParts("package", context.getPackageName(), null);
+                        intent.setData(uri);
+                        context.startActivity(intent);
 
-                            dialog.dismiss();
-                        }
+                        dialog.dismiss();
                     });
             builder.show();
             return false;
@@ -63,16 +59,13 @@ public class PermissionUtils {
                 .setTitle("Permission Required")
                 .setCancelable(false)
                 .setNegativeButton("Cancel", ((dialog, which) -> dialog.dismiss()))
-                .setPositiveButton("Settings", new DialogInterface.OnClickListener() {
-                    @Override
-                    public void onClick(DialogInterface dialog, int which) {
-                        Intent intent = new Intent(Settings.ACTION_REQUEST_SCHEDULE_EXACT_ALARM);
-                        Uri uri = Uri.fromParts("package", context.getPackageName(), null);
-                        intent.setData(uri);
-                        context.startActivity(intent);
+                .setPositiveButton("Settings", (dialog, which) -> {
+                    Intent intent = new Intent(Settings.ACTION_REQUEST_SCHEDULE_EXACT_ALARM);
+                    Uri uri = Uri.fromParts("package", context.getPackageName(), null);
+                    intent.setData(uri);
+                    context.startActivity(intent);
 
-                        dialog.dismiss();
-                    }
+                    dialog.dismiss();
                 });
         builder.show();
     }

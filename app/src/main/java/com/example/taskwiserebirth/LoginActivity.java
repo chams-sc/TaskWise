@@ -115,10 +115,6 @@ public class LoginActivity extends AppCompatActivity {
             String email = inputEmail.getText().toString();
             String password = inputPassword.getText().toString();
 
-// TODO: for testing, you can create your own account and replace email and pass here; remove later
-//            logInEmail("mics@gmail.com", "11111111");
-
-            // TODO: comment back for final app
             if (email.isEmpty() || !isValidEmail(email)) {
                 showError(inputEmail, "Invalid email");
             }

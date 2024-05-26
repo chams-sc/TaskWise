@@ -36,6 +36,7 @@ import com.example.taskwiserebirth.task.Task;
 import com.example.taskwiserebirth.task.TaskPriorityCalculator;
 import com.example.taskwiserebirth.utils.CalendarUtils;
 import com.example.taskwiserebirth.utils.FocusModeHelper;
+import com.example.taskwiserebirth.utils.PermissionUtils;
 import com.example.taskwiserebirth.utils.SharedViewModel;
 import com.example.taskwiserebirth.utils.ValidValues;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
@@ -169,29 +170,33 @@ public class Live2DFragment extends Fragment implements View.OnTouchListener, Sp
     }
 
     private void handleSpeakButtonClick() {
-        if (speechRecognition.isListening()) {
-            speechRecognition.stopSpeechRecognition();
-            stopCurrentMotion();
-            mainHandler.postDelayed(() -> setModelExpression(defaultExpression), 500);
-        } else {
-            speechRecognition.startSpeechRecognition();
-            changeExpression("listening");
-            startSpecificModelMotion(LAppDefine.MotionGroup.IDLE.getId(), 3);
+        if (PermissionUtils.checkRecordAudioPermission(requireContext())) {
+            if (speechRecognition.isListening()) {
+                speechRecognition.stopSpeechRecognition();
+                stopCurrentMotion();
+                mainHandler.postDelayed(() -> setModelExpression(defaultExpression), 500);
 
-            cardViewSpeech.setVisibility(View.VISIBLE);
-            cardViewSpeech.setAlpha(1f);
-            realTimeSpeechTextView.setText("Listening...");
+                cardViewSpeech.setVisibility(View.INVISIBLE);
+            } else {
+                speechRecognition.startSpeechRecognition();
+                changeExpression("listening");
+                startSpecificModelMotion(LAppDefine.MotionGroup.IDLE.getId(), 3);
 
-            Runnable checkListeningAndAnimate = new Runnable() {
-                @Override
-                public void run() {
-                    if (speechRecognition.isListening()) {
-                        startSpecificModelMotion(LAppDefine.MotionGroup.IDLE.getId(), 3);
-                        mainHandler.postDelayed(this, 2000);
+                cardViewSpeech.setVisibility(View.VISIBLE);
+                cardViewSpeech.setAlpha(1f);
+                realTimeSpeechTextView.setText("Listening...");
+
+                Runnable checkListeningAndAnimate = new Runnable() {
+                    @Override
+                    public void run() {
+                        if (speechRecognition.isListening()) {
+                            startSpecificModelMotion(LAppDefine.MotionGroup.IDLE.getId(), 3);
+                            mainHandler.postDelayed(this, 2000);
+                        }
                     }
-                }
-            };
-            mainHandler.postDelayed(checkListeningAndAnimate, 2000);
+                };
+                mainHandler.postDelayed(checkListeningAndAnimate, 2000);
+            }
         }
     }
 
@@ -567,9 +572,7 @@ public class Live2DFragment extends Fragment implements View.OnTouchListener, Sp
 
                 taskDatabaseManager.updateTask(task, updatedTask -> {
                     synthesizeAssistantSpeech(AIRandomSpeech.generateTaskUpdated(task.getTaskName()));
-                    mainHandler.postDelayed(() -> {
-                        mainHandler.postDelayed(() -> openTaskDetailFragment(task), 4000);
-                    }, 3000);
+                    mainHandler.postDelayed(() -> mainHandler.postDelayed(() -> openTaskDetailFragment(task), 4000), 3000);
                 });
             }
         }, taskName);
@@ -1033,9 +1036,7 @@ public class Live2DFragment extends Fragment implements View.OnTouchListener, Sp
 
                 taskDatabaseManager.updateTask(task, updatedTask -> {
                     synthesizeAssistantSpeech(AIRandomSpeech.generateTaskUpdated(task.getTaskName()));
-                    mainHandler.postDelayed(() -> {
-                        mainHandler.postDelayed(() -> openTaskDetailFragment(task), 4000);
-                    }, 3000);
+                    mainHandler.postDelayed(() -> mainHandler.postDelayed(() -> openTaskDetailFragment(task), 4000), 3000);
                 });
             }
         }, recognizedSpeech);

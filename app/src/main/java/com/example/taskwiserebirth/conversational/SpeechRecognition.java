@@ -41,9 +41,7 @@ public class SpeechRecognition {
     }
 
     public void startSpeechRecognition() {
-        if (PermissionUtils.checkRecordAudioPermission(context)) {
-            initializeSpeechRecognizer();
-        }
+        initializeSpeechRecognizer();
         isListening = true;
     }
 

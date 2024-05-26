@@ -1,12 +1,15 @@
 package com.example.taskwiserebirth;
 
+import android.content.Intent;
 import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Looper;
+import android.util.Log;
 import android.view.View;
 import android.view.animation.AccelerateInterpolator;
 import android.view.animation.DecelerateInterpolator;
+import android.widget.Toast;
 
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.fragment.app.Fragment;
@@ -36,6 +39,7 @@ public class MainActivity extends AppCompatActivity {
     private SettingsFragment settingsFragment;
     private ConversationDbManager conversationDbManager;
     private SharedViewModel sharedViewModel;
+    private App app;
     private static final String LAST_OPEN_DATE_KEY = "last_open_date";
     private static final String SHARED_PREFS = "sharedPrefs";
     private static final String FIRST_LAUNCH_KEY = "first_launch";
@@ -51,7 +55,7 @@ public class MainActivity extends AppCompatActivity {
 
         bottomNavigationView = findViewById(R.id.bottomNavigationView);
 
-        App app = MongoDbRealmHelper.initializeRealmApp();
+        app = MongoDbRealmHelper.initializeRealmApp();
         User user = app.currentUser();
         conversationDbManager = new ConversationDbManager(user);
 
@@ -155,25 +159,6 @@ public class MainActivity extends AppCompatActivity {
                 .commit();
     }
 
-    public void replaceFragment(Fragment fragment, boolean addToBackStack) {
-        FragmentManager fragmentManager = getSupportFragmentManager();
-        FragmentTransaction fragmentTransaction = fragmentManager.beginTransaction();
-
-        // Check if there's already a fragment attached, and remove it if necessary
-        Fragment currentFragment = fragmentManager.findFragmentById(R.id.frame_layout);
-        if (currentFragment != null && currentFragment.isAdded()) {
-            fragmentTransaction.remove(currentFragment);
-        }
-
-        fragmentTransaction.replace(R.id.frame_layout, fragment);
-
-        if (addToBackStack) {
-            fragmentTransaction.addToBackStack(null);
-        }
-
-        fragmentTransaction.commit();
-    }
-
     public void toggleNavBarVisibility(boolean visible, boolean isScrollToggle) {
         long duration = 100;
         if (isScrollToggle) {
@@ -189,6 +174,29 @@ public class MainActivity extends AppCompatActivity {
                 bottomNavigationView.setVisibility(View.VISIBLE);
                 bottomNavigationView.animate().translationY(0).setDuration(duration).setInterpolator(new DecelerateInterpolator());
             }
+        }
+    }
+
+    public void logout() {
+        SharedPreferences sharedPreferences = getSharedPreferences(SHARED_PREFS, MODE_PRIVATE);
+        SharedPreferences.Editor editor = sharedPreferences.edit();
+        editor.clear();
+        editor.apply();
+
+        // Log out the user from the Realm app
+        if (app != null && app.currentUser() != null) {
+            app.currentUser().logOutAsync(result -> {
+                if (result.isSuccess()) {
+                    Log.d("MongoDb", "User logged out successfully");
+                    Toast.makeText(getApplicationContext(), "Logged out successfully", Toast.LENGTH_SHORT).show();
+
+                    startActivity(new Intent(MainActivity.this, LoginActivity.class));
+                    finish();
+                } else {
+                    Log.e("MongoDb", "Failed to log out: " + result.getError());
+                    Toast.makeText(getApplicationContext(), "Logout failed", Toast.LENGTH_SHORT).show();
+                }
+            });
         }
     }
 
