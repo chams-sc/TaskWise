@@ -95,8 +95,8 @@ public class Live2DFragment extends Fragment implements View.OnTouchListener, Sp
     private final String TAG_SERVER_RESPONSE = "SERVER_RESPONSE";
 
     private final Handler mainHandler = new Handler(Looper.getMainLooper());
-    private static final long FADE_OUT_DELAY = 5000; // 3 seconds delay before starting fade-out
-    private static final long FADE_OUT_DURATION = 1000;
+    private static final long FADE_OUT_DELAY = 3000; // 3 seconds delay before starting fade-out
+    private static final long FADE_OUT_DURATION = 500;
 
 
     @Override
@@ -1163,7 +1163,7 @@ public class Live2DFragment extends Fragment implements View.OnTouchListener, Sp
                 if (hasScheduleChange) {
                     if (!taskToEdit.getRecurrence().equalsIgnoreCase("none")) {
                         Log.v("DEBUG", "hasScheduleChange !taskToEdit.getRecurrence().equalsIgnoreCase(\"none\")");
-                        String schedule = taskToEdit.getSchedule();
+                        String schedule = tempTaskForAddEdit.getSchedule();
                         // Extracting the time part from the schedule string
                         String filteredSched = schedule.substring(schedule.lastIndexOf("|") + 1).trim();
                         taskToEdit.setSchedule(filteredSched);
@@ -1190,20 +1190,24 @@ public class Live2DFragment extends Fragment implements View.OnTouchListener, Sp
                 if (hasDeadlineChange) {
                     if (CalendarUtils.isDateAccepted(tempTaskForAddEdit.getDeadline())) {
                         if (!taskToEdit.getRecurrence().equalsIgnoreCase("none")) {
+                            Log.v ("hasDeadlineChange", "!taskToEdit.getRecurrence().equalsIgnoreCase(\"none\")");
                             taskToEdit.setRecurrence("None");
                             taskToEdit.setSchedule("No schedule");
                             taskToEdit.setDeadline(tempTaskForAddEdit.getDeadline());
                             synthesizeAssistantSpeech("I have removed your existing recurrence to apply your new deadline.");
                         } else {
                             if (!taskToEdit.getSchedule().equalsIgnoreCase("no schedule")) {
+                                Log.v ("hasDeadlineChange", "!taskToEdit.getSchedule().equalsIgnoreCase(\"no schedule\")");
                                 boolean schedIsValid = CalendarUtils.isDateAccepted(taskToEdit.getSchedule(), tempTaskForAddEdit.getDeadline());
                                 if (schedIsValid) {
                                     taskToEdit.setDeadline(tempTaskForAddEdit.getDeadline());
                                 } else {
                                     taskToEdit.setSchedule("No schedule");
                                     taskToEdit.setDeadline(tempTaskForAddEdit.getDeadline());
-                                    synthesizeAssistantSpeech("Your schedule cannot be later than your new deadline. I have set your schedule to none UWU.");
+                                    synthesizeAssistantSpeech("Your schedule cannot be later than your new deadline. I have set your schedule to none.");
                                 }
+                            } else {
+                                taskToEdit.setDeadline(tempTaskForAddEdit.getDeadline());
                             }
                         }
                     } else {
@@ -1548,8 +1552,6 @@ public class Live2DFragment extends Fragment implements View.OnTouchListener, Sp
         setModelExpression(defaultExpression);
         startRandomMotionFromGroup(LAppDefine.MotionGroup.SPEAKING.getId());
 
-        // Periodically check if the speech synthesis is still ongoing and start random motion
-        Handler handler = new Handler(Looper.getMainLooper());
         Runnable checkSpeechAndAnimate = new Runnable() {
             @Override
             public void run() {

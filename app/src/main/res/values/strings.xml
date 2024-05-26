@@ -1,5 +1,5 @@
 <resources>
-    <string name="app_name">TASKWISE_V3</string>
+    <string name="app_name">TaskWise</string>
     <string name="taskwiselogo">TaskwiseLogo</string>
     <string name="hello_blank_fragment">Hello blank fragment</string>
     <string name="fullscreen">Fullscreen</string>

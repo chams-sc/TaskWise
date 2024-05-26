@@ -225,6 +225,30 @@ public class AIRandomSpeech {
             "Focus mode disengaged. What's next on your agenda?"
     };
 
+    private static final String[] taskDueReminder = {
+            "Remember, your task '%s' is due on %s. Let's wrap this up!",
+            "Don't forget, the task '%s' needs to be completed by %s. You can do it!",
+            "Heads up! The task '%s' is due on %s. Stay focused and finish strong!",
+            "Just a reminder, '%s' has a deadline of %s. You're almost there!",
+            "Keep in mind, the task '%s' must be done by %s. Let's get this done!",
+            "Note that '%s' is due by %s. Keep pushing, you're doing great!",
+            "Your task '%s' is set for completion on %s. Finish it and feel the accomplishment!",
+            "Make sure to finish '%s' before %s. You're on the right track!",
+            "The task '%s' has a due date of %s. You got this, keep at it!"
+    };
+
+    private static final String[] unfinishedTaskReminder = {
+            "You still have not finished your task '%s'. Let's get it done!",
+            "Your task '%s' is still pending. Keep pushing, you're almost there!",
+            "Task '%s' is awaiting completion. You can do it!",
+            "You haven't completed '%s' yet. Stay focused and finish strong!",
+            "The task '%s' needs your attention. Don't give up now!",
+            "Task '%s' is still on your list. Finish it and feel the accomplishment!",
+            "Your task '%s' remains unfinished. Keep going, you're doing great!",
+            "You still need to complete '%s'. Let's wrap this up!",
+            "The task '%s' is still pending. You got this, keep at it!"
+    };
+
     public static String generateTaskAdded(String taskName) {
         int randomIndex = random.nextInt(taskAddedMessages.length);
         String randomMessage = taskAddedMessages[randomIndex];
@@ -305,5 +329,17 @@ public class AIRandomSpeech {
     public static String generateFocusModeOff() {
         int randomIndex = random.nextInt(focusModeOff.length);
         return focusModeOff[randomIndex];
+    }
+
+    public static String generateUnfinishedTaskReminder(String taskName) {
+        int randomIndex = random.nextInt(unfinishedTaskReminder.length);
+        String randomMessage = unfinishedTaskReminder[randomIndex];
+        return String.format(randomMessage, taskName);
+    }
+
+    public static String generateTaskDueReminder(String taskName, String dueDate) {
+        int randomIndex = random.nextInt(taskDueReminder.length);
+        String randomMessage = taskDueReminder[randomIndex];
+        return String.format(randomMessage, taskName, dueDate);
     }
 }

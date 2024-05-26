@@ -13,7 +13,9 @@ import androidx.core.app.NotificationManagerCompat;
 
 import com.example.taskwiserebirth.MainActivity;
 import com.example.taskwiserebirth.R;
+import com.example.taskwiserebirth.conversational.AIRandomSpeech;
 import com.example.taskwiserebirth.task.Task;
+import com.example.taskwiserebirth.utils.CalendarUtils;
 import com.google.gson.Gson;
 
 public class NotificationReceiver extends BroadcastReceiver {
@@ -24,6 +26,16 @@ public class NotificationReceiver extends BroadcastReceiver {
         Task task = gson.fromJson(taskJson, Task.class);
 
         String taskName = task.getTaskName();
+        String deadline = task.getDeadline();
+        String contentText;
+
+        if (deadline.equalsIgnoreCase("no deadline")) {
+            contentText = AIRandomSpeech.generateUnfinishedTaskReminder(taskName);
+        } else {
+            String formattedDate = CalendarUtils.getFormattedDate(deadline);
+            contentText = AIRandomSpeech.generateTaskDueReminder(taskName, formattedDate);
+        }
+
         boolean isRepeating = intent.getBooleanExtra("is_repeating", false);
 
         if (isRepeating) {
@@ -42,8 +54,8 @@ public class NotificationReceiver extends BroadcastReceiver {
         String channelId = "TaskWise";
         NotificationCompat.Builder builder = new NotificationCompat.Builder(context, channelId)
                 .setSmallIcon(R.drawable.baseline_notification)
-                .setContentTitle("Taskwise")
-                .setContentText(taskName)
+                .setContentTitle(taskName)
+                .setContentText(contentText)
                 .setAutoCancel(true)
                 .setDefaults(NotificationCompat.DEFAULT_ALL)
                 .setPriority(NotificationCompat.PRIORITY_HIGH)

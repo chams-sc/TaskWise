@@ -52,7 +52,7 @@ dependencies {
     testImplementation 'junit:junit:4.13.2'
     androidTestImplementation 'androidx.test.ext:junit:1.1.5'
     androidTestImplementation 'androidx.test.espresso:espresso-core:3.5.1'
-    debugImplementation 'com.squareup.leakcanary:leakcanary-android:2.14'
+//    debugImplementation 'com.squareup.leakcanary:leakcanary-android:2.14'
     api 'com.microsoft.cognitiveservices.speech:client-sdk:1.35.0'
     implementation 'com.intuit.ssp:ssp-android:1.0.5'
     implementation 'com.makeramen:roundedimageview:2.3.0'
