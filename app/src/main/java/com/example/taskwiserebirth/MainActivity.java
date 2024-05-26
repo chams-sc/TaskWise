@@ -1,6 +1,9 @@
 package com.example.taskwiserebirth;
 
+import android.content.SharedPreferences;
 import android.os.Bundle;
+import android.os.Handler;
+import android.os.Looper;
 import android.view.View;
 import android.view.animation.AccelerateInterpolator;
 import android.view.animation.DecelerateInterpolator;
@@ -14,6 +17,7 @@ import androidx.lifecycle.ViewModelProvider;
 import com.example.taskwiserebirth.database.ConversationDbManager;
 import com.example.taskwiserebirth.database.MongoDbRealmHelper;
 import com.example.taskwiserebirth.task.Task;
+import com.example.taskwiserebirth.utils.CalendarUtils;
 import com.example.taskwiserebirth.utils.SharedViewModel;
 import com.example.taskwiserebirth.utils.SystemUIHelper;
 import com.google.android.material.bottomnavigation.BottomNavigationView;
@@ -32,6 +36,9 @@ public class MainActivity extends AppCompatActivity {
     private SettingsFragment settingsFragment;
     private ConversationDbManager conversationDbManager;
     private SharedViewModel sharedViewModel;
+    private static final String LAST_OPEN_DATE_KEY = "last_open_date";
+    private static final String SHARED_PREFS = "sharedPrefs";
+    private static final String FIRST_LAUNCH_KEY = "first_launch";
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -70,14 +77,37 @@ public class MainActivity extends AppCompatActivity {
         }
 
         setupBottomNavigationListener();
+        checkAndTriggerDailyUnfinishedTasks();
+    }
+
+    private void checkAndTriggerDailyUnfinishedTasks() {
+        SharedPreferences preferences = getSharedPreferences(SHARED_PREFS, MODE_PRIVATE);
+        String lastOpenDate = preferences.getString(LAST_OPEN_DATE_KEY, null);
+        String currentDate = CalendarUtils.getCurrentDate();
+
+        boolean isFirstLaunch = preferences.getBoolean(FIRST_LAUNCH_KEY, true);
+
+        if (isFirstLaunch) {
+            // Set the first launch flag to false for subsequent launches
+            preferences.edit().putBoolean(FIRST_LAUNCH_KEY, false).apply();
+        } else if (lastOpenDate == null || !lastOpenDate.equals(currentDate)) {
+            // Ensure Live2DFragment is shown
+            showFragment(live2DFragment);
+
+            // Introduce a 10-second delay before triggering speakUnfinishedTasks
+            Handler handler = new Handler(Looper.getMainLooper());
+            handler.postDelayed(() -> {
+                if (live2DFragment != null) {
+                    live2DFragment.speakUnfinishedTasks();
+                }
+            }, 10000); // 10 seconds delay
+
+            preferences.edit().putString(LAST_OPEN_DATE_KEY, currentDate).apply();
+        }
     }
 
     public ConversationDbManager getConversationDbManager() {
         return conversationDbManager;
-    }
-
-    public SharedViewModel getSharedViewModel() {
-        return sharedViewModel;
     }
 
     private void setupBottomNavigationListener() {

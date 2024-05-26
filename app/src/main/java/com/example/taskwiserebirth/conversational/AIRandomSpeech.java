@@ -249,6 +249,31 @@ public class AIRandomSpeech {
             "The task '%s' is still pending. You got this, keep at it!"
     };
 
+    private static final String[] greetingMessages = {
+            "Great to see you today! Hmm, let me check your tasks for today.",
+            "Hey there! Ready to conquer the day? Let's see what tasks you've got waiting.",
+            "Hello! Let's see what adventures await in your task list today.",
+            "Hi! Let's make today awesome by checking what tasks you need to tackle.",
+            "Good to see you! Give me a second while I fetch your tasks for the day.",
+            "Hey! Ready to be productive? Let me grab your tasks for today.",
+            "Welcome back! Let’s dive into your tasks and see what's on the agenda.",
+            "Hi there! Let’s start the day right by seeing what tasks are up next.",
+            "Good morning! Let’s see what’s on your plate for today. Just a moment!",
+            "Hey superstar! Let's check out what tasks are lined up for you today.",
+            "Hello champion! Let's take a peek at what you need to conquer today!",
+            "Great to have you back! Hold on, let me see what tasks need your magic touch today.",
+            "Hey rockstar! Give me a sec to check your tasks. Today’s going to be great!",
+            "Good day! Let's see what exciting tasks await you today. Hang tight!",
+            "Welcome back, hero! Let’s check what’s on your task list for today.",
+            "Hi there achiever! Let's see what challenges you can tackle today.",
+            "Good seeing you today! Let’s see what’s on the agenda. Checking your tasks now!"
+    };
+
+    public static String generateGreeting() {
+        int randomIndex = random.nextInt(greetingMessages.length);
+        return greetingMessages[randomIndex];
+    }
+
     public static String generateTaskAdded(String taskName) {
         int randomIndex = random.nextInt(taskAddedMessages.length);
         String randomMessage = taskAddedMessages[randomIndex];

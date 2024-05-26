@@ -1,8 +1,5 @@
 package com.example.taskwiserebirth;
 
-import android.app.AlarmManager;
-import android.content.Context;
-import android.os.Build;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.LayoutInflater;
@@ -28,7 +25,6 @@ import com.example.taskwiserebirth.task.TaskAdapter;
 import com.example.taskwiserebirth.task.TaskPriorityCalculator;
 import com.example.taskwiserebirth.utils.CalendarUtils;
 import com.example.taskwiserebirth.utils.DialogUtils;
-import com.example.taskwiserebirth.utils.PermissionUtils;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
 
 import java.text.DateFormatSymbols;
@@ -85,14 +81,14 @@ public class AddTaskFragment extends Fragment implements DatabaseChangeListener,
             ((MainActivity) requireActivity()).showAllTaskFragment();
         });
 
-        PermissionUtils.requestNotificationPermission(requireActivity());
-
-        AlarmManager alarmManager = (AlarmManager) requireContext().getSystemService(Context.ALARM_SERVICE);
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
-            if (!alarmManager.canScheduleExactAlarms()) {
-                PermissionUtils.requestAlarmReminderOn(requireContext());
-            }
-        }
+//        PermissionUtils.requestNotificationPermission(requireActivity());
+//
+//        AlarmManager alarmManager = (AlarmManager) requireContext().getSystemService(Context.ALARM_SERVICE);
+//        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
+//            if (!alarmManager.canScheduleExactAlarms()) {
+//                PermissionUtils.requestAlarmReminderOn(requireContext());
+//            }
+//        }
 
         return rootView;
     }
@@ -194,6 +190,7 @@ public class AddTaskFragment extends Fragment implements DatabaseChangeListener,
     public void onHiddenChanged(boolean hidden) {
         super.onHiddenChanged(hidden);
         if (!hidden) {
+
             // Fragment is now visible
             Log.d("AddTaskFragment", "Fragment is now visible");
             scrollToCurrentDatePosition(calendarRecyclerView, calendarList);

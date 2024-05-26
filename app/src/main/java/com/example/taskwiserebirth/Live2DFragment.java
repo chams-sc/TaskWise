@@ -212,6 +212,29 @@ public class Live2DFragment extends Fragment implements View.OnTouchListener, Sp
         speechRecognition = new SpeechRecognition(requireContext(), speakBtn, this);
     }
 
+    public void speakUnfinishedTasks() {
+        String greeting = AIRandomSpeech.generateGreeting();
+        // TODO: animation before greeting
+        synthesizeAssistantSpeech(greeting);
+
+        Log.v("DEBUG_speakUnfinishedTasks", "speakUnfinishedTasks running");
+
+        taskDatabaseManager.fetchTasksWithStatus(tasks -> {
+            if (!tasks.isEmpty()) {
+                int unfinishedTaskCount = tasks.size();
+
+                List<Task> sortedTasks = TaskPriorityCalculator.sortTasksByPriority(tasks, new Date());
+                Task mostImportantTask = sortedTasks.get(0);
+
+                String taskWord = (unfinishedTaskCount > 1) ? "tasks" : "task";
+                String response = "Currently, you have " + unfinishedTaskCount + " unfinished " + taskWord +
+                        ". With " + mostImportantTask.getTaskName() + " as your most important task.";
+
+                synthesizeAssistantSpeech(response);
+            }
+        }, false);
+    }
+
     private void stopCurrentMotion() {
         LAppLive2DManager manager = LAppLive2DManager.getInstance();
         LAppModel model = manager.getModel(0); // Assuming you want the first model, change index if needed

@@ -1,10 +1,13 @@
 package com.example.taskwiserebirth;
 
+import android.app.AlarmManager;
 import android.app.Dialog;
+import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.graphics.Color;
 import android.graphics.drawable.ColorDrawable;
+import android.os.Build;
 import android.os.Bundle;
 import android.text.SpannableString;
 import android.text.Spanned;
@@ -24,6 +27,7 @@ import androidx.core.content.ContextCompat;
 import com.example.taskwiserebirth.database.MongoDbRealmHelper;
 import com.example.taskwiserebirth.database.UserDatabaseManager;
 import com.example.taskwiserebirth.database.UserModel;
+import com.example.taskwiserebirth.utils.PermissionUtils;
 import com.example.taskwiserebirth.utils.SystemUIHelper;
 
 import java.util.regex.Matcher;
@@ -58,6 +62,15 @@ public class LoginActivity extends AppCompatActivity {
 
         Button bottomLogin = findViewById(R.id.before_button);
         bottomLogin.setOnClickListener(v -> showLoginDialog());
+
+        PermissionUtils.requestNotificationPermission(this);
+
+        AlarmManager alarmManager = (AlarmManager) this.getSystemService(Context.ALARM_SERVICE);
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
+            if (!alarmManager.canScheduleExactAlarms()) {
+                PermissionUtils.requestAlarmReminderOn(this);
+            }
+        }
     }
 
     private void checkStatus() {

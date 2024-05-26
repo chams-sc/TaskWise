@@ -82,6 +82,11 @@ public class CalendarUtils {
         return -1; // Current date not found
     }
 
+    public static String getCurrentDate() {
+        SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd", Locale.getDefault());
+        return dateFormat.format(new Date());
+    }
+
     public static Date parseDeadline(String deadline) {
         if (deadline.equals("No deadline")) {
             return null;
