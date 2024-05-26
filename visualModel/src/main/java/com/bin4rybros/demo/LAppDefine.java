@@ -141,10 +141,10 @@ public class LAppDefine {
      * Model directory name.
      */
     public enum ModelDir {
-        KAIA(0, "kaia"),
-        KAIA2(1, "kaia2"),
-        KAIA3(2, "kaia3"),
-        KAIA4(3, "kaia4");
+        KAIA(0, "kaia");
+//        KAIA2(1, "kaia2"),
+//        KAIA3(2, "kaia3"),
+//        KAIA4(3, "kaia4");
 //        KAIA_SHORTSLEEVE(2, "kaiaShortsleeve"),
 //        KAIA_SHORTSLEEVE_NOCOLLAR(3, "kaiaShortsleeveNoCollar");
 //        HARU(1, "Haru");
@@ -190,7 +190,8 @@ public class LAppDefine {
         NEGATIVE("Negative"),
         SPEAKING("Speaking"),
         SWITCH("Switch"),
-        SLEEP("Sleep");
+        SLEEP("Sleep"),
+        THINKING("Thinking");
 
         private final String id;
 

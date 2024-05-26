@@ -139,12 +139,21 @@ public class CalendarUtils {
         StringBuilder formattedRecurrence = new StringBuilder();
         Set<String> days = new HashSet<>(Arrays.asList(value.split(",\\s*")));
 
-        for (String day : ValidValues.VALID_RECURRENCE_LEVELS) {
+        // List of days in the correct order
+        List<String> orderedDays = Arrays.asList("Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday", "Sunday");
+
+        for (String day : orderedDays) {
             if (days.contains(day)) {
                 if (formattedRecurrence.length() > 0) {
                     formattedRecurrence.append(" | ");
                 }
                 formattedRecurrence.append(getDayAbbreviation(day));
+            }
+        }
+
+        for (String day : days) {
+            if (!orderedDays.contains(day)) {
+                Log.e(TAG_CALENDAR_UTILS, "Invalid day in recurrence: " + day);
             }
         }
 

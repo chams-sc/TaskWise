@@ -258,9 +258,9 @@ public class Live2DFragment extends Fragment implements View.OnTouchListener, Sp
 
     private void startRandomMotionFromGroup(String motionGroup) {
         LAppLive2DManager manager = LAppLive2DManager.getInstance();
-        LAppModel model = manager.getModel(0); // Assuming you want the first model, change index if needed
+        LAppModel model = manager.getModel(0);
         if (model != null) {
-            model.startRandomMotionFromGroup(motionGroup, LAppDefine.Priority.FORCE.getPriority());
+            model.startRandomMotionFromGroup(motionGroup, LAppDefine.Priority.NORMAL.getPriority());
         }
 
         Log.v("STARTRANDOMMOTION", "starting random montion: " + motionGroup);
@@ -890,10 +890,12 @@ public class Live2DFragment extends Fragment implements View.OnTouchListener, Sp
             }
 
             Task task = tasks.get(0);
-            Log.d(TAG_SERVER_RESPONSE, "Task found: " + task.getTaskName());
-
             taskDatabaseManager.deleteTask(task);
-            synthesizeAssistantSpeech("I have successfully deleted your task " + taskName);
+
+            startRandomMotionFromGroup(LAppDefine.MotionGroup.NEGATIVE.getId());
+
+            mainHandler.postDelayed(() -> synthesizeAssistantSpeech("I have successfully deleted your task " + taskName), 3000);
+
         }, taskName);
     }
 
@@ -1143,7 +1145,7 @@ public class Live2DFragment extends Fragment implements View.OnTouchListener, Sp
                         }
 
                     } else {
-                        if (taskToEdit.getRecurrence().equalsIgnoreCase("none") || tempTaskForAddEdit.getRecurrence().equalsIgnoreCase("daily")) {
+                        if (taskToEdit.getRecurrence().equalsIgnoreCase("none") || !tempTaskForAddEdit.getRecurrence().equalsIgnoreCase("none")) {
                             // may sched, no deadline
                             if (!taskToEdit.getSchedule().equalsIgnoreCase("No schedule") && taskToEdit.getDeadline().equalsIgnoreCase("no deadline")) {
                                 Log.v("DEBUG", "!taskToEdit.getSchedule().equalsIgnoreCase(\"No schedule\")");
@@ -1239,8 +1241,10 @@ public class Live2DFragment extends Fragment implements View.OnTouchListener, Sp
                     }
                 }
             }
-            taskDatabaseManager.updateTask(taskToEdit, updatedTask -> turnBasedInteraction());
 
+            taskDatabaseManager.updateTask(taskToEdit, updatedTask -> {
+                mainHandler.postDelayed(() -> turnBasedInteraction(), 3000);
+            });
         }, taskName);
     }
 
@@ -1249,8 +1253,8 @@ public class Live2DFragment extends Fragment implements View.OnTouchListener, Sp
         if (!inEditTaskInteraction) {
             return;
         }
+        startSpecificModelMotion(LAppDefine.MotionGroup.ASKING.getId(), 0);
         String followUpQuestion = AIRandomSpeech.generateFollowUpChangeMessage();
-
         askQuestion(followUpQuestion);
     }
 
