@@ -14,7 +14,7 @@ public class SharedViewModel extends ViewModel {
         return focusModeLiveData;
     }
 
-    public void setFocusMode(Boolean isEnabled) {
+    public void setAssistiveMode(Boolean isEnabled) {
         focusModeLiveData.setValue(isEnabled);
     }
 

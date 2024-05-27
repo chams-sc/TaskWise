@@ -35,7 +35,7 @@ import com.example.taskwiserebirth.database.TaskDatabaseManager;
 import com.example.taskwiserebirth.task.Task;
 import com.example.taskwiserebirth.task.TaskPriorityCalculator;
 import com.example.taskwiserebirth.utils.CalendarUtils;
-import com.example.taskwiserebirth.utils.FocusModeHelper;
+import com.example.taskwiserebirth.utils.AssistiveModeHelper;
 import com.example.taskwiserebirth.utils.PermissionUtils;
 import com.example.taskwiserebirth.utils.SharedViewModel;
 import com.example.taskwiserebirth.utils.ValidValues;
@@ -125,9 +125,9 @@ public class Live2DFragment extends Fragment implements View.OnTouchListener, Sp
         return view;
     }
 
-    private void onFocusModeChanged(boolean isEnabled) {
-        FocusModeHelper.setFocusMode(requireContext(), isEnabled);
-        sharedViewModel.setFocusMode(isEnabled);
+    private void onAssistiveModeChanged(boolean isEnabled) {
+        AssistiveModeHelper.setAssistiveMode(requireContext(), isEnabled);
+        sharedViewModel.setAssistiveMode(isEnabled);
     }
 
     private void initializeGLSurfaceView(View view) {
@@ -214,7 +214,7 @@ public class Live2DFragment extends Fragment implements View.OnTouchListener, Sp
 
     private void initializeSpeechRecognition(View view) {
         FloatingActionButton speakBtn = view.findViewById(R.id.speakBtn);
-        speechRecognition = new SpeechRecognition(requireContext(), speakBtn, this);
+        speechRecognition = new SpeechRecognition(requireContext(), speakBtn, cardViewSpeech,this);
     }
 
     public void speakUnfinishedTasks() {
@@ -1123,9 +1123,14 @@ public class Live2DFragment extends Fragment implements View.OnTouchListener, Sp
                         }
                         synthesizeAssistantSpeech("Recurring or repeating tasks cant have deadlines, so deadline is not applicable");
                     } else if (hasDeadlineChange || hasScheduleChange) {
+
+                        if (hasDeadlineChange || !taskToEdit.getDeadline().equalsIgnoreCase("no deadline")) {
+                            synthesizeAssistantSpeech("Recurring or repeating tasks cant have deadlines, so deadline is not applicable");
+                        }
+
                         taskToEdit.setDeadline("No deadline");
                         // if iseset to days of week or daily, check kung valid ang format ng sched, if not format it
-                        if (!taskToEdit.getSchedule().equals("No schedule")) {
+                        if (!taskToEdit.getSchedule().equalsIgnoreCase("no schedule")) {
                             String schedule = taskToEdit.getSchedule();
                             // Extracting the time part from the schedule string
                             String filteredSched = schedule.substring(schedule.lastIndexOf("|") + 1).trim();
@@ -1135,13 +1140,10 @@ public class Live2DFragment extends Fragment implements View.OnTouchListener, Sp
                         }
 
                         if (tempTaskForAddEdit.getRecurrence().equalsIgnoreCase("daily")) {
+                            Log.v("EditTaskThroughSpeech", "tempTaskForAddEdit.getRecurrence().equalsIgnoreCase(\"daily\")");
                             taskToEdit.setRecurrence("Daily");
                         } else {
                             taskToEdit.setRecurrence(CalendarUtils.formatRecurrence(tempTaskForAddEdit.getRecurrence()));
-                        }
-
-                        if (hasDeadlineChange || !taskToEdit.getDeadline().equalsIgnoreCase("No deadline")) {
-                            synthesizeAssistantSpeech("Recurring or repeating tasks cant have deadlines, so deadline is not applicable");
                         }
 
                     } else {
@@ -1270,24 +1272,24 @@ public class Live2DFragment extends Fragment implements View.OnTouchListener, Sp
         mainHandler.postDelayed(this::fadeOutCardView, FADE_OUT_DELAY);
 
         insertDialogue(recognizedSpeech, false);
-        if (recognizedSpeech.equalsIgnoreCase("focus mode on")) {
-            if (FocusModeHelper.isFocusModeEnabled(requireContext())) {
-                synthesizeAssistantSpeech("Focus mode is already activated");
+        if (recognizedSpeech.equalsIgnoreCase("assistive mode on")) {
+            if (AssistiveModeHelper.isAssistiveModeEnabled(requireContext())) {
+                synthesizeAssistantSpeech("Assistive mode is already activated");
                 return;
             }
-            onFocusModeChanged(true);
+            onAssistiveModeChanged(true);
             startSpecificModelMotion(LAppDefine.MotionGroup.SWITCH.getId(), 0);
 
-            mainHandler.postDelayed(() -> synthesizeAssistantSpeech(AIRandomSpeech.generateFocusModeOn()), 2000);
+            mainHandler.postDelayed(() -> synthesizeAssistantSpeech(AIRandomSpeech.generateAssistiveModeOn()), 2000);
             return;
-        } else if (recognizedSpeech.equalsIgnoreCase("focus mode off")) {
-            if (!FocusModeHelper.isFocusModeEnabled(requireContext())) {
-                synthesizeAssistantSpeech("Focus mode is already off");
+        } else if (recognizedSpeech.equalsIgnoreCase("assistive mode off")) {
+            if (!AssistiveModeHelper.isAssistiveModeEnabled(requireContext())) {
+                synthesizeAssistantSpeech("Assistive mode is already off");
                 return;
             }
-            onFocusModeChanged(false);
+            onAssistiveModeChanged(false);
             startSpecificModelMotion(LAppDefine.MotionGroup.SWITCH.getId(), 0);
-            mainHandler.postDelayed(() -> synthesizeAssistantSpeech(AIRandomSpeech.generateFocusModeOff()), 2000);
+            mainHandler.postDelayed(() -> synthesizeAssistantSpeech(AIRandomSpeech.generateAssistiveModeOff()), 2000);
             return;
         }
 
@@ -1360,8 +1362,8 @@ public class Live2DFragment extends Fragment implements View.OnTouchListener, Sp
                     if (!intent.equals("null")) {
                         performIntent(intent, responseText);
                     } else {
-                        if (FocusModeHelper.isFocusModeEnabled(requireContext())) {
-                            String focusResponse = AIRandomSpeech.generateFocusModeMessage();
+                        if (!AssistiveModeHelper.isAssistiveModeEnabled(requireContext())) {
+                            String focusResponse = AIRandomSpeech.generateAssistiveModeMessage();
                             synthesizeAssistantSpeech(focusResponse);
                         } else {
                             synthesizeAssistantSpeech(responseText);
@@ -1390,8 +1392,8 @@ public class Live2DFragment extends Fragment implements View.OnTouchListener, Sp
                     if (!intent.equals("null")) {
                         performIntent(intent, responseText);
                     } else {
-                        if (FocusModeHelper.isFocusModeEnabled(requireContext())) {
-                            String focusResponse = AIRandomSpeech.generateFocusModeMessage();
+                        if (!AssistiveModeHelper.isAssistiveModeEnabled(requireContext())) {
+                            String focusResponse = AIRandomSpeech.generateAssistiveModeMessage();
                             synthesizeAssistantSpeech(focusResponse);
                         } else {
                             synthesizeAssistantSpeech(responseText);
@@ -1420,8 +1422,8 @@ public class Live2DFragment extends Fragment implements View.OnTouchListener, Sp
                     if (!intent.equals("null")) {
                         performIntent(intent, responseText);
                     } else {
-                        if (FocusModeHelper.isFocusModeEnabled(requireContext())) {
-                            String focusResponse = AIRandomSpeech.generateFocusModeMessage();
+                        if (!AssistiveModeHelper.isAssistiveModeEnabled(requireContext())) {
+                            String focusResponse = AIRandomSpeech.generateAssistiveModeMessage();
                             synthesizeAssistantSpeech(focusResponse);
                         } else {
                             synthesizeAssistantSpeech(responseText);
@@ -1450,8 +1452,8 @@ public class Live2DFragment extends Fragment implements View.OnTouchListener, Sp
                     if (!intent.equals("null")) {
                         performIntent(intent, responseText);
                     } else {
-                        if (FocusModeHelper.isFocusModeEnabled(requireContext())) {
-                            String focusResponse = AIRandomSpeech.generateFocusModeMessage();
+                        if (!AssistiveModeHelper.isAssistiveModeEnabled(requireContext())) {
+                            String focusResponse = AIRandomSpeech.generateAssistiveModeMessage();
                             synthesizeAssistantSpeech(focusResponse);
                         } else {
                             synthesizeAssistantSpeech(responseText);
@@ -1516,8 +1518,8 @@ public class Live2DFragment extends Fragment implements View.OnTouchListener, Sp
                     if (!intent.equals("null")) {
                         performIntent(intent, responseText);
                     } else {
-                        if (FocusModeHelper.isFocusModeEnabled(requireContext())) {
-                            String focusResponse = AIRandomSpeech.generateFocusModeMessage();
+                        if (!AssistiveModeHelper.isAssistiveModeEnabled(requireContext())) {
+                            String focusResponse = AIRandomSpeech.generateAssistiveModeMessage();
                             synthesizeAssistantSpeech(focusResponse);
                         } else {
                             synthesizeAssistantSpeech(responseText);

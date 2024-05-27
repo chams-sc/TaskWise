@@ -138,7 +138,7 @@
                     android:layout_height="wrap_content"
                     android:fontFamily="@font/inter"
                     android:padding="8dp"
-                    android:text="Focus mode"
+                    android:text="Assistive mode"
                     android:textColor="@color/dark"
                     android:textSize="15sp" />
 

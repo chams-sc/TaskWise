@@ -22,7 +22,7 @@ import androidx.lifecycle.ViewModelProvider;
 import com.example.taskwiserebirth.database.ConversationDbManager;
 import com.example.taskwiserebirth.database.MongoDbRealmHelper;
 import com.example.taskwiserebirth.database.UserDatabaseManager;
-import com.example.taskwiserebirth.utils.FocusModeHelper;
+import com.example.taskwiserebirth.utils.AssistiveModeHelper;
 import com.example.taskwiserebirth.utils.SharedViewModel;
 import com.example.taskwiserebirth.utils.SystemUIHelper;
 import com.google.android.material.textfield.TextInputEditText;
@@ -167,12 +167,12 @@ public class SettingsFragment extends Fragment {
     }
 
     private void updateFocusModePreference(boolean isChecked) {
-        FocusModeHelper.setFocusMode(requireContext(), isChecked);
+        AssistiveModeHelper.setAssistiveMode(requireContext(), isChecked);
     }
 
     private void updateFocusModeUI(View view) {
         SwitchCompat focusModeSwitch = view.findViewById(R.id.switchBtn);
-        focusModeSwitch.setChecked(FocusModeHelper.isFocusModeEnabled(requireContext()));
+        focusModeSwitch.setChecked(AssistiveModeHelper.isAssistiveModeEnabled(requireContext()));
     }
 
     @Override

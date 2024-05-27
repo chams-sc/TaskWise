@@ -188,41 +188,42 @@ public class AIRandomSpeech {
             "Is there anything else you'd like to update?"
     };
 
-    private static final String[] focusModeMessages = {
-            "I couldn't respond to such requests at the moment.",
-            "Sorry, I'm currently in focus mode and can't handle that request.",
-            "I'm in focus mode right now, so I can't process that request.",
-            "Apologies, but I'm unable to respond to that while in focus mode.",
-            "I'm in focus mode at the moment, so I can't help with that.",
-            "Sorry, I can't handle that request while in focus mode.",
-            "I'm currently focused and can't respond to that request.",
-            "Apologies, but I'm in focus mode and can't address that request.",
-            "I'm in focused mode right now, so I can't process that.",
-            "Sorry, but I can't respond to that request while I'm in focus mode."
+    private static final String[] assistiveOffMessages = {
+            "Oops, I'm taking a break from assistive mode right now and can't respond to that!",
+            "Hey there! I'm off-duty from assistive mode at the moment and can't handle that request. Try me later?",
+            "I'm in non-assistive mode right now, so I can't respond to that. Let's focus on your tasks instead!",
+            "Assistive mode is currently off, so I can't help with that request. How about we stick to your task list?",
+            "Sorry, I'm not in assistive mode right now and can't respond to that. Let's tackle something else!",
+            "I'm on a little assistive mode vacation and can't process that request. Can we work on your tasks instead?",
+            "Assistive mode is snoozing, so I can't respond to that. How can I help you with your tasks instead?",
+            "Apologies, I'm not in assistive mode at the moment and can't handle that request. Let's keep task-focused!",
+            "Assistive mode is off the clock, so I can't respond to that. Let's focus on your tasks for now!",
+            "I'm not in assistive mode right now and can't handle that request, but I'm here to help with your tasks!"
     };
 
-    private static final String[] focusModeOn = {
-            "Focus mode is now enabled. Let's get things done!",
-            "Focus mode activated. Ready to tackle your tasks!",
-            "You've entered focus mode. Time to concentrate!",
-            "Focus mode on. What can I help you with?",
-            "Focus mode initiated. Let's work efficiently!",
-            "Focus mode is live. What's next on your list?",
-            "Focus mode enabled. Let's make some progress!",
-            "Focus mode started. How can I assist you?",
-            "Focus mode engaged. Let's get to work!"
+    private static final String[] AssistiveModeOn = {
+            "Hey there! I'm all ears and ready to assist you. What's on your mind?",
+            "Assistive mode is active! Feel free to ask me anything and I'll do my best to help.",
+            "I'm in assistive mode and ready to tackle any questions you have. Let's get started!",
+            "You've got my full attention! Ask away, and I'll be happy to assist.",
+            "Assistive mode is on! Whatever you need, just let me know and I'll be here to help.",
+            "I'm switched to assistive mode, ready to handle your requests. What can I do for you today?",
+            "All systems go! I'm in assistive mode and ready to assist with any queries you have.",
+            "Let's chat! I'm in assistive mode and eager to help with whatever you need.",
+            "Your personal assistant is here and ready to help! What can I assist you with?",
+            "I'm in full assistive mode and ready to answer your questions. How can I help you today?"
     };
 
-    private static final String[] focusModeOff = {
-            "Focus mode is now disabled. Take a break!",
-            "Focus mode deactivated. You can relax now.",
-            "Focus mode off. Time to unwind!",
-            "Focus mode disabled. What would you like to do next?",
-            "Focus mode ended. Feel free to switch tasks!",
-            "Focus mode is off. Let's take it easy!",
-            "Focus mode is now off. How can I assist you further?",
-            "Focus mode is disabled. Ready for something different?",
-            "Focus mode disengaged. What's next on your agenda?"
+    private static final String[] AssistiveModeOff = {
+            "Assistive mode is now off. Let's zero in on your tasks!",
+            "Assistive mode deactivated. What task are we tackling next?",
+            "Assistive mode off. Ready to dive into your tasks?",
+            "Assistive mode disabled. Need help with any specific task?",
+            "Assistive mode ended. Which task would you like to work on?",
+            "Assistive mode off. Let's focus and get those tasks done!",
+            "Assistive mode is now off. What task can I assist you with?",
+            "Assistive mode is disabled. Let's get to the tasks at hand!",
+            "Assistive mode disengaged. Time to concentrate on your tasks!"
     };
 
     private static final String[] taskDueReminder = {
@@ -341,19 +342,19 @@ public class AIRandomSpeech {
         return followUpChangeMessages[randomIndex];
     }
 
-    public static String generateFocusModeMessage() {
-        int randomIndex = random.nextInt(focusModeMessages.length);
-        return focusModeMessages[randomIndex];
+    public static String generateAssistiveModeMessage() {
+        int randomIndex = random.nextInt(assistiveOffMessages.length);
+        return assistiveOffMessages[randomIndex];
     }
 
-    public static String generateFocusModeOn() {
-        int randomIndex = random.nextInt(focusModeOn.length);
-        return focusModeOn[randomIndex];
+    public static String generateAssistiveModeOn() {
+        int randomIndex = random.nextInt(AssistiveModeOn.length);
+        return AssistiveModeOn[randomIndex];
     }
 
-    public static String generateFocusModeOff() {
-        int randomIndex = random.nextInt(focusModeOff.length);
-        return focusModeOff[randomIndex];
+    public static String generateAssistiveModeOff() {
+        int randomIndex = random.nextInt(AssistiveModeOff.length);
+        return AssistiveModeOff[randomIndex];
     }
 
     public static String generateUnfinishedTaskReminder(String taskName) {

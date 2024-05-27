@@ -79,7 +79,7 @@
 			],
 			"TapBody": [
 				{
-					"File": "motions/headtap/bamboozled1.motion3.json",
+					"File": "motions/negative/no1.motion3.json",
 					"FadeInTime": 0.5,
 					"FadeOutTime": 0.5
 				}
@@ -117,7 +117,7 @@
 			],
 			"Negative": [
 				{
-					"File": "motions/negative/no1.motion3.json",
+					"File": "motions/headtap/bamboozled1.motion3.json",
 					"FadeInTime": 0.5,
 					"FadeOutTime": 0.5
 				}
@@ -144,6 +144,18 @@
 			"Sleep": [
 				{
 					"File": "motions/sleep/sleep.motion3.json",
+					"FadeInTime": 0.5,
+					"FadeOutTime": 0.5
+				}
+			],
+			"Thinking": [
+				{
+					"File": "motions/thinking/notfound.motion3.json",
+					"FadeInTime": 0.5,
+					"FadeOutTime": 0.5
+				},
+				{
+					"File": "motions/thinking/thinking.motion3.json",
 					"FadeInTime": 0.5,
 					"FadeOutTime": 0.5
 				}

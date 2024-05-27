@@ -6,12 +6,13 @@ import android.os.Bundle;
 import android.speech.RecognitionListener;
 import android.speech.RecognizerIntent;
 import android.speech.SpeechRecognizer;
+import android.view.View;
 import android.widget.Toast;
 
+import androidx.cardview.widget.CardView;
 import androidx.core.content.ContextCompat;
 
 import com.example.taskwiserebirth.R;
-import com.example.taskwiserebirth.utils.PermissionUtils;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
 
 import java.util.ArrayList;
@@ -21,6 +22,7 @@ public class SpeechRecognition {
 
     private SpeechRecognizer speechRecognizer;
     private Context context;
+    private final CardView cardViewSpeech;
     private final FloatingActionButton speakBtn;
     private SpeechRecognitionListener listener;
     private boolean isListening = false;
@@ -30,9 +32,10 @@ public class SpeechRecognition {
         void onPartialSpeechRecognized(String partialSpeech);
     }
 
-    public SpeechRecognition(Context context, FloatingActionButton speakBtn, SpeechRecognitionListener listener) {
+    public SpeechRecognition(Context context, FloatingActionButton speakBtn, CardView cardViewSpeech, SpeechRecognitionListener listener) {
         this.context = context;
         this.speakBtn = speakBtn;
+        this.cardViewSpeech = cardViewSpeech;
         this.listener = listener;
     }
 
@@ -86,6 +89,7 @@ public class SpeechRecognition {
                 }
                 speakBtn.setImageDrawable(ContextCompat.getDrawable(context, R.drawable.mic_standby));
                 isListening = false;
+                cardViewSpeech.setVisibility(View.INVISIBLE);
             }
 
             @Override
