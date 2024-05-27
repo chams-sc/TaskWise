@@ -200,7 +200,6 @@ public class Live2DFragment extends Fragment implements View.OnTouchListener, Sp
         }
     }
 
-
     private void toggleRealTimeSpeechTextViewExpansion() {
         if (isExpanded) {
             realTimeSpeechTextView.setMaxLines(3);
@@ -219,8 +218,9 @@ public class Live2DFragment extends Fragment implements View.OnTouchListener, Sp
 
     public void speakUnfinishedTasks() {
         String greeting = AIRandomSpeech.generateGreeting();
-        // TODO: animation before greeting
-        synthesizeAssistantSpeech(greeting);
+
+        startSpecificModelMotion(LAppDefine.MotionGroup.AFFIRMATION.getId(), 0);
+        mainHandler.postDelayed(() -> synthesizeAssistantSpeech(greeting), 3000);
 
         Log.v("DEBUG_speakUnfinishedTasks", "speakUnfinishedTasks running");
 
@@ -235,7 +235,8 @@ public class Live2DFragment extends Fragment implements View.OnTouchListener, Sp
                 String response = "Currently, you have " + unfinishedTaskCount + " unfinished " + taskWord +
                         ". With " + mostImportantTask.getTaskName() + " as your most important task.";
 
-                synthesizeAssistantSpeech(response);
+                startSpecificModelMotion(LAppDefine.MotionGroup.THINKING.getId(), 1);
+                mainHandler.postDelayed(() -> synthesizeAssistantSpeech(response), 3000);
             }
         }, false);
     }
@@ -256,11 +257,11 @@ public class Live2DFragment extends Fragment implements View.OnTouchListener, Sp
         }
     }
 
-    private void startRandomMotionFromGroup(String motionGroup) {
+    private void startRandomMotionFromGroup(String motionGroup, int priority) {
         LAppLive2DManager manager = LAppLive2DManager.getInstance();
         LAppModel model = manager.getModel(0);
         if (model != null) {
-            model.startRandomMotionFromGroup(motionGroup, LAppDefine.Priority.NORMAL.getPriority());
+            model.startRandomMotionFromGroup(motionGroup, priority);
         }
 
         Log.v("STARTRANDOMMOTION", "starting random montion: " + motionGroup);
@@ -414,7 +415,7 @@ public class Live2DFragment extends Fragment implements View.OnTouchListener, Sp
         }
         hasRecurrenceAddTask = false;
 
-        startRandomMotionFromGroup(LAppDefine.MotionGroup.AFFIRMATION.getId());
+        startRandomMotionFromGroup(LAppDefine.MotionGroup.AFFIRMATION.getId(), LAppDefine.Priority.FORCE.getPriority());
 
         // Create a handler to post a delayed runnable
         mainHandler.postDelayed(() -> {
@@ -568,7 +569,7 @@ public class Live2DFragment extends Fragment implements View.OnTouchListener, Sp
                 Task task = tasks.get(0);
                 String taskNotes = task.getNotes();
                 task.setNotes((taskNotes + "\n" + notes).trim());
-                startRandomMotionFromGroup(LAppDefine.MotionGroup.AFFIRMATION.getId());
+                startRandomMotionFromGroup(LAppDefine.MotionGroup.AFFIRMATION.getId(), LAppDefine.Priority.FORCE.getPriority());
 
                 taskDatabaseManager.updateTask(task, updatedTask -> {
                     synthesizeAssistantSpeech(AIRandomSpeech.generateTaskUpdated(task.getTaskName()));
@@ -870,7 +871,8 @@ public class Live2DFragment extends Fragment implements View.OnTouchListener, Sp
     private void markTaskFinished(String taskName) {
         taskDatabaseManager.fetchUnfinishedTaskByName(tasks -> {
             if (tasks.isEmpty()) {
-                synthesizeAssistantSpeech(AIRandomSpeech.generateTaskNotFound(taskName));
+                startSpecificModelMotion(LAppDefine.MotionGroup.THINKING.getId(), 0);
+                mainHandler.postDelayed(() -> synthesizeAssistantSpeech(AIRandomSpeech.generateTaskNotFound(taskName)), 3000);
                 return;
             }
 
@@ -885,14 +887,15 @@ public class Live2DFragment extends Fragment implements View.OnTouchListener, Sp
     private void deleteTaskThroughSpeech(String taskName) {
         taskDatabaseManager.fetchUnfinishedTaskByName(tasks -> {
             if (tasks.isEmpty()) {
-                synthesizeAssistantSpeech(AIRandomSpeech.generateTaskNotFound(taskName));
+                startSpecificModelMotion(LAppDefine.MotionGroup.THINKING.getId(), 0);
+                mainHandler.postDelayed(() -> synthesizeAssistantSpeech(AIRandomSpeech.generateTaskNotFound(taskName)), 3000);
                 return;
             }
 
             Task task = tasks.get(0);
             taskDatabaseManager.deleteTask(task);
 
-            startRandomMotionFromGroup(LAppDefine.MotionGroup.NEGATIVE.getId());
+            startRandomMotionFromGroup(LAppDefine.MotionGroup.NEGATIVE.getId(), LAppDefine.Priority.FORCE.getPriority());
 
             mainHandler.postDelayed(() -> synthesizeAssistantSpeech("I have successfully deleted your task " + taskName), 3000);
 
@@ -1015,7 +1018,8 @@ public class Live2DFragment extends Fragment implements View.OnTouchListener, Sp
         Log.v("getEditTaskName", "getEditTaskName run");
         taskDatabaseManager.fetchTaskByName(tasks -> {
             if (tasks.isEmpty()) {
-                synthesizeAssistantSpeech(AIRandomSpeech.generateTaskNotFoundAndVerify(recognizedSpeech));
+                startSpecificModelMotion(LAppDefine.MotionGroup.THINKING.getId(), 0);
+                mainHandler.postDelayed(() -> synthesizeAssistantSpeech(AIRandomSpeech.generateTaskNotFoundAndVerify(recognizedSpeech)), 3000);
             } else {
                 editTaskAskingForTaskName = false;
                 editTaskThroughSpeech(recognizedSpeech,"unspecified");
@@ -1027,14 +1031,15 @@ public class Live2DFragment extends Fragment implements View.OnTouchListener, Sp
         Log.v("getNotesTaskName", "getNotesTaskName run");
         taskDatabaseManager.fetchTaskByName(tasks -> {
             if (tasks.isEmpty()) {
-                synthesizeAssistantSpeech(AIRandomSpeech.generateTaskNotFoundAndVerify(recognizedSpeech));
+                startSpecificModelMotion(LAppDefine.MotionGroup.THINKING.getId(), 0);
+                mainHandler.postDelayed(() -> synthesizeAssistantSpeech(AIRandomSpeech.generateTaskNotFoundAndVerify(recognizedSpeech)), 3000);
             } else {
                 addNotesAskingForTaskName = false;
                 Task task = tasks.get(0);
                 String taskNotes = task.getNotes();
                 task.setNotes((taskNotes + "\n" + tempNotes).trim());
 
-                startRandomMotionFromGroup(LAppDefine.MotionGroup.AFFIRMATION.getId());
+                startRandomMotionFromGroup(LAppDefine.MotionGroup.AFFIRMATION.getId(), LAppDefine.Priority.FORCE.getPriority());
 
                 taskDatabaseManager.updateTask(task, updatedTask -> {
                     synthesizeAssistantSpeech(AIRandomSpeech.generateTaskUpdated(task.getTaskName()));
@@ -1054,7 +1059,8 @@ public class Live2DFragment extends Fragment implements View.OnTouchListener, Sp
     private void editTaskThroughSpeech(String taskName, String newTaskName) {
         taskDatabaseManager.fetchTaskByName(tasks -> {
             if (tasks.isEmpty()) {
-                synthesizeAssistantSpeech(AIRandomSpeech.generateTaskNotFoundAndVerify(taskName));
+                startSpecificModelMotion(LAppDefine.MotionGroup.THINKING.getId(), 0);
+                mainHandler.postDelayed(() -> synthesizeAssistantSpeech(AIRandomSpeech.generateTaskNotFoundAndVerify(taskName)), 3000);
                 editTaskAskingForTaskName = true;
                 return;
             }
@@ -1485,7 +1491,7 @@ public class Live2DFragment extends Fragment implements View.OnTouchListener, Sp
                         if (responseText.equalsIgnoreCase("done")) {
                             inEditTaskInteraction = false;
                             tempEditTaskName = "";
-                            startRandomMotionFromGroup(LAppDefine.MotionGroup.AFFIRMATION.getId());
+                            startRandomMotionFromGroup(LAppDefine.MotionGroup.AFFIRMATION.getId(), LAppDefine.Priority.FORCE.getPriority());
 
                             mainHandler.postDelayed(() -> synthesizeAssistantSpeech(AIRandomSpeech.generateTaskUpdated(taskToEdit.getTaskName())), 3000);
                             mainHandler.postDelayed(() -> openTaskDetailFragment(taskToEdit), 4000);
@@ -1580,13 +1586,13 @@ public class Live2DFragment extends Fragment implements View.OnTouchListener, Sp
         SpeechSynthesis.synthesizeSpeechAsync(dialogue);
         insertDialogue(dialogue, true);
         setModelExpression(defaultExpression);
-        startRandomMotionFromGroup(LAppDefine.MotionGroup.SPEAKING.getId());
+        startRandomMotionFromGroup(LAppDefine.MotionGroup.SPEAKING.getId(), LAppDefine.Priority.NORMAL.getPriority());
 
         Runnable checkSpeechAndAnimate = new Runnable() {
             @Override
             public void run() {
                 if (SpeechSynthesis.isSpeaking()) {
-                    startRandomMotionFromGroup(LAppDefine.MotionGroup.SPEAKING.getId());
+                    startRandomMotionFromGroup(LAppDefine.MotionGroup.SPEAKING.getId(), LAppDefine.Priority.NORMAL.getPriority());
                     mainHandler.postDelayed(this, 2000); // Check every 2 seconds, adjust as needed
                 }
             }
