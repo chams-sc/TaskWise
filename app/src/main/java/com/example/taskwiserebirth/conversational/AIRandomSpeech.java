@@ -265,8 +265,8 @@ public class AIRandomSpeech {
             "Great to have you back! Hold on, let me see what tasks need your magic touch today.",
             "Hey rockstar! Give me a sec to check your tasks. Today’s going to be great!",
             "Good day! Let's see what exciting tasks await you today. Hang tight!",
-            "Welcome back, hero! Let’s check what’s on your task list for today.",
-            "Hi there achiever! Let's see what challenges you can tackle today.",
+            "Welcome back! Let’s check what’s on your task list for today.",
+            "Hi there! Let's see what challenges you can tackle today.",
             "Good seeing you today! Let’s see what’s on the agenda. Checking your tasks now!"
     };
 

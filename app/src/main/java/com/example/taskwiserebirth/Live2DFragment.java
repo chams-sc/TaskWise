@@ -219,26 +219,36 @@ public class Live2DFragment extends Fragment implements View.OnTouchListener, Sp
     public void speakUnfinishedTasks() {
         String greeting = AIRandomSpeech.generateGreeting();
 
+        // Step 1: Start affirmation motion
         startSpecificModelMotion(LAppDefine.MotionGroup.AFFIRMATION.getId(), 0);
-        mainHandler.postDelayed(() -> synthesizeAssistantSpeech(greeting), 3000);
 
-        Log.v("DEBUG_speakUnfinishedTasks", "speakUnfinishedTasks running");
+        // Step 2: Speak greeting after 3 seconds
+        mainHandler.postDelayed(() -> {
+            synthesizeAssistantSpeech(greeting);
 
-        taskDatabaseManager.fetchTasksWithStatus(tasks -> {
-            if (!tasks.isEmpty()) {
-                int unfinishedTaskCount = tasks.size();
-
-                List<Task> sortedTasks = TaskPriorityCalculator.sortTasksByPriority(tasks, new Date());
-                Task mostImportantTask = sortedTasks.get(0);
-
-                String taskWord = (unfinishedTaskCount > 1) ? "tasks" : "task";
-                String response = "Currently, you have " + unfinishedTaskCount + " unfinished " + taskWord +
-                        ". With " + mostImportantTask.getTaskName() + " as your most important task.";
-
+            // Step 3: Start thinking motion 3 seconds after greeting starts
+            mainHandler.postDelayed(() -> {
                 startSpecificModelMotion(LAppDefine.MotionGroup.THINKING.getId(), 1);
-                mainHandler.postDelayed(() -> synthesizeAssistantSpeech(response), 3000);
-            }
-        }, false);
+
+                // Step 4: Fetch tasks after starting thinking motion
+                taskDatabaseManager.fetchTasksWithStatus(tasks -> {
+                    if (!tasks.isEmpty()) {
+                        int unfinishedTaskCount = tasks.size();
+
+                        List<Task> sortedTasks = TaskPriorityCalculator.sortTasksByPriority(tasks, new Date());
+                        Task mostImportantTask = sortedTasks.get(0);
+
+                        String taskWord = (unfinishedTaskCount > 1) ? "tasks" : "task";
+                        String response = "Currently, you have " + unfinishedTaskCount + " unfinished " + taskWord +
+                                ". With " + mostImportantTask.getTaskName() + " as your most important task.";
+
+                        // Step 5: Speak response 3 seconds after fetching tasks
+                        mainHandler.postDelayed(() -> synthesizeAssistantSpeech(response), 3000);
+                    }
+                }, false);
+
+            }, 6000);
+        }, 3000);
     }
 
     private void stopCurrentMotion() {
