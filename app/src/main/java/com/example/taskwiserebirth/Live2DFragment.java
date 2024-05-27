@@ -219,18 +219,14 @@ public class Live2DFragment extends Fragment implements View.OnTouchListener, Sp
     public void speakUnfinishedTasks() {
         String greeting = AIRandomSpeech.generateGreeting();
 
-        // Step 1: Start affirmation motion
         startSpecificModelMotion(LAppDefine.MotionGroup.AFFIRMATION.getId(), 0);
 
-        // Step 2: Speak greeting after 3 seconds
         mainHandler.postDelayed(() -> {
             synthesizeAssistantSpeech(greeting);
 
-            // Step 3: Start thinking motion 3 seconds after greeting starts
             mainHandler.postDelayed(() -> {
                 startSpecificModelMotion(LAppDefine.MotionGroup.THINKING.getId(), 1);
 
-                // Step 4: Fetch tasks after starting thinking motion
                 taskDatabaseManager.fetchTasksWithStatus(tasks -> {
                     if (!tasks.isEmpty()) {
                         int unfinishedTaskCount = tasks.size();
@@ -241,8 +237,6 @@ public class Live2DFragment extends Fragment implements View.OnTouchListener, Sp
                         String taskWord = (unfinishedTaskCount > 1) ? "tasks" : "task";
                         String response = "Currently, you have " + unfinishedTaskCount + " unfinished " + taskWord +
                                 ". With " + mostImportantTask.getTaskName() + " as your most important task.";
-
-                        // Step 5: Speak response 3 seconds after fetching tasks
                         mainHandler.postDelayed(() -> synthesizeAssistantSpeech(response), 3000);
                     }
                 }, false);
@@ -421,7 +415,8 @@ public class Live2DFragment extends Fragment implements View.OnTouchListener, Sp
     private void insertCompleteTask(Task completeTask) {
         taskDatabaseManager.insertTask(completeTask);
         if (hasRecurrenceAddTask) {
-            synthesizeAssistantSpeech("Recurring or repeating tasks cant have deadlines, so deadline is not applicable");
+            startSpecificModelMotion(LAppDefine.MotionGroup.THINKING.getId(), 1);
+            mainHandler.postDelayed(() -> synthesizeAssistantSpeech("Recurring or repeating tasks cant have deadlines, so deadline is not applicable"), 3000);
         }
         hasRecurrenceAddTask = false;
 
@@ -1114,7 +1109,6 @@ public class Live2DFragment extends Fragment implements View.OnTouchListener, Sp
             Log.v("DEBUG_RECURRENCE_CHANGE", "hasRecurrenceChange: " + hasRecurrenceChange);
             Log.v("DEBUG_HAS_RECURRENCE_ON_RECOGNIZED_SPEECH", "hasRecurrenceOnRecognizedSpeech: " + hasRecurrenceOnRecognizedSpeech);
 
-
             // may recurrence change at hindi equal to none
             if (hasRecurrenceChange && hasRecurrenceOnRecognizedSpeech) {
                 if (!tempTaskForAddEdit.getRecurrence().equalsIgnoreCase("none")) {
@@ -1137,11 +1131,14 @@ public class Live2DFragment extends Fragment implements View.OnTouchListener, Sp
                         } else {
                             taskToEdit.setRecurrence(CalendarUtils.formatRecurrence(tempTaskForAddEdit.getRecurrence()));
                         }
-                        synthesizeAssistantSpeech("Recurring or repeating tasks cant have deadlines, so deadline is not applicable");
+
+                        startSpecificModelMotion(LAppDefine.MotionGroup.THINKING.getId(), 1);
+                        mainHandler.postDelayed(() -> synthesizeAssistantSpeech("Recurring or repeating tasks cant have deadlines, so deadline is not applicable"), 3000);
                     } else if (hasDeadlineChange || hasScheduleChange) {
 
                         if (hasDeadlineChange || !taskToEdit.getDeadline().equalsIgnoreCase("no deadline")) {
-                            synthesizeAssistantSpeech("Recurring or repeating tasks cant have deadlines, so deadline is not applicable");
+                            startSpecificModelMotion(LAppDefine.MotionGroup.THINKING.getId(), 1);
+                            mainHandler.postDelayed(() -> synthesizeAssistantSpeech("Recurring or repeating tasks cant have deadlines, so deadline is not applicable"), 3000);
                         }
 
                         taskToEdit.setDeadline("No deadline");
@@ -1176,7 +1173,10 @@ public class Live2DFragment extends Fragment implements View.OnTouchListener, Sp
                                 Log.v("DEBUG", "!taskToEdit.getDeadline().equalsIgnoreCase(\"no deadline\") && taskToEdit.getSchedule().equalsIgnoreCase(\"no schedule\")");
                                 taskToEdit.setDeadline("No deadline");
                                 taskToEdit.setSchedule("09:00 AM");
-                                synthesizeAssistantSpeech("Recurring or repeating tasks cant have deadlines, so deadline is not applicable");
+
+                                startSpecificModelMotion(LAppDefine.MotionGroup.THINKING.getId(), 1);
+                                mainHandler.postDelayed(() -> synthesizeAssistantSpeech("Recurring or repeating tasks cant have deadlines, so deadline is not applicable"), 3000);
+
                             } else if (!taskToEdit.getSchedule().equalsIgnoreCase("no schedule") && !taskToEdit.getDeadline().equalsIgnoreCase("no deadline")) {
                                 Log.v("DEBUG", "!taskToEdit.getSchedule().equalsIgnoreCase(\"no schedule\") && !taskToEdit.getDeadline().equalsIgnoreCase(\"no deadline\")");
                                 taskToEdit.setDeadline("No deadline");
@@ -1185,7 +1185,9 @@ public class Live2DFragment extends Fragment implements View.OnTouchListener, Sp
                                 // Extracting the time part from the schedule string
                                 String filteredSched = schedule.substring(schedule.lastIndexOf("|") + 1).trim();
                                 taskToEdit.setSchedule(filteredSched);
-                                synthesizeAssistantSpeech("Recurring or repeating tasks cant have deadlines, so deadline is not applicable");
+
+                                startSpecificModelMotion(LAppDefine.MotionGroup.THINKING.getId(), 1);
+                                mainHandler.postDelayed(() -> synthesizeAssistantSpeech("Recurring or repeating tasks cant have deadlines, so deadline is not applicable"), 3000);
                             }
 
                             if (tempTaskForAddEdit.getRecurrence().equalsIgnoreCase("daily")) {
@@ -1221,13 +1223,15 @@ public class Live2DFragment extends Fragment implements View.OnTouchListener, Sp
                                 if (newSchedIsValid) {
                                     taskToEdit.setSchedule(tempTaskForAddEdit.getSchedule());
                                 } else {
-                                    synthesizeAssistantSpeech("Your new schedule cannot be later than your deadline.");
+                                    startSpecificModelMotion(LAppDefine.MotionGroup.THINKING.getId(), 1);
+                                    mainHandler.postDelayed(() -> synthesizeAssistantSpeech("Your new schedule cannot be later than your deadline."), 3000);
                                 }
                             } else {
                                 taskToEdit.setSchedule(tempTaskForAddEdit.getSchedule());
                             }
                         } else {
-                            synthesizeAssistantSpeech("Your schedule cannot be earlier than the current date and time.");
+                            startSpecificModelMotion(LAppDefine.MotionGroup.THINKING.getId(), 1);
+                            mainHandler.postDelayed(() -> synthesizeAssistantSpeech("Your schedule cannot be earlier than the current date and time."), 3000);
                         }
                     }
                 }
@@ -1255,7 +1259,8 @@ public class Live2DFragment extends Fragment implements View.OnTouchListener, Sp
                             }
                         }
                     } else {
-                        synthesizeAssistantSpeech("Your deadline cannot be earlier than the current date and time.");
+                        startSpecificModelMotion(LAppDefine.MotionGroup.THINKING.getId(), 1);
+                        mainHandler.postDelayed(() -> synthesizeAssistantSpeech("Your deadline cannot be earlier than the current date and time."), 3000);
                     }
                 }
             }
