@@ -73,6 +73,7 @@ public class Live2DFragment extends Fragment implements View.OnTouchListener, Sp
     private ImageView collapseBtn;
     private String tempEditTaskName = "";
     private String tempNotes = "";
+    private String partialSpeech = "";
     private String defaultExpression = "default1";
 
 
@@ -177,6 +178,11 @@ public class Live2DFragment extends Fragment implements View.OnTouchListener, Sp
                 mainHandler.postDelayed(() -> setModelExpression(defaultExpression), 500);
 
                 cardViewSpeech.setVisibility(View.INVISIBLE);
+
+                if (!partialSpeech.isEmpty()) {
+                    processRecognizedSpeech(partialSpeech);
+                    partialSpeech = "";
+                }
             } else {
                 speechRecognition.startSpeechRecognition();
                 changeExpression("listening");
@@ -1291,7 +1297,10 @@ public class Live2DFragment extends Fragment implements View.OnTouchListener, Sp
         setModelExpression(defaultExpression);
 
         mainHandler.postDelayed(this::fadeOutCardView, FADE_OUT_DELAY);
+        processRecognizedSpeech(recognizedSpeech);
+    }
 
+    private void processRecognizedSpeech(String recognizedSpeech) {
         insertDialogue(recognizedSpeech, false);
         if (recognizedSpeech.equalsIgnoreCase("assistive mode on")) {
             if (AssistiveModeHelper.isAssistiveModeEnabled(requireContext())) {
@@ -1621,7 +1630,7 @@ public class Live2DFragment extends Fragment implements View.OnTouchListener, Sp
             confirmAddTaskWithUser = false;
             insertCompleteTask(tempTaskForAddEdit);
         } else if (recognizedSpeech.equalsIgnoreCase("no")) {
-            synthesizeAssistantSpeech("Okiiiiiiii");
+            synthesizeAssistantSpeech("As per your request, I did not add the task " + tempTaskForAddEdit.getTaskName());
             confirmAddTaskWithUser = false;
         } else {
             synthesizeAssistantSpeech("I'm sorry, I didn't understand that. Are you sure you want to add task?");
@@ -1695,6 +1704,7 @@ public class Live2DFragment extends Fragment implements View.OnTouchListener, Sp
 
     @Override
     public void onPartialSpeechRecognized(String partialSpeech) {
+        this.partialSpeech = partialSpeech;
         realTimeSpeechTextView.setText(partialSpeech);
     }
 

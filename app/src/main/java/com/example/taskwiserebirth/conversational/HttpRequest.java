@@ -172,9 +172,9 @@ public class HttpRequest {
 
     private static void sendHttpRequest(String url, JSONObject requestBodyJson, final HttpRequestCallback callback) {
         OkHttpClient client = new OkHttpClient.Builder()
-                .connectTimeout(45, TimeUnit.SECONDS)
-                .readTimeout(45, TimeUnit.SECONDS)
-                .writeTimeout(45, TimeUnit.SECONDS)
+                .connectTimeout(30, TimeUnit.SECONDS)
+                .readTimeout(30, TimeUnit.SECONDS)
+                .writeTimeout(30, TimeUnit.SECONDS)
                 .build();
 
         MediaType JSON = MediaType.parse("application/json; charset=utf-8");
