@@ -1323,7 +1323,7 @@ public class Live2DFragment extends Fragment implements View.OnTouchListener, Sp
         }
 
         if (confirmAddTaskWithUser) {
-            confirmWithUser(recognizedSpeech);
+            confirmAddTaskWithUser(recognizedSpeech);
         } else if (inTaskDetailInteraction) {
             handleTaskDetailInteraction(recognizedSpeech);
         } else if (addTaskAskingForTaskName) {
@@ -1616,7 +1616,7 @@ public class Live2DFragment extends Fragment implements View.OnTouchListener, Sp
     }
 
 
-    private void confirmWithUser(String recognizedSpeech) {
+    private void confirmAddTaskWithUser(String recognizedSpeech) {
         if (recognizedSpeech.equalsIgnoreCase("yes")) {
             confirmAddTaskWithUser = false;
             insertCompleteTask(tempTaskForAddEdit);
