@@ -3,6 +3,7 @@ package com.example.taskwiserebirth.conversational;
 import android.util.Log;
 
 import com.bin4rybros.demo.LAppModel;
+import com.example.taskwiserebirth.BuildConfig;
 import com.microsoft.cognitiveservices.speech.CancellationReason;
 import com.microsoft.cognitiveservices.speech.ResultReason;
 import com.microsoft.cognitiveservices.speech.SpeechConfig;
@@ -43,8 +44,8 @@ public class SpeechSynthesis {
         speaking = true;
         Log.v("SpeechSynthesis", "speaking is now true");
 
-        String speechKey = "75d247fa36164e01827df12050f000b5";
-        String speechRegion = "southeastasia";
+        String speechKey = BuildConfig.API_KEY;
+        String speechRegion = BuildConfig.API_REGION;
 
         SpeechConfig speechConfig = SpeechConfig.fromSubscription(speechKey, speechRegion);
         AudioConfig audioConfig = AudioConfig.fromDefaultSpeakerOutput();

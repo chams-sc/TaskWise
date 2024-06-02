@@ -34,8 +34,9 @@ import com.example.taskwiserebirth.database.MongoDbRealmHelper;
 import com.example.taskwiserebirth.database.TaskDatabaseManager;
 import com.example.taskwiserebirth.task.Task;
 import com.example.taskwiserebirth.task.TaskPriorityCalculator;
-import com.example.taskwiserebirth.utils.CalendarUtils;
 import com.example.taskwiserebirth.utils.AssistiveModeHelper;
+import com.example.taskwiserebirth.utils.CalendarUtils;
+import com.example.taskwiserebirth.utils.ExplicitContentFilter;
 import com.example.taskwiserebirth.utils.PermissionUtils;
 import com.example.taskwiserebirth.utils.SharedViewModel;
 import com.example.taskwiserebirth.utils.ValidValues;
@@ -402,6 +403,7 @@ public class Live2DFragment extends Fragment implements View.OnTouchListener, Sp
 
 
     private void addCompleteTask(Task task) {
+        // TODO: add check if task name already exists before adding
         taskDatabaseManager.fetchTasksWithStatus(tasks -> {
             if (tasks.size() >= 10) {
                 synthesizeAssistantSpeech(AIRandomSpeech.generateUnfinishedTasksMessage(tasks.size()));
@@ -1295,12 +1297,18 @@ public class Live2DFragment extends Fragment implements View.OnTouchListener, Sp
     public void onSpeechRecognized(String recognizedSpeech) {
         realTimeSpeechTextView.setText(recognizedSpeech);
         setModelExpression(defaultExpression);
+        partialSpeech = "";
 
         mainHandler.postDelayed(this::fadeOutCardView, FADE_OUT_DELAY);
         processRecognizedSpeech(recognizedSpeech);
     }
 
     private void processRecognizedSpeech(String recognizedSpeech) {
+        if (ExplicitContentFilter.containsExplicitContent(recognizedSpeech)) {
+            SpeechSynthesis.synthesizeSpeechAsync("I'm sorry, I can't process that request.");
+            return;
+        }
+
         insertDialogue(recognizedSpeech, false);
         if (recognizedSpeech.equalsIgnoreCase("assistive mode on")) {
             if (AssistiveModeHelper.isAssistiveModeEnabled(requireContext())) {
@@ -1617,11 +1625,11 @@ public class Live2DFragment extends Fragment implements View.OnTouchListener, Sp
             public void run() {
                 if (SpeechSynthesis.isSpeaking()) {
                     startRandomMotionFromGroup(LAppDefine.MotionGroup.SPEAKING.getId(), LAppDefine.Priority.NORMAL.getPriority());
-                    mainHandler.postDelayed(this, 2000); // Check every 2 seconds, adjust as needed
+                    mainHandler.postDelayed(this, 1500); // Check every 2 seconds, adjust as needed
                 }
             }
         };
-        mainHandler.postDelayed(checkSpeechAndAnimate, 2000);
+        mainHandler.postDelayed(checkSpeechAndAnimate, 1500);
     }
 
 
@@ -1630,7 +1638,7 @@ public class Live2DFragment extends Fragment implements View.OnTouchListener, Sp
             confirmAddTaskWithUser = false;
             insertCompleteTask(tempTaskForAddEdit);
         } else if (recognizedSpeech.equalsIgnoreCase("no")) {
-            synthesizeAssistantSpeech("As per your request, I did not add the task " + tempTaskForAddEdit.getTaskName());
+            synthesizeAssistantSpeech("As per your request, I did not add the task named " + tempTaskForAddEdit.getTaskName());
             confirmAddTaskWithUser = false;
         } else {
             synthesizeAssistantSpeech("I'm sorry, I didn't understand that. Are you sure you want to add task?");

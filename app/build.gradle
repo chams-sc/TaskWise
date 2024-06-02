@@ -16,6 +16,14 @@ android {
         versionName "1.0"
 
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
+
+        // Load properties from local.properties
+        Properties properties = new Properties()
+        properties.load(project.rootProject.file('local.properties').newDataInputStream())
+
+        // Define build config fields
+        buildConfigField "String", "API_KEY", "\"${properties.getProperty('api.key')}\""
+        buildConfigField "String", "API_REGION", "\"${properties.getProperty('api.region')}\""
     }
 
     buildTypes {
@@ -30,6 +38,7 @@ android {
     }
     buildFeatures {
         viewBinding true
+        buildConfig true
     }
 }
 

@@ -1,19 +1,12 @@
 package com.example.taskwiserebirth.task;
 
 import android.content.Context;
-import android.text.SpannableString;
-import android.text.style.ForegroundColorSpan;
 import android.view.LayoutInflater;
-import android.view.Menu;
-import android.view.MenuInflater;
-import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.animation.AnimationUtils;
-import android.widget.PopupMenu;
 
 import androidx.annotation.NonNull;
-import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.content.ContextCompat;
 import androidx.fragment.app.FragmentActivity;
 import androidx.fragment.app.FragmentTransaction;
@@ -23,7 +16,6 @@ import com.example.taskwiserebirth.R;
 import com.example.taskwiserebirth.TaskDetailFragment;
 import com.example.taskwiserebirth.utils.CalendarUtils;
 import com.example.taskwiserebirth.utils.PopupMenuUtils;
-import com.example.taskwiserebirth.utils.SystemUIHelper;
 
 import java.util.Date;
 import java.util.List;
@@ -105,51 +97,6 @@ public class TaskAdapter extends RecyclerView.Adapter<TaskViewHolder> {
             }
         }
         return ContextCompat.getColor(context, R.color.blue);
-    }
-
-    private void showPopupMenu(View v, final Task task) {
-        PopupMenu popupMenu = new PopupMenu(context, v);
-        MenuInflater inflater = popupMenu.getMenuInflater();
-        inflater.inflate(R.menu.show_menu, popupMenu.getMenu());
-
-        // Adjust layout based on navigation bar visibility
-        SystemUIHelper.setFlagsOnThePeekView();
-
-        Menu menu = popupMenu.getMenu();
-        for (int i = 0; i < menu.size(); i++) {
-            MenuItem menuItem = menu.getItem(i);
-            SpannableString spannable = new SpannableString(menuItem.getTitle());
-            spannable.setSpan(new ForegroundColorSpan(ContextCompat.getColor(context, R.color.dark)), 0, spannable.length(), 0);
-            menuItem.setTitle(spannable);
-        }
-
-        popupMenu.setOnMenuItemClickListener(item -> {
-            SpannableString selectedSpannable = new SpannableString(item.getTitle());
-            selectedSpannable.setSpan(new ForegroundColorSpan(ContextCompat.getColor(context, R.color.orange)), 0, selectedSpannable.length(), 0);
-            item.setTitle(selectedSpannable);
-
-            int itemId = item.getItemId();
-            if (itemId == R.id.menuEdit) {
-                actionListener.onEditTask(task);
-                return true;
-            } else if (itemId == R.id.menuDelete) {
-                actionListener.onDeleteTask(task);
-                return true;
-            } else if (itemId == R.id.menuDone) {
-                actionListener.onDoneTask(task);
-                return true;
-            }
-            return false;
-        });
-
-
-        popupMenu.setOnDismissListener(dialogInterface -> {
-            if (activity != null) {
-                SystemUIHelper.setSystemUIVisibility((AppCompatActivity) activity);
-            }
-        });
-
-        popupMenu.show();
     }
 
     @Override
