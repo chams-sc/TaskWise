@@ -403,17 +403,25 @@ public class Live2DFragment extends Fragment implements View.OnTouchListener, Sp
 
 
     private void addCompleteTask(Task task) {
-        // TODO: add check if task name already exists before adding
+        // checks for no of unfinished tasks
         taskDatabaseManager.fetchTasksWithStatus(tasks -> {
             if (tasks.size() >= 10) {
                 synthesizeAssistantSpeech(AIRandomSpeech.generateUnfinishedTasksMessage(tasks.size()));
                 confirmAddTaskWithUser = true;
             } else {
-                taskDatabaseManager.fetchUnfinishedTaskByName(tasks1 -> {
+                // checks if task name already exists
+                taskDatabaseManager.fetchTaskByName(tasks1 -> {
                     if (tasks1.isEmpty()) {
                         insertCompleteTask(task);
                     } else {
-                        synthesizeAssistantSpeech(String.format("%s is already in your list of tasks", task.getTaskName()));
+                        Task fetchedTask = tasks1.get(0);
+                        if (fetchedTask.getStatus().equalsIgnoreCase("unfinished")) {
+                            synthesizeAssistantSpeech(String.format("%s is already in your list of unfinished tasks", task.getTaskName()));
+                        } else {
+                            synthesizeAssistantSpeech(String.format("Since %s is already in your list of completed tasks, I will add it again as per your instructions.", task.getTaskName()));
+                            taskDatabaseManager.deleteTask(fetchedTask);
+                            mainHandler.postDelayed(() -> insertCompleteTask(task), 5000);
+                        }
                     }
                 }, task.getTaskName());
             }
@@ -1274,7 +1282,7 @@ public class Live2DFragment extends Fragment implements View.OnTouchListener, Sp
             }
 
             taskDatabaseManager.updateTask(taskToEdit, updatedTask -> {
-                mainHandler.postDelayed(() -> turnBasedInteraction(), 3000);
+                mainHandler.postDelayed(this::turnBasedInteraction, 3000);
             });
         }, taskName);
     }
