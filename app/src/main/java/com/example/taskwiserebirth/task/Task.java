@@ -17,8 +17,17 @@ public class Task {
     private String status;
     private Date dateFinished;
     private boolean reminder;
-
     private Date creationDate;
+
+    public double getPriority() {
+        return priority;
+    }
+
+    public void setPriority(double priority) {
+        this.priority = priority;
+    }
+
+    private double priority;
 
     public Task () {
 

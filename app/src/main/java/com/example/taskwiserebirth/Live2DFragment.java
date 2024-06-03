@@ -245,6 +245,8 @@ public class Live2DFragment extends Fragment implements View.OnTouchListener, Sp
                         String response = "Currently, you have " + unfinishedTaskCount + " unfinished " + taskWord +
                                 ". With " + mostImportantTask.getTaskName() + " as your most important task.";
                         mainHandler.postDelayed(() -> synthesizeAssistantSpeech(response), 3000);
+                    } else {
+                        synthesizeAssistantSpeech(AIRandomSpeech.generateNoTasksMessages());
                     }
                 }, false);
 
@@ -840,6 +842,11 @@ public class Live2DFragment extends Fragment implements View.OnTouchListener, Sp
 
     private void getMostImportantTasks() {
         taskDatabaseManager.fetchTasksWithStatus(tasks -> {
+            if (tasks.isEmpty()) {
+                synthesizeAssistantSpeech(AIRandomSpeech.generateNoTasksMessages());
+                return;
+            }
+
             List<Task> sortedTasks = TaskPriorityCalculator.sortTasksByPriority(tasks, new Date());
 
             // Get the top 3 tasks
