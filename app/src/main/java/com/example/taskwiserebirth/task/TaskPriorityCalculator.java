@@ -1,5 +1,7 @@
 package com.example.taskwiserebirth.task;
 
+import android.util.Log;
+
 import com.example.taskwiserebirth.utils.CalendarUtils;
 
 import java.util.ArrayList;
@@ -24,40 +26,39 @@ public class TaskPriorityCalculator {
 
     private static double calculateImportanceFactor(String importanceLevel) {
         switch (importanceLevel) {
-            case "Not Important":
-                return 1.0;
             case "Somewhat Important":
                 return 2.0;
             case "Important":
                 return 3.0;
             case "Very Important":
                 return 4.0;
+            case "Not Important":
             default:
-                return 0.5;
+                return 1.0;
         }
     }
 
     private static double calculateUrgencyFactor(String urgencyLevel) {
         switch (urgencyLevel) {
-            case "Not Urgent":
-                return 1.0;
             case "Somewhat Urgent":
                 return 2.0;
             case "Urgent":
                 return 3.0;
             case "Very Urgent":
                 return 4.0;
+            case "Not Urgent":
             default:
-                return 0.5;
+                return 1.0;
         }
     }
 
     private static double calculateDeadlineFactor(String deadlineString, Date currentDate, Date earliestDeadline, Date longestDeadline) {
+        Date deadline;
         if (deadlineString.equals("No deadline")) {
-            return 0.0;
+            deadline = new Date(Long.MAX_VALUE);
+        } else {
+            deadline = CalendarUtils.parseDeadline(deadlineString);
         }
-
-        Date deadline = CalendarUtils.parseDeadline(deadlineString);
 
         long timeRemaining = deadline.getTime() - currentDate.getTime();
         long timeMin = earliestDeadline.getTime() - currentDate.getTime();
@@ -68,7 +69,7 @@ public class TaskPriorityCalculator {
         return Math.max(deadlineFactor, 0.0);
     }
 
-    public static List<Task> sortTasksByPriority(List<Task> tasks, Date currentDate) {
+    public static List<Task> sortTasksByPriority2(List<Task> tasks, Date currentDate) {
         Date earliestDeadline = null;
         Date longestDeadline = null;
 
@@ -127,6 +128,63 @@ public class TaskPriorityCalculator {
         List<Task> sortedTasks = new ArrayList<>(tasksWithDeadlines);
         sortedTasks.addAll(tasksWithoutDeadlines);
         sortedTasks.addAll(finishedTasks);
+        return sortedTasks;
+    }
+
+    public static List<Task> sortTasksByPriority(List<Task> tasks, Date currentDate) {
+        Date earliestDeadline = null;
+        Date longestDeadline = null;
+
+        List<Task> unfinishedTasks = new ArrayList<>();
+        List<Task> finishedTasks = new ArrayList<>();
+
+        for (Task task : tasks) {
+            String priorityCategory = findPriorityCategory(task.getUrgencyLevel(), task.getImportanceLevel());
+            task.setPriorityCategory(priorityCategory);
+
+            Date deadline = task.getDeadline().equals("No deadline") ? new Date(Long.MAX_VALUE) : CalendarUtils.parseDeadline(task.getDeadline());
+
+            if (earliestDeadline == null || deadline.before(earliestDeadline)) {
+                earliestDeadline = deadline;
+            }
+            if (longestDeadline == null || deadline.after(longestDeadline)) {
+                longestDeadline = deadline;
+            }
+
+            if (task.getStatus().equals("Finished")) {
+                finishedTasks.add(task);
+            } else {
+                unfinishedTasks.add(task);
+            }
+        }
+
+        final Date finalEarliestDeadline = earliestDeadline;
+        final Date finalLongestDeadline = longestDeadline;
+
+        // Sort unfinished tasks
+        Collections.sort(unfinishedTasks, (task1, task2) -> {
+            double priority1 = calculateTaskPriority(task1, currentDate, finalEarliestDeadline, finalLongestDeadline);
+            double priority2 = calculateTaskPriority(task2, currentDate, finalEarliestDeadline, finalLongestDeadline);
+
+            return Double.compare(priority2, priority1); // Descending order
+        });
+
+        // Sort finished tasks
+        Collections.sort(finishedTasks, (task1, task2) -> {
+            double priority1 = calculateTaskPriority(task1, currentDate, finalEarliestDeadline, finalLongestDeadline);
+            double priority2 = calculateTaskPriority(task2, currentDate, finalEarliestDeadline, finalLongestDeadline);
+
+            return Double.compare(priority2, priority1); // Descending order
+        });
+
+        List<Task> sortedTasks = new ArrayList<>(unfinishedTasks);
+        sortedTasks.addAll(finishedTasks);
+
+        for (Task task : sortedTasks) {
+            double priorityScore = calculateTaskPriority(task, currentDate, finalEarliestDeadline, finalLongestDeadline);
+            task.setPriority(priorityScore);
+            Log.v("Sort task", "task name: " + task.getTaskName() + " score: " + task.getPriority());
+        }
         return sortedTasks;
     }
 
