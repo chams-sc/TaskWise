@@ -81,15 +81,6 @@ public class AddTaskFragment extends Fragment implements DatabaseChangeListener,
             ((MainActivity) requireActivity()).showAllTaskFragment();
         });
 
-//        PermissionUtils.requestNotificationPermission(requireActivity());
-//
-//        AlarmManager alarmManager = (AlarmManager) requireContext().getSystemService(Context.ALARM_SERVICE);
-//        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
-//            if (!alarmManager.canScheduleExactAlarms()) {
-//                PermissionUtils.requestAlarmReminderOn(requireContext());
-//            }
-//        }
-
         return rootView;
     }
 
