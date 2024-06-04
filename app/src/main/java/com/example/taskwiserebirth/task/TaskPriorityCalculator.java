@@ -73,68 +73,6 @@ public class TaskPriorityCalculator {
         return Math.max(deadlineFactor, 0.0);
     }
 
-    public static List<Task> sortTasksByPriority2(List<Task> tasks, Date currentDate) {
-        Date earliestDeadline = null;
-        Date longestDeadline = null;
-
-        List<Task> tasksWithDeadlines = new ArrayList<>();
-        List<Task> tasksWithoutDeadlines = new ArrayList<>();
-        List<Task> finishedTasks = new ArrayList<>();
-
-        for (Task task : tasks) {
-            String priorityCategory = findPriorityCategory(task.getUrgencyLevel(), task.getImportanceLevel());
-            task.setPriorityCategory(priorityCategory);
-
-            if (task.getDeadline().equals("No deadline")) {
-                tasksWithoutDeadlines.add(task);
-            } else {
-                tasksWithDeadlines.add(task);
-
-                Date deadline = CalendarUtils.parseDeadline(task.getDeadline());
-
-                if (earliestDeadline == null || deadline.before(earliestDeadline)) {
-                    earliestDeadline = deadline;
-                }
-                if (longestDeadline ==  null || deadline.after(longestDeadline)) {
-                    longestDeadline = deadline;
-                }
-            }
-
-            if (task.getStatus().equals("Finished")) {
-                if (tasksWithDeadlines.contains(task)) {
-                    tasksWithDeadlines.remove(task);
-                } else if (tasksWithoutDeadlines.contains(task)) {
-                    tasksWithoutDeadlines.remove(task);
-                }
-                finishedTasks.add(task);
-            }
-        }
-
-        final Date finalEarliestDeadline = earliestDeadline;
-        final Date finalLongestDeadline = longestDeadline;
-
-        // Sort tasks with deadlines
-        Collections.sort(tasksWithDeadlines, (task1, task2) -> {
-            double priority1 = calculateTaskPriority(task1, currentDate, finalEarliestDeadline, finalLongestDeadline);
-            double priority2 = calculateTaskPriority(task2, currentDate, finalEarliestDeadline, finalLongestDeadline);
-
-            return Double.compare(priority2, priority1); // Descending order
-        });
-
-        // Sort tasks without deadlines
-        Collections.sort(tasksWithoutDeadlines, (task1, task2) -> {
-            double priority1 = calculateTaskPriority(task1, currentDate, finalEarliestDeadline, finalLongestDeadline);
-            double priority2 = calculateTaskPriority(task2, currentDate, finalEarliestDeadline, finalLongestDeadline);
-
-            return Double.compare(priority2, priority1); // Descending order
-        });
-
-        List<Task> sortedTasks = new ArrayList<>(tasksWithDeadlines);
-        sortedTasks.addAll(tasksWithoutDeadlines);
-        sortedTasks.addAll(finishedTasks);
-        return sortedTasks;
-    }
-
     public static List<Task> sortTasksByPriority(List<Task> tasks, Date currentDate) {
         Date earliestDeadline = null;
         Date longestDeadline = null;

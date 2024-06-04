@@ -1,6 +1,7 @@
 package com.example.taskwiserebirth.task;
 
 import android.content.Context;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -28,6 +29,7 @@ public class TaskAdapter extends RecyclerView.Adapter<TaskViewHolder> {
     private Date selectedDate;
     private FragmentActivity activity;
     private final int closeToDueHours = 12;
+    private double highestPriorityScore;
 
     public interface TaskActionListener {
         void onEditTask(Task task);
@@ -71,9 +73,16 @@ public class TaskAdapter extends RecyclerView.Adapter<TaskViewHolder> {
 
             // Add and show TaskDetailFragment without replacing the current fragment
             transaction.add(R.id.frame_layout, fragmentViewerCard, "TASK_DETAIL_FRAGMENT")
-                    .addToBackStack(null) // Add the transaction to the back stack
+                    .addToBackStack(null)
                     .commit();
         });
+
+        // Set the visibility of the top priority icon
+        if (currentTask.getPriorityScore() == highestPriorityScore) {
+            holder.topPriorityIcon.setVisibility(View.VISIBLE);
+        } else {
+            holder.topPriorityIcon.setVisibility(View.INVISIBLE);
+        }
     }
 
     private int getTaskDeadlineColor(Task task) {
@@ -98,6 +107,15 @@ public class TaskAdapter extends RecyclerView.Adapter<TaskViewHolder> {
         }
         return ContextCompat.getColor(context, R.color.blue);
     }
+    private void calculateHighestPriorityScore() {
+        highestPriorityScore = 0;
+        for (Task task : tasks) {
+            if (task.getPriorityScore() > highestPriorityScore) {
+                highestPriorityScore = task.getPriorityScore();
+            }
+            Log.v("calculateHighestPriorityScore", String.valueOf(task.getPriorityScore()));
+        }
+    }
 
     @Override
     public void onDetachedFromRecyclerView(@NonNull RecyclerView recyclerView) {
@@ -112,6 +130,7 @@ public class TaskAdapter extends RecyclerView.Adapter<TaskViewHolder> {
 
     public void setTasks(List<Task> tasks) {
         this.tasks = tasks;
+        calculateHighestPriorityScore();
         notifyDataSetChanged();
     }
 

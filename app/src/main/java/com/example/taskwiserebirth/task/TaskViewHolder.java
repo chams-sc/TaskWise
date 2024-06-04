@@ -10,12 +10,13 @@ import com.example.taskwiserebirth.R;
 
 public class TaskViewHolder extends RecyclerView.ViewHolder {
     TextView taskName, deadline, priority;
-    View menuView;
+    View menuView, topPriorityIcon;
     public TaskViewHolder(@NonNull View itemView) {
         super(itemView);
         taskName = itemView.findViewById(R.id.taskNameTxt);
         deadline = itemView.findViewById(R.id.deadlineTxt);
         priority = itemView.findViewById(R.id.priority);
         menuView = itemView.findViewById(R.id.menuViewContainer);
+        topPriorityIcon = itemView.findViewById(R.id.topPriorityIcon);
     }
 }

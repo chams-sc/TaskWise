@@ -11,74 +11,99 @@
     <RelativeLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:padding="10dp"
         android:background="?android:attr/selectableItemBackground">
 
-        <TextView
-            android:id="@+id/taskNameTxt"
-            android:layout_width="280dp"
-            android:layout_height="wrap_content"
-            android:layout_alignParentStart="true"
-            android:layout_alignParentEnd="true"
-            android:layout_marginStart="40dp"
-            android:layout_marginEnd="110dp"
-            android:layout_marginBottom="8dp"
-            android:textColor="@color/black"
-            android:textSize="20sp"
-            tools:text="My title"
-            android:fontFamily="@font/inter_bold"/>
-
-        <TextView
-            android:id="@+id/deadlineTxt"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_below="@id/taskNameTxt"
-            android:layout_marginStart="40dp"
-            android:fontFamily="@font/inter"
-            android:textStyle="bold"
-            android:textColor="@color/dark_gray"
-            android:textSize="12sp"
-            tools:text="8:00 AM - 5:00 PM" />
-
-        <TextView
-            android:id="@+id/priority"
+        <RelativeLayout
+            android:id="@+id/topPriorityIcon"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_below="@id/deadlineTxt"
-            android:layout_marginStart="40dp"
-            android:layout_marginTop="8dp"
-            android:paddingHorizontal="12dp"
-            android:paddingVertical="2dp"
-            android:background="@drawable/bg_priority"
-            android:fontFamily="@font/inter"
-            android:textColor="@color/dark"
-            android:textSize="12sp"
-            tools:text="Priority" />
-
-
-        <FrameLayout
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_alignParentTop="true"
-            android:layout_alignParentEnd="true"
-            android:layout_marginTop="4dp"
-            android:layout_marginEnd="4dp">
-
-            <View
-                android:id="@+id/menuViewContainer"
-                android:layout_width="48dp"
-                android:layout_height="48dp"
-                android:layout_gravity="center"
-                android:background="@android:color/transparent" />
+            android:visibility="invisible">
 
             <ImageView
-                android:id="@+id/menus"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:layout_gravity="end|top"
-                android:src="@drawable/baseline_menu" />
+                android:src="@drawable/ic_rectangle_rotated"/>
 
-        </FrameLayout>
+            <ImageView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:padding="5dp"
+                android:src="@drawable/ic_emergency_home"/>
+        </RelativeLayout>
+
+        <RelativeLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:padding="10dp">
+
+            <TextView
+                android:id="@+id/taskNameTxt"
+                android:layout_width="280dp"
+                android:layout_height="wrap_content"
+                android:layout_alignParentStart="true"
+                android:layout_alignParentEnd="true"
+                android:layout_marginStart="40dp"
+                android:layout_marginEnd="110dp"
+                android:layout_marginBottom="8dp"
+                android:textColor="@color/black"
+                android:textSize="20sp"
+                tools:text="My title"
+                android:fontFamily="@font/inter_bold"/>
+
+            <TextView
+                android:id="@+id/deadlineTxt"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_below="@id/taskNameTxt"
+                android:layout_marginStart="40dp"
+                android:fontFamily="@font/inter"
+                android:textStyle="bold"
+                android:textColor="@color/dark_gray"
+                android:textSize="12sp"
+                tools:text="8:00 AM - 5:00 PM" />
+
+            <TextView
+                android:id="@+id/priority"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_below="@id/deadlineTxt"
+                android:layout_marginStart="40dp"
+                android:layout_marginTop="8dp"
+                android:paddingHorizontal="12dp"
+                android:paddingVertical="2dp"
+                android:background="@drawable/bg_priority"
+                android:fontFamily="@font/inter"
+                android:textColor="@color/dark"
+                android:textSize="12sp"
+                tools:text="Priority" />
+
+
+            <FrameLayout
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_alignParentTop="true"
+                android:layout_alignParentEnd="true"
+                android:layout_marginTop="4dp"
+                android:layout_marginEnd="4dp">
+
+                <View
+                    android:id="@+id/menuViewContainer"
+                    android:layout_width="48dp"
+                    android:layout_height="48dp"
+                    android:layout_gravity="center"
+                    android:background="@android:color/transparent" />
+
+                <ImageView
+                    android:id="@+id/menus"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_gravity="end|top"
+                    android:src="@drawable/baseline_menu" />
+
+            </FrameLayout>
+
+        </RelativeLayout>
+
 
     </RelativeLayout>
 </androidx.cardview.widget.CardView>
