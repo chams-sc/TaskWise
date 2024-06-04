@@ -170,7 +170,14 @@ public class TaskPriorityCalculator {
             double priority1 = calculateTaskPriority(task1, currentDate, finalEarliestDeadline, finalLongestDeadline);
             double priority2 = calculateTaskPriority(task2, currentDate, finalEarliestDeadline, finalLongestDeadline);
 
-            return Double.compare(priority2, priority1); // Descending order
+            int priorityComparison = Double.compare(priority2, priority1); // Descending order
+
+            if (priorityComparison == 0) {
+                // If priorities are equal, sort by creation date
+                return task1.getCreationDate().compareTo(task2.getCreationDate()); // Ascending order
+            } else {
+                return priorityComparison;
+            }
         });
 
         // Sort finished tasks
@@ -178,7 +185,14 @@ public class TaskPriorityCalculator {
             double priority1 = calculateTaskPriority(task1, currentDate, finalEarliestDeadline, finalLongestDeadline);
             double priority2 = calculateTaskPriority(task2, currentDate, finalEarliestDeadline, finalLongestDeadline);
 
-            return Double.compare(priority2, priority1); // Descending order
+            int priorityComparison = Double.compare(priority2, priority1); // Descending order
+
+            if (priorityComparison == 0) {
+                // If priorities are equal, sort by creation date
+                return task1.getCreationDate().compareTo(task2.getCreationDate()); // Ascending order
+            } else {
+                return priorityComparison;
+            }
         });
 
         List<Task> sortedTasks = new ArrayList<>(unfinishedTasks);

@@ -897,7 +897,7 @@ public class Live2DFragment extends Fragment implements View.OnTouchListener, Sp
                 if (topTaskCount == 1) {
                     response = "Your current most important task is: " + topTasksString;
                 } else {
-                    response = "Your current top " + topTaskCount + " most important tasks are: " + topTasksString;
+                    response = "Your current top " + topTaskCount + " most important tasks are: " + topTasksString + " respectively.";
                 }
             }
 
