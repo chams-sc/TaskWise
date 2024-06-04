@@ -849,29 +849,56 @@ public class Live2DFragment extends Fragment implements View.OnTouchListener, Sp
 
             List<Task> sortedTasks = TaskPriorityCalculator.sortTasksByPriority(tasks, new Date());
 
-            // Get the top 3 tasks
-            int topTaskCount = Math.min(3, sortedTasks.size());
-            StringBuilder topTasksStringBuilder = new StringBuilder();
+            double highestPriorityScore = sortedTasks.get(0).getPriorityScore();
 
-            for (int i = 0; i < topTaskCount; i++) {
-                Task task = sortedTasks.get(i);
-                if (i > 0) {
-                    if (i == topTaskCount - 1) {
-                        topTasksStringBuilder.append(" and ");
-                    } else {
-                        topTasksStringBuilder.append(", ");
-                    }
+            // Collect tasks with the highest priority score
+            List<Task> highestPriorityTasks = new ArrayList<>();
+            for (Task task : sortedTasks) {
+                if (task.getPriorityScore() == highestPriorityScore) {
+                    highestPriorityTasks.add(task);
+                } else {
+                    break; // As tasks are sorted, break once a lower priority task is found
                 }
-                topTasksStringBuilder.append(task.getTaskName());
             }
 
-            String topTasksString = topTasksStringBuilder.toString();
-
             String response;
-            if (topTaskCount == 1) {
-                response = "Your current most important task is: " + topTasksString;
+            if (highestPriorityTasks.size() > 1) {
+                StringBuilder taskNames = new StringBuilder();
+                for (int i = 0; i < highestPriorityTasks.size(); i++) {
+                    if (i > 0) {
+                        if (i == highestPriorityTasks.size() - 1) {
+                            taskNames.append(" and ");
+                        } else {
+                            taskNames.append(", ");
+                        }
+                    }
+                    taskNames.append(highestPriorityTasks.get(i).getTaskName());
+                }
+                response = "Your current most important tasks are: " + taskNames.toString() + " with the same priority and deadline.";
             } else {
-                response = "Your current top " + topTaskCount + " most important tasks are: " + topTasksString;
+                // If there is no tie and we want to mention the top 3 tasks
+                int topTaskCount = Math.min(3, sortedTasks.size());
+                StringBuilder topTasksStringBuilder = new StringBuilder();
+
+                for (int i = 0; i < topTaskCount; i++) {
+                    Task task = sortedTasks.get(i);
+                    if (i > 0) {
+                        if (i == topTaskCount - 1) {
+                            topTasksStringBuilder.append(" and ");
+                        } else {
+                            topTasksStringBuilder.append(", ");
+                        }
+                    }
+                    topTasksStringBuilder.append(task.getTaskName());
+                }
+
+                String topTasksString = topTasksStringBuilder.toString();
+
+                if (topTaskCount == 1) {
+                    response = "Your current most important task is: " + topTasksString;
+                } else {
+                    response = "Your current top " + topTaskCount + " most important tasks are: " + topTasksString;
+                }
             }
 
             synthesizeAssistantSpeech(response);

@@ -64,6 +64,10 @@ public class TaskPriorityCalculator {
         long timeMin = earliestDeadline.getTime() - currentDate.getTime();
         long timeMax = longestDeadline.getTime() - currentDate.getTime();
 
+        if (timeMax == timeMin) {
+            return 1.0; // Handle the case where earliest and longest deadlines are the same
+        }
+
         double deadlineFactor = 1.0 - (double) (timeRemaining - timeMin) / (timeMax - timeMin);
 
         return Math.max(deadlineFactor, 0.0);
@@ -182,8 +186,8 @@ public class TaskPriorityCalculator {
 
         for (Task task : sortedTasks) {
             double priorityScore = calculateTaskPriority(task, currentDate, finalEarliestDeadline, finalLongestDeadline);
-            task.setPriority(priorityScore);
-            Log.v("Sort task", "task name: " + task.getTaskName() + " score: " + task.getPriority());
+            task.setPriorityScore(priorityScore);
+            Log.v("sortTasksByPriority", "task name: " + task.getTaskName() + " score: " + task.getPriorityScore());
         }
         return sortedTasks;
     }

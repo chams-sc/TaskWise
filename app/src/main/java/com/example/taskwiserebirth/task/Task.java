@@ -19,15 +19,7 @@ public class Task {
     private boolean reminder;
     private Date creationDate;
 
-    public double getPriority() {
-        return priority;
-    }
-
-    public void setPriority(double priority) {
-        this.priority = priority;
-    }
-
-    private double priority;
+    private double priorityScore;
 
     public Task () {
 
@@ -163,5 +155,12 @@ public class Task {
 
     public void setCreationDate(Date creationDate) {
         this.creationDate = creationDate;
+    }
+    public double getPriorityScore() {
+        return priorityScore;
+    }
+
+    public void setPriorityScore(double priorityScore) {
+        this.priorityScore = priorityScore;
     }
 }
