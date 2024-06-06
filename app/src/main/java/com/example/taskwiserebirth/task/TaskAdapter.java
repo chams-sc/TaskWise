@@ -78,7 +78,7 @@ public class TaskAdapter extends RecyclerView.Adapter<TaskViewHolder> {
         });
 
         // Set the visibility of the top priority icon
-        if (currentTask.getPriorityScore() == highestPriorityScore) {
+        if (currentTask.getPriorityScore() == highestPriorityScore && currentTask.getStatus().equalsIgnoreCase("unfinished")) {
             holder.topPriorityIcon.setVisibility(View.VISIBLE);
         } else {
             holder.topPriorityIcon.setVisibility(View.INVISIBLE);
