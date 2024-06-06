@@ -107,6 +107,7 @@ public class TaskAdapter extends RecyclerView.Adapter<TaskViewHolder> {
         }
         return ContextCompat.getColor(context, R.color.blue);
     }
+
     private void calculateHighestPriorityScore() {
         highestPriorityScore = 0;
         for (Task task : tasks) {

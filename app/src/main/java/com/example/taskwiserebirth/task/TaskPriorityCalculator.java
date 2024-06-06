@@ -137,7 +137,7 @@ public class TaskPriorityCalculator {
         sortedTasks.addAll(finishedTasks);
 
         for (Task task : sortedTasks) {
-            double priorityScore = calculateTaskPriority(task, currentDate, finalEarliestDeadline, finalLongestDeadline);
+            double priorityScore = task.getStatus().equals("Finished") ? 0 : calculateTaskPriority(task, currentDate, finalEarliestDeadline, finalLongestDeadline);
             task.setPriorityScore(priorityScore);
             Log.v("sortTasksByPriority", "task name: " + task.getTaskName() + " score: " + task.getPriorityScore());
         }
