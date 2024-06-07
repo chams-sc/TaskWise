@@ -259,7 +259,7 @@ public class AIRandomSpeech {
             "Hey! Ready to be productive? Let me grab your tasks for today.",
             "Welcome back! Let’s dive into your tasks and see what's on the agenda.",
             "Hi there! Let’s start the day right by seeing what tasks are up next.",
-            "Good morning! Let’s see what’s on your plate for today. Just a moment!",
+            "Good to see you back! Let’s see what’s on your plate for today. Just a moment!",
             "Hey superstar! Let's check out what tasks are lined up for you today.",
             "Hello champion! Let's take a peek at what you need to conquer today!",
             "Great to have you back! Hold on, let me see what tasks need your magic touch today.",

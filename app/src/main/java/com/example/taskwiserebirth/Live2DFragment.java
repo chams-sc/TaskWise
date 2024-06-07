@@ -75,7 +75,7 @@ public class Live2DFragment extends Fragment implements View.OnTouchListener, Sp
     private String tempEditTaskName = "";
     private String tempNotes = "";
     private String partialSpeech = "";
-    private String defaultExpression = "default1";
+    private final String defaultExpression = "default1";
 
 
     private Task tempTask;
@@ -236,21 +236,45 @@ public class Live2DFragment extends Fragment implements View.OnTouchListener, Sp
 
                 taskDatabaseManager.fetchTasksWithStatus(tasks -> {
                     if (!tasks.isEmpty()) {
-                        int unfinishedTaskCount = tasks.size();
-
                         List<Task> sortedTasks = TaskPriorityCalculator.sortTasksByPriority(tasks, new Date());
-                        Task mostImportantTask = sortedTasks.get(0);
 
-                        String taskWord = (unfinishedTaskCount > 1) ? "tasks" : "task";
-                        String response = "Currently, you have " + unfinishedTaskCount + " unfinished " + taskWord +
-                                ". With " + mostImportantTask.getTaskName() + " as your most important task.";
+                        double highestPriorityScore = sortedTasks.get(0).getPriorityScore();
+
+                        List<Task> highestPriorityTasks = new ArrayList<>();
+                        for (Task task : sortedTasks) {
+                            if (task.getPriorityScore() == highestPriorityScore) {
+                                highestPriorityTasks.add(task);
+                            } else {
+                                break;
+                            }
+                        }
+
+                        String response;
+                        if (highestPriorityTasks.size() > 1) {
+                            StringBuilder taskNames = new StringBuilder();
+                            for (int i = 0; i < highestPriorityTasks.size(); i++) {
+                                if (i > 0) {
+                                    if (i == highestPriorityTasks.size() - 1) {
+                                        taskNames.append(" and ");
+                                    } else {
+                                        taskNames.append(", ");
+                                    }
+                                }
+                                taskNames.append(highestPriorityTasks.get(i).getTaskName());
+                            }
+                            response = "Currently, you have " + tasks.size() + " unfinished tasks, with " + taskNames.toString() + " as your most important tasks.";
+                        } else {
+                            Task mostImportantTask = sortedTasks.get(0);
+                            response = "Currently, you have " + tasks.size() + " unfinished tasks, with " + mostImportantTask.getTaskName() + " as your most important task.";
+                        }
+
                         mainHandler.postDelayed(() -> synthesizeAssistantSpeech(response), 3000);
                     } else {
                         synthesizeAssistantSpeech(AIRandomSpeech.generateNoTasksMessages());
                     }
                 }, false);
 
-            }, 6000);
+            }, 7000);
         }, 3000);
     }
 
