@@ -793,21 +793,50 @@ public class Live2DFragment extends Fragment implements View.OnTouchListener, Sp
                     return;
                 }
 
-                // Sort tasks by their parsed deadline date using Collections.sort
-                Collections.sort(tasksWithDeadlines, new Comparator<Task>() {
-                    @Override
-                    public int compare(Task t1, Task t2) {
-                        return taskDeadlineMap.get(t1).compareTo(taskDeadlineMap.get(t2));
+                // Sort tasks by their parsed deadline date
+                Collections.sort(tasksWithDeadlines, Comparator.comparing(taskDeadlineMap::get));
+
+                // Get the task(s) with the nearest deadline
+                Date nearestDeadlineDate = taskDeadlineMap.get(tasksWithDeadlines.get(0));
+                List<Task> nearestDeadlineTasks = new ArrayList<>();
+                for (Task task : tasksWithDeadlines) {
+                    if (taskDeadlineMap.get(task).equals(nearestDeadlineDate)) {
+                        nearestDeadlineTasks.add(task);
+                    } else {
+                        break;
                     }
-                });
+                }
 
-                // Get the task with the nearest deadline
-                Task nearestDeadlineTask = tasksWithDeadlines.get(0);
-                Date nearestDeadlineDate = taskDeadlineMap.get(nearestDeadlineTask);
                 String formattedDeadline = CalendarUtils.formatCustomDeadline(nearestDeadlineDate);
+                String response;
+                boolean isPastDeadline = nearestDeadlineDate.before(new Date());
 
-                String response = "Your task with the nearest deadline is " + nearestDeadlineTask.getTaskName() +
-                        " due on " + formattedDeadline + ".";
+                if (nearestDeadlineTasks.size() > 1) {
+                    StringBuilder taskNames = new StringBuilder();
+                    for (int i = 0; i < nearestDeadlineTasks.size(); i++) {
+                        if (i > 0) {
+                            if (i == nearestDeadlineTasks.size() - 1) {
+                                taskNames.append(" and ");
+                            } else {
+                                taskNames.append(", ");
+                            }
+                        }
+                        taskNames.append(nearestDeadlineTasks.get(i).getTaskName());
+                    }
+                    if (isPastDeadline) {
+                        response = "You have multiple tasks that were due on " + formattedDeadline + ", namely " + taskNames.toString() + ". However, these tasks are already past their deadline.";
+                    } else {
+                        response = "You have multiple tasks due on " + formattedDeadline + ", namely " + taskNames.toString() + ".";
+                    }
+                } else {
+                    Task nearestDeadlineTask = nearestDeadlineTasks.get(0);
+                    if (isPastDeadline) {
+                        response = "Your task " + nearestDeadlineTask.getTaskName() + " was due on " + formattedDeadline + ". However, this task is already past its deadline.";
+                    } else {
+                        response = "Your task with the nearest deadline is " + nearestDeadlineTask.getTaskName() + " due on " + formattedDeadline + ".";
+                    }
+                }
+
                 synthesizeAssistantSpeech(response);
             }
         }, false);
