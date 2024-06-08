@@ -78,7 +78,6 @@ public class PorcupineService extends Service {
 
     private void onWakeWordDetected() {
         Log.v("PorcupineService", "Wake word detected!");
-
     }
 
     @Override
