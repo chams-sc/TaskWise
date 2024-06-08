@@ -20,7 +20,6 @@ import ai.picovoice.porcupine.PorcupineManagerCallback;
 public class PorcupineService extends Service {
 
     private static final String CHANNEL_ID = "PorcupineServiceChannel";
-    private static final String WAKEWORD_DETECTED_ACTION = "com.example.taskwiserebirth.WAKEWORD_DETECTED";
     private PorcupineManager porcupineManager;
 
     @Nullable
