@@ -76,8 +76,41 @@ public class PorcupineService extends Service {
         }
     }
 
+    public void pausePorcupine() {
+        if (porcupineManager != null) {
+            try {
+                porcupineManager.stop();
+            } catch (PorcupineException e) {
+                e.printStackTrace();
+            }
+        }
+    }
+
+    public void resumePorcupine() {
+        if (porcupineManager != null) {
+            try {
+                porcupineManager.start();
+            } catch (PorcupineException e) {
+                e.printStackTrace();
+            }
+        }
+    }
+
     private void onWakeWordDetected() {
         Log.v("PorcupineService", "Wake word detected!");
+    }
+
+    @Override
+    public int onStartCommand(Intent intent, int flags, int startId) {
+        if (intent != null) {
+            String action = intent.getAction();
+            if ("PAUSE_PORCUPINE".equals(action)) {
+                pausePorcupine();
+            } else if ("RESUME_PORCUPINE".equals(action)) {
+                resumePorcupine();
+            }
+        }
+        return START_STICKY;
     }
 
     @Override

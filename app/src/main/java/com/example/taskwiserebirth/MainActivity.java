@@ -97,6 +97,18 @@ public class MainActivity extends AppCompatActivity {
         }
     }
 
+    public void pausePorcupineService() {
+        Intent serviceIntent = new Intent(this, PorcupineService.class);
+        serviceIntent.setAction("PAUSE_PORCUPINE");
+        startService(serviceIntent);
+    }
+
+    public void resumePorcupineService() {
+        Intent serviceIntent = new Intent(this, PorcupineService.class);
+        serviceIntent.setAction("RESUME_PORCUPINE");
+        startService(serviceIntent);
+    }
+
     @Override
     protected void onDestroy() {
         super.onDestroy();

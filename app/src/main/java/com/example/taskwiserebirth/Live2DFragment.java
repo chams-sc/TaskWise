@@ -185,6 +185,9 @@ public class Live2DFragment extends Fragment implements View.OnTouchListener, Sp
                     partialSpeech = "";
                 }
             } else {
+                // Pause Porcupine service
+                ((MainActivity) requireActivity()).pausePorcupineService();
+
                 speechRecognition.startSpeechRecognition();
                 changeExpression("listening");
                 startSpecificModelMotion(LAppDefine.MotionGroup.IDLE.getId(), 3);
@@ -794,7 +797,13 @@ public class Live2DFragment extends Fragment implements View.OnTouchListener, Sp
                 }
 
                 // Sort tasks by their parsed deadline date
-                Collections.sort(tasksWithDeadlines, Comparator.comparing(taskDeadlineMap::get));
+                Collections.sort(tasksWithDeadlines, new Comparator<Task>() {
+                    @Override
+                    public int compare(Task t1, Task t2) {
+                        return taskDeadlineMap.get(t1).compareTo(taskDeadlineMap.get(t2));
+                    }
+                });
+//                Collections.sort(tasksWithDeadlines, Comparator.comparing(taskDeadlineMap::get));
 
                 // Get the task(s) with the nearest deadline
                 Date nearestDeadlineDate = taskDeadlineMap.get(tasksWithDeadlines.get(0));
@@ -1400,6 +1409,9 @@ public class Live2DFragment extends Fragment implements View.OnTouchListener, Sp
     }
 
     private void processRecognizedSpeech(String recognizedSpeech) {
+        // Resume Porcupine service
+        ((MainActivity) requireActivity()).resumePorcupineService();
+
         if (ExplicitContentFilter.containsExplicitContent(recognizedSpeech)) {
             synthesizeAssistantSpeech("I'm sorry, but I cannot process that request because it contains inappropriate or sensitive content. Please try again with different words.");
             return;
