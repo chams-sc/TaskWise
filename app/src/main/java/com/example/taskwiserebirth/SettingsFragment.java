@@ -84,11 +84,17 @@ public class SettingsFragment extends Fragment {
         TextView changeAiname = view.findViewById(R.id.AIname);
         TextView clearMemory = view.findViewById(R.id.ClearMemory);
         TextView logout = view.findViewById(R.id.logoutTxtView);
+        TextView help = view.findViewById(R.id.helpTxtView);
         SwitchCompat focusModeSwitch = view.findViewById(R.id.switchBtn);
 
         changeAiname.setOnClickListener(v -> showChangeAINameDialog());
         clearMemory.setOnClickListener(v -> showClearMemoryDialog());
         logout.setOnClickListener(v -> logout());
+        help.setOnClickListener(v -> {
+            if (getActivity() instanceof MainActivity) {
+                ((MainActivity) getActivity()).showHelpFragment();
+            }
+        });
 
         focusModeSwitch.setOnCheckedChangeListener((buttonView, isChecked) -> updateFocusModePreference(isChecked));
     }

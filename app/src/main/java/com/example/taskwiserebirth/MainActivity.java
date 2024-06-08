@@ -183,6 +183,15 @@ public class MainActivity extends AppCompatActivity {
                 .commit();
     }
 
+    public void showHelpFragment() {
+        HelpFragment helpFragment = new HelpFragment();
+
+        FragmentTransaction fragmentTransaction = fragmentManager.beginTransaction();
+        fragmentTransaction.add(R.id.frame_layout, helpFragment, "HELP_FRAGMENT")
+                .addToBackStack(null) // Add the transaction to the back stack
+                .commit();
+    }
+
     public void toggleNavBarVisibility(boolean visible, boolean isScrollToggle) {
         long duration = 100;
         if (isScrollToggle) {

@@ -152,6 +152,20 @@
             </LinearLayout>
 
             <TextView
+                android:id="@+id/helpTxtView"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:background="?android:attr/selectableItemBackground"
+                android:fontFamily="@font/inter"
+                android:padding="8dp"
+                android:text="Help"
+                android:textColor="@color/dark"
+                android:textSize="15sp"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toBottomOf="@+id/focusModeContainer" />
+
+            <TextView
                 android:id="@+id/logoutTxtView"
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
@@ -163,7 +177,7 @@
                 android:textSize="15sp"
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintTop_toBottomOf="@+id/focusModeContainer" />
+                app:layout_constraintTop_toBottomOf="@+id/helpTxtView" />
 
         </androidx.constraintlayout.widget.ConstraintLayout>
     </androidx.cardview.widget.CardView>
