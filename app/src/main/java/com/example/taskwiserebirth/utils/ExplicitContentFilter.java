@@ -2,84 +2,91 @@ package com.example.taskwiserebirth.utils;
 
 import java.util.HashSet;
 import java.util.Set;
+import java.util.regex.Pattern;
 
 public class ExplicitContentFilter {
 
-    private static final Set<String> explicitWords;
+    private static final Set<Pattern> explicitPatterns = new HashSet<>();
 
     static {
-        explicitWords = new HashSet<>();
+        addPatterns();
+    }
 
+    private static void addPatterns() {
         // Profanity
-        explicitWords.add("damn");
-        explicitWords.add("hell");
-        explicitWords.add("shit");
-        explicitWords.add("fuck");
-        explicitWords.add("bitch");
-        explicitWords.add("bastard");
-        explicitWords.add("asshole");
-        explicitWords.add("dick");
-        explicitWords.add("pussy");
-        explicitWords.add("cunt");
-        explicitWords.add("whore");
-        explicitWords.add("slut");
-        explicitWords.add("fucker");
-        explicitWords.add("motherfucker");
-        explicitWords.add("ass");
-        explicitWords.add("bollocks");
+        addPattern("damn");
+        addPattern("hell");
+        addPattern("shit");
+        addPattern("fuck");
+        addPattern("bitch");
+        addPattern("bastard");
+        addPattern("asshole");
+        addPattern("dick");
+        addPattern("pussy");
+        addPattern("cunt");
+        addPattern("whore");
+        addPattern("slut");
+        addPattern("fucker");
+        addPattern("motherfucker");
+        addPattern("ass");
+        addPattern("bollocks");
 
         // Adult content
-        explicitWords.add("porn");
-        explicitWords.add("sex");
-        explicitWords.add("sexy");
-        explicitWords.add("naked");
-        explicitWords.add("nude");
-        explicitWords.add("boobs");
-        explicitWords.add("penis");
-        explicitWords.add("vagina");
-        explicitWords.add("breast");
-        explicitWords.add("masturbate");
-        explicitWords.add("orgasm");
-        explicitWords.add("stripper");
+        addPattern("porn");
+        addPattern("sex");
+        addPattern("sexy");
+        addPattern("naked");
+        addPattern("nude");
+        addPattern("boobs");
+        addPattern("penis");
+        addPattern("vagina");
+        addPattern("breast");
+        addPattern("masturbate");
+        addPattern("orgasm");
+        addPattern("stripper");
 
         // Hate speech
-        explicitWords.add("nigger");
-        explicitWords.add("faggot");
-        explicitWords.add("chink");
-        explicitWords.add("spic");
-        explicitWords.add("kike");
-        explicitWords.add("cracker");
+        addPattern("nigger");
+        addPattern("faggot");
 
         // Dangerous activities
-        explicitWords.add("kill");
-        explicitWords.add("murder");
-        explicitWords.add("assassinate");
-        explicitWords.add("suicide");
-        explicitWords.add("bomb");
-        explicitWords.add("attack");
-        explicitWords.add("violence");
-        explicitWords.add("terrorism");
-        explicitWords.add("rape");
-        explicitWords.add("abuse");
-        explicitWords.add("drugs");
-        explicitWords.add("weapon");
-        explicitWords.add("gun");
-        explicitWords.add("knife");
-        explicitWords.add("explosive");
-        explicitWords.add("poison");
-        explicitWords.add("strangle");
-        explicitWords.add("harm");
-        explicitWords.add("fight");
-        explicitWords.add("stab");
-        explicitWords.add("shoot");
-        explicitWords.add("robbery");
-        explicitWords.add("assault");
+        addPattern("kill");
+        addPattern("murder");
+        addPattern("assassinate");
+        addPattern("suicide");
+        addPattern("bomb");
+        addPattern("violence");
+        addPattern("terrorism");
+        addPattern("rape");
+        addPattern("abuse");
+        addPattern("drugs");
+        addPattern("weapon");
+        addPattern("gun");
+        addPattern("knife");
+        addPattern("explosive");
+        addPattern("poison");
+        addPattern("strangle");
+        addPattern("harm");
+        addPattern("fight");
+        addPattern("stab");
+        addPattern("shoot");
+        addPattern("robbery");
+        addPattern("assault");
+    }
+
+    private static void addPattern(String word) {
+        explicitPatterns.add(Pattern.compile("\\b" + word + "\\b", Pattern.CASE_INSENSITIVE));
     }
 
     public static boolean containsExplicitContent(String input) {
-        String lowerCaseInput = input.toLowerCase();
-        for (String word : explicitWords) {
-            if (lowerCaseInput.contains(word)) {
+        // Check for censored words represented by asterisks
+        if (input.contains("*")) {
+            return true;
+        }
+
+        // Check for explicit words
+        for (Pattern pattern : explicitPatterns) {
+            if (pattern.matcher(input).find()) {
                 return true;
             }
         }

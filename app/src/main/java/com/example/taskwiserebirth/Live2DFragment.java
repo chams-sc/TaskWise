@@ -1082,6 +1082,7 @@ public class Live2DFragment extends Fragment implements View.OnTouchListener, Sp
         }
 
         if (isAddTask) {
+            Log.v("isAddTask", "deadline:" + deadline);
             tempTaskForAddEdit = new Task(taskName, importance, urgency, deadline, schedule, recurrence, true, notes);
             applyTaskDetail("Importance", importance);
             applyTaskDetail("Urgency", urgency);
@@ -1400,7 +1401,7 @@ public class Live2DFragment extends Fragment implements View.OnTouchListener, Sp
 
     private void processRecognizedSpeech(String recognizedSpeech) {
         if (ExplicitContentFilter.containsExplicitContent(recognizedSpeech)) {
-            SpeechSynthesis.synthesizeSpeechAsync("I'm sorry, I can't process that request.");
+            synthesizeAssistantSpeech("I'm sorry, but I cannot process that request because it contains inappropriate or sensitive content. Please try again with different words.");
             return;
         }
 
