@@ -2,6 +2,7 @@ package com.example.taskwiserebirth;
 
 import android.content.Intent;
 import android.content.SharedPreferences;
+import android.os.Build;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Looper;
@@ -25,10 +26,6 @@ import com.example.taskwiserebirth.utils.SharedViewModel;
 import com.example.taskwiserebirth.utils.SystemUIHelper;
 import com.google.android.material.bottomnavigation.BottomNavigationView;
 
-import ai.picovoice.porcupine.Porcupine;
-import ai.picovoice.porcupine.PorcupineException;
-import ai.picovoice.porcupine.PorcupineManager;
-import ai.picovoice.porcupine.PorcupineManagerCallback;
 import io.realm.mongodb.App;
 import io.realm.mongodb.User;
 
@@ -48,14 +45,13 @@ public class MainActivity extends AppCompatActivity {
     private static final String SHARED_PREFS = "sharedPrefs";
     private static final String FIRST_LAUNCH_KEY = "first_launch";
 
-    private PorcupineManager porcupineManager;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
-        initializePorcupine();
+        startPorcupineService();
 
         SystemUIHelper.setSystemUIVisibility(this);
 
@@ -92,27 +88,24 @@ public class MainActivity extends AppCompatActivity {
         checkAndTriggerDailyUnfinishedTasks();
     }
 
-    private void initializePorcupine() {
-        try {
-            porcupineManager = new PorcupineManager.Builder()
-                    .setAccessKey("NGQpZinYtUHQqcSina8WhS92hZo3TznujGxCFxK017ySw3BACzHMdQ==")
-                    .setKeyword(Porcupine.BuiltInKeyword.PICOVOICE)
-                    .setSensitivity(0.5f)
-                    .build(getApplicationContext(), new PorcupineManagerCallback() {
-                        @Override
-                        public void invoke(int keywordIndex) {
-                            runOnUiThread(() -> onWakeWordDetected());
-                        }
-                    });
-        } catch (PorcupineException e) {
-            e.printStackTrace();
+    private void startPorcupineService() {
+        Intent serviceIntent = new Intent(this, PorcupineService.class);
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+            startForegroundService(serviceIntent);
+        } else {
+            startService(serviceIntent);
         }
     }
 
-    private void onWakeWordDetected() {
-        // Handle wake word detection
-        Toast.makeText(this, "Wake word detected!", Toast.LENGTH_SHORT).show();
-        // Add your custom action here
+    @Override
+    protected void onDestroy() {
+        super.onDestroy();
+        stopPorcupineService();
+    }
+
+    private void stopPorcupineService() {
+        Intent serviceIntent = new Intent(this, PorcupineService.class);
+        stopService(serviceIntent);
     }
 
     private void checkAndTriggerDailyUnfinishedTasks() {
@@ -231,31 +224,6 @@ public class MainActivity extends AppCompatActivity {
         }
     }
 
-    @Override
-    protected void onStart() {
-        super.onStart();
-        try {
-            porcupineManager.start();
-        } catch (PorcupineException e) {
-            e.printStackTrace();
-        }
-    }
-
-    @Override
-    protected void onStop() {
-        super.onStop();
-        try {
-            porcupineManager.stop();
-        } catch (PorcupineException e) {
-            e.printStackTrace();
-        }
-    }
-
-    @Override
-    protected void onDestroy() {
-        super.onDestroy();
-        porcupineManager.delete();
-    }
 
     @Override
     public void onWindowFocusChanged(boolean hasFocus) {

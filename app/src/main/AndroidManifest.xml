@@ -7,6 +7,8 @@
     <uses-permission android:name="android.permission.POST_NOTIFICATIONS" />
     <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE" />
     <uses-permission android:name="android.permission.SCHEDULE_EXACT_ALARM" />
+    <uses-permission android:name="android.permission.FOREGROUND_SERVICE" />
+    <uses-permission android:name="android.permission.FOREGROUND_SERVICE_MICROPHONE" />
 
     <application
         android:name=".TaskWiseApplication"
@@ -45,6 +47,10 @@
         </activity>
 
         <receiver android:name=".notifications.NotificationReceiver"/>
+
+        <service
+            android:name=".PorcupineService"
+            android:foregroundServiceType="microphone" />
 
         <meta-data
             android:name="preloaded_fonts"
