@@ -15,7 +15,6 @@ import androidx.core.app.NotificationCompat;
 import ai.picovoice.porcupine.Porcupine;
 import ai.picovoice.porcupine.PorcupineException;
 import ai.picovoice.porcupine.PorcupineManager;
-import ai.picovoice.porcupine.PorcupineManagerCallback;
 
 public class PorcupineService extends Service {
 
@@ -64,15 +63,10 @@ public class PorcupineService extends Service {
                     .setAccessKey("NGQpZinYtUHQqcSina8WhS92hZo3TznujGxCFxK017ySw3BACzHMdQ==")
                     .setKeyword(Porcupine.BuiltInKeyword.PICOVOICE)
                     .setSensitivity(0.5f)
-                    .build(getApplicationContext(), new PorcupineManagerCallback() {
-                        @Override
-                        public void invoke(int keywordIndex) {
-                            onWakeWordDetected();
-                        }
-                    });
+                    .build(getApplicationContext(), keywordIndex -> onWakeWordDetected());
             porcupineManager.start();
         } catch (PorcupineException e) {
-            e.printStackTrace();
+            Log.e("PorcupineException", e.toString());
         }
     }
 
@@ -81,7 +75,7 @@ public class PorcupineService extends Service {
             try {
                 porcupineManager.stop();
             } catch (PorcupineException e) {
-                e.printStackTrace();
+                Log.e("PorcupineException", e.toString());
             }
         }
     }
@@ -91,7 +85,7 @@ public class PorcupineService extends Service {
             try {
                 porcupineManager.start();
             } catch (PorcupineException e) {
-                e.printStackTrace();
+                Log.e("PorcupineException", e.toString());
             }
         }
     }
@@ -121,7 +115,7 @@ public class PorcupineService extends Service {
                 porcupineManager.stop();
                 porcupineManager.delete();
             } catch (PorcupineException e) {
-                e.printStackTrace();
+                Log.e("PorcupineException", e.toString());
             }
         }
     }

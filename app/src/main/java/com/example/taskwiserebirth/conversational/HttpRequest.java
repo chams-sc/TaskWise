@@ -212,7 +212,7 @@ public class HttpRequest {
                         } else if (response.code() == 502) {
                             callback.onFailure("Sorry, server is not available at the moment");
                         } else if (response.code() == 500) {
-                            callback.onFailure("We apologize, server is still loading. Please try again later.");
+                            callback.onFailure("We apologize, server is still loading. Please try again after a few moments.");
                         } else {
                             callback.onFailure("Unexpected code: " + response.code());
                         }

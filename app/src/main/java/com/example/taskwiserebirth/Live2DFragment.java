@@ -127,6 +127,23 @@ public class Live2DFragment extends Fragment implements View.OnTouchListener, Sp
         return view;
     }
 
+//    @Override
+//    public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
+//        super.onViewCreated(view, savedInstanceState);
+//        view.getViewTreeObserver().addOnGlobalLayoutListener(new ViewTreeObserver.OnGlobalLayoutListener() {
+//            @Override
+//            public void onGlobalLayout() {
+//                // Ensure this listener is removed to prevent repeated calls
+//                view.getViewTreeObserver().removeOnGlobalLayoutListener(this);
+//
+//                // Check if the activity is still active and cast to MainActivity
+//                if (getActivity() instanceof MainActivity) {
+//                    ((MainActivity) getActivity()).checkRecorAudioPermission();
+//                }
+//            }
+//        });
+//    }
+
     private void onAssistiveModeChanged(boolean isEnabled) {
         AssistiveModeHelper.setAssistiveMode(requireContext(), isEnabled);
         sharedViewModel.setAssistiveMode(isEnabled);
@@ -172,7 +189,7 @@ public class Live2DFragment extends Fragment implements View.OnTouchListener, Sp
     }
 
     private void handleSpeakButtonClick() {
-        if (PermissionUtils.checkRecordAudioPermission(requireContext())) {
+        if (PermissionUtils.checkRecordAudioPermissionDialog(requireContext())) {
             if (speechRecognition.isListening()) {
                 speechRecognition.stopSpeechRecognition();
                 stopCurrentMotion();
@@ -185,9 +202,6 @@ public class Live2DFragment extends Fragment implements View.OnTouchListener, Sp
                     partialSpeech = "";
                 }
             } else {
-                // Pause Porcupine service
-                ((MainActivity) requireActivity()).pausePorcupineService();
-
                 speechRecognition.startSpeechRecognition();
                 changeExpression("listening");
                 startSpecificModelMotion(LAppDefine.MotionGroup.IDLE.getId(), 3);
@@ -223,7 +237,7 @@ public class Live2DFragment extends Fragment implements View.OnTouchListener, Sp
 
     private void initializeSpeechRecognition(View view) {
         FloatingActionButton speakBtn = view.findViewById(R.id.speakBtn);
-        speechRecognition = new SpeechRecognition(requireContext(), speakBtn, cardViewSpeech,this);
+        speechRecognition = new SpeechRecognition(requireContext(), speakBtn, cardViewSpeech,this, (MainActivity) getActivity());
     }
 
     public void speakUnfinishedTasks() {
@@ -1409,9 +1423,6 @@ public class Live2DFragment extends Fragment implements View.OnTouchListener, Sp
     }
 
     private void processRecognizedSpeech(String recognizedSpeech) {
-        // Resume Porcupine service
-        ((MainActivity) requireActivity()).resumePorcupineService();
-
         if (ExplicitContentFilter.containsExplicitContent(recognizedSpeech)) {
             synthesizeAssistantSpeech("I'm sorry, but I cannot process that request because it contains inappropriate or sensitive content. Please try again with different words.");
             return;

@@ -12,6 +12,7 @@ import android.widget.Toast;
 import androidx.cardview.widget.CardView;
 import androidx.core.content.ContextCompat;
 
+import com.example.taskwiserebirth.MainActivity;
 import com.example.taskwiserebirth.R;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
 
@@ -26,17 +27,19 @@ public class SpeechRecognition {
     private final FloatingActionButton speakBtn;
     private SpeechRecognitionListener listener;
     private boolean isListening = false;
+    private MainActivity mainActivity; // Reference to MainActivity
 
     public interface SpeechRecognitionListener {
         void onSpeechRecognized(String recognizedSpeech);
         void onPartialSpeechRecognized(String partialSpeech);
     }
 
-    public SpeechRecognition(Context context, FloatingActionButton speakBtn, CardView cardViewSpeech, SpeechRecognitionListener listener) {
+    public SpeechRecognition(Context context, FloatingActionButton speakBtn, CardView cardViewSpeech, SpeechRecognitionListener listener, MainActivity mainActivity) {
         this.context = context;
         this.speakBtn = speakBtn;
         this.cardViewSpeech = cardViewSpeech;
         this.listener = listener;
+        this.mainActivity = mainActivity;
     }
 
     public boolean isListening() {
@@ -44,6 +47,7 @@ public class SpeechRecognition {
     }
 
     public void startSpeechRecognition() {
+        mainActivity.pausePorcupineService(); // Pause Porcupine service
         initializeSpeechRecognizer();
         isListening = true;
     }
@@ -90,6 +94,7 @@ public class SpeechRecognition {
                 speakBtn.setImageDrawable(ContextCompat.getDrawable(context, R.drawable.mic_standby));
                 isListening = false;
                 cardViewSpeech.setVisibility(View.INVISIBLE);
+                mainActivity.resumePorcupineService();
             }
 
             @Override
@@ -104,6 +109,7 @@ public class SpeechRecognition {
                     Toast.makeText(context, "No speech recognized", Toast.LENGTH_SHORT).show();
                 }
                 speakBtn.setImageDrawable(ContextCompat.getDrawable(context, R.drawable.mic_standby));
+                mainActivity.resumePorcupineService();
             }
 
             @Override
@@ -141,6 +147,7 @@ public class SpeechRecognition {
                 speechRecognizer = null;
             }
         }
+        mainActivity.resumePorcupineService();
     }
 
     public void release() {

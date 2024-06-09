@@ -22,6 +22,7 @@ import com.example.taskwiserebirth.database.ConversationDbManager;
 import com.example.taskwiserebirth.database.MongoDbRealmHelper;
 import com.example.taskwiserebirth.task.Task;
 import com.example.taskwiserebirth.utils.CalendarUtils;
+import com.example.taskwiserebirth.utils.PermissionUtils;
 import com.example.taskwiserebirth.utils.SharedViewModel;
 import com.example.taskwiserebirth.utils.SystemUIHelper;
 import com.google.android.material.bottomnavigation.BottomNavigationView;
@@ -50,8 +51,6 @@ public class MainActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
-
-        startPorcupineService();
 
         SystemUIHelper.setSystemUIVisibility(this);
 
@@ -86,6 +85,13 @@ public class MainActivity extends AppCompatActivity {
 
         setupBottomNavigationListener();
         checkAndTriggerDailyUnfinishedTasks();
+        checkRecordAudioPermission();
+    }
+
+    public void checkRecordAudioPermission() {
+        if (PermissionUtils.checkRecordAudioPermission(this)) {
+            startPorcupineService();
+        }
     }
 
     private void startPorcupineService() {
@@ -107,12 +113,6 @@ public class MainActivity extends AppCompatActivity {
         Intent serviceIntent = new Intent(this, PorcupineService.class);
         serviceIntent.setAction("RESUME_PORCUPINE");
         startService(serviceIntent);
-    }
-
-    @Override
-    protected void onDestroy() {
-        super.onDestroy();
-        stopPorcupineService();
     }
 
     private void stopPorcupineService() {
@@ -245,6 +245,19 @@ public class MainActivity extends AppCompatActivity {
         }
     }
 
+    @Override
+    protected void onResume() {
+        super.onResume();
+        if (PermissionUtils.checkRecordAudioPermission(this)) {
+            startPorcupineService();
+        }
+    }
+
+    @Override
+    protected void onDestroy() {
+        super.onDestroy();
+        stopPorcupineService();
+    }
 
     @Override
     public void onWindowFocusChanged(boolean hasFocus) {

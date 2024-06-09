@@ -64,6 +64,7 @@ public class LoginActivity extends AppCompatActivity {
         bottomLogin.setOnClickListener(v -> showLoginDialog());
 
         PermissionUtils.requestNotificationPermission(this);
+        PermissionUtils.checkRecordAudioPermissionDialog(this);
 
         AlarmManager alarmManager = (AlarmManager) this.getSystemService(Context.ALARM_SERVICE);
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
