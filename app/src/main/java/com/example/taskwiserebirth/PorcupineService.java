@@ -20,6 +20,7 @@ public class PorcupineService extends Service {
 
     private static final String CHANNEL_ID = "PorcupineServiceChannel";
     private PorcupineManager porcupineManager;
+    public static final String ACTION_WAKE_WORD_DETECTED = "com.example.taskwiserebirth.ACTION_WAKE_WORD_DETECTED";
 
     @Nullable
     @Override
@@ -40,7 +41,7 @@ public class PorcupineService extends Service {
             NotificationChannel serviceChannel = new NotificationChannel(
                     CHANNEL_ID,
                     "Porcupine Service Channel",
-                    NotificationManager.IMPORTANCE_DEFAULT
+                    NotificationManager.IMPORTANCE_HIGH
             );
             NotificationManager manager = getSystemService(NotificationManager.class);
             if (manager != null) {
@@ -51,7 +52,7 @@ public class PorcupineService extends Service {
 
     private Notification getNotification() {
         return new NotificationCompat.Builder(this, CHANNEL_ID)
-                .setContentTitle("Porcupine Wake Word Service")
+                .setContentTitle("TaskWise")
                 .setContentText("Listening for wake words")
                 .setSmallIcon(R.drawable.ic_launcher_foreground)
                 .build();
@@ -92,6 +93,8 @@ public class PorcupineService extends Service {
 
     private void onWakeWordDetected() {
         Log.v("PorcupineService", "Wake word detected!");
+        Intent intent = new Intent(ACTION_WAKE_WORD_DETECTED);
+        sendBroadcast(intent);
     }
 
     @Override

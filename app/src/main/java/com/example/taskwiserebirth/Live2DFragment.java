@@ -2,6 +2,10 @@ package com.example.taskwiserebirth;
 
 import android.animation.AnimatorListenerAdapter;
 import android.animation.ObjectAnimator;
+import android.content.BroadcastReceiver;
+import android.content.Context;
+import android.content.Intent;
+import android.content.IntentFilter;
 import android.opengl.GLSurfaceView;
 import android.os.Bundle;
 import android.os.Handler;
@@ -101,13 +105,23 @@ public class Live2DFragment extends Fragment implements View.OnTouchListener, Sp
     private static final long FADE_OUT_DELAY = 3000; // 3 seconds delay before starting fade-out
     private static final long FADE_OUT_DURATION = 500;
 
+    private BroadcastReceiver wakeWordReceiver;
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         SpeechSynthesis.initialize(); // Reinitialize the SpeechSynthesis executor
         sharedViewModel = new ViewModelProvider(requireActivity()).get(SharedViewModel.class);
-
+        wakeWordReceiver = new BroadcastReceiver() {
+            @Override
+            public void onReceive(Context context, Intent intent) {
+                if (PorcupineService.ACTION_WAKE_WORD_DETECTED.equals(intent.getAction())) {
+                    handleSpeakButtonClick();
+                }
+            }
+        };
+        IntentFilter filter = new IntentFilter(PorcupineService.ACTION_WAKE_WORD_DETECTED);
+        requireContext().registerReceiver(wakeWordReceiver, filter);
     }
 
     @Override
@@ -126,23 +140,6 @@ public class Live2DFragment extends Fragment implements View.OnTouchListener, Sp
 
         return view;
     }
-
-//    @Override
-//    public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
-//        super.onViewCreated(view, savedInstanceState);
-//        view.getViewTreeObserver().addOnGlobalLayoutListener(new ViewTreeObserver.OnGlobalLayoutListener() {
-//            @Override
-//            public void onGlobalLayout() {
-//                // Ensure this listener is removed to prevent repeated calls
-//                view.getViewTreeObserver().removeOnGlobalLayoutListener(this);
-//
-//                // Check if the activity is still active and cast to MainActivity
-//                if (getActivity() instanceof MainActivity) {
-//                    ((MainActivity) getActivity()).checkRecorAudioPermission();
-//                }
-//            }
-//        });
-//    }
 
     private void onAssistiveModeChanged(boolean isEnabled) {
         AssistiveModeHelper.setAssistiveMode(requireContext(), isEnabled);
@@ -1874,6 +1871,10 @@ public class Live2DFragment extends Fragment implements View.OnTouchListener, Sp
     @Override
     public void onDestroy() {
         super.onDestroy();
+        if (wakeWordReceiver != null) {
+            requireContext().unregisterReceiver(wakeWordReceiver);
+        }
+
         LAppDelegate.getInstance().onDestroy();
 
         if (speechRecognition != null) {
