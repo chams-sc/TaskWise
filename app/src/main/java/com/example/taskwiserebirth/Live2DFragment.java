@@ -1116,6 +1116,7 @@ public class Live2DFragment extends Fragment implements View.OnTouchListener, Sp
 
             if (!"Unspecified".equalsIgnoreCase(taskName)) {
                 addCompleteTask(tempTaskForAddEdit);
+                tempTaskForAddEdit = new Task();
             } else {
                 synthesizeAssistantSpeech("You forgot to mention the name of the task, what should we call it?");
                 addTaskAskingForTaskName = true;

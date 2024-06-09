@@ -12,7 +12,10 @@ import android.util.Log;
 import androidx.annotation.Nullable;
 import androidx.core.app.NotificationCompat;
 
-import ai.picovoice.porcupine.Porcupine;
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.io.InputStream;
+
 import ai.picovoice.porcupine.PorcupineException;
 import ai.picovoice.porcupine.PorcupineManager;
 
@@ -60,15 +63,30 @@ public class PorcupineService extends Service {
 
     private void initializePorcupine() {
         try {
+            String wakeWordFilePath = copyPorcupineFileFromAssets("hey-kaya_en_android_v3_0_0.ppn");
+
             porcupineManager = new PorcupineManager.Builder()
                     .setAccessKey("NGQpZinYtUHQqcSina8WhS92hZo3TznujGxCFxK017ySw3BACzHMdQ==")
-                    .setKeyword(Porcupine.BuiltInKeyword.PICOVOICE)
+                    .setKeywordPath(wakeWordFilePath)
                     .setSensitivity(0.5f)
                     .build(getApplicationContext(), keywordIndex -> onWakeWordDetected());
             porcupineManager.start();
-        } catch (PorcupineException e) {
+        } catch (PorcupineException | IOException e) {
             Log.e("PorcupineException", e.toString());
         }
+    }
+
+    private String copyPorcupineFileFromAssets(String fileName) throws IOException {
+        InputStream inputStream = getAssets().open(fileName);
+        FileOutputStream outputStream = openFileOutput(fileName, MODE_PRIVATE);
+        byte[] buffer = new byte[1024];
+        int length;
+        while ((length = inputStream.read(buffer)) > 0) {
+            outputStream.write(buffer, 0, length);
+        }
+        outputStream.close();
+        inputStream.close();
+        return getFileStreamPath(fileName).getAbsolutePath();
     }
 
     public void pausePorcupine() {
