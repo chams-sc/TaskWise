@@ -58,6 +58,7 @@ public class PorcupineService extends Service {
                 .setContentTitle("TaskWise")
                 .setContentText("Listening for wake words")
                 .setSmallIcon(R.drawable.ic_launcher_foreground)
+                .setOngoing(true)
                 .build();
     }
 
@@ -68,7 +69,7 @@ public class PorcupineService extends Service {
             porcupineManager = new PorcupineManager.Builder()
                     .setAccessKey("NGQpZinYtUHQqcSina8WhS92hZo3TznujGxCFxK017ySw3BACzHMdQ==")
                     .setKeywordPath(wakeWordFilePath)
-                    .setSensitivity(0.5f)
+                    .setSensitivity(0.7f)
                     .build(getApplicationContext(), keywordIndex -> onWakeWordDetected());
             porcupineManager.start();
         } catch (PorcupineException | IOException e) {
