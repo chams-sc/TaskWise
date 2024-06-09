@@ -165,7 +165,7 @@
                     android:layout_toEndOf="@id/clockIcon_urgency"
                     android:fontFamily="@font/inter_bold"
                     android:textColor="@color/dark"
-                    android:textSize="16dp"
+                    android:textSize="16sp"
                     app:layout_constraintBottom_toBottomOf="parent"
                     app:layout_constraintStart_toEndOf="@id/clockIcon_urgency"
                     app:layout_constraintTop_toTopOf="parent"
@@ -209,7 +209,7 @@
                     android:layout_toEndOf="@id/clockIcon_reccurrence"
                     android:fontFamily="@font/inter_bold"
                     android:textColor="@color/dark"
-                    android:textSize="16dp"
+                    android:textSize="16sp"
                     app:layout_constraintBottom_toBottomOf="parent"
                     app:layout_constraintStart_toEndOf="@id/clockIcon_reccurrence"
                     app:layout_constraintTop_toTopOf="parent"
@@ -257,7 +257,7 @@
                         android:layout_toEndOf="@id/clockIcon_reccurrence2"
                         android:fontFamily="@font/inter_bold"
                         android:textColor="@color/dark"
-                        android:textSize="16dp"
+                        android:textSize="16sp"
                         tools:text="None" />
                 </LinearLayout>
 
@@ -331,7 +331,7 @@
                     android:justificationMode="inter_word"
                     android:text="No notes"
                     android:textColor="@color/dark"
-                    android:textSize="16dp"
+                    android:textSize="16sp"
                     android:letterSpacing="0.05"
                     app:layout_constraintBottom_toBottomOf="parent"
                     app:layout_constraintEnd_toEndOf="parent"

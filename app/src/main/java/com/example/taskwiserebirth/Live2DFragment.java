@@ -83,12 +83,13 @@ public class Live2DFragment extends Fragment implements View.OnTouchListener, Sp
 
 
     private Task tempTask;
+    private Task taskToConfirmDeletion;
     private String chosenExpression;
     private Map<String, String[]> expressionMap;
 
     private boolean isFullscreen = false;
     private boolean inEditTaskInteraction = false;
-    private boolean confirmAddTaskWithUser = false;
+    private boolean confirmingAddTask = false;
     private boolean inTaskDetailInteraction = false;
     private boolean isExpanded = false;
     private boolean addTaskAskingForTaskName = false;
@@ -98,6 +99,7 @@ public class Live2DFragment extends Fragment implements View.OnTouchListener, Sp
     private boolean hasRecurrenceOnRecognizedSpeech = false;
     private boolean previousHasRecurrenceOnRecognizedSpeech = false;
     private boolean addNotesAskingForTaskName = false;
+    private boolean confirmingDeleteTask = false;
 
     private final String TAG_SERVER_RESPONSE = "SERVER_RESPONSE";
 
@@ -447,7 +449,7 @@ public class Live2DFragment extends Fragment implements View.OnTouchListener, Sp
         taskDatabaseManager.fetchTasksWithStatus(tasks -> {
             if (tasks.size() >= 10) {
                 synthesizeAssistantSpeech(AIRandomSpeech.generateUnfinishedTasksMessage(tasks.size()));
-                confirmAddTaskWithUser = true;
+                confirmingAddTask = true;
             } else {
                 // checks if task name already exists
                 taskDatabaseManager.fetchTaskByName(tasks1 -> {
@@ -1021,13 +1023,28 @@ public class Live2DFragment extends Fragment implements View.OnTouchListener, Sp
             }
 
             Task task = tasks.get(0);
-            taskDatabaseManager.deleteTask(task);
+            taskToConfirmDeletion = task;
+
+            startRandomMotionFromGroup(LAppDefine.MotionGroup.ASKING.getId(), LAppDefine.Priority.FORCE.getPriority());
+            synthesizeAssistantSpeech("Are you sure you want to delete the task " + taskName + "? Please say yes or no.");
+            confirmingDeleteTask = true;
+        }, taskName);
+    }
+
+    private void confirmDeleteTaskWithUser(String recognizedSpeech) {
+        if (recognizedSpeech.equalsIgnoreCase("yes")) {
+            taskDatabaseManager.deleteTask(taskToConfirmDeletion);
 
             startRandomMotionFromGroup(LAppDefine.MotionGroup.NEGATIVE.getId(), LAppDefine.Priority.FORCE.getPriority());
+            mainHandler.postDelayed(() -> synthesizeAssistantSpeech("I have successfully deleted your task " + taskToConfirmDeletion.getTaskName()), 3000);
 
-            mainHandler.postDelayed(() -> synthesizeAssistantSpeech("I have successfully deleted your task " + taskName), 3000);
-
-        }, taskName);
+            confirmingDeleteTask = false;
+        } else if (recognizedSpeech.equalsIgnoreCase("no")) {
+            synthesizeAssistantSpeech("Okay, I didn't delete the task called " + taskToConfirmDeletion.getTaskName() + ".");
+            confirmingDeleteTask = false;
+        } else {
+            synthesizeAssistantSpeech("I'm sorry, I didn't understand that. Are you sure you want to delete the task? Please say yes or no.");
+        }
     }
 
     private void askQuestion( String question) {
@@ -1456,8 +1473,10 @@ public class Live2DFragment extends Fragment implements View.OnTouchListener, Sp
             previousHasRecurrenceOnRecognizedSpeech = hasRecurrenceOnRecognizedSpeech;
         }
 
-        if (confirmAddTaskWithUser) {
+        if (confirmingAddTask) {
             confirmAddTaskWithUser(recognizedSpeech);
+        } else if (confirmingDeleteTask) {
+            confirmDeleteTaskWithUser(recognizedSpeech);
         } else if (inTaskDetailInteraction) {
             handleTaskDetailInteraction(recognizedSpeech);
         } else if (addTaskAskingForTaskName) {
@@ -1752,13 +1771,13 @@ public class Live2DFragment extends Fragment implements View.OnTouchListener, Sp
 
     private void confirmAddTaskWithUser(String recognizedSpeech) {
         if (recognizedSpeech.equalsIgnoreCase("yes")) {
-            confirmAddTaskWithUser = false;
+            confirmingAddTask = false;
             insertCompleteTask(tempTaskForAddEdit);
         } else if (recognizedSpeech.equalsIgnoreCase("no")) {
             synthesizeAssistantSpeech("As per your request, I did not add the task named " + tempTaskForAddEdit.getTaskName());
-            confirmAddTaskWithUser = false;
+            confirmingAddTask = false;
         } else {
-            synthesizeAssistantSpeech("I'm sorry, I didn't understand that. Are you sure you want to add task?");
+            synthesizeAssistantSpeech("I'm sorry, I didn't understand that. Are you sure you want to add task? Please say yes or no.");
         }
     }
 
