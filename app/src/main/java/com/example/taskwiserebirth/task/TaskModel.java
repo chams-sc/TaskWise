@@ -4,7 +4,7 @@ import org.bson.types.ObjectId;
 
 import java.util.Date;
 
-public class Task {
+public class TaskModel {
     private ObjectId id;
     private String taskName;
     private String deadline;
@@ -21,11 +21,11 @@ public class Task {
 
     private double priorityScore;
 
-    public Task () {
+    public TaskModel() {
 
     }
 
-    public Task(ObjectId id, String taskName, String deadlineString, String importanceLevel, String urgencyLevel, String priorityCategory, String schedule, String recurrence, boolean reminder, String notes, String status, Date dateFinished, Date creationDate) {
+    public TaskModel(ObjectId id, String taskName, String deadlineString, String importanceLevel, String urgencyLevel, String priorityCategory, String schedule, String recurrence, boolean reminder, String notes, String status, Date dateFinished, Date creationDate) {
         this.id = id;
         this.taskName = taskName;
         this.deadline = deadlineString;
@@ -42,7 +42,7 @@ public class Task {
     }
 
     // for prefilter complete add task with details
-    public Task(String taskName, String importanceLevel,  String urgencyLevel, String deadlineString, String schedule, String recurrence, boolean reminder, String notes) {
+    public TaskModel(String taskName, String importanceLevel, String urgencyLevel, String deadlineString, String schedule, String recurrence, boolean reminder, String notes) {
         this.taskName = taskName;
         this.deadline = deadlineString;
         this.importanceLevel = importanceLevel;

@@ -7,7 +7,7 @@ import android.content.Intent;
 import android.os.Build;
 import android.util.Log;
 
-import com.example.taskwiserebirth.task.Task;
+import com.example.taskwiserebirth.task.TaskModel;
 import com.example.taskwiserebirth.utils.CalendarUtils;
 import com.google.gson.Gson;
 
@@ -18,7 +18,7 @@ public class NotificationScheduler {
     private static String none = "None";
     private static int closeToDue = 12;
     private static String TAG_NOTIF = "NOTIFICATION_SCHEDULER";
-    public static void scheduleNotification(Context context, Task task) {
+    public static void scheduleNotification(Context context, TaskModel task) {
         if (task.getRecurrence().equals(none)) {
             if (task.getDeadline().equals(noDeadline) && task.getSchedule().equals(noSchedule)) {
                 scheduleNotificationOnce(context, task, true);     // no deadline, sched or recurrence but reminder is turned on
@@ -30,7 +30,7 @@ public class NotificationScheduler {
         }
     }
 
-    private static long parseInterval(Task task) {
+    private static long parseInterval(TaskModel task) {
         if (task.getSchedule().equals(noSchedule) && task.getDeadline().equals(noDeadline)) {
             Log.d("AlarmInterval", "Method: calculateDefaultInterval");
             return CalendarUtils.calculateDefaultInterval();
@@ -51,7 +51,7 @@ public class NotificationScheduler {
         return 0;
     }
 
-    public static void scheduleNotificationOnce(Context context, Task task, boolean isRepeating) {
+    public static void scheduleNotificationOnce(Context context, TaskModel task, boolean isRepeating) {
         AlarmManager alarmManager = (AlarmManager) context.getSystemService(Context.ALARM_SERVICE);
 
         Gson gson = new Gson();
@@ -81,7 +81,7 @@ public class NotificationScheduler {
         }
     }
 
-    public static void cancelNotification(Context context, Task task) {
+    public static void cancelNotification(Context context, TaskModel task) {
         AlarmManager alarmManager = (AlarmManager) context.getSystemService(Context.ALARM_SERVICE);
 
         Intent intent = new Intent(context, NotificationReceiver.class);

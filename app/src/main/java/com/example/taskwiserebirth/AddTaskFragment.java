@@ -20,7 +20,7 @@ import androidx.recyclerview.widget.RecyclerView;
 import com.example.taskwiserebirth.database.DatabaseChangeListener;
 import com.example.taskwiserebirth.database.MongoDbRealmHelper;
 import com.example.taskwiserebirth.database.TaskDatabaseManager;
-import com.example.taskwiserebirth.task.Task;
+import com.example.taskwiserebirth.task.TaskModel;
 import com.example.taskwiserebirth.task.TaskAdapter;
 import com.example.taskwiserebirth.task.TaskPriorityCalculator;
 import com.example.taskwiserebirth.utils.CalendarUtils;
@@ -154,7 +154,7 @@ public class AddTaskFragment extends Fragment implements DatabaseChangeListener,
     private void setUpTaskRecyclerView(View rootView) {
         RecyclerView cardRecyclerView = rootView.findViewById(R.id.tasksRecyclerView);
 
-        List<Task> tasks = new ArrayList<>();
+        List<TaskModel> tasks = new ArrayList<>();
         taskAdapter = new TaskAdapter(requireContext(), requireActivity(), tasks, this);
 
         cardRecyclerView.setLayoutManager(new LinearLayoutManager(requireContext()));
@@ -166,7 +166,7 @@ public class AddTaskFragment extends Fragment implements DatabaseChangeListener,
     private void updateTaskRecyclerView() {
         taskDatabaseManager.fetchSelectedDayTasks(tasks -> {
 
-            List<Task> sortedTasks = TaskPriorityCalculator.sortTasksByPriority(tasks, new Date());
+            List<TaskModel> sortedTasks = TaskPriorityCalculator.sortTasksByPriority(tasks, new Date());
 
             if (isAdded()) {
                 requireActivity().runOnUiThread(() -> {
@@ -216,17 +216,17 @@ public class AddTaskFragment extends Fragment implements DatabaseChangeListener,
     }
 
     @Override
-    public void onEditTask(Task task) {
+    public void onEditTask(TaskModel task) {
         dialogUtils.showBottomSheetDialog(task, this);
     }
 
     @Override
-    public void onDeleteTask(Task task) {
+    public void onDeleteTask(TaskModel task) {
         taskDatabaseManager.deleteTask(task);
     }
 
     @Override
-    public void onDoneTask(Task task) {
+    public void onDoneTask(TaskModel task) {
         taskDatabaseManager.markTaskAsFinished(task);
     }
 
@@ -250,7 +250,7 @@ public class AddTaskFragment extends Fragment implements DatabaseChangeListener,
     }
 
     @Override
-    public void onTaskUpdated(Task updatedTask) {
+    public void onTaskUpdated(TaskModel updatedTask) {
 
     }
 }

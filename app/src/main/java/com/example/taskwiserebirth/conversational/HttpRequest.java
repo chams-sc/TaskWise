@@ -4,7 +4,7 @@ import android.util.Log;
 
 import androidx.annotation.NonNull;
 
-import com.example.taskwiserebirth.task.Task;
+import com.example.taskwiserebirth.task.TaskModel;
 import com.example.taskwiserebirth.utils.CalendarUtils;
 
 import org.json.JSONException;
@@ -133,7 +133,7 @@ public class HttpRequest {
         sendHttpRequest(url, requestBodyJson, callback);
     }
 
-    public static void taskDetailRequest(Task task, String userMessage, String aiName, final HttpRequestCallback callback) {
+    public static void taskDetailRequest(TaskModel task, String userMessage, String aiName, final HttpRequestCallback callback) {
         JSONObject requestBodyJson = new JSONObject();
         try {
             SimpleDateFormat sdf = new SimpleDateFormat("MM-dd-yyyy | hh:mm a");

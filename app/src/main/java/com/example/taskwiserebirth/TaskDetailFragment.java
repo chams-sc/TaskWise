@@ -14,7 +14,7 @@ import androidx.fragment.app.Fragment;
 
 import com.example.taskwiserebirth.database.MongoDbRealmHelper;
 import com.example.taskwiserebirth.database.TaskDatabaseManager;
-import com.example.taskwiserebirth.task.Task;
+import com.example.taskwiserebirth.task.TaskModel;
 import com.example.taskwiserebirth.task.TaskAdapter;
 import com.example.taskwiserebirth.utils.CalendarUtils;
 import com.example.taskwiserebirth.utils.DialogUtils;
@@ -26,12 +26,12 @@ import io.realm.mongodb.User;
 
 public class TaskDetailFragment extends Fragment implements TaskAdapter.TaskActionListener, TaskDatabaseManager.TaskUpdateListener {
 
-    private Task task;
+    private TaskModel task;
     private TaskDatabaseManager taskDatabaseManager;
     private DialogUtils dialogUtils;
 
 
-    public TaskDetailFragment (Task task) {
+    public TaskDetailFragment (TaskModel task) {
         this.task = task;
     }
 
@@ -93,22 +93,22 @@ public class TaskDetailFragment extends Fragment implements TaskAdapter.TaskActi
     }
 
     @Override
-    public void onEditTask(Task task) {
+    public void onEditTask(TaskModel task) {
         dialogUtils.showBottomSheetDialog(task, this);
     }
 
     @Override
-    public void onDeleteTask(Task task) {
+    public void onDeleteTask(TaskModel task) {
         taskDatabaseManager.deleteTask(task);
     }
 
     @Override
-    public void onDoneTask(Task task) {
+    public void onDoneTask(TaskModel task) {
         taskDatabaseManager.markTaskAsFinished(task);
     }
 
     @Override
-    public void onTaskUpdated(Task updatedTask) {
+    public void onTaskUpdated(TaskModel updatedTask) {
         this.task = updatedTask;
         setUpTaskDetail(getView());
     }

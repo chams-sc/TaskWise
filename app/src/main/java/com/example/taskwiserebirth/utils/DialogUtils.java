@@ -24,7 +24,7 @@ import androidx.fragment.app.FragmentActivity;
 import com.example.taskwiserebirth.CustomSpinnerAdapter;
 import com.example.taskwiserebirth.R;
 import com.example.taskwiserebirth.database.TaskDatabaseManager;
-import com.example.taskwiserebirth.task.Task;
+import com.example.taskwiserebirth.task.TaskModel;
 import com.google.android.material.bottomsheet.BottomSheetDialog;
 import com.google.android.material.datepicker.MaterialDatePicker;
 import com.google.android.material.timepicker.MaterialTimePicker;
@@ -52,7 +52,7 @@ public class DialogUtils {
         this.taskDatabaseManager = taskDatabaseManager;
     }
 
-    public void showBottomSheetDialog(Task task, TaskDatabaseManager.TaskUpdateListener listener) {
+    public void showBottomSheetDialog(TaskModel task, TaskDatabaseManager.TaskUpdateListener listener) {
         final BottomSheetDialog bottomSheetDialog = new BottomSheetDialog(activity);
         View bottomSheetView = LayoutInflater.from(activity).inflate(R.layout.bottom_add_task, null);
 
@@ -67,7 +67,7 @@ public class DialogUtils {
         dialogs.add(bottomSheetDialog);
     }
 
-    private void setUpTaskForm(Dialog bottomSheetDialog, View bottomSheetView, Task task, TaskDatabaseManager.TaskUpdateListener listener) {
+    private void setUpTaskForm(Dialog bottomSheetDialog, View bottomSheetView, TaskModel task, TaskDatabaseManager.TaskUpdateListener listener) {
         Spinner importanceSpinner = bottomSheetView.findViewById(R.id.importance);
         Spinner urgencySpinner = bottomSheetView.findViewById(R.id.urgency);
         Spinner recurrenceSpinner = bottomSheetView.findViewById(R.id.recurrence);
@@ -116,12 +116,12 @@ public class DialogUtils {
 
         Button saveBtn = bottomSheetView.findViewById(R.id.saveButton);
         saveBtn.setOnClickListener(v -> {
-            Task newTask = setTaskFromFields(bottomSheetDialog, task);
+            TaskModel newTask = setTaskFromFields(bottomSheetDialog, task);
             if (newTask != null) {
                 if (task != null) {
                     taskDatabaseManager.updateTask(newTask, new TaskDatabaseManager.TaskUpdateListener() {
                         @Override
-                        public void onTaskUpdated(Task updatedTask) {
+                        public void onTaskUpdated(TaskModel updatedTask) {
                             Toast.makeText(activity, "Task updated", Toast.LENGTH_SHORT).show();
                             daysSelected = null;
                             bottomSheetDialog.dismiss();
@@ -133,7 +133,7 @@ public class DialogUtils {
                 } else {
                     taskDatabaseManager.fetchTaskByName(new TaskDatabaseManager.TaskFetchListener() {
                         @Override
-                        public void onTasksFetched(List<Task> tasks) {
+                        public void onTasksFetched(List<TaskModel> tasks) {
                             if (tasks.isEmpty()) {
                                 taskDatabaseManager.insertTask(newTask);
                                 daysSelected = null;
@@ -233,7 +233,7 @@ public class DialogUtils {
         recurrenceSpinner.setAdapter(recurrenceAdapter);
     }
 
-    private Task setTaskFromFields(Dialog bottomSheetDialog, Task task) {
+    private TaskModel setTaskFromFields(Dialog bottomSheetDialog, TaskModel task) {
         EditText editTaskName = bottomSheetDialog.findViewById(R.id.taskName);
         EditText editDeadline = bottomSheetDialog.findViewById(R.id.deadline);
         EditText editSchedule = bottomSheetDialog.findViewById(R.id.schedule);
@@ -275,7 +275,7 @@ public class DialogUtils {
         }
 
         // if updating task
-        Task newTask = new Task();
+        TaskModel newTask = new TaskModel();
         String status = "Unfinished";
         Date creationDate = new Date();
         if (task != null) {
@@ -398,7 +398,7 @@ public class DialogUtils {
         return 0;
     }
 
-    private void getRecurrenceSpinnerValue(Spinner recurrenceSpinner, EditText deadline, EditText schedule, Task task) {
+    private void getRecurrenceSpinnerValue(Spinner recurrenceSpinner, EditText deadline, EditText schedule, TaskModel task) {
         recurrenceSpinner.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
             @Override
             public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {

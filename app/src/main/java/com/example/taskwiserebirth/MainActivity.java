@@ -20,7 +20,7 @@ import androidx.lifecycle.ViewModelProvider;
 
 import com.example.taskwiserebirth.database.ConversationDbManager;
 import com.example.taskwiserebirth.database.MongoDbRealmHelper;
-import com.example.taskwiserebirth.task.Task;
+import com.example.taskwiserebirth.task.TaskModel;
 import com.example.taskwiserebirth.utils.CalendarUtils;
 import com.example.taskwiserebirth.utils.PermissionUtils;
 import com.example.taskwiserebirth.utils.SharedViewModel;
@@ -177,7 +177,7 @@ public class MainActivity extends AppCompatActivity {
         activeFragment = fragment;
     }
 
-    public void showTaskDetailFragment(Task task) {
+    public void showTaskDetailFragment(TaskModel task) {
         TaskDetailFragment taskDetailFragment = new TaskDetailFragment(task);
 
         FragmentTransaction fragmentTransaction = fragmentManager.beginTransaction();

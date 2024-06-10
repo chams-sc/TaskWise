@@ -5,7 +5,7 @@ import android.util.Log;
 import android.widget.Toast;
 
 import com.example.taskwiserebirth.notifications.NotificationScheduler;
-import com.example.taskwiserebirth.task.Task;
+import com.example.taskwiserebirth.task.TaskModel;
 
 import org.bson.Document;
 import org.bson.types.ObjectId;
@@ -31,11 +31,11 @@ public class TaskDatabaseManager {
     private final String unfinishedStatus = "Unfinished";
 
     public interface TaskFetchListener {
-        void onTasksFetched(List<Task> tasks);
+        void onTasksFetched(List<TaskModel> tasks);
     }
 
     public interface TaskUpdateListener {
-        void onTaskUpdated(Task updatedTask);
+        void onTaskUpdated(TaskModel updatedTask);
     }
 
     public TaskDatabaseManager (User user, Context context) {
@@ -44,7 +44,7 @@ public class TaskDatabaseManager {
         this.context = context;
     }
 
-    public void insertTask(Task task) {
+    public void insertTask(TaskModel task) {
         if (user != null) {
             Document taskDocument = taskToDocument(task);
             Document queryFilter = new Document("owner_id", user.getId())
@@ -58,7 +58,7 @@ public class TaskDatabaseManager {
                     taskCollection.find(queryFilter).sort(sortQuery).limit(1).iterator().getAsync(taskFetched -> {
                         if (taskFetched.isSuccess()) {
                             Document doc = taskFetched.get().next();
-                            Task insertedTask = documentToTask(doc);
+                            TaskModel insertedTask = documentToTask(doc);
 
                             if (insertedTask.isReminder()) {
                                 NotificationScheduler.scheduleNotification(context, insertedTask);
@@ -77,7 +77,7 @@ public class TaskDatabaseManager {
         }
     }
 
-    public void updateTask(Task task,TaskUpdateListener listener) {
+    public void updateTask(TaskModel task, TaskUpdateListener listener) {
         Document filter = new Document("owner_id", user.getId())
                 .append("_id", task.getId());
 
@@ -100,7 +100,7 @@ public class TaskDatabaseManager {
         });
     }
 
-    public void deleteTask(Task task) {
+    public void deleteTask(TaskModel task) {
         Document queryFilter = new Document("owner_id", user.getId())
                 .append("_id", task.getId());
 
@@ -115,7 +115,7 @@ public class TaskDatabaseManager {
         });
     }
 
-    public void markTaskAsFinished(Task task) {
+    public void markTaskAsFinished(TaskModel task) {
 
         if (task.getStatus().equals(finishedStatus)) {
             Toast.makeText(context, "Task is already finished", Toast.LENGTH_SHORT).show();
@@ -152,8 +152,8 @@ public class TaskDatabaseManager {
                 if (task.isSuccess()) {
                     Document document = task.get();
                     if (document != null) {
-                        Task taskFetched = documentToTask(document);
-                        List<Task> tasks = new ArrayList<>();
+                        TaskModel taskFetched = documentToTask(document);
+                        List<TaskModel> tasks = new ArrayList<>();
                         tasks.add(taskFetched);
 
                         if (listener != null) {
@@ -181,8 +181,8 @@ public class TaskDatabaseManager {
                 if (task.isSuccess()) {
                     Document document = task.get();
                     if (document != null) {
-                        Task taskFetched = documentToTask(document);
-                        List<Task> tasks = new ArrayList<>();
+                        TaskModel taskFetched = documentToTask(document);
+                        List<TaskModel> tasks = new ArrayList<>();
                         tasks.add(taskFetched);
 
                         if (listener != null) {
@@ -226,11 +226,11 @@ public class TaskDatabaseManager {
             taskCollection.find(new Document("$or", queryFilters)).iterator().getAsync(task -> {
                 if (task.isSuccess()) {
                     MongoCursor<Document> results = task.get();
-                    List<Task> tasks = new ArrayList<>();
+                    List<TaskModel> tasks = new ArrayList<>();
 
                     while (results.hasNext()) {
                         Document document = results.next();
-                        Task newTask = documentToTask(document);
+                        TaskModel newTask = documentToTask(document);
                         tasks.add(newTask);
                     }
 
@@ -263,11 +263,11 @@ public class TaskDatabaseManager {
             taskCollection.find(queryFilter).iterator().getAsync(task -> {
                 if (task.isSuccess()) {
                     MongoCursor<Document> results = task.get();
-                    List<Task> tasks = new ArrayList<>();
+                    List<TaskModel> tasks = new ArrayList<>();
 
                     while (results.hasNext()) {
                         Document document = results.next();
-                        Task newTask = documentToTask(document);
+                        TaskModel newTask = documentToTask(document);
                         tasks.add(newTask);
                     }
 
@@ -288,11 +288,11 @@ public class TaskDatabaseManager {
             taskCollection.find(queryFilter).iterator().getAsync(task -> {
                 if (task.isSuccess()) {
                     MongoCursor<Document> results = task.get();
-                    List<Task> tasks = new ArrayList<>();
+                    List<TaskModel> tasks = new ArrayList<>();
 
                     while (results.hasNext()) {
                         Document document = results.next();
-                        Task newTask = documentToTask(document);
+                        TaskModel newTask = documentToTask(document);
                         tasks.add(newTask);
                     }
 
@@ -306,7 +306,7 @@ public class TaskDatabaseManager {
         }
     }
 
-    private Task documentToTask(Document document) {
+    private TaskModel documentToTask(Document document) {
         ObjectId taskId = document.getObjectId("_id");
         String taskName = document.getString("task_name");
         String importanceLevel = document.getString("importance_level");
@@ -320,10 +320,10 @@ public class TaskDatabaseManager {
         Date dateFinished = document.getDate("date_finished");
         Date creationDate = document.getDate("creation_date");
 
-        return new Task(taskId, taskName, deadlineString, importanceLevel, urgencyLevel, "", schedule, recurrence, reminder, notes, status, dateFinished, creationDate);
+        return new TaskModel(taskId, taskName, deadlineString, importanceLevel, urgencyLevel, "", schedule, recurrence, reminder, notes, status, dateFinished, creationDate);
     }
 
-    private Document taskToDocument(Task task) {
+    private Document taskToDocument(TaskModel task) {
 
         Document taskDocument = new Document("owner_id", user.getId())
                 .append("task_name", task.getTaskName())

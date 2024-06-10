@@ -24,7 +24,7 @@ import java.util.List;
 public class TaskAdapter extends RecyclerView.Adapter<TaskViewHolder> {
 
     private final Context context;
-    private List<Task> tasks;
+    private List<TaskModel> tasks;
     private final TaskActionListener actionListener;
     private Date selectedDate;
     private FragmentActivity activity;
@@ -32,12 +32,12 @@ public class TaskAdapter extends RecyclerView.Adapter<TaskViewHolder> {
     private double highestPriorityScore;
 
     public interface TaskActionListener {
-        void onEditTask(Task task);
-        void onDeleteTask(Task task);
-        void onDoneTask(Task task);
+        void onEditTask(TaskModel task);
+        void onDeleteTask(TaskModel task);
+        void onDoneTask(TaskModel task);
     }
 
-    public TaskAdapter(Context context, FragmentActivity activity, List<Task> tasks, TaskActionListener listener) {
+    public TaskAdapter(Context context, FragmentActivity activity, List<TaskModel> tasks, TaskActionListener listener) {
         this.context = context;
         this.activity = activity;
         this.tasks = tasks;
@@ -53,7 +53,7 @@ public class TaskAdapter extends RecyclerView.Adapter<TaskViewHolder> {
 
     @Override
     public void onBindViewHolder(@NonNull TaskViewHolder holder, int position) {
-        Task currentTask = tasks.get(position);
+        TaskModel currentTask = tasks.get(position);
 
         holder.itemView.startAnimation(AnimationUtils.loadAnimation(context, R.anim.fade_in));
 
@@ -85,7 +85,7 @@ public class TaskAdapter extends RecyclerView.Adapter<TaskViewHolder> {
         }
     }
 
-    private int getTaskDeadlineColor(Task task) {
+    private int getTaskDeadlineColor(TaskModel task) {
         if (task.getStatus().equals("Finished")) {
             return ContextCompat.getColor(context, R.color.green);
         } else {
@@ -110,7 +110,7 @@ public class TaskAdapter extends RecyclerView.Adapter<TaskViewHolder> {
 
     private void calculateHighestPriorityScore() {
         highestPriorityScore = 0;
-        for (Task task : tasks) {
+        for (TaskModel task : tasks) {
             if (task.getPriorityScore() > highestPriorityScore) {
                 highestPriorityScore = task.getPriorityScore();
             }
@@ -129,7 +129,7 @@ public class TaskAdapter extends RecyclerView.Adapter<TaskViewHolder> {
         return tasks.size();
     }
 
-    public void setTasks(List<Task> tasks) {
+    public void setTasks(List<TaskModel> tasks) {
         this.tasks = tasks;
         calculateHighestPriorityScore();
         notifyDataSetChanged();

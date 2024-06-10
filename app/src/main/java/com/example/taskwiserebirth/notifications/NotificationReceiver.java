@@ -14,7 +14,7 @@ import androidx.core.app.NotificationManagerCompat;
 import com.example.taskwiserebirth.MainActivity;
 import com.example.taskwiserebirth.R;
 import com.example.taskwiserebirth.conversational.AIRandomSpeech;
-import com.example.taskwiserebirth.task.Task;
+import com.example.taskwiserebirth.task.TaskModel;
 import com.example.taskwiserebirth.utils.CalendarUtils;
 import com.google.gson.Gson;
 
@@ -23,7 +23,7 @@ public class NotificationReceiver extends BroadcastReceiver {
     public void onReceive(Context context, Intent intent) {
         String taskJson = intent.getStringExtra("task_json");
         Gson gson = new Gson();
-        Task task = gson.fromJson(taskJson, Task.class);
+        TaskModel task = gson.fromJson(taskJson, TaskModel.class);
 
         String taskName = task.getTaskName();
         String deadline = task.getDeadline();

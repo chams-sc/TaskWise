@@ -11,7 +11,7 @@ import java.util.List;
 
 public class TaskPriorityCalculator {
 
-    public static double calculateTaskPriority(Task task, Date currentDate, Date earliestDeadline, Date longestDeadline) {
+    public static double calculateTaskPriority(TaskModel task, Date currentDate, Date earliestDeadline, Date longestDeadline) {
         double importanceFactor = calculateImportanceFactor(task.getImportanceLevel());
         double urgencyFactor = calculateUrgencyFactor(task.getUrgencyLevel());
         double deadlineFactor = calculateDeadlineFactor(task.getDeadline(), currentDate, earliestDeadline, longestDeadline);
@@ -73,14 +73,14 @@ public class TaskPriorityCalculator {
         return Math.max(deadlineFactor, 0.0);
     }
 
-    public static List<Task> sortTasksByPriority(List<Task> tasks, Date currentDate) {
+    public static List<TaskModel> sortTasksByPriority(List<TaskModel> tasks, Date currentDate) {
         Date earliestDeadline = null;
         Date longestDeadline = null;
 
-        List<Task> unfinishedTasks = new ArrayList<>();
-        List<Task> finishedTasks = new ArrayList<>();
+        List<TaskModel> unfinishedTasks = new ArrayList<>();
+        List<TaskModel> finishedTasks = new ArrayList<>();
 
-        for (Task task : tasks) {
+        for (TaskModel task : tasks) {
             String priorityCategory = findPriorityCategory(task.getUrgencyLevel(), task.getImportanceLevel());
             task.setPriorityCategory(priorityCategory);
 
@@ -133,10 +133,10 @@ public class TaskPriorityCalculator {
             }
         });
 
-        List<Task> sortedTasks = new ArrayList<>(unfinishedTasks);
+        List<TaskModel> sortedTasks = new ArrayList<>(unfinishedTasks);
         sortedTasks.addAll(finishedTasks);
 
-        for (Task task : sortedTasks) {
+        for (TaskModel task : sortedTasks) {
             double priorityScore = task.getStatus().equals("Finished") ? 0 : calculateTaskPriority(task, currentDate, finalEarliestDeadline, finalLongestDeadline);
             task.setPriorityScore(priorityScore);
             Log.v("sortTasksByPriority", "task name: " + task.getTaskName() + " score: " + task.getPriorityScore());

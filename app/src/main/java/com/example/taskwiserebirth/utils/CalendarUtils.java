@@ -6,7 +6,7 @@ import android.widget.ImageView;
 import android.widget.TextView;
 
 import com.example.taskwiserebirth.R;
-import com.example.taskwiserebirth.task.Task;
+import com.example.taskwiserebirth.task.TaskModel;
 
 import java.text.DateFormat;
 import java.text.ParseException;
@@ -160,7 +160,7 @@ public class CalendarUtils {
         return formattedRecurrence.toString();
     }
 
-    public static long findNextRecurrence(Task task) {
+    public static long findNextRecurrence(TaskModel task) {
         String recurrence = task.getRecurrence();
 
         String[] scheduleTimeParts = task.getSchedule().split("\\s+");

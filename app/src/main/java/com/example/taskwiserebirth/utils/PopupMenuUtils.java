@@ -14,12 +14,12 @@ import androidx.core.content.ContextCompat;
 import androidx.fragment.app.FragmentActivity;
 
 import com.example.taskwiserebirth.R;
-import com.example.taskwiserebirth.task.Task;
+import com.example.taskwiserebirth.task.TaskModel;
 import com.example.taskwiserebirth.task.TaskAdapter;
 
 public class PopupMenuUtils {
 
-    public static void showPopupMenu(Context context, View view, Task task, TaskAdapter.TaskActionListener actionListener, FragmentActivity activity) {
+    public static void showPopupMenu(Context context, View view, TaskModel task, TaskAdapter.TaskActionListener actionListener, FragmentActivity activity) {
         PopupMenu popupMenu = new PopupMenu(context, view);
         MenuInflater inflater = popupMenu.getMenuInflater();
         inflater.inflate(R.menu.show_menu, popupMenu.getMenu());
