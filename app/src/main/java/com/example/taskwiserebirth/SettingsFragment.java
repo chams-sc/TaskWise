@@ -17,6 +17,8 @@ import android.widget.Toast;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.SwitchCompat;
 import androidx.fragment.app.Fragment;
+import androidx.fragment.app.FragmentManager;
+import androidx.fragment.app.FragmentTransaction;
 import androidx.lifecycle.ViewModelProvider;
 
 import com.example.taskwiserebirth.database.ConversationDbManager;
@@ -55,6 +57,19 @@ public class SettingsFragment extends Fragment {
         initializeVariables();
         setUpUIComponents(view);
         setUpListeners(view);
+
+        TextView trial = view.findViewById(R.id.trialTextView);
+        trial.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                TrialFragment trialFragment = new TrialFragment();
+                FragmentManager fragmentManager = getActivity().getSupportFragmentManager();
+                FragmentTransaction fragmentTransaction = fragmentManager.beginTransaction();
+                fragmentTransaction.add(R.id.frame_layout, trialFragment, "TRIAL_FRAGMENT")
+                        .addToBackStack(null) // Add the transaction to the back stack
+                        .commit();
+            }
+        });
 
         return view;
     }
