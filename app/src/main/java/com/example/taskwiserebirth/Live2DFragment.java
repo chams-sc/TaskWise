@@ -189,7 +189,7 @@ public class Live2DFragment extends Fragment implements View.OnTouchListener, Sp
 
     private void handleSpeakButtonClick() {
         if (PermissionUtils.checkRecordAudioPermissionDialog(requireContext())) {
-            if (speechRecognition.isListening()) {
+            if (speechRecognition != null && speechRecognition.isListening()) {
                 speechRecognition.stopSpeechRecognition();
                 stopCurrentMotion();
                 mainHandler.postDelayed(() -> setModelExpression(defaultExpression), 500);
@@ -200,7 +200,7 @@ public class Live2DFragment extends Fragment implements View.OnTouchListener, Sp
                     processRecognizedSpeech(partialSpeech);
                     partialSpeech = "";
                 }
-            } else {
+            } else if (speechRecognition != null) {
                 speechRecognition.startSpeechRecognition();
                 changeExpression("listening");
                 startSpecificModelMotion(LAppDefine.MotionGroup.IDLE.getId(), 3);
