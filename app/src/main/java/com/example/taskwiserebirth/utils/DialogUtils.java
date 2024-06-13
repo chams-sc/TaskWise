@@ -54,7 +54,7 @@ public class DialogUtils {
 
     public void showBottomSheetDialog(TaskModel task, TaskDatabaseManager.TaskUpdateListener listener) {
         final BottomSheetDialog bottomSheetDialog = new BottomSheetDialog(activity);
-        View bottomSheetView = LayoutInflater.from(activity).inflate(R.layout.bottom_add_task, null);
+        View bottomSheetView = LayoutInflater.from(activity).inflate(R.layout.dialog_add_task, null);
 
         SystemUIHelper.setFlagsOnThePeekView();
 

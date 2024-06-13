@@ -121,7 +121,7 @@ public class SettingsFragment extends Fragment {
     }
 
     private void showChangeAINameDialog() {
-        Dialog dialog = createCustomDialog(R.layout.change_ai_name);
+        Dialog dialog = createCustomDialog(R.layout.dialog_change_ai_name);
         TextInputLayout aiNameLayout = dialog.findViewById(R.id.aiNameLayout);
         TextInputEditText aiNameEditTxt = dialog.findViewById(R.id.aiNameEditTxt);
         Button saveBtn = dialog.findViewById(R.id.saveButtonAiName);

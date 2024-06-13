@@ -103,7 +103,7 @@ public class LoginActivity extends AppCompatActivity {
     private void showLoginDialog() {
         logout();
 
-        loginDialog = showCustomDialog(R.layout.bottom_login);
+        loginDialog = showCustomDialog(R.layout.dialog_login);
 
         Button loginBtn = loginDialog.findViewById(R.id.login_button);
         EditText inputEmail = loginDialog.findViewById(R.id.email_edittext);
@@ -151,7 +151,7 @@ public class LoginActivity extends AppCompatActivity {
 
     // Show register dialog
     private void showRegisterDialog() {
-        registerDialog = showCustomDialog(R.layout.bottom_register);
+        registerDialog = showCustomDialog(R.layout.dialog_register);
 
         Button registerBtn = registerDialog.findViewById(R.id.register_button);
         EditText inputEmail = registerDialog.findViewById(R.id.emailRegister_edittext);
