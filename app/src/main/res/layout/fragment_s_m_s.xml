@@ -13,7 +13,7 @@
         android:layout_width="match_parent"
         android:layout_height="0dp"
         android:layout_marginBottom="@dimen/_16ssp"
-        android:background="@drawable/background_content_top"
+        android:background="@drawable/bg_content_top"
         app:layout_constraintBottom_toTopOf="@id/frameLayoutSend"
         app:layout_constraintTop_toTopOf="parent"/>
 
@@ -87,7 +87,7 @@
         android:layout_marginEnd="@dimen/_16ssp"
         android:layout_marginRight="@dimen/_16ssp"
         android:layout_marginBottom="@dimen/_12ssp"
-        android:background="@drawable/background_chat_input"
+        android:background="@drawable/bg_dialog_btn"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent">
 
@@ -110,7 +110,7 @@
         android:layout_marginEnd="@dimen/_8ssp"
         android:layout_marginRight="@dimen/_8ssp"
         android:layout_marginBottom="@dimen/_12ssp"
-        android:background="@drawable/background_chat_input"
+        android:background="@drawable/bg_dialog_btn"
         android:hint="type a message"
         android:imeOptions="actionDone"
         android:importantForAutofill="no"

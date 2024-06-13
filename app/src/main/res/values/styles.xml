@@ -34,5 +34,8 @@
         <item name="hintTextColor">@color/gray</item>
     </style>
 
+    <style name="NumberPickerTheme" parent="Theme.AppCompat.Light.NoActionBar">
+
+    </style>
 </resources>
 
