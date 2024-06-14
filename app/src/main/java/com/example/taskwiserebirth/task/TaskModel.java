@@ -22,7 +22,8 @@ public class TaskModel {
     private double priorityScore;
 
 
-    private boolean isFolder;
+    private boolean isExpandable;
+    private boolean isExpanded;
     private List<TaskModel> childTasks;
 
     public TaskModel() {
@@ -167,12 +168,19 @@ public class TaskModel {
     public void setPriorityScore(double priorityScore) {
         this.priorityScore = priorityScore;
     }
-    public boolean isFolder() {
-        return isFolder;
+    public boolean isExpandable() {
+        return isExpandable;
     }
 
-    public void setFolder(boolean folder) {
-        isFolder = folder;
+    public void setExpandable(boolean expandable) {
+        isExpandable = expandable;
+    }
+    public boolean isExpanded() {
+        return isExpanded;
+    }
+
+    public void setExpanded(boolean expanded) {
+        isExpanded = expanded;
     }
 
     public List<TaskModel> getChildTasks() {

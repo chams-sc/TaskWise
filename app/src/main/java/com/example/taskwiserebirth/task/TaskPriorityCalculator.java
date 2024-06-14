@@ -126,7 +126,7 @@ public class TaskPriorityCalculator {
         for (Map.Entry<Double, List<TaskModel>> entry : groupedTasks.entrySet()) {
             if (entry.getValue().size() > 1) {
                 TaskModel folder = new TaskModel();
-                folder.setFolder(true);
+                folder.setExpandable(true);
                 folder.setPriorityScore(entry.getKey());
                 folder.setChildTasks(entry.getValue());
 
@@ -157,7 +157,7 @@ public class TaskPriorityCalculator {
         sortedTasks.addAll(finishedTasks);
 
         for (TaskModel task : sortedTasks) {
-            if (!task.isFolder()) {
+            if (!task.isExpandable()) {
                 double priorityScore = calculateTaskPriority(task, currentDate, finalEarliestUnfinishedDeadline, finalLongestUnfinishedDeadline);
                 task.setPriorityScore(priorityScore);
             }

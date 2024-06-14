@@ -49,7 +49,7 @@ public class TaskAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
 
     @Override
     public int getItemViewType(int position) {
-        return tasks.get(position).isFolder() ? TYPE_FOLDER : TYPE_TASK;
+        return tasks.get(position).isExpandable() ? TYPE_FOLDER : TYPE_TASK;
     }
 
     @NonNull
@@ -68,23 +68,21 @@ public class TaskAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
     public void onBindViewHolder(@NonNull RecyclerView.ViewHolder holder, int position) {
         TaskModel currentTask = tasks.get(position);
 
-        if (currentTask.isFolder()) {
-            Log.d("TaskAdapter", "Binding folder view holder for priority: " + currentTask.getTaskName() + " at position: " + position);
-        } else {
-            Log.d("TaskAdapter", "Binding task view holder for task: " + currentTask.getTaskName() + " at position: " + position);
-        }
-
         if (holder.getItemViewType() == TYPE_FOLDER) {
             FolderViewHolder folderHolder = (FolderViewHolder) holder;
-            folderHolder.folderName.setText("Priority: " + currentTask.getPriorityScore());
+            folderHolder.folderName.setText(generateFolderName(currentTask.getChildTasks()));
             folderHolder.recyclerView.setLayoutManager(new LinearLayoutManager(context));
             TaskAdapter nestedAdapter = new TaskAdapter(context, activity, currentTask.getChildTasks(), actionListener);
             folderHolder.recyclerView.setAdapter(nestedAdapter);
 
-            folderHolder.recyclerView.setVisibility(currentTask.isFolder() ? View.VISIBLE : View.GONE);
+            if (currentTask.isExpanded()) {
+                folderHolder.recyclerView.setVisibility(View.VISIBLE);
+            } else {
+                folderHolder.recyclerView.setVisibility(View.GONE);
+            }
 
             folderHolder.itemView.setOnClickListener(v -> {
-                currentTask.setFolder(!currentTask.isFolder());
+                currentTask.setExpanded(!currentTask.isExpanded());
                 notifyItemChanged(position);
             });
         } else {
@@ -111,12 +109,25 @@ public class TaskAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
         }
     }
 
-    private int getTaskDeadlineColor(TaskModel task) {
-        if (task.getDeadline() == null) {
-            Log.e("getTaskDeadlineColor", "deadline of " + task.getTaskName() +" is null");
-            return ContextCompat.getColor(context, R.color.blue);
+    private String generateFolderName(List<TaskModel> childTasks) {
+        if (childTasks.isEmpty()) {
+            return "Empty Folder";
         }
 
+        StringBuilder folderNameBuilder = new StringBuilder();
+        for (TaskModel child : childTasks) {
+            folderNameBuilder.append(child.getTaskName()).append(", ");
+        }
+
+        // Remove the trailing comma and space
+        if (folderNameBuilder.length() > 2) {
+            folderNameBuilder.setLength(folderNameBuilder.length() - 2);
+        }
+
+        return folderNameBuilder.toString();
+    }
+
+    private int getTaskDeadlineColor(TaskModel task) {
         if (task.getStatus().equals("Finished")) {
             return ContextCompat.getColor(context, R.color.green);
         } else {
