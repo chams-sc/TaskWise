@@ -44,6 +44,7 @@ public class TaskAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
         this.activity = activity;
         this.tasks = tasks;
         this.actionListener = listener;
+        this.selectedDate = new Date();
     }
 
     @Override
@@ -67,15 +68,8 @@ public class TaskAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
     public void onBindViewHolder(@NonNull RecyclerView.ViewHolder holder, int position) {
         TaskModel currentTask = tasks.get(position);
 
-        if (currentTask == null) {
-            Log.e("TaskAdapter", "Null task at position " + position);
-            return;
-        }
-
-        Log.v("TaskAdapter", "Binding view holder for task: " + currentTask.getTaskName() + " at position: " + position);
-
         if (currentTask.isFolder()) {
-            Log.d("TaskAdapter", "Binding folder view holder for priority: " + currentTask.getPriorityScore() + " at position: " + position);
+            Log.d("TaskAdapter", "Binding folder view holder for priority: " + currentTask.getTaskName() + " at position: " + position);
         } else {
             Log.d("TaskAdapter", "Binding task view holder for task: " + currentTask.getTaskName() + " at position: " + position);
         }
@@ -118,6 +112,11 @@ public class TaskAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
     }
 
     private int getTaskDeadlineColor(TaskModel task) {
+        if (task.getDeadline() == null) {
+            Log.e("getTaskDeadlineColor", "deadline of " + task.getTaskName() +" is null");
+            return ContextCompat.getColor(context, R.color.blue);
+        }
+
         if (task.getStatus().equals("Finished")) {
             return ContextCompat.getColor(context, R.color.green);
         } else {
