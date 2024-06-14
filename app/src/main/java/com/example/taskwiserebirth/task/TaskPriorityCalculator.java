@@ -26,13 +26,13 @@ public class TaskPriorityCalculator {
 
     private static double calculateImportanceFactor(String importanceLevel) {
         switch (importanceLevel) {
-            case "Somewhat Important":
+            case IMPORTANCE_SOMEWHAT_IMPORTANT:
                 return 2.0;
-            case "Important":
+            case IMPORTANCE_IMPORTANT:
                 return 3.0;
-            case "Very Important":
+            case IMPORTANCE_VERY_IMPORTANT:
                 return 4.0;
-            case "Not Important":
+            case IMPORTANCE_NOT_IMPORTANT:
             default:
                 return 1.0;
         }
@@ -40,13 +40,13 @@ public class TaskPriorityCalculator {
 
     private static double calculateUrgencyFactor(String urgencyLevel) {
         switch (urgencyLevel) {
-            case "Somewhat Urgent":
+            case URGENCY_SOMEWHAT_URGENT:
                 return 2.0;
-            case "Urgent":
+            case URGENCY_URGENT:
                 return 3.0;
-            case "Very Urgent":
+            case URGENCY_VERY_URGENT:
                 return 4.0;
-            case "Not Urgent":
+            case URGENCY_NOT_URGENT:
             default:
                 return 1.0;
         }
@@ -156,23 +156,55 @@ public class TaskPriorityCalculator {
 
     public static String findPriorityCategory(String urgencyLevel, String importanceLevel) {
 
-        if (importanceLevel.equals("None")) {
-            return "No priority set";
+        if (importanceLevel.equals(IMPORTANCE_NONE)) {
+            return PRIORITY_NO_SET;
         }
-        if (importanceLevel.equals("Not Important") || importanceLevel.equals("Somewhat Important")) {
-            if (urgencyLevel.equals("Not Urgent") || urgencyLevel.equals("Somewhat Urgent")) {
-                return "Low Priority";
+        if (importanceLevel.equals(IMPORTANCE_NOT_IMPORTANT) || importanceLevel.equals(IMPORTANCE_SOMEWHAT_IMPORTANT)) {
+            if (urgencyLevel.equals(URGENCY_NOT_URGENT) || urgencyLevel.equals(URGENCY_SOMEWHAT_URGENT)) {
+                return PRIORITY_LOW;
             } else {
-                return "Medium Priority";
+                return PRIORITY_MEDIUM;
             }
-        } else if (importanceLevel.equals("Important") || importanceLevel.equals("Very Important")) {
-            if (urgencyLevel.equals("Not Urgent") || urgencyLevel.equals("Somewhat Urgent")) {
-                return "High Priority";
+        } else if (importanceLevel.equals(IMPORTANCE_IMPORTANT) || importanceLevel.equals(IMPORTANCE_VERY_IMPORTANT)) {
+            if (urgencyLevel.equals(URGENCY_NOT_URGENT) || urgencyLevel.equals(URGENCY_SOMEWHAT_URGENT)) {
+                return PRIORITY_HIGH;
             } else {
-                return "Very High Priority";
+                return PRIORITY_VERY_HIGH;
             }
         } else {
-            return "No priority set";
+            return PRIORITY_NO_SET;
         }
     }
+
+    public static double getPriorityFraction(String priority) {
+        switch (priority) {
+            case PRIORITY_VERY_HIGH:
+                return 3.0 / 4.0;
+            case PRIORITY_HIGH:
+                return 2.0 / 3.0;
+            case PRIORITY_MEDIUM:
+                return 1.0 / 2.0;
+            case PRIORITY_LOW:
+            case PRIORITY_NO_SET:
+            default:
+                return 1.0 / 3.0;
+        }
+    }
+
+    public static final String IMPORTANCE_NONE = "None";
+    public static final String IMPORTANCE_NOT_IMPORTANT = "Not Important";
+    public static final String IMPORTANCE_SOMEWHAT_IMPORTANT = "Somewhat Important";
+    public static final String IMPORTANCE_IMPORTANT = "Important";
+    public static final String IMPORTANCE_VERY_IMPORTANT = "Very Important";
+
+    public static final String URGENCY_NOT_URGENT = "Not Urgent";
+    public static final String URGENCY_SOMEWHAT_URGENT = "Somewhat Urgent";
+    public static final String URGENCY_URGENT = "Urgent";
+    public static final String URGENCY_VERY_URGENT = "Very Urgent";
+
+    public static final String PRIORITY_NO_SET = "No priority set";
+    public static final String PRIORITY_LOW = "Low Priority";
+    public static final String PRIORITY_MEDIUM = "Medium Priority";
+    public static final String PRIORITY_HIGH = "High Priority";
+    public static final String PRIORITY_VERY_HIGH = "Very High Priority";
 }

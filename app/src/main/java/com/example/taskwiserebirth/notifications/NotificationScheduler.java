@@ -22,6 +22,8 @@ public class NotificationScheduler {
         if (task.getRecurrence().equals(none)) {
             if (task.getDeadline().equals(noDeadline) && task.getSchedule().equals(noSchedule)) {
                 scheduleNotificationOnce(context, task, true);     // no deadline, sched or recurrence but reminder is turned on
+            } else if (!task.getDeadline().equals(noDeadline) && task.getSchedule().equals(noSchedule)) {
+                scheduleNotificationOnce(context, task, true);      // for close to due interval
             } else {
                 scheduleNotificationOnce(context, task, false);      // no recurrence but a schedule was set by user
             }
@@ -36,13 +38,18 @@ public class NotificationScheduler {
             return CalendarUtils.calculateDefaultInterval();
         } else if (task.getRecurrence().equals("Daily")) {
             Log.d("AlarmInterval", "Method: calculateDailyInterval");
-            return CalendarUtils.calculateDailyInterval(task.getSchedule()); //TODO: possibly change this kapag iaallow ang deadline
+            return CalendarUtils.calculateDailyInterval(task.getSchedule());
         } else if (!task.getRecurrence().equals(none) && !task.getRecurrence().equals("Daily")) {
             Log.d("AlarmInterval", "Method: findNextRecurrence");
-            return CalendarUtils.findNextRecurrence(task);      //TODO: possibly change this kapag iaallow ang deadline
+            return CalendarUtils.findNextRecurrence(task);
         } else if (task.getSchedule().equals(noSchedule) && !task.getDeadline().equals(noDeadline)) {
-            Log.d("AlarmInterval", "Method: calculateCloseToDueInterval");      // TODO: dapat maremind din ng close to deadline kahit may schedule na?
-            return CalendarUtils.calculateCloseToDueInterval(task.getDeadline(), closeToDue);
+            if (!CalendarUtils.isDateAccepted(task.getDeadline())) {
+                Log.d("AlarmInterval", "Method: calculatePastDueInterval");
+                return CalendarUtils.calculatePastDueInterval();
+            } else {
+                Log.d("AlarmInterval", "Method: calculateCloseToDueInterval");
+                return CalendarUtils.calculateCloseToDueInterval(task);
+            }
         } else if (!task.getSchedule().equals(noSchedule) && task.getRecurrence().equals(none)) {
             Log.d("AlarmInterval", "Method: calculateScheduleTime");
             return CalendarUtils.calculateScheduleTime(task.getSchedule());

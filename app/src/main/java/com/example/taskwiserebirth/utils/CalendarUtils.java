@@ -7,6 +7,7 @@ import android.widget.TextView;
 
 import com.example.taskwiserebirth.R;
 import com.example.taskwiserebirth.task.TaskModel;
+import com.example.taskwiserebirth.task.TaskPriorityCalculator;
 
 import java.text.DateFormat;
 import java.text.ParseException;
@@ -317,6 +318,69 @@ public class CalendarUtils {
             return timeDifferenceMillis;
         } catch (ParseException e) {
             Log.e(TAG_CALENDAR_UTILS, "Error parsing deadline: " + deadlineString, e);
+        }
+
+        // Default interval (1 minute) if parsing fails or deadline is not provided
+        return 60000;
+    }
+
+    public static long calculatePastDueInterval() {
+        Calendar nextAlarmTime = Calendar.getInstance();
+        nextAlarmTime.set(Calendar.HOUR_OF_DAY, 8);
+        nextAlarmTime.set(Calendar.MINUTE, 0);
+        nextAlarmTime.set(Calendar.SECOND, 0);
+        nextAlarmTime.set(Calendar.MILLISECOND, 0);
+
+        // Check if the time has already passed for today, and set for tomorrow if it has
+        if (nextAlarmTime.getTimeInMillis() <= System.currentTimeMillis()) {
+            nextAlarmTime.add(Calendar.DATE, 1);
+        }
+
+        return nextAlarmTime.getTimeInMillis() - System.currentTimeMillis();
+    }
+
+    /**
+     * Calculates the interval in milliseconds until a reminder should be triggered for a task
+     * based on its priority and deadline.
+     *
+     * The reminder time is determined as a fraction of the remaining time until the deadline.
+     * Higher priority tasks will have reminders set sooner relative to their deadlines.
+     *
+     * @param task The task for which to calculate the reminder interval.
+     * @return The interval in milliseconds until the reminder should be triggered.
+     */
+    public static long calculateCloseToDueInterval(TaskModel task) {
+        DateFormat dateFormat = new SimpleDateFormat("MM-dd-yyyy | hh:mm a");
+        try {
+            Date deadline = dateFormat.parse(task.getDeadline());
+            if (deadline == null) {
+                return 60000; // Handle case where deadline is not provided or incorrect
+            }
+
+            // Get the priority category and fraction
+            String priorityCategory = TaskPriorityCalculator.findPriorityCategory(task.getUrgencyLevel(), task.getImportanceLevel());
+            double priorityFraction = TaskPriorityCalculator.getPriorityFraction(priorityCategory);
+
+            // Calculate the total remaining time in milliseconds
+            long totalRemainingTime = deadline.getTime() - System.currentTimeMillis();
+
+            // Calculate the time interval based on the priority fraction
+            long reminderTime = (long) (totalRemainingTime * priorityFraction);
+
+            // Calculate the trigger time for the reminder
+            long triggerAtMillis = deadline.getTime() - reminderTime;
+
+            // Calculate the time difference between now and the trigger time
+            long timeDifferenceMillis = triggerAtMillis - System.currentTimeMillis();
+
+            // If the time difference is negative, set the alarm for now
+            if (timeDifferenceMillis < 0) {
+                timeDifferenceMillis = 0;
+            }
+
+            return timeDifferenceMillis;
+        } catch (ParseException e) {
+            Log.e(TAG_CALENDAR_UTILS, "Error parsing deadline: " + task.getDeadline(), e);
         }
 
         // Default interval (1 minute) if parsing fails or deadline is not provided

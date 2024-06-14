@@ -33,7 +33,12 @@ public class NotificationReceiver extends BroadcastReceiver {
             contentText = AIRandomSpeech.generateUnfinishedTaskReminder(taskName);
         } else {
             String formattedDate = CalendarUtils.getFormattedDate(deadline);
-            contentText = AIRandomSpeech.generateTaskDueReminder(taskName, formattedDate);
+            String formattedTime = CalendarUtils.getFormattedTime(deadline);
+            if (CalendarUtils.isDateAccepted(deadline)) {
+                contentText = AIRandomSpeech.generateTaskDueReminder(taskName, formattedDate, formattedTime);
+            } else {
+                contentText = AIRandomSpeech.generatePastDueTaskReminder(taskName, formattedDate, formattedTime);
+            }
         }
 
         boolean isRepeating = intent.getBooleanExtra("is_repeating", false);

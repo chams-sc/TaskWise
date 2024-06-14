@@ -238,6 +238,19 @@ public class AIRandomSpeech {
             "The task '%s' has a due date of %s. You got this, keep at it!"
     };
 
+    private static final String[] pastDueTaskMessages = {
+            "Oh no! The deadline for task '%s' was %s. Let's get it done as soon as possible!",
+            "Heads up! Task '%s' was due on %s. Time to prioritize and complete it.",
+            "Yikes! Task '%s' is past due since %s. Don't worry, you can still finish it!",
+            "Reminder: The task '%s' should have been completed by %s. Let's tackle it now!",
+            "Task '%s' is overdue since %s. Stay focused and get it done!",
+            "Oops! You missed the deadline for '%s' on %s. Make it a priority to complete it soon!",
+            "The task '%s' was due on %s and is now overdue. Let's aim to finish it today!",
+            "Don't forget, task '%s' was due on %s. It's not too late to get it done!",
+            "Your task '%s' was supposed to be completed by %s. Let's finish it up!",
+            "Task '%s' is past due since %s. Stay positive and get it off your list!"
+    };
+
     private static final String[] unfinishedTaskReminder = {
             "You still have not finished your task '%s'. Let's get it done!",
             "Your task '%s' is still pending. Keep pushing, you're almost there!",
@@ -363,9 +376,15 @@ public class AIRandomSpeech {
         return String.format(randomMessage, taskName);
     }
 
-    public static String generateTaskDueReminder(String taskName, String dueDate) {
+    public static String generateTaskDueReminder(String taskName, String dueDate, String dueTime) {
         int randomIndex = random.nextInt(taskDueReminder.length);
         String randomMessage = taskDueReminder[randomIndex];
-        return String.format(randomMessage, taskName, dueDate);
+        return String.format(randomMessage, taskName, dueDate + " at " + dueTime);
+    }
+
+    public static String generatePastDueTaskReminder(String taskName, String dueDate, String dueTime) {
+        int randomIndex = random.nextInt(pastDueTaskMessages.length);
+        String randomMessage = pastDueTaskMessages[randomIndex];
+        return String.format(randomMessage, taskName, dueDate + " at " + dueTime);
     }
 }

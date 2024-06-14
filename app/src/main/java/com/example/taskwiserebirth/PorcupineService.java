@@ -57,7 +57,7 @@ public class PorcupineService extends Service {
         return new NotificationCompat.Builder(this, CHANNEL_ID)
                 .setContentTitle("TaskWise")
                 .setContentText("Listening for wake words")
-                .setSmallIcon(R.drawable.ic_launcher_foreground)
+                .setSmallIcon(R.drawable.baseline_notification)
                 .setOngoing(true)
                 .build();
     }
