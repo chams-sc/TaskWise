@@ -34,5 +34,14 @@
         <item name="hintTextColor">@color/gray</item>
     </style>
 
+    <!-- Custom shape appearance for rounded top corners -->
+    <style name="RoundedTopCorners" parent="ShapeAppearance.MaterialComponents.SmallComponent">
+        <item name="cornerFamily">rounded</item>
+        <item name="cornerSizeTopLeft">0dp</item>
+        <item name="cornerSizeTopRight">0dp</item>
+        <item name="cornerSizeBottomLeft">8dp</item>
+        <item name="cornerSizeBottomRight">8dp</item>
+    </style>
+
 </resources>
 
