@@ -124,15 +124,16 @@ public class TaskPriorityCalculator {
 
         List<TaskModel> sortedTasks = new ArrayList<>();
         for (Map.Entry<Double, List<TaskModel>> entry : groupedTasks.entrySet()) {
-            TaskModel folder = new TaskModel();
-            folder.setFolder(true);
-            folder.setPriorityScore(entry.getKey());
+            if (entry.getValue().size() > 1) {
+                TaskModel folder = new TaskModel();
+                folder.setFolder(true);
+                folder.setPriorityScore(entry.getKey());
+                folder.setChildTasks(entry.getValue());
 
-            // Include the folder task itself inside the child tasks
-            List<TaskModel> childTasks = new ArrayList<>(entry.getValue());
-            folder.setChildTasks(childTasks);
-
-            sortedTasks.add(folder);
+                sortedTasks.add(folder);
+            } else {
+                sortedTasks.addAll(entry.getValue());
+            }
         }
 
         Collections.sort(sortedTasks, (task1, task2) -> Double.compare(task2.getPriorityScore(), task1.getPriorityScore()));

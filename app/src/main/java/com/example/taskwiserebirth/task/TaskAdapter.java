@@ -9,11 +9,14 @@ import android.view.ViewGroup;
 import androidx.annotation.NonNull;
 import androidx.core.content.ContextCompat;
 import androidx.fragment.app.FragmentActivity;
+import androidx.fragment.app.FragmentTransaction;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.example.taskwiserebirth.R;
+import com.example.taskwiserebirth.TaskDetailFragment;
 import com.example.taskwiserebirth.utils.CalendarUtils;
+import com.example.taskwiserebirth.utils.PopupMenuUtils;
 
 import java.util.Date;
 import java.util.List;
@@ -64,6 +67,19 @@ public class TaskAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
     public void onBindViewHolder(@NonNull RecyclerView.ViewHolder holder, int position) {
         TaskModel currentTask = tasks.get(position);
 
+        if (currentTask == null) {
+            Log.e("TaskAdapter", "Null task at position " + position);
+            return;
+        }
+
+        Log.v("TaskAdapter", "Binding view holder for task: " + currentTask.getTaskName() + " at position: " + position);
+
+        if (currentTask.isFolder()) {
+            Log.d("TaskAdapter", "Binding folder view holder for priority: " + currentTask.getPriorityScore() + " at position: " + position);
+        } else {
+            Log.d("TaskAdapter", "Binding task view holder for task: " + currentTask.getTaskName() + " at position: " + position);
+        }
+
         if (holder.getItemViewType() == TYPE_FOLDER) {
             FolderViewHolder folderHolder = (FolderViewHolder) holder;
             folderHolder.folderName.setText("Priority: " + currentTask.getPriorityScore());
@@ -81,30 +97,27 @@ public class TaskAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
             TaskViewHolder taskHolder = (TaskViewHolder) holder;
             taskHolder.taskName.setText(currentTask.getTaskName());
             taskHolder.priority.setText(currentTask.getPriorityCategory());
-//            int deadlineColor = getTaskDeadlineColor(currentTask);
-//            taskHolder.deadline.setText(currentTask.getDeadline());
-//            taskHolder.deadline.setTextColor(deadlineColor);
-//            taskHolder.menuView.setOnClickListener(v -> PopupMenuUtils.showPopupMenu(context, v, currentTask, actionListener, activity));
-//            taskHolder.itemView.setOnClickListener(v -> {
-//                TaskDetailFragment fragmentViewerCard = new TaskDetailFragment(currentTask);
-//                FragmentTransaction transaction = activity.getSupportFragmentManager().beginTransaction();
-//                transaction.add(R.id.frame_layout, fragmentViewerCard, "TASK_DETAIL_FRAGMENT")
-//                        .addToBackStack(null)
-//                        .commit();
-//            });
-//            if (currentTask.getPriorityScore() == highestPriorityScore && currentTask.getStatus().equalsIgnoreCase("unfinished")) {
-//                taskHolder.topPriorityIcon.setVisibility(View.VISIBLE);
-//            } else {
-//                taskHolder.topPriorityIcon.setVisibility(View.INVISIBLE);
-//            }
+            int deadlineColor = getTaskDeadlineColor(currentTask);
+            Log.v("Deadline COlor", String.valueOf(deadlineColor));
+            taskHolder.deadline.setText(currentTask.getDeadline());
+            taskHolder.deadline.setTextColor(deadlineColor);
+            taskHolder.menuView.setOnClickListener(v -> PopupMenuUtils.showPopupMenu(context, v, currentTask, actionListener, activity));
+            taskHolder.itemView.setOnClickListener(v -> {
+                TaskDetailFragment fragmentViewerCard = new TaskDetailFragment(currentTask);
+                FragmentTransaction transaction = activity.getSupportFragmentManager().beginTransaction();
+                transaction.add(R.id.frame_layout, fragmentViewerCard, "TASK_DETAIL_FRAGMENT")
+                        .addToBackStack(null)
+                        .commit();
+            });
+            if (currentTask.getPriorityScore() == highestPriorityScore && currentTask.getStatus().equalsIgnoreCase("unfinished")) {
+                taskHolder.topPriorityIcon.setVisibility(View.VISIBLE);
+            } else {
+                taskHolder.topPriorityIcon.setVisibility(View.INVISIBLE);
+            }
         }
     }
 
     private int getTaskDeadlineColor(TaskModel task) {
-        if (task.isFolder()) {
-            return ContextCompat.getColor(context, R.color.blue); // Default color for folders
-        }
-
         if (task.getStatus().equals("Finished")) {
             return ContextCompat.getColor(context, R.color.green);
         } else {
