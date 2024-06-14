@@ -28,7 +28,7 @@ public class TaskAdapter extends RecyclerView.Adapter<TaskViewHolder> {
     private final TaskActionListener actionListener;
     private Date selectedDate;
     private FragmentActivity activity;
-    private final int closeToDueHours = 12;
+    private final int closeToDueHours = 12; //TODO: edit close to due to be similar to CalendarUtils.calculateCloseToDue
     private double highestPriorityScore;
 
     public interface TaskActionListener {
