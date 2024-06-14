@@ -62,6 +62,11 @@ public class TaskPriorityCalculator {
             deadline = CalendarUtils.parseDeadline(deadlineString);
         }
 
+        // Ensure none of the date parameters are null
+        if (deadline == null || currentDate == null || earliestDeadline == null || longestDeadline == null) {
+            return 0.0; // Return a default value or handle it as needed
+        }
+
         long timeRemaining = deadline.getTime() - currentDate.getTime();
         long timeMin = earliestDeadline.getTime() - currentDate.getTime();
         long timeMax = longestDeadline.getTime() - currentDate.getTime();
