@@ -3,6 +3,7 @@ package com.example.taskwiserebirth.task;
 import org.bson.types.ObjectId;
 
 import java.util.Date;
+import java.util.List;
 
 public class TaskModel {
     private ObjectId id;
@@ -18,8 +19,11 @@ public class TaskModel {
     private Date dateFinished;
     private boolean reminder;
     private Date creationDate;
-
     private double priorityScore;
+
+
+    private boolean isFolder;
+    private List<TaskModel> childTasks;
 
     public TaskModel() {
 
@@ -162,5 +166,20 @@ public class TaskModel {
 
     public void setPriorityScore(double priorityScore) {
         this.priorityScore = priorityScore;
+    }
+    public boolean isFolder() {
+        return isFolder;
+    }
+
+    public void setFolder(boolean folder) {
+        isFolder = folder;
+    }
+
+    public List<TaskModel> getChildTasks() {
+        return childTasks;
+    }
+
+    public void setChildTasks(List<TaskModel> childTasks) {
+        this.childTasks = childTasks;
     }
 }

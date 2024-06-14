@@ -7,7 +7,9 @@ import com.example.taskwiserebirth.utils.CalendarUtils;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Date;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 public class TaskPriorityCalculator {
 
@@ -109,25 +111,35 @@ public class TaskPriorityCalculator {
 
         final Date finalEarliestUnfinishedDeadline = earliestUnfinishedDeadline;
         final Date finalLongestUnfinishedDeadline = longestUnfinishedDeadline;
+
+        Map<Double, List<TaskModel>> groupedTasks = new HashMap<>();
+        for (TaskModel task : unfinishedTasks) {
+            double priorityScore = calculateTaskPriority(task, currentDate, finalEarliestUnfinishedDeadline, finalLongestUnfinishedDeadline);
+            task.setPriorityScore(priorityScore);
+            if (!groupedTasks.containsKey(priorityScore)) {
+                groupedTasks.put(priorityScore, new ArrayList<>());
+            }
+            groupedTasks.get(priorityScore).add(task);
+        }
+
+        List<TaskModel> sortedTasks = new ArrayList<>();
+        for (Map.Entry<Double, List<TaskModel>> entry : groupedTasks.entrySet()) {
+            TaskModel folder = new TaskModel();
+            folder.setFolder(true);
+            folder.setPriorityScore(entry.getKey());
+
+            // Include the folder task itself inside the child tasks
+            List<TaskModel> childTasks = new ArrayList<>(entry.getValue());
+            folder.setChildTasks(childTasks);
+
+            sortedTasks.add(folder);
+        }
+
+        Collections.sort(sortedTasks, (task1, task2) -> Double.compare(task2.getPriorityScore(), task1.getPriorityScore()));
+
         final Date finalEarliestFinishedDeadline = earliestFinishedDeadline;
         final Date finalLongestFinishedDeadline = longestFinishedDeadline;
 
-        // Sort unfinished tasks
-        Collections.sort(unfinishedTasks, (task1, task2) -> {
-            double priority1 = calculateTaskPriority(task1, currentDate, finalEarliestUnfinishedDeadline, finalLongestUnfinishedDeadline);
-            double priority2 = calculateTaskPriority(task2, currentDate, finalEarliestUnfinishedDeadline, finalLongestUnfinishedDeadline);
-
-            int priorityComparison = Double.compare(priority2, priority1); // Descending order
-
-            if (priorityComparison == 0) {
-                // If priorities are equal, sort by creation date
-                return task1.getCreationDate().compareTo(task2.getCreationDate()); // Ascending order
-            } else {
-                return priorityComparison;
-            }
-        });
-
-        // Sort finished tasks
         Collections.sort(finishedTasks, (task1, task2) -> {
             double priority1 = calculateTaskPriority(task1, currentDate, finalEarliestFinishedDeadline, finalLongestFinishedDeadline);
             double priority2 = calculateTaskPriority(task2, currentDate, finalEarliestFinishedDeadline, finalLongestFinishedDeadline);
@@ -135,21 +147,22 @@ public class TaskPriorityCalculator {
             int priorityComparison = Double.compare(priority2, priority1); // Descending order
 
             if (priorityComparison == 0) {
-                // If priorities are equal, sort by creation date
                 return task1.getCreationDate().compareTo(task2.getCreationDate()); // Ascending order
             } else {
                 return priorityComparison;
             }
         });
 
-        List<TaskModel> sortedTasks = new ArrayList<>(unfinishedTasks);
         sortedTasks.addAll(finishedTasks);
 
         for (TaskModel task : sortedTasks) {
-            double priorityScore = task.getStatus().equals("Finished") ? 0 : calculateTaskPriority(task, currentDate, finalEarliestUnfinishedDeadline, finalLongestUnfinishedDeadline);
-            task.setPriorityScore(priorityScore);
+            if (!task.isFolder()) {
+                double priorityScore = calculateTaskPriority(task, currentDate, finalEarliestUnfinishedDeadline, finalLongestUnfinishedDeadline);
+                task.setPriorityScore(priorityScore);
+            }
             Log.v("sortTasksByPriority", "task name: " + task.getTaskName() + " score: " + task.getPriorityScore());
         }
+
         return sortedTasks;
     }
 
