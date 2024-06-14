@@ -22,9 +22,9 @@ import java.util.Date;
 import java.util.List;
 
 public class TaskAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
-    private static final int TYPE_FOLDER = 0;
-    private static final int TYPE_TASK = 1;
-
+    private static final int TYPE_FOLDER_EXPANDED = 0;
+    private static final int TYPE_FOLDER_COLLAPSED = 1;
+    private static final int TYPE_TASK = 2;
     private final Context context;
     private List<TaskModel> tasks;
     private final TaskActionListener actionListener;
@@ -47,16 +47,16 @@ public class TaskAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
         this.selectedDate = new Date();
     }
 
-    @Override
-    public int getItemViewType(int position) {
-        return tasks.get(position).isExpandable() ? TYPE_FOLDER : TYPE_TASK;
-    }
-
     @NonNull
     @Override
     public RecyclerView.ViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
-        if (viewType == TYPE_FOLDER) {
-            View itemView = LayoutInflater.from(context).inflate(R.layout.item_folder, parent, false);
+        if (viewType == TYPE_FOLDER_EXPANDED || viewType == TYPE_FOLDER_COLLAPSED) {
+            // Inflate the appropriate layout based on the expanded state
+            View itemView = LayoutInflater.from(context).inflate(
+                    viewType == TYPE_FOLDER_EXPANDED ? R.layout.item_folder_expanded : R.layout.item_folder_collapsed,
+                    parent,
+                    false
+            );
             return new FolderViewHolder(itemView);
         } else {
             View itemView = LayoutInflater.from(context).inflate(R.layout.item_task_cards, parent, false);
@@ -68,29 +68,25 @@ public class TaskAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
     public void onBindViewHolder(@NonNull RecyclerView.ViewHolder holder, int position) {
         TaskModel currentTask = tasks.get(position);
 
-        if (holder.getItemViewType() == TYPE_FOLDER) {
+        if (holder instanceof FolderViewHolder) {
             FolderViewHolder folderHolder = (FolderViewHolder) holder;
             folderHolder.folderName.setText(generateFolderName(currentTask.getChildTasks()));
             folderHolder.recyclerView.setLayoutManager(new LinearLayoutManager(context));
             TaskAdapter nestedAdapter = new TaskAdapter(context, activity, currentTask.getChildTasks(), actionListener);
             folderHolder.recyclerView.setAdapter(nestedAdapter);
 
-            if (currentTask.isExpanded()) {
-                folderHolder.recyclerView.setVisibility(View.VISIBLE);
-            } else {
-                folderHolder.recyclerView.setVisibility(View.GONE);
-            }
+            folderHolder.recyclerView.setVisibility(currentTask.isExpanded() ? View.VISIBLE : View.GONE);
 
             folderHolder.itemView.setOnClickListener(v -> {
                 currentTask.setExpanded(!currentTask.isExpanded());
                 notifyItemChanged(position);
             });
-        } else {
+        } else if (holder instanceof TaskViewHolder) {
             TaskViewHolder taskHolder = (TaskViewHolder) holder;
             taskHolder.taskName.setText(currentTask.getTaskName());
             taskHolder.priority.setText(currentTask.getPriorityCategory());
+
             int deadlineColor = getTaskDeadlineColor(currentTask);
-            Log.v("Deadline COlor", String.valueOf(deadlineColor));
             taskHolder.deadline.setText(currentTask.getDeadline());
             taskHolder.deadline.setTextColor(deadlineColor);
             taskHolder.menuView.setOnClickListener(v -> PopupMenuUtils.showPopupMenu(context, v, currentTask, actionListener, activity));
@@ -106,6 +102,16 @@ public class TaskAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
             } else {
                 taskHolder.topPriorityIcon.setVisibility(View.INVISIBLE);
             }
+        }
+    }
+
+    @Override
+    public int getItemViewType(int position) {
+        TaskModel task = tasks.get(position);
+        if (task.isExpandable()) {
+            return task.isExpanded() ? TYPE_FOLDER_EXPANDED : TYPE_FOLDER_COLLAPSED;
+        } else {
+            return TYPE_TASK;
         }
     }
 

@@ -17,5 +17,6 @@
     <color name="dark_gray">#393939</color>
     <color name="gray_placeholder">#D9D9D9</color>
     <color name="subtitle">#B3A0DAF0</color>
+    <color name="cyan_blue">#A3C8C8</color>
     <color name="help_bg">#ECECEC</color>
 </resources>
