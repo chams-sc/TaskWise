@@ -27,6 +27,7 @@ import okhttp3.Response;
 public class HttpRequest {
 
     private static final String SERVER_ADDRESS = "https://taskwise.michacaldaira.com/";  // add task link
+    private static final String ALL_INTENT = "all_intent";
     private static final String EDIT_TASK = "edit_intent";
     private static final String DELETE_TASK = "delete_intent";
     private static final String MARK_TASK = "mark_intent";
@@ -36,6 +37,20 @@ public class HttpRequest {
     private static final String SECONDARY_INTENT = "secondary_intent";
     private static final String TAG_HTTP = "HttpRequest";
 
+
+    public static void allIntentRequest(String userMessage, String aiName, String userId, final HttpRequestCallback callback) {
+        JSONObject requestBodyJson = new JSONObject();
+        try {
+            requestBodyJson.put("user_prompt", userMessage);
+            requestBodyJson.put("ai_name", aiName);
+            requestBodyJson.put("user_id", userId);
+        } catch (JSONException e) {
+            Log.e(TAG_HTTP, e.getMessage());
+        }
+
+        String url = SERVER_ADDRESS + ALL_INTENT;
+        sendHttpRequest(url, requestBodyJson, callback);
+    }
 
     public static void addRequest(String userMessage, String aiName, String userId, final HttpRequestCallback callback) {
         JSONObject requestBodyJson = new JSONObject();
