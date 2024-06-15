@@ -12,11 +12,12 @@
         android:id="@+id/cardTopBg"
         android:layout_width="match_parent"
         android:layout_height="100dp"
+        android:clipToPadding="false"
+        android:padding="8dp"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent">
 
         <androidx.cardview.widget.CardView
-            app:cardUseCompatPadding="true"
             android:layout_width="match_parent"
             android:layout_height="match_parent"
             app:cardElevation="4dp"
@@ -61,13 +62,12 @@
     </LinearLayout>
 
     <com.google.android.material.card.MaterialCardView
-
         app:shapeAppearanceOverlay="@style/RoundedTopCorners"
         android:id="@+id/taskFolderContainer"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         app:cardElevation="4dp"
-        android:layout_marginTop="56dp"
+        android:layout_marginTop="64dp"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent">
 
