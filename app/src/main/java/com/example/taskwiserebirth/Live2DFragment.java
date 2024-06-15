@@ -516,7 +516,7 @@ public class Live2DFragment extends Fragment implements View.OnTouchListener, Sp
                     "finished tasks",
                     "which of my task has the nearest deadline",
                     "what is my nearest deadline",
-                    "created tasks",
+                    "how many task did i create",
                     "Details of the Task",
                     "Information of the Task",
                     "I need the details of the task",
@@ -564,7 +564,7 @@ public class Live2DFragment extends Fragment implements View.OnTouchListener, Sp
             case "what is my nearest deadline":
                 getNearestDeadline();
                 return;
-            case "created tasks":
+            case "how many task did i create":
                 countCreatedTasksToday();
                 return;
             case "what is the deadline of my task":
