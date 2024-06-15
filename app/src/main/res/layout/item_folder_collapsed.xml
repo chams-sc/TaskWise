@@ -3,8 +3,9 @@
     xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
+    android:clipToPadding="false"
     android:padding="8dp"
-    android:clipToPadding="false">
+    >
 
     <LinearLayout
         android:orientation="horizontal"
@@ -12,14 +13,13 @@
         android:layout_width="match_parent"
         android:layout_height="100dp"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent"
-        android:clipToPadding="false"
-        android:padding="3dp">
+        app:layout_constraintTop_toTopOf="parent">
 
         <androidx.cardview.widget.CardView
+            app:cardUseCompatPadding="true"
             android:layout_width="match_parent"
             android:layout_height="match_parent"
-            app:cardElevation="8dp"
+            app:cardElevation="4dp"
             app:cardBackgroundColor="@color/cyan_blue"
             app:cardCornerRadius="8dp"/>
     </LinearLayout>
@@ -32,13 +32,12 @@
         android:layout_marginTop="16dp"
         android:layout_marginHorizontal="16dp"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent"
-        android:clipToPadding="false"
-        android:padding="8dp">
+        app:layout_constraintTop_toTopOf="parent">
 
         <androidx.cardview.widget.CardView
             android:layout_width="match_parent"
             android:layout_height="match_parent"
+            app:cardUseCompatPadding="true"
             app:cardElevation="8dp"
             app:cardCornerRadius="8dp"/>
     </LinearLayout>
@@ -51,18 +50,18 @@
         android:layout_marginTop="32dp"
         android:layout_marginHorizontal="10dp"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent"
-        android:clipToPadding="false"
-        android:padding="8dp">
+        app:layout_constraintTop_toTopOf="parent">
 
         <androidx.cardview.widget.CardView
             android:layout_width="match_parent"
             android:layout_height="match_parent"
             app:cardElevation="8dp"
+            app:cardUseCompatPadding="true"
             app:cardCornerRadius="8dp"/>
     </LinearLayout>
 
     <com.google.android.material.card.MaterialCardView
+
         app:shapeAppearanceOverlay="@style/RoundedTopCorners"
         android:id="@+id/taskFolderContainer"
         android:layout_width="match_parent"

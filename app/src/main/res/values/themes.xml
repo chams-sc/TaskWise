@@ -7,7 +7,8 @@
         <item name="android:fontFamily">@font/inter</item>
         <item name="android:popupMenuStyle">@style/PopupMenuStyle</item>
         <item name="android:spinnerStyle">@style/SpinnerStyle</item>
-
+<!--        <item name="android:ambientShadowAlpha">0.3</item>-->
+<!--        <item name="android:spotShadowAlpha">1</item>-->
     </style>
 
     <style name="DialogAnimation">
