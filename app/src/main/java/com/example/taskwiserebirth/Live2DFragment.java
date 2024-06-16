@@ -480,10 +480,47 @@ public class Live2DFragment extends Fragment implements View.OnTouchListener, Sp
         }
         hasRecurrenceAddTask = false;
 
-        String prompt = "The user just asked you to add a task called %s. Tell the user that you successfully added his task %s to the list. Be creative with your response, using encouraging words, motivational things, or fun messages to inspire the user. Although creative, make sure to keep your responses short, must be 2 sentences only.";
-        String formattedPrompt = String.format(prompt, completeTask.getTaskName(), completeTask.getTaskName());
+        taskDatabaseManager.fetchTasksWithStatus(tasks -> {
+            if (tasks.isEmpty()) {
+                synthesizeAssistantSpeech(AIRandomSpeech.generateNoTasksMessages());
+                return;
+            }
 
-        getVicunaResponse(completeTask, "add_task", formattedPrompt);
+            List<TaskModel> sortedTasks = TaskPriorityCalculator.sortTasksByPriority(tasks, new Date());
+            double newTaskPriorityScore = completeTask.getPriorityScore();
+
+            // Collect tasks with the same priority score as the new task
+            List<TaskModel> samePriorityTasks = new ArrayList<>();
+            for (TaskModel task : sortedTasks) {
+                if (task.getPriorityScore() == newTaskPriorityScore && !task.getTaskName().equals(completeTask.getTaskName())) {
+                    samePriorityTasks.add(task);
+                }
+            }
+
+            String prompt;
+            String formattedPrompt;
+            if (!samePriorityTasks.isEmpty()) {
+                StringBuilder taskNames = new StringBuilder();
+                for (int i = 0; i < samePriorityTasks.size(); i++) {
+                    if (i > 0) {
+                        if (i == samePriorityTasks.size() - 1) {
+                            taskNames.append(" and ");
+                        } else {
+                            taskNames.append(", ");
+                        }
+                    }
+                    taskNames.append(samePriorityTasks.get(i).getTaskName());
+                }
+
+                prompt = "The user just asked you to add a task called %s. Tell user that you successfully added his task %s to the list. However, make sure to inform the user that it has the same priority of %s with his other tasks: %s.";
+                formattedPrompt = String.format(prompt, completeTask.getTaskName(), completeTask.getTaskName(), completeTask.getPriorityCategory(), taskNames.toString());
+
+            } else {
+                prompt = "The user just asked you to add a task called %s. Tell the user that you successfully added his task %s to the list. Be creative with your response, using encouraging words, motivational things, or fun messages to inspire the user. Although creative, make sure to keep your responses short, must be 2 sentences only.";
+                formattedPrompt = String.format(prompt, completeTask.getTaskName(), completeTask.getTaskName());
+            }
+            getVicunaResponse(completeTask, "add_task", formattedPrompt);
+        }, false);
     }
 
     private void performIntent(String intent, String responseText){
