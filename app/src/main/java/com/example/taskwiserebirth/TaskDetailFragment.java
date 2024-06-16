@@ -8,6 +8,7 @@ import android.view.ViewGroup;
 import android.widget.CheckBox;
 import android.widget.ImageView;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import androidx.core.widget.NestedScrollView;
 import androidx.fragment.app.Fragment;
@@ -100,11 +101,13 @@ public class TaskDetailFragment extends Fragment implements TaskAdapter.TaskActi
     @Override
     public void onDeleteTask(TaskModel task) {
         taskDatabaseManager.deleteTask(task);
+        Toast.makeText(getContext(), "Task deleted", Toast.LENGTH_SHORT).show();
     }
 
     @Override
     public void onDoneTask(TaskModel task) {
         taskDatabaseManager.markTaskAsFinished(task);
+        Toast.makeText(getContext(), "Task status updated", Toast.LENGTH_SHORT).show();
     }
 
     @Override

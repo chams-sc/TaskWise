@@ -4,6 +4,7 @@ import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.core.widget.NestedScrollView;
@@ -102,11 +103,13 @@ public class FinishedTaskFragment extends Fragment implements TaskAdapter.TaskAc
     @Override
     public void onDeleteTask(TaskModel task) {
         taskDatabaseManager.deleteTask(task);
+        Toast.makeText(getContext(), "Task deleted", Toast.LENGTH_SHORT).show();
     }
 
     @Override
     public void onDoneTask(TaskModel task) {
         taskDatabaseManager.markTaskAsFinished(task);
+        Toast.makeText(getContext(), "Task status updated", Toast.LENGTH_SHORT).show();
     }
 
     @Override

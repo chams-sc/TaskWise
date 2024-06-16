@@ -7,6 +7,7 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
 import android.opengl.GLSurfaceView;
+import android.os.Build;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Looper;
@@ -123,7 +124,9 @@ public class Live2DFragment extends Fragment implements View.OnTouchListener, Sp
             }
         };
         IntentFilter filter = new IntentFilter(PorcupineService.ACTION_WAKE_WORD_DETECTED);
-        requireContext().registerReceiver(wakeWordReceiver, filter);
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+            requireContext().registerReceiver(wakeWordReceiver, filter, Context.RECEIVER_NOT_EXPORTED);
+        }
     }
 
     @Override
@@ -477,7 +480,10 @@ public class Live2DFragment extends Fragment implements View.OnTouchListener, Sp
         }
         hasRecurrenceAddTask = false;
 
-        getVicunaResponse(completeTask, "add_task");
+        String prompt = "The user just asked you to add a task called %s. Tell the user that you successfully added his task %s to the list. Be creative with your response, using encouraging words, motivational things, or fun messages to inspire the user. Although creative, make sure to keep your responses short, must be 2 sentences only.";
+        String formattedPrompt = String.format(prompt, completeTask.getTaskName(), completeTask.getTaskName());
+
+        getVicunaResponse(completeTask, "add_task", formattedPrompt);
     }
 
     private void performIntent(String intent, String responseText){
@@ -1517,9 +1523,9 @@ public class Live2DFragment extends Fragment implements View.OnTouchListener, Sp
         }
     }
 
-    private void getVicunaResponse(TaskModel task, String systemAction) {
+    private void getVicunaResponse(TaskModel task, String systemAction, String prompt) {
         Log.v("getVicunaResponse", "getVicunaResponse running");
-        HttpRequest.handleVicunaResponse(aiName, task, systemAction, new HttpRequest.HttpRequestCallback() {
+        HttpRequest.handleVicunaResponse(aiName, task, prompt, new HttpRequest.HttpRequestCallback() {
             @Override
             public void onSuccess(String intent, String responseText) {
                 if (systemAction.equalsIgnoreCase("add_task")) {

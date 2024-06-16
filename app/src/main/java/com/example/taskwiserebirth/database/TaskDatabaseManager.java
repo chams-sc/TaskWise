@@ -106,7 +106,6 @@ public class TaskDatabaseManager {
             if (result.isSuccess()) {
                 NotificationScheduler.cancelNotification(context, task);
                 MongoDbRealmHelper.notifyDatabaseChangeListeners();
-                Toast.makeText(context, "Task deleted", Toast.LENGTH_SHORT).show();
             } else {
                 Log.e(TAG_TASK_DBM, "Failed to delete task: " + result.getError().getMessage());
             }
@@ -132,7 +131,6 @@ public class TaskDatabaseManager {
             if (result.isSuccess()) {
                 NotificationScheduler.cancelNotification(context, task);
                 MongoDbRealmHelper.notifyDatabaseChangeListeners();
-                Toast.makeText(context, "Task status updated", Toast.LENGTH_SHORT).show();
             } else {
                 Log.e(TAG_TASK_DBM, "Failed to update task status: " + result.getError().getMessage());
             }

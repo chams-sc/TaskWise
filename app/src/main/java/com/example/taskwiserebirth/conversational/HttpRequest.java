@@ -40,12 +40,12 @@ public class HttpRequest {
     private static final String TAG_HTTP = "HttpRequest";
 
 
-    public static void handleVicunaResponse(String aiName, TaskModel task, String systemAction, final HttpRequestCallback callback) {
+    public static void handleVicunaResponse(String aiName, TaskModel task, String prompt, final HttpRequestCallback callback) {
         JSONObject requestBodyJson = new JSONObject();
         try {
             requestBodyJson.put("ai_name", aiName);
             requestBodyJson.put("task_name", task.getTaskName());
-            requestBodyJson.put("system_action", systemAction);
+            requestBodyJson.put("prompt", prompt);
         } catch (JSONException e) {
             Log.e(TAG_HTTP, e.getMessage());
         }
