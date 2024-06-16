@@ -1490,28 +1490,59 @@ public class Live2DFragment extends Fragment implements View.OnTouchListener, Sp
         } else if (inEditTaskInteraction) {
             handleEditTaskInteraction(recognizedSpeech);
         } else {
-            if (containsKeyword(recognizedSpeech, new String[]{"add", "edit", "delete", "mark"})) {
-                String firstKeyword = getFirstKeyword(recognizedSpeech, new String[]{"add", "edit", "delete", "mark"});
-                if (firstKeyword != null) {
-                    switch (firstKeyword) {
-                        case "add":
-                            handleAddInteraction(recognizedSpeech);
-                            break;
-                        case "edit":
-                            handleEditInteraction(recognizedSpeech);
-                            break;
-                        case "delete":
-                            handleDeleteInteraction(recognizedSpeech);
-                            break;
-                        case "mark":
-                            handleMarkInteraction(recognizedSpeech);
-                            break;
-                    }
-                }
-            } else {
-                handleSecondaryIntent(recognizedSpeech);
-            }
+            handleAllIntent(recognizedSpeech);
+//            if (containsKeyword(recognizedSpeech, new String[]{"add", "edit", "delete", "mark"})) {
+//                String firstKeyword = getFirstKeyword(recognizedSpeech, new String[]{"add", "edit", "delete", "mark"});
+//                if (firstKeyword != null) {
+//                    switch (firstKeyword) {
+//                        case "add":
+//                            handleAddInteraction(recognizedSpeech);
+//                            break;
+//                        case "edit":
+//                            handleEditInteraction(recognizedSpeech);
+//                            break;
+//                        case "delete":
+//                            handleDeleteInteraction(recognizedSpeech);
+//                            break;
+//                        case "mark":
+//                            handleMarkInteraction(recognizedSpeech);
+//                            break;
+//                    }
+//                }
+//            } else {
+//                handleSecondaryIntent(recognizedSpeech);
+//            }
         }
+    }
+
+    private void handleAllIntent(String recognizedSpeech) {
+        Log.v("handleAllIntent", "handleAllIntent running");
+        HttpRequest.allIntentRequest(recognizedSpeech, aiName, user.getId(), new HttpRequest.HttpRequestCallback() {
+            @Override
+            public void onSuccess(String intent, String responseText) {
+                Log.v("TestIntentResponse", "Intent: " + intent + " response text: "+ responseText);
+                mainHandler.post(() -> {
+                    if (!intent.equals("null")) {
+                        performIntent(intent, responseText);
+                    } else {
+                        if (!AssistiveModeHelper.isAssistiveModeEnabled(requireContext())) {
+                            String focusResponse = AIRandomSpeech.generateAssistiveModeMessage();
+                            synthesizeAssistantSpeech(focusResponse);
+                        } else {
+                            synthesizeAssistantSpeech(responseText);
+                        }
+                    }
+                });
+            }
+
+            @Override
+            public void onFailure(String errorMessage) {
+                mainHandler.post(() -> {
+                    Toast.makeText(requireContext(), errorMessage, Toast.LENGTH_LONG).show();
+                    Log.d(TAG_SERVER_RESPONSE, errorMessage);
+                });
+            }
+        });
     }
 
     private void fadeOutCardView() {

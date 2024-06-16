@@ -116,6 +116,86 @@ public class TaskPriorityCalculator {
 
         final Date finalEarliestUnfinishedDeadline = earliestUnfinishedDeadline;
         final Date finalLongestUnfinishedDeadline = longestUnfinishedDeadline;
+        final Date finalEarliestFinishedDeadline = earliestFinishedDeadline;
+        final Date finalLongestFinishedDeadline = longestFinishedDeadline;
+
+        // Sort unfinished tasks
+        Collections.sort(unfinishedTasks, (task1, task2) -> {
+            double priority1 = calculateTaskPriority(task1, currentDate, finalEarliestUnfinishedDeadline, finalLongestUnfinishedDeadline);
+            double priority2 = calculateTaskPriority(task2, currentDate, finalEarliestUnfinishedDeadline, finalLongestUnfinishedDeadline);
+
+            int priorityComparison = Double.compare(priority2, priority1); // Descending order
+
+            if (priorityComparison == 0) {
+                // If priorities are equal, sort by creation date
+                return task1.getCreationDate().compareTo(task2.getCreationDate()); // Ascending order
+            } else {
+                return priorityComparison;
+            }
+        });
+
+        // Sort finished tasks
+        Collections.sort(finishedTasks, (task1, task2) -> {
+            double priority1 = calculateTaskPriority(task1, currentDate, finalEarliestFinishedDeadline, finalLongestFinishedDeadline);
+            double priority2 = calculateTaskPriority(task2, currentDate, finalEarliestFinishedDeadline, finalLongestFinishedDeadline);
+
+            int priorityComparison = Double.compare(priority2, priority1); // Descending order
+
+            if (priorityComparison == 0) {
+                // If priorities are equal, sort by creation date
+                return task1.getCreationDate().compareTo(task2.getCreationDate()); // Ascending order
+            } else {
+                return priorityComparison;
+            }
+        });
+
+        List<TaskModel> sortedTasks = new ArrayList<>(unfinishedTasks);
+        sortedTasks.addAll(finishedTasks);
+
+        for (TaskModel task : sortedTasks) {
+            double priorityScore = task.getStatus().equals("Finished") ? 0 : calculateTaskPriority(task, currentDate, finalEarliestUnfinishedDeadline, finalLongestUnfinishedDeadline);
+            task.setPriorityScore(priorityScore);
+            Log.v("sortTasksByPriority", "task name: " + task.getTaskName() + " score: " + task.getPriorityScore());
+        }
+        return sortedTasks;
+    }
+
+    public static List<TaskModel> sortTasksForRecyclerView(List<TaskModel> tasks, Date currentDate) {
+        Date earliestUnfinishedDeadline = null;
+        Date longestUnfinishedDeadline = null;
+        Date earliestFinishedDeadline = null;
+        Date longestFinishedDeadline = null;
+
+        List<TaskModel> unfinishedTasks = new ArrayList<>();
+        List<TaskModel> finishedTasks = new ArrayList<>();
+
+        for (TaskModel task : tasks) {
+            String priorityCategory = findPriorityCategory(task.getUrgencyLevel(), task.getImportanceLevel());
+            task.setPriorityCategory(priorityCategory);
+
+            Date deadline = task.getDeadline().equals("No deadline") ? new Date(Long.MAX_VALUE) : CalendarUtils.parseDeadline(task.getDeadline());
+
+            if (task.getStatus().equals("Finished")) {
+                finishedTasks.add(task);
+                if (earliestFinishedDeadline == null || deadline.before(earliestFinishedDeadline)) {
+                    earliestFinishedDeadline = deadline;
+                }
+                if (longestFinishedDeadline == null || deadline.after(longestFinishedDeadline)) {
+                    longestFinishedDeadline = deadline;
+                }
+            } else {
+                unfinishedTasks.add(task);
+                if (earliestUnfinishedDeadline == null || deadline.before(earliestUnfinishedDeadline)) {
+                    earliestUnfinishedDeadline = deadline;
+                }
+                if (longestUnfinishedDeadline == null || deadline.after(longestUnfinishedDeadline)) {
+                    longestUnfinishedDeadline = deadline;
+                }
+            }
+        }
+
+        final Date finalEarliestUnfinishedDeadline = earliestUnfinishedDeadline;
+        final Date finalLongestUnfinishedDeadline = longestUnfinishedDeadline;
 
         Map<Double, List<TaskModel>> groupedTasks = new HashMap<>();
         for (TaskModel task : unfinishedTasks) {

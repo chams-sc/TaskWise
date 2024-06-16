@@ -166,7 +166,7 @@ public class AddTaskFragment extends Fragment implements DatabaseChangeListener,
     private void updateTaskRecyclerView() {
         taskDatabaseManager.fetchSelectedDayTasks(tasks -> {
 
-            List<TaskModel> sortedTasks = TaskPriorityCalculator.sortTasksByPriority(tasks, new Date());
+            List<TaskModel> sortedTasks = TaskPriorityCalculator.sortTasksForRecyclerView(tasks, new Date());
 
             if (isAdded()) {
                 requireActivity().runOnUiThread(() -> {
