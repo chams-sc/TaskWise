@@ -478,20 +478,7 @@ public class Live2DFragment extends Fragment implements View.OnTouchListener, Sp
         }
         hasRecurrenceAddTask = false;
 
-        startRandomMotionFromGroup(LAppDefine.MotionGroup.AFFIRMATION.getId(), LAppDefine.Priority.FORCE.getPriority());
-
-        // Create a handler to post a delayed runnable
-        mainHandler.postDelayed(() -> {
-            String dialogue = AIRandomSpeech.generateTaskAdded(completeTask.getTaskName());
-            synthesizeAssistantSpeech(dialogue);
-            // to get id for notif scheduler
-            taskDatabaseManager.fetchUnfinishedTaskByName(tasks -> {
-                if (tasks.isEmpty()) {
-                    return;
-                }
-                mainHandler.postDelayed(() -> openTaskDetailFragment(tasks.get(0)), 4000);
-            }, completeTask.getTaskName());
-        }, 3000);
+        getVicunaResponse(completeTask, "add_task");
     }
 
     private void performIntent(String intent, String responseText){
@@ -1528,6 +1515,44 @@ public class Live2DFragment extends Fragment implements View.OnTouchListener, Sp
         }
     }
 
+    private void getVicunaResponse(TaskModel task, String systemAction) {
+        Log.v("getVicunaResponse", "getVicunaResponse running");
+        HttpRequest.handleVicunaResponse(aiName, task, systemAction, new HttpRequest.HttpRequestCallback() {
+            @Override
+            public void onSuccess(String intent, String responseText) {
+//                mainHandler.post(() -> {
+//
+//                });
+
+                if (systemAction.equalsIgnoreCase("add_task")) {
+                    startRandomMotionFromGroup(LAppDefine.MotionGroup.AFFIRMATION.getId(), LAppDefine.Priority.FORCE.getPriority());
+
+                    mainHandler.postDelayed(new Runnable() {
+                        @Override
+                        public void run() {
+                            synthesizeAssistantSpeech(responseText);
+                            // to get id for notif scheduler
+                            taskDatabaseManager.fetchUnfinishedTaskByName(tasks -> {
+                                if (tasks.isEmpty()) {
+                                    return;
+                                }
+                                mainHandler.postDelayed(() -> openTaskDetailFragment(tasks.get(0)), 4000);
+                            }, task.getTaskName());
+                        }
+                    }, 3000);
+                }
+            }
+
+            @Override
+            public void onFailure(String errorMessage) {
+                mainHandler.post(() -> {
+                    Toast.makeText(requireContext(), errorMessage, Toast.LENGTH_LONG).show();
+                    Log.d(TAG_SERVER_RESPONSE, errorMessage);
+                });
+            }
+        });
+    }
+
     private void handleAllIntent(String recognizedSpeech) {
         Log.v("handleAllIntent", "handleAllIntent running");
         HttpRequest.handleAllIntent(recognizedSpeech, aiName, user.getId(), new HttpRequest.HttpRequestCallback() {
@@ -1586,18 +1611,6 @@ public class Live2DFragment extends Fragment implements View.OnTouchListener, Sp
                 });
             }
         });
-    }
-
-    private void fadeOutCardView() {
-        ObjectAnimator fadeOut = ObjectAnimator.ofFloat(cardViewSpeech, "alpha", 1f, 0f);
-        fadeOut.setDuration(FADE_OUT_DURATION);
-        fadeOut.addListener(new AnimatorListenerAdapter() {
-            @Override
-            public void onAnimationEnd(android.animation.Animator animation) {
-                cardViewSpeech.setVisibility(View.INVISIBLE);
-            }
-        });
-        fadeOut.start();
     }
 
     private void handleMarkInteraction(String recognizedSpeech) {
@@ -1918,6 +1931,18 @@ public class Live2DFragment extends Fragment implements View.OnTouchListener, Sp
             }
         }
         return firstKeyword;
+    }
+
+    private void fadeOutCardView() {
+        ObjectAnimator fadeOut = ObjectAnimator.ofFloat(cardViewSpeech, "alpha", 1f, 0f);
+        fadeOut.setDuration(FADE_OUT_DURATION);
+        fadeOut.addListener(new AnimatorListenerAdapter() {
+            @Override
+            public void onAnimationEnd(android.animation.Animator animation) {
+                cardViewSpeech.setVisibility(View.INVISIBLE);
+            }
+        });
+        fadeOut.start();
     }
 
     @Override

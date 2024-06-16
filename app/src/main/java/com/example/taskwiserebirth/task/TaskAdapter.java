@@ -122,12 +122,13 @@ public class TaskAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
             Date taskDeadline = CalendarUtils.parseDeadline(currentTask.getDeadline());
             if (currentTask.getStatus().equalsIgnoreCase("unfinished") && taskDeadline != null && taskDeadline.before(selectedDate)) {
                 taskHolder.cardBg.setBackgroundResource(R.drawable.bg_card_past_due);
-
+                taskHolder.taskCard.setCardElevation(0);
                 taskHolder.priority.setText("Past Due");
                 taskHolder.priority.setTextColor(ContextCompat.getColor(context, R.color.ash_gray));
                 taskHolder.priority.setTypeface(ResourcesCompat.getFont(context, R.font.inter_semibold));
             } else {
                 taskHolder.cardBg.setBackgroundResource(android.R.color.transparent);
+                taskHolder.taskCard.setCardElevation(4 * context.getResources().getDisplayMetrics().density);
             }
 
             String recurrence = currentTask.getRecurrence();

@@ -27,6 +27,7 @@ import okhttp3.Response;
 public class HttpRequest {
 
     private static final String SERVER_ADDRESS = "https://taskwise.michacaldaira.com/";  // add task link
+    private static final String VICUNA_RESPONSE = "vicuna";
     private static final String ALL_INTENT = "all_intent";
     private static final String PRIMARY_SECONDARY_INTENT = "primary_secondary_intent";
     private static final String EDIT_TASK = "edit_intent";
@@ -38,6 +39,20 @@ public class HttpRequest {
     private static final String SECONDARY_INTENT = "secondary_intent";
     private static final String TAG_HTTP = "HttpRequest";
 
+
+    public static void handleVicunaResponse(String aiName, TaskModel task, String systemAction, final HttpRequestCallback callback) {
+        JSONObject requestBodyJson = new JSONObject();
+        try {
+            requestBodyJson.put("ai_name", aiName);
+            requestBodyJson.put("task_name", task.getTaskName());
+            requestBodyJson.put("system_action", systemAction);
+        } catch (JSONException e) {
+            Log.e(TAG_HTTP, e.getMessage());
+        }
+
+        String url = SERVER_ADDRESS + VICUNA_RESPONSE;
+        sendHttpRequest(url, requestBodyJson, callback);
+    }
 
     public static void handleAllIntent(String userMessage, String aiName, String userId, final HttpRequestCallback callback) {
         JSONObject requestBodyJson = new JSONObject();
