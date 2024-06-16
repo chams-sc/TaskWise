@@ -500,7 +500,7 @@ public class Live2DFragment extends Fragment implements View.OnTouchListener, Sp
 
         String taskName = "";
 
-        if ("add task".equalsIgnoreCase(intent) || "add task with deadline".equalsIgnoreCase(intent)) {
+        if ("add task".equalsIgnoreCase(intent) || "add task with deadline".equalsIgnoreCase(intent) ||"add task with recurrence".equalsIgnoreCase(intent)) {
             prefilterAddEditTask(responseText, true);
             return;
         } else {
@@ -512,10 +512,9 @@ public class Live2DFragment extends Fragment implements View.OnTouchListener, Sp
             // Define a set of intents that do not require a task name check
             Set<String> noTaskNameRequiredIntents = new HashSet<>(Arrays.asList(
                     "most important tasks",
-                    "unfinished tasks",
-                    "finished tasks",
+                    "how many unfinished tasks do i have",
+                    "how many tasks did i finish",
                     "which of my task has the nearest deadline",
-                    "what is my nearest deadline",
                     "how many task did i create",
                     "Details of the Task",
                     "Information of the Task",
@@ -527,7 +526,7 @@ public class Live2DFragment extends Fragment implements View.OnTouchListener, Sp
 
             // Check if taskName is required for the given intent
             if (!noTaskNameRequiredIntents.contains(intent) && taskName.equalsIgnoreCase("unspecified")) {
-                synthesizeAssistantSpeech("Hmmm, I am unable to determine the task name.");
+                synthesizeAssistantSpeech("I'm sorry but I am unable to determine the task name.");
                 return;
             }
         }
@@ -554,14 +553,13 @@ public class Live2DFragment extends Fragment implements View.OnTouchListener, Sp
             case "most important tasks":
                 getMostImportantTasks();
                 return;
-            case "unfinished tasks":
+            case "how many unfinished tasks do i have":
                 getUnfinishedTasks();
                 return;
-            case "finished tasks":
+            case "how many tasks did i finish":
                 getFinishedTasks();
                 return;
             case "which of my task has the nearest deadline":
-            case "what is my nearest deadline":
                 getNearestDeadline();
                 return;
             case "how many task did i create":
@@ -908,7 +906,7 @@ public class Live2DFragment extends Fragment implements View.OnTouchListener, Sp
                 }
 
                 String response = "You have " + unfinishedTaskCount + " unfinished " + task
-                        + ". With " + mostImportantTask.getTaskName() + "as your most important task.";
+                        + ". With " + mostImportantTask.getTaskName() + " as your most important task.";
 
                 synthesizeAssistantSpeech(response);
             }
@@ -1517,7 +1515,37 @@ public class Live2DFragment extends Fragment implements View.OnTouchListener, Sp
 
     private void handleAllIntent(String recognizedSpeech) {
         Log.v("handleAllIntent", "handleAllIntent running");
-        HttpRequest.allIntentRequest(recognizedSpeech, aiName, user.getId(), new HttpRequest.HttpRequestCallback() {
+        HttpRequest.handleAllIntent(recognizedSpeech, aiName, user.getId(), new HttpRequest.HttpRequestCallback() {
+            @Override
+            public void onSuccess(String intent, String responseText) {
+                Log.v("TestIntentResponse", "Intent: " + intent + " response text: "+ responseText);
+                mainHandler.post(() -> {
+                    if (!intent.equals("null")) {
+                        performIntent(intent, responseText);
+                    } else {
+                        if (!AssistiveModeHelper.isAssistiveModeEnabled(requireContext())) {
+                            String focusResponse = AIRandomSpeech.generateAssistiveModeMessage();
+                            synthesizeAssistantSpeech(focusResponse);
+                        } else {
+                            synthesizeAssistantSpeech(responseText);
+                        }
+                    }
+                });
+            }
+
+            @Override
+            public void onFailure(String errorMessage) {
+                mainHandler.post(() -> {
+                    Toast.makeText(requireContext(), errorMessage, Toast.LENGTH_LONG).show();
+                    Log.d(TAG_SERVER_RESPONSE, errorMessage);
+                });
+            }
+        });
+    }
+
+    private void handlePrimarySecondaryRequest(String recognizedSpeech) {
+        Log.v("handleAllIntent", "handleAllIntent running");
+        HttpRequest.primarySecondaryRequest(recognizedSpeech, aiName, user.getId(), new HttpRequest.HttpRequestCallback() {
             @Override
             public void onSuccess(String intent, String responseText) {
                 Log.v("TestIntentResponse", "Intent: " + intent + " response text: "+ responseText);
