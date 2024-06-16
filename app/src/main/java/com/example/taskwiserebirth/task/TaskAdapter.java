@@ -1,7 +1,6 @@
 package com.example.taskwiserebirth.task;
 
 import android.content.Context;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -81,6 +80,19 @@ public class TaskAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
                 currentTask.setExpanded(!currentTask.isExpanded());
                 notifyItemChanged(position);
             });
+
+            // Set the highest priority icon visibility for tasks within the folder
+            nestedAdapter.setHighestPriorityScore(highestPriorityScore);
+            nestedAdapter.notifyDataSetChanged();
+
+            boolean hasHighestPriorityTask = false;
+            for (TaskModel task : currentTask.getChildTasks()) {
+                if (task.getPriorityScore() == highestPriorityScore && task.getStatus().equalsIgnoreCase("unfinished")) {
+                    hasHighestPriorityTask = true;
+                    break;
+                }
+            }
+            folderHolder.topPriorityIcon.setVisibility(hasHighestPriorityTask ? View.VISIBLE : View.INVISIBLE);
         } else if (holder instanceof TaskViewHolder) {
             TaskViewHolder taskHolder = (TaskViewHolder) holder;
             taskHolder.taskName.setText(currentTask.getTaskName());
@@ -102,7 +114,12 @@ public class TaskAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
             } else {
                 taskHolder.topPriorityIcon.setVisibility(View.INVISIBLE);
             }
+
         }
+    }
+
+    public void setHighestPriorityScore(double highestPriorityScore) {
+        this.highestPriorityScore = highestPriorityScore;
     }
 
     @Override
@@ -162,7 +179,6 @@ public class TaskAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
             if (task.getPriorityScore() > highestPriorityScore) {
                 highestPriorityScore = task.getPriorityScore();
             }
-            Log.v("calculateHighestPriorityScore", String.valueOf(task.getPriorityScore()));
         }
     }
 

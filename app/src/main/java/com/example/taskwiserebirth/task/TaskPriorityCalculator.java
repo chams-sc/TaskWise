@@ -243,7 +243,7 @@ public class TaskPriorityCalculator {
 
         for (TaskModel task : sortedTasks) {
             if (!task.isExpandable()) {
-                double priorityScore = calculateTaskPriority(task, currentDate, finalEarliestUnfinishedDeadline, finalLongestUnfinishedDeadline);
+                double priorityScore = task.getStatus().equals("Finished") ? 0 : calculateTaskPriority(task, currentDate, finalEarliestUnfinishedDeadline, finalLongestUnfinishedDeadline);
                 task.setPriorityScore(priorityScore);
             }
             Log.v("sortTasksByPriority", "task name: " + task.getTaskName() + " score: " + task.getPriorityScore());

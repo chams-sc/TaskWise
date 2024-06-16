@@ -77,6 +77,7 @@
             android:background="?android:attr/selectableItemBackground">
 
             <RelativeLayout
+                android:visibility="invisible"
                 android:id="@+id/topPriorityIcon"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
