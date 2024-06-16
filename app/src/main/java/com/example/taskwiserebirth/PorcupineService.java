@@ -44,7 +44,7 @@ public class PorcupineService extends Service {
             NotificationChannel serviceChannel = new NotificationChannel(
                     CHANNEL_ID,
                     "Porcupine Service Channel",
-                    NotificationManager.IMPORTANCE_HIGH
+                    NotificationManager.IMPORTANCE_DEFAULT
             );
             NotificationManager manager = getSystemService(NotificationManager.class);
             if (manager != null) {
@@ -58,7 +58,7 @@ public class PorcupineService extends Service {
                 .setContentTitle("TaskWise")
                 .setContentText("Listening for wake words")
                 .setSmallIcon(R.drawable.baseline_notification)
-                .setOngoing(true)
+                .setOngoing(false)
                 .build();
     }
 
@@ -126,7 +126,7 @@ public class PorcupineService extends Service {
                 resumePorcupine();
             }
         }
-        return START_STICKY;
+        return START_NOT_STICKY;
     }
 
     @Override

@@ -249,8 +249,14 @@ public class MainActivity extends AppCompatActivity {
     protected void onResume() {
         super.onResume();
         if (PermissionUtils.checkRecordAudioPermission(this)) {
-            startPorcupineService();
+            resumePorcupineService();
         }
+    }
+
+    @Override
+    protected void onPause() {
+        super.onPause();
+        pausePorcupineService();
     }
 
     @Override

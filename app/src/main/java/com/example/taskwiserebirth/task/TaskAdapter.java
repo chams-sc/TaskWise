@@ -1,12 +1,15 @@
 package com.example.taskwiserebirth.task;
 
 import android.content.Context;
+import android.graphics.Typeface;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.view.animation.AnimationUtils;
 
 import androidx.annotation.NonNull;
 import androidx.core.content.ContextCompat;
+import androidx.core.content.res.ResourcesCompat;
 import androidx.fragment.app.FragmentActivity;
 import androidx.fragment.app.FragmentTransaction;
 import androidx.recyclerview.widget.LinearLayoutManager;
@@ -67,6 +70,8 @@ public class TaskAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
     public void onBindViewHolder(@NonNull RecyclerView.ViewHolder holder, int position) {
         TaskModel currentTask = tasks.get(position);
 
+        holder.itemView.startAnimation(AnimationUtils.loadAnimation(context, R.anim.fade_in));
+
         if (holder instanceof FolderViewHolder) {
             FolderViewHolder folderHolder = (FolderViewHolder) holder;
             folderHolder.folderName.setText(generateFolderName(currentTask.getChildTasks()));
@@ -95,12 +100,47 @@ public class TaskAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
             folderHolder.topPriorityIcon.setVisibility(hasHighestPriorityTask ? View.VISIBLE : View.INVISIBLE);
         } else if (holder instanceof TaskViewHolder) {
             TaskViewHolder taskHolder = (TaskViewHolder) holder;
-            taskHolder.taskName.setText(currentTask.getTaskName());
-            taskHolder.priority.setText(currentTask.getPriorityCategory());
+            int taskNameColor = getTaskCategoryColor(currentTask);
+            int priorityColor = getTaskPriorityColor(currentTask);
 
-            int deadlineColor = getTaskDeadlineColor(currentTask);
-            taskHolder.deadline.setText(currentTask.getDeadline());
-            taskHolder.deadline.setTextColor(deadlineColor);
+            taskHolder.taskName.setText(currentTask.getTaskName());
+            taskHolder.taskName.setTextColor(taskNameColor);
+
+            // setting priority
+            if (currentTask.getStatus().equalsIgnoreCase("unfinished")) {
+                taskHolder.priority.setText(currentTask.getPriorityCategory());
+                taskHolder.priority.setTextColor(priorityColor);
+                Typeface typeface = getTypefaceForPriority(currentTask.getPriorityCategory());
+                taskHolder.priority.setTypeface(typeface);
+            } else {
+                taskHolder.priority.setText("Done");
+                taskHolder.priority.setTextColor(ContextCompat.getColor(context, R.color.green));
+                taskHolder.priority.setTypeface(ResourcesCompat.getFont(context, R.font.inter_semibold));
+            }
+
+            // set card color if past due
+            Date taskDeadline = CalendarUtils.parseDeadline(currentTask.getDeadline());
+            if (currentTask.getStatus().equalsIgnoreCase("unfinished") && taskDeadline != null && taskDeadline.before(selectedDate)) {
+                taskHolder.cardBg.setBackgroundResource(R.drawable.bg_card_past_due);
+
+                taskHolder.priority.setText("Past Due");
+                taskHolder.priority.setTextColor(ContextCompat.getColor(context, R.color.ash_gray));
+                taskHolder.priority.setTypeface(ResourcesCompat.getFont(context, R.font.inter_semibold));
+            } else {
+                taskHolder.cardBg.setBackgroundResource(android.R.color.transparent);
+            }
+
+            String recurrence = currentTask.getRecurrence();
+            if (!recurrence.equalsIgnoreCase("none")) {
+                taskHolder.schedOrDeadlineTxt.setText(currentTask.getSchedule());
+                taskHolder.recurrenceTxt.setText(recurrence);
+                taskHolder.recurrenceIcon.setVisibility(View.VISIBLE);
+            } else {
+                taskHolder.schedOrDeadlineTxt.setText(currentTask.getDeadline());
+                taskHolder.recurrenceTxt.setText("");
+                taskHolder.recurrenceIcon.setVisibility(View.INVISIBLE);
+            }
+
             taskHolder.menuView.setOnClickListener(v -> PopupMenuUtils.showPopupMenu(context, v, currentTask, actionListener, activity));
             taskHolder.itemView.setOnClickListener(v -> {
                 TaskDetailFragment fragmentViewerCard = new TaskDetailFragment(currentTask);
@@ -109,6 +149,7 @@ public class TaskAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
                         .addToBackStack(null)
                         .commit();
             });
+
             if (currentTask.getPriorityScore() == highestPriorityScore && currentTask.getStatus().equalsIgnoreCase("unfinished")) {
                 taskHolder.topPriorityIcon.setVisibility(View.VISIBLE);
             } else {
@@ -116,6 +157,61 @@ public class TaskAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
             }
 
         }
+    }
+
+    private Typeface getTypefaceForPriority(String priorityCategory) {
+        if (priorityCategory == null) {
+            return Typeface.DEFAULT;
+        }
+
+        switch (priorityCategory) {
+            case TaskPriorityCalculator.PRIORITY_MEDIUM:
+                return ResourcesCompat.getFont(context, R.font.inter_semibold); // Assuming you have this font
+            case TaskPriorityCalculator.PRIORITY_HIGH:
+                return ResourcesCompat.getFont(context, R.font.inter_bold); // Assuming you have this font
+            case TaskPriorityCalculator.PRIORITY_VERY_HIGH:
+                return ResourcesCompat.getFont(context, R.font.inter_extra_bold); // Assuming you have this font
+            default:
+                return ResourcesCompat.getFont(context, R.font.inter);
+        }
+    }
+
+    private int  getTaskPriorityColor(TaskModel task) {
+        switch (task.getPriorityCategory()) {
+            case TaskPriorityCalculator.PRIORITY_LOW:
+                return ContextCompat.getColor(context, R.color.priority_low);
+            case TaskPriorityCalculator.PRIORITY_MEDIUM:
+                return ContextCompat.getColor(context, R.color.priority_medium);
+            case TaskPriorityCalculator.PRIORITY_HIGH:
+                return ContextCompat.getColor(context, R.color.priority_high);
+            case TaskPriorityCalculator.PRIORITY_VERY_HIGH:
+                return ContextCompat.getColor(context, R.color.priority_very_high);
+            default:
+                return ContextCompat.getColor(context, R.color.priority_no_set);
+        }
+    }
+
+    private int getTaskCategoryColor(TaskModel task) {
+        if (task.getStatus().equals("Finished")) {
+            return ContextCompat.getColor(context, R.color.green);
+        } else {
+            Date taskDeadline = CalendarUtils.parseDeadline(task.getDeadline());
+            if (taskDeadline == null) {
+                return ContextCompat.getColor(context, R.color.blue);
+            } else {
+                if (taskDeadline.before(selectedDate)) {
+                    return ContextCompat.getColor(context, R.color.ash_gray);
+                } else {
+                    long diffMillis = taskDeadline.getTime() - selectedDate.getTime();
+                    long diffHours = diffMillis / (60 * 60 * 1000); // millis to hours
+
+                    if (diffHours <= closeToDueHours) {
+                        return ContextCompat.getColor(context, R.color.red);
+                    }
+                }
+            }
+        }
+        return ContextCompat.getColor(context, R.color.blue);
     }
 
     public void setHighestPriorityScore(double highestPriorityScore) {
@@ -148,29 +244,6 @@ public class TaskAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
         }
 
         return folderNameBuilder.toString();
-    }
-
-    private int getTaskDeadlineColor(TaskModel task) {
-        if (task.getStatus().equals("Finished")) {
-            return ContextCompat.getColor(context, R.color.green);
-        } else {
-            Date taskDeadline = CalendarUtils.parseDeadline(task.getDeadline());
-            if (taskDeadline == null) {
-                return ContextCompat.getColor(context, R.color.blue);
-            } else {
-                if (taskDeadline.before(selectedDate)) {
-                    return ContextCompat.getColor(context, R.color.ash_gray);
-                } else {
-                    long diffMillis = taskDeadline.getTime() - selectedDate.getTime();
-                    long diffHours = diffMillis / (60 * 60 * 1000); // millis to hours
-
-                    if (diffHours <= closeToDueHours) {
-                        return ContextCompat.getColor(context, R.color.red);
-                    }
-                }
-            }
-        }
-        return ContextCompat.getColor(context, R.color.blue);
     }
 
     private void calculateHighestPriorityScore() {
