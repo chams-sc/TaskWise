@@ -443,7 +443,6 @@ public class Live2DFragment extends Fragment implements View.OnTouchListener, Sp
         }
     }
 
-
     private void addCompleteTask(TaskModel task) {
         // checks for no of unfinished tasks
         taskDatabaseManager.fetchTasksWithStatus(tasks -> {
@@ -523,6 +522,9 @@ public class Live2DFragment extends Fragment implements View.OnTouchListener, Sp
             case "Edit Task With Deadline":
             case "Edit Task With Recurrence":
             case "edit task and set the recurrence":
+            case "edit task and set the importance":
+            case "edit task and set the urgency":
+            case "edit task and set the reminder":
                 prefilterAddEditTask(responseText, false);
                 return;
             case "Delete Task":
@@ -1520,10 +1522,6 @@ public class Live2DFragment extends Fragment implements View.OnTouchListener, Sp
         HttpRequest.handleVicunaResponse(aiName, task, systemAction, new HttpRequest.HttpRequestCallback() {
             @Override
             public void onSuccess(String intent, String responseText) {
-//                mainHandler.post(() -> {
-//
-//                });
-
                 if (systemAction.equalsIgnoreCase("add_task")) {
                     startRandomMotionFromGroup(LAppDefine.MotionGroup.AFFIRMATION.getId(), LAppDefine.Priority.FORCE.getPriority());
 

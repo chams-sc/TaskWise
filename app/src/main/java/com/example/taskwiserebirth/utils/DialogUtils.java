@@ -136,6 +136,7 @@ public class DialogUtils {
                         public void onTasksFetched(List<TaskModel> tasks) {
                             if (tasks.isEmpty()) {
                                 taskDatabaseManager.insertTask(newTask);
+                                Toast.makeText(activity, "Task saved: " + newTask.getTaskName(), Toast.LENGTH_SHORT).show();
                                 daysSelected = null;
                                 bottomSheetDialog.dismiss();
                             } else {

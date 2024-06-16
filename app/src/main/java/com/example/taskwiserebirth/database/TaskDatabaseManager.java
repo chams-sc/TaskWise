@@ -63,8 +63,6 @@ public class TaskDatabaseManager {
                             if (insertedTask.isReminder()) {
                                 NotificationScheduler.scheduleNotification(context, insertedTask);
                             }
-
-                            Toast.makeText(context, "Task saved: " + insertedTask.getTaskName(), Toast.LENGTH_SHORT).show();
                         } else {
                             Log.e(TAG_TASK_DBM, "Failed to fetch inserted task: " + result.getError().getMessage());
                         }
