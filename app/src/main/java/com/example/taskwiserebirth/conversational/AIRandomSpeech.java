@@ -283,6 +283,34 @@ public class AIRandomSpeech {
             "Good seeing you today! Let’s see what’s on the agenda. Checking your tasks now!"
     };
 
+    private static final String[] resetCompletedMessages = {
+            "Conversation reset completed. Do you need something else?",
+            "The conversation has been reset. Is there anything else you need?",
+            "Reset complete! What else can I assist you with?",
+            "Conversation reset done. Do you have any other requests?",
+            "Reset successful. How can I help you further?",
+            "The conversation has been reset successfully. Need anything else?",
+            "Reset is complete. What else can I do for you?",
+            "Conversation reset finished. How can I assist you next?",
+            "I've reset the conversation. Do you require anything else?",
+            "The reset is done. Is there something else you need?",
+            "Conversation reset. How can I help you next?",
+            "Reset done! What else would you like to do?",
+            "Conversation reset is complete. Anything else you need?",
+            "The conversation has been reset. What else can I do for you?",
+            "Reset completed. How else can I assist you?",
+            "The reset process is finished. Do you need anything else?",
+            "I've reset the conversation for you. Anything else you need?",
+            "Reset complete. How can I help you further?",
+            "Conversation reset successfully. What would you like next?",
+            "The conversation has been reset. Need any other assistance?"
+    };
+
+    public static String generateResetCompletedMessage() {
+        int randomIndex = random.nextInt(resetCompletedMessages.length);
+        return resetCompletedMessages[randomIndex];
+    }
+
     public static String generateGreeting() {
         int randomIndex = random.nextInt(greetingMessages.length);
         return greetingMessages[randomIndex];

@@ -1442,6 +1442,21 @@ public class Live2DFragment extends Fragment implements View.OnTouchListener, Sp
         }
 
         insertDialogue(recognizedSpeech, false);
+        if (recognizedSpeech.equalsIgnoreCase("reset conversation")) {
+            inEditTaskInteraction = false;
+            inTaskDetailInteraction = false;
+            addTaskAskingForTaskName = false;
+            editTaskAskingForTaskName = false;
+            isRequestNameFromGrok = false;
+            addNotesAskingForTaskName = false;
+            confirmingDeleteTask = false;
+
+            startSpecificModelMotion(LAppDefine.MotionGroup.SWITCH.getId(), 0);
+
+            mainHandler.postDelayed(() -> synthesizeAssistantSpeech(AIRandomSpeech.generateResetCompletedMessage()), 2000);
+            return;
+        }
+
         if (recognizedSpeech.equalsIgnoreCase("assistive mode on")) {
             if (AssistiveModeHelper.isAssistiveModeEnabled(requireContext())) {
                 synthesizeAssistantSpeech("Assistive mode is already activated");
