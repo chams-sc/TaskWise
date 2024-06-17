@@ -487,7 +487,27 @@ public class Live2DFragment extends Fragment implements View.OnTouchListener, Sp
             }
 
             List<TaskModel> sortedTasks = TaskPriorityCalculator.sortTasksByPriority(tasks, new Date());
-            double newTaskPriorityScore = completeTask.getPriorityScore();
+
+            // Debugging: Log sorted tasks with their priority scores
+            for (TaskModel task : sortedTasks) {
+                Log.v("TaskPriorityInsert", "Task: " + task.getTaskName() + ", Priority Score: " + task.getPriorityScore());
+            }
+
+            // Find the priority score of the newly added task by name
+            double newTaskPriorityScore = 0;
+            boolean foundNewTask = false;
+            for (TaskModel task : sortedTasks) {
+                if (task.getTaskName().equals(completeTask.getTaskName())) {
+                    newTaskPriorityScore = task.getPriorityScore();
+                    completeTask.setPriorityCategory(task.getPriorityCategory());
+                    foundNewTask = true;
+                    break;
+                }
+            }
+
+            if (!foundNewTask) {
+                Log.e("TaskPriority", "Newly added task not found in sorted tasks");
+            }
 
             // Collect tasks with the same priority score as the new task
             List<TaskModel> samePriorityTasks = new ArrayList<>();
@@ -496,6 +516,7 @@ public class Live2DFragment extends Fragment implements View.OnTouchListener, Sp
                     samePriorityTasks.add(task);
                 }
             }
+
 
             String prompt;
             String formattedPrompt;
@@ -512,9 +533,13 @@ public class Live2DFragment extends Fragment implements View.OnTouchListener, Sp
                     taskNames.append(samePriorityTasks.get(i).getTaskName());
                 }
 
-                prompt = "The user just asked you to add a task called %s. Tell user that you successfully added his task %s to the list. However, make sure to inform the user that it has the same priority of %s with his other tasks: %s.";
-                formattedPrompt = String.format(prompt, completeTask.getTaskName(), completeTask.getTaskName(), completeTask.getPriorityCategory(), taskNames.toString());
-
+                if (completeTask.getPriorityCategory().equals(TaskPriorityCalculator.PRIORITY_NO_SET)) {
+                    prompt = "The user just asked you to add a task called %s. Tell user that you successfully added his task %s to the list. However, make sure to inform the user that he has not set a priority level for this along with his other tasks: %s.";
+                    formattedPrompt = String.format(prompt, completeTask.getTaskName(), completeTask.getTaskName(), taskNames.toString());
+                } else {
+                    prompt = "The user just asked you to add a task called %s. Tell user that you successfully added his task %s to the list. However, make sure to inform the user that it has the same priority of %s with his other tasks: %s.";
+                    formattedPrompt = String.format(prompt, completeTask.getTaskName(), completeTask.getTaskName(), completeTask.getPriorityCategory(), taskNames.toString());
+                }
             } else {
                 prompt = "The user just asked you to add a task called %s. Tell the user that you successfully added his task %s to the list. Be creative with your response, using encouraging words, motivational things, or fun messages to inspire the user. Although creative, make sure to keep your responses short, must be 2 sentences only.";
                 formattedPrompt = String.format(prompt, completeTask.getTaskName(), completeTask.getTaskName());
@@ -529,7 +554,17 @@ public class Live2DFragment extends Fragment implements View.OnTouchListener, Sp
 
         String taskName = "";
 
-        if ("add task".equalsIgnoreCase(intent) || "add task with deadline".equalsIgnoreCase(intent) ||"add task with recurrence".equalsIgnoreCase(intent)) {
+        Set<String> validAddTaskIntents = new HashSet<>(Arrays.asList(
+                "add task",
+                "add task with deadline",
+                "add task with recurrence",
+                "add task and set the importance",
+                "add task and set the urgency",
+                "add task and set the reminder",
+                "add task and set the schedule"
+        ));
+
+        if (validAddTaskIntents.contains(intent.toLowerCase())) {
             prefilterAddEditTask(responseText, true);
             return;
         } else {
@@ -568,6 +603,7 @@ public class Live2DFragment extends Fragment implements View.OnTouchListener, Sp
             case "edit task and set the importance":
             case "edit task and set the urgency":
             case "edit task and set the reminder":
+            case "edit task and set the schedule":
                 prefilterAddEditTask(responseText, false);
                 return;
             case "Delete Task":
@@ -1243,7 +1279,7 @@ public class Live2DFragment extends Fragment implements View.OnTouchListener, Sp
             }
 
             TaskModel task = tasks.get(0);
-            Log.d(TAG_SERVER_RESPONSE, "Task found: " + task.getTaskName());
+            Log.d("editTaskThroughSpeech", "Task found: " + task.getTaskName());
 
             tempEditTaskName = task.getTaskName();
 
@@ -1482,6 +1518,9 @@ public class Live2DFragment extends Fragment implements View.OnTouchListener, Sp
             isRequestNameFromGrok = false;
             addNotesAskingForTaskName = false;
             confirmingDeleteTask = false;
+
+            tempEditTaskName = "";
+            tempNotes = "";
 
             startSpecificModelMotion(LAppDefine.MotionGroup.SWITCH.getId(), 0);
 

@@ -84,7 +84,7 @@ public class NotificationScheduler {
             } else {
                 alarmManager.setExactAndAllowWhileIdle(AlarmManager.RTC_WAKEUP, triggerAtMillis, pendingIntent);
             }
-            Log.d(TAG_NOTIF, "Alarm set");
+            Log.d(TAG_NOTIF, "Alarm set for " + task.getTaskName());
         }
     }
 
