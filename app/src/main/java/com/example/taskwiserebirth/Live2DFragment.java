@@ -232,7 +232,7 @@ public class Live2DFragment extends Fragment implements View.OnTouchListener, Sp
 
     private void toggleRealTimeSpeechTextViewExpansion() {
         if (isExpanded) {
-            realTimeSpeechTextView.setMaxLines(3);
+            realTimeSpeechTextView.setMaxLines(7);
             realTimeSpeechTextView.setEllipsize(TextUtils.TruncateAt.END);
         } else {
             realTimeSpeechTextView.setMaxLines(Integer.MAX_VALUE);
