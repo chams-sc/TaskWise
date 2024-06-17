@@ -109,6 +109,7 @@ public class Live2DFragment extends Fragment implements View.OnTouchListener, Sp
     private static final long FADE_OUT_DURATION = 500;
 
     private BroadcastReceiver wakeWordReceiver;
+    private boolean isReceiverRegistered = false;
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
@@ -126,7 +127,10 @@ public class Live2DFragment extends Fragment implements View.OnTouchListener, Sp
         IntentFilter filter = new IntentFilter(PorcupineService.ACTION_WAKE_WORD_DETECTED);
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
             requireContext().registerReceiver(wakeWordReceiver, filter, Context.RECEIVER_NOT_EXPORTED);
+        } else {
+            requireContext().registerReceiver(wakeWordReceiver, filter);
         }
+        isReceiverRegistered = true;
     }
 
     @Override
@@ -2091,8 +2095,9 @@ public class Live2DFragment extends Fragment implements View.OnTouchListener, Sp
     @Override
     public void onDestroy() {
         super.onDestroy();
-        if (wakeWordReceiver != null) {
+        if (isReceiverRegistered && wakeWordReceiver != null) {
             requireContext().unregisterReceiver(wakeWordReceiver);
+            isReceiverRegistered = false;
         }
 
         LAppDelegate.getInstance().onDestroy();
