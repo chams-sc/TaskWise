@@ -1851,11 +1851,73 @@ public class Live2DFragment extends Fragment implements View.OnTouchListener, Sp
                             inEditTaskInteraction = false;
                             tempEditTaskName = "";
 
-                            String prompt = "You just edited user's task called %s based on his request. Tell user that you successfully applied the updates to his task named %s to the system with enthusiasm and encouraging words to keep them motivated and focused. Remember not to make responses too long.";
+                            taskDatabaseManager.fetchTasksWithStatus(tasks -> {
+                                if (tasks.isEmpty()) {
+                                    synthesizeAssistantSpeech(AIRandomSpeech.generateNoTasksMessages());
+                                    return;
+                                }
 
-                            String formattedPrompt = String.format(prompt, taskToEdit.getTaskName(), taskToEdit.getTaskName());
+                                List<TaskModel> sortedTasks = TaskPriorityCalculator.sortTasksByPriority(tasks, new Date());
 
-                            getVicunaResponse(taskToEdit, "edit_task", formattedPrompt);
+                                // Debugging: Log sorted tasks with their priority scores
+                                for (TaskModel task : sortedTasks) {
+                                    Log.v("TaskPriorityInsert", "Task: " + task.getTaskName() + ", Priority Score: " + task.getPriorityScore());
+                                }
+
+                                // Find the priority score of the newly added task by name
+                                double newTaskPriorityScore = 0;
+                                boolean foundNewTask = false;
+                                for (TaskModel task : sortedTasks) {
+                                    if (task.getTaskName().equals(taskToEdit.getTaskName())) {
+                                        newTaskPriorityScore = task.getPriorityScore();
+                                        taskToEdit.setPriorityCategory(task.getPriorityCategory());
+                                        foundNewTask = true;
+                                        break;
+                                    }
+                                }
+
+                                if (!foundNewTask) {
+                                    Log.e("TaskPriority", "Newly added task not found in sorted tasks");
+                                }
+
+                                // Collect tasks with the same priority score as the new task
+                                List<TaskModel> samePriorityTasks = new ArrayList<>();
+                                for (TaskModel task : sortedTasks) {
+                                    if (task.getPriorityScore() == newTaskPriorityScore && !task.getTaskName().equals(taskToEdit.getTaskName())) {
+                                        samePriorityTasks.add(task);
+                                    }
+                                }
+
+
+                                String prompt;
+                                String formattedPrompt;
+                                if (!samePriorityTasks.isEmpty()) {
+                                    StringBuilder taskNames = new StringBuilder();
+                                    for (int i = 0; i < samePriorityTasks.size(); i++) {
+                                        if (i > 0) {
+                                            if (i == samePriorityTasks.size() - 1) {
+                                                taskNames.append(" and ");
+                                            } else {
+                                                taskNames.append(", ");
+                                            }
+                                        }
+                                        taskNames.append(samePriorityTasks.get(i).getTaskName());
+                                    }
+
+                                    if (taskToEdit.getPriorityCategory().equals(TaskPriorityCalculator.PRIORITY_NO_SET)) {
+
+                                        prompt = "You just edited user's task called %s based on his request. Tell user that you successfully applied the updates to his task named %s to the system. However, make sure to inform the user that he has not set a priority level for this along with his other tasks: %s. Remember not to make responses too long." ;
+                                        formattedPrompt = String.format(prompt, taskToEdit.getTaskName(), taskToEdit.getTaskName(), taskNames.toString());
+                                    } else {
+                                        prompt = "You just edited user's task called %s based on his request. Tell user that you successfully applied the updates to his task named %s to the system. However, make sure to inform the user that it has the same priority of %s with his other tasks: %s.";
+                                        formattedPrompt = String.format(prompt, taskToEdit.getTaskName(), taskToEdit.getTaskName(), taskToEdit.getPriorityCategory(), taskNames.toString());
+                                    }
+                                } else {
+                                    prompt = "You just edited user's task called %s based on his request. Tell user that you successfully applied the updates to his task named %s to the system with enthusiasm and encouraging words to keep them motivated and focused. Remember not to make responses too long.";
+                                    formattedPrompt = String.format(prompt, taskToEdit.getTaskName(), taskToEdit.getTaskName());
+                                }
+                                getVicunaResponse(taskToEdit, "edit_task", formattedPrompt);
+                            }, false);
                         } else if (responseText.equalsIgnoreCase("unrecognized")) {
                             synthesizeAssistantSpeech("I'm sorry, I didn't understand, what else do you want to edit?");
                         } else {
