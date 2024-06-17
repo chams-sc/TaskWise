@@ -105,7 +105,7 @@ public class Live2DFragment extends Fragment implements View.OnTouchListener, Sp
     private final String TAG_SERVER_RESPONSE = "SERVER_RESPONSE";
 
     private final Handler mainHandler = new Handler(Looper.getMainLooper());
-    private static final long FADE_OUT_DELAY = 3000; // 3 seconds delay before starting fade-out
+    private static final long FADE_OUT_DELAY = 500; // 3 seconds delay before starting fade-out
     private static final long FADE_OUT_DURATION = 500;
 
     private BroadcastReceiver wakeWordReceiver;
