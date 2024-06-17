@@ -39,6 +39,7 @@ public class HttpRequest {
     private static final String SECONDARY_INTENT = "secondary_intent";
     private static final String TAG_HTTP = "HttpRequest";
 
+    private static Call currentCall;
 
     public static void handleVicunaResponse(String aiName, TaskModel task, String prompt, final HttpRequestCallback callback) {
         JSONObject requestBodyJson = new JSONObject();
@@ -225,12 +226,20 @@ public class HttpRequest {
         MediaType JSON = MediaType.parse("application/json; charset=utf-8");
         RequestBody requestBody = RequestBody.create(requestBodyJson.toString(), JSON);
 
+        // Cancel the previous request if it's still ongoing
+        if (currentCall != null && !currentCall.isExecuted() && !currentCall.isCanceled()) {
+            currentCall.cancel();
+            Log.v("HttpRequest", "Previous request was canceled.");
+        }
+
         Request request = new Request.Builder()
                 .url(url)
                 .post(requestBody)
                 .build();
 
-        client.newCall(request).enqueue(new Callback() {
+        currentCall = client.newCall(request);
+
+        currentCall.enqueue(new Callback() {
             @Override
             public void onFailure(@NonNull Call call, @NonNull IOException e) {
                 String errorMessage;
