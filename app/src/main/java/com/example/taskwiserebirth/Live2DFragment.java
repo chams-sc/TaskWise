@@ -1074,9 +1074,13 @@ public class Live2DFragment extends Fragment implements View.OnTouchListener, Sp
 
             TaskModel task = tasks.get(0);
             Log.d(TAG_SERVER_RESPONSE, "Task found: " + task.getTaskName());
-
             taskDatabaseManager.markTaskAsFinished(task);
-            synthesizeAssistantSpeech(AIRandomSpeech.generateTaskFinished(taskName));
+
+            String prompt = "The user has just completed a task called %s. Congratulate the user with enthusiasm on successfully completing their task %s. Highlight their dedication and hard work, and encourage them to continue their fantastic progress!";
+
+            String formattedPrompt = String.format(prompt, task.getTaskName(), task.getTaskName());
+
+            getVicunaResponse(taskToConfirmDeletion, "finish_task", formattedPrompt);
         }, taskName);
     }
 
@@ -1088,8 +1092,7 @@ public class Live2DFragment extends Fragment implements View.OnTouchListener, Sp
                 return;
             }
 
-            TaskModel task = tasks.get(0);
-            taskToConfirmDeletion = task;
+            taskToConfirmDeletion = tasks.get(0);
 
             startRandomMotionFromGroup(LAppDefine.MotionGroup.ASKING.getId(), LAppDefine.Priority.FORCE.getPriority());
             synthesizeAssistantSpeech("Are you sure you want to delete the task " + taskName + "? Please say yes or no.");
@@ -1101,8 +1104,11 @@ public class Live2DFragment extends Fragment implements View.OnTouchListener, Sp
         if (recognizedSpeech.equalsIgnoreCase("yes")) {
             taskDatabaseManager.deleteTask(taskToConfirmDeletion);
 
-            startRandomMotionFromGroup(LAppDefine.MotionGroup.NEGATIVE.getId(), LAppDefine.Priority.FORCE.getPriority());
-            mainHandler.postDelayed(() -> synthesizeAssistantSpeech("I have successfully deleted your task " + taskToConfirmDeletion.getTaskName()), 3000);
+            String prompt = "You just deleted the user's task called %s according to his request. Inform the user with enthusiasm that you have successfully removed their task %s from the system. ";
+
+            String formattedPrompt = String.format(prompt, taskToConfirmDeletion.getTaskName(), taskToConfirmDeletion.getTaskName());
+
+            getVicunaResponse(taskToConfirmDeletion, "delete_task_confirm", formattedPrompt);
 
             confirmingDeleteTask = false;
         } else if (recognizedSpeech.equalsIgnoreCase("no")) {
@@ -1607,19 +1613,32 @@ public class Live2DFragment extends Fragment implements View.OnTouchListener, Sp
                 if (systemAction.equalsIgnoreCase("add_task")) {
                     startRandomMotionFromGroup(LAppDefine.MotionGroup.AFFIRMATION.getId(), LAppDefine.Priority.FORCE.getPriority());
 
-                    mainHandler.postDelayed(new Runnable() {
-                        @Override
-                        public void run() {
-                            synthesizeAssistantSpeech(responseText);
-                            // to get id for notif scheduler
-                            taskDatabaseManager.fetchUnfinishedTaskByName(tasks -> {
-                                if (tasks.isEmpty()) {
-                                    return;
-                                }
-                                mainHandler.postDelayed(() -> openTaskDetailFragment(tasks.get(0)), 4000);
-                            }, task.getTaskName());
-                        }
+                    mainHandler.postDelayed(() -> {
+                        synthesizeAssistantSpeech(responseText);
+                        // to get id for notif scheduler
+                        taskDatabaseManager.fetchUnfinishedTaskByName(tasks -> {
+                            if (tasks.isEmpty()) {
+                                return;
+                            }
+                            mainHandler.postDelayed(() -> openTaskDetailFragment(tasks.get(0)), 4000);
+                        }, task.getTaskName());
                     }, 3000);
+
+                } else if (systemAction.equalsIgnoreCase("edit_task")) {
+                    startRandomMotionFromGroup(LAppDefine.MotionGroup.AFFIRMATION.getId(), LAppDefine.Priority.FORCE.getPriority());
+
+                    mainHandler.postDelayed(() -> synthesizeAssistantSpeech(responseText), 3000);
+                    mainHandler.postDelayed(() -> openTaskDetailFragment(taskToEdit), 4000);
+
+                } else if (systemAction.equalsIgnoreCase("delete_task_confirm")) {
+                    startRandomMotionFromGroup(LAppDefine.MotionGroup.NEGATIVE.getId(), LAppDefine.Priority.FORCE.getPriority());
+
+                    mainHandler.postDelayed(() -> synthesizeAssistantSpeech(responseText), 3000);
+
+                } else if (systemAction.equalsIgnoreCase("finish_task")) {
+                    startRandomMotionFromGroup(LAppDefine.MotionGroup.AFFIRMATION.getId(), LAppDefine.Priority.FORCE.getPriority());
+
+                    mainHandler.postDelayed(() -> synthesizeAssistantSpeech(responseText), 3000);
                 }
             }
 
@@ -1826,10 +1845,12 @@ public class Live2DFragment extends Fragment implements View.OnTouchListener, Sp
                         if (responseText.equalsIgnoreCase("done")) {
                             inEditTaskInteraction = false;
                             tempEditTaskName = "";
-                            startRandomMotionFromGroup(LAppDefine.MotionGroup.AFFIRMATION.getId(), LAppDefine.Priority.FORCE.getPriority());
 
-                            mainHandler.postDelayed(() -> synthesizeAssistantSpeech(AIRandomSpeech.generateTaskUpdated(taskToEdit.getTaskName())), 3000);
-                            mainHandler.postDelayed(() -> openTaskDetailFragment(taskToEdit), 4000);
+                            String prompt = "You just edited user's task called %s based on his request. Tell user that you successfully applied the updates to his task named %s to the system with enthusiasm and encouraging words to keep them motivated and focused. Remember not to make responses too long.";
+
+                            String formattedPrompt = String.format(prompt, taskToEdit.getTaskName(), taskToEdit.getTaskName());
+
+                            getVicunaResponse(taskToEdit, "edit_task", formattedPrompt);
                         } else if (responseText.equalsIgnoreCase("unrecognized")) {
                             synthesizeAssistantSpeech("I'm sorry, I didn't understand, what else do you want to edit?");
                         } else {
