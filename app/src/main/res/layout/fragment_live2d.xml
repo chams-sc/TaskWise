@@ -115,8 +115,8 @@
                 android:id="@+id/aiResponseCardView"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:visibility="visible"
-                app:cardBackgroundColor="@color/subtitle"
+                android:visibility="invisible"
+                app:cardBackgroundColor="@color/gray_alpha"
                 app:cardCornerRadius="10dp"
                 app:cardElevation="4dp"
                 app:cardPreventCornerOverlap="false">
@@ -125,7 +125,7 @@
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:layout_gravity="center"
-                    android:background="@drawable/bg_subtitle"
+                    android:background="@drawable/bg_subtitle_ai"
                     android:gravity="center">
 
                     <TextView
@@ -141,7 +141,7 @@
                         android:maxLines="7"
                         android:padding="12dp"
                         android:text="Listening..."
-                        android:textColor="@color/black"
+                        android:textColor="@color/white"
                         android:textSize="12sp"
                         android:visibility="visible" />
                 </LinearLayout>
