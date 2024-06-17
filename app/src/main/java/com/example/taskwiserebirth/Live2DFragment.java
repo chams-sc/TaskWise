@@ -613,7 +613,8 @@ public class Live2DFragment extends Fragment implements View.OnTouchListener, Sp
             case "Delete Task":
                 deleteTaskThroughSpeech(taskName);
                 return;
-            case "Mark as Finished":
+            case "Mark as Done":
+            case "Mark Task as Done":
                 markTaskFinished(taskName);
                 return;
             case "Details of the Task":
@@ -1084,7 +1085,7 @@ public class Live2DFragment extends Fragment implements View.OnTouchListener, Sp
 
             String formattedPrompt = String.format(prompt, task.getTaskName(), task.getTaskName());
 
-            getVicunaResponse(taskToConfirmDeletion, "finish_task", formattedPrompt);
+            getVicunaResponse(task, "finish_task", formattedPrompt);
         }, taskName);
     }
 
