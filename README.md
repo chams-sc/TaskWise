@@ -25,7 +25,7 @@ For detailed instructions, please refer to the [TaskWise Manual (PDF)](https://d
 - **Taskboard**: View and manage your tasks. The Taskboard uses the **Eisenhower Matrix** to prioritize tasks.
 
 ## Video Tutorial
-Check out the short [video tutorial](https://www.youtube.com/watch?v=XIHNxES2hbQ&t=210s) for a more detailed overview of the system.
+Check out the short [video tutorial](https://drive.google.com/file/d/1gigugCxqBYH4fjcx747Pp83En_3E2SCz/view?usp=drive_link) for a more detailed overview of the system.
 
 ## Contact / Support
 If you have any questions or feedback, feel free to contact us at michacaldaira@gmail.com.
