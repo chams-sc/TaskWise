@@ -68,7 +68,7 @@ public class NotificationReceiver extends BroadcastReceiver {
 
         NotificationManagerCompat notificationManagerCompat = NotificationManagerCompat.from(context);
 
-        int notificationID = 123;
+        int notificationID = task.getId().toHexString().hashCode();
         notificationManagerCompat.notify(notificationID, builder.build());
     }
 

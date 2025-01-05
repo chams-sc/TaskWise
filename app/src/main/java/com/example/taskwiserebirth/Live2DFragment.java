@@ -722,7 +722,7 @@ public class Live2DFragment extends Fragment implements View.OnTouchListener, Sp
                 if (task.getNotes().isEmpty()) {
                     synthesizeAssistantSpeech("You did not note anything for your task " + taskName);
                 } else {
-                    synthesizeAssistantSpeech("In your task " + taskName + "you noted: " + task.getNotes());
+                    synthesizeAssistantSpeech("In your task " + taskName + " you noted: " + task.getNotes());
                 }
             }
         }, taskName);
