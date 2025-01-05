@@ -10,7 +10,6 @@ TaskWise is a task management application designed to enhance productivity with 
 - **Conversational AI (Kaia)**: Interact with Kaia for task management and general queries.
 - **Long-Term Memory**: Kaia remembers previous conversations, making future interactions more personalized and context-aware.
 - **Interactive Taskboard**: Organize and prioritize tasks visually using the Eisenhower Matrix.
-- **Assistive Mode**: Get help from Kaia on various topics.
 
 ## Manual
 For detailed instructions, please refer to the [TaskWise Manual (PDF)](https://drive.google.com/file/d/1eHNVjeourEGpy0IO8xpq3EU3BoLmOSSK/view?usp=drive_link) for an in-depth guide on using all features.
